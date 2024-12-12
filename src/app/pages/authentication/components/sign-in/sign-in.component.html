@@ -1,1 +1,57 @@
-<p>sign-in works!</p>
+<div class="sign-in">
+  <div class="sign-in__header">
+    <h1 class="sign-in__title">Вхід до профілю</h1>
+    <h3 class="sign-in__subtitle">
+      Раді знову Вас бачити! Введіть дані до авторизації
+    </h3>
+  </div>
+  <form class="sign-in__form" [formGroup]="signInForm" (ngSubmit)="onSignIn()">
+    <mat-form-field class="sign-in__form-field">
+      <mat-label>E-mail</mat-label>
+      <input matInput type="email" formControlName="email" />
+      <mat-icon matSuffix>person</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Enter your password</mat-label>
+      <input
+        matInput
+        [type]="hide() ? 'password' : 'text'"
+        formControlName="password"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="clickEvent($event)"
+        [attr.aria-label]="'Hide password'"
+        [attr.aria-pressed]="hide()"
+      >
+        <mat-icon>{{ hide() ? "visibility_off" : "visibility" }}</mat-icon>
+      </button>
+    </mat-form-field>
+    <div class="sign-in__form-options">
+      <mat-checkbox
+        class="sign-in__form-options__checkbox"
+        formControlName="rememberMe"
+        >Запамʼятати мене</mat-checkbox
+      >
+      <a
+        class="sign-in__form-options__link"
+        routerLink="/authentication/reset-password"
+        >Забули пароль?</a
+      >
+    </div>
+    <button
+      mat-flat-button
+      class="sign-in__form-btn"
+      type="submit"
+      [disabled]="signInForm.invalid"
+    >
+      Ввійти
+    </button>
+  </form>
+  <p class="sign-in__link">
+    Не маєте аккаунту?
+    <a routerLink="/authentication/sign-up">Створити профіль</a>
+  </p>
+</div>
