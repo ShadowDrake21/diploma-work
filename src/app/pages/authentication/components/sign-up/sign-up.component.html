@@ -2,40 +2,33 @@
   <h1 class="sign-up__title">Реєстрація користувача</h1>
   <form class="sign-up__form" [formGroup]="signUpForm" (ngSubmit)="onSignUp()">
     <mat-form-field class="sign-up__form-field">
-      <mat-label>Імʼя</mat-label>
-      <input matInput type="text" formControlName="firstName" />
+      <mat-label>Імʼя та прізвище</mat-label>
+      <input matInput type="text" formControlName="name" />
+      @if (this.signUpForm.controls.name.invalid) {
+      <mat-error>{{ errorNameMessage() }}</mat-error>
+      }
     </mat-form-field>
-    @if (this.signUpForm.controls.firstName.invalid) {
-    <mat-error>{{ errorMessage().firstName }}</mat-error>
-    }
-    <mat-form-field class="sign-up__form-field">
-      <mat-label>Прізвище</mat-label>
-      <input matInput type="text" formControlName="lastName" />
-    </mat-form-field>
-    @if (this.signUpForm.controls.lastName.invalid) {
-    <mat-error>{{ errorMessage().lastName }}</mat-error>
-    }
     <mat-form-field class="sign-up__form-field">
       <mat-label>E-mail</mat-label>
       <input matInput type="email" formControlName="email" />
+      @if (this.signUpForm.controls.email.invalid) {
+      <mat-error>{{ errorEmailMessage() }}</mat-error>
+      }
     </mat-form-field>
-    @if (this.signUpForm.controls.email.invalid) {
-    <mat-error>{{ errorMessage().email }}</mat-error>
-    }
     <mat-form-field class="sign-up__form-field">
       <mat-label>Пароль</mat-label>
       <input matInput type="password" formControlName="password" />
+      @if (this.signUpForm.controls.password.invalid ) {
+      <mat-error>{{ errorPasswordMessage() }}</mat-error>
+      }
     </mat-form-field>
-    @if (this.signUpForm.controls.password.invalid) {
-    <mat-error>{{ errorMessage().password }}</mat-error>
-    }
     <mat-form-field class="sign-up__form-field">
       <mat-label>Підтвердіть пароль</mat-label>
       <input matInput type="password" formControlName="confirmPassword" />
+      @if ( this.signUpForm.controls.confirmPassword.invalid) {
+      <mat-error>{{ errorConfirmPasswordMessage() }}</mat-error>
+      }
     </mat-form-field>
-    @if (this.signUpForm.controls.confirmPassword.invalid) {
-    <mat-error>{{ errorMessage().confirmPassword }}</mat-error>
-    }
     <button
       mat-flat-button
       class="sign-up__form-btn"

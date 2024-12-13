@@ -2,10 +2,12 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,14 +15,12 @@ import { RouterLink } from '@angular/router';
 import { map, merge, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-type signUpForm = {
-  firstName: string;
-  lastName: string;
+type SignUpForm = {
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
 };
-
 @Component({
   selector: 'auth-sign-up',
   imports: [
@@ -37,102 +37,141 @@ type signUpForm = {
 export class SignUpComponent implements OnInit {
   destroyRef = inject(DestroyRef);
 
-  protected signUpForm = new FormGroup({
-    firstName: new FormControl('', [
-      Validators.required,
-      Validators.minLength(3),
-      Validators.maxLength(25),
-    ]),
-    lastName: new FormControl('', [
-      Validators.required,
-      Validators.minLength(3),
-      Validators.maxLength(25),
-    ]),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [
-      Validators.required,
-      Validators.minLength(6),
-      Validators.maxLength(30),
-    ]),
-    confirmPassword: new FormControl('', [
-      Validators.required,
-      Validators.minLength(6),
-      Validators.maxLength(30),
-    ]),
-  });
+  protected signUpForm = new FormGroup(
+    {
+      name: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(30),
+      ]),
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(30),
+      ]),
+      confirmPassword: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(30),
+      ]),
+    },
+    {
+      validators: this.matchValidator('password', 'confirmPassword'),
+    }
+  );
+
+  matchValidator(
+    controlName: string,
+    matchingControlName: string
+  ): ValidatorFn {
+    return (abstractControl: AbstractControl) => {
+      const control = abstractControl.get(controlName);
+      const matchingControl = abstractControl.get(matchingControlName);
+
+      if (
+        matchingControl!.errors &&
+        !matchingControl!.errors?.['confirmedValidator']
+      ) {
+        return null;
+      }
+
+      if (control!.value !== matchingControl!.value) {
+        const error = { confirmedValidator: 'Passwords do not match.' };
+        matchingControl!.setErrors(error);
+        return error;
+      } else {
+        matchingControl!.setErrors(null);
+        return null;
+      }
+    };
+  }
 
   ngOnInit(): void {
-    const controls = Object.values(this.signUpForm.controls);
     merge(
-      ...controls.map((control) =>
-        merge(control.statusChanges, control.valueChanges)
-      )
+      this.signUpForm.controls.name.statusChanges,
+      this.signUpForm.controls.name.statusChanges
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((control) => {
-        console.log('control', control);
-        const controlWithError = this.getControlWithError();
-
-        if (controlWithError) this.updateErrorMessages(controlWithError);
-      });
+      .subscribe(() => this.updateNameErrorMessage());
+    merge(
+      this.signUpForm.controls.email.statusChanges,
+      this.signUpForm.controls.email.statusChanges
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updateEmailErrorMessage());
+    merge(
+      this.signUpForm.controls.password.statusChanges,
+      this.signUpForm.controls.password.statusChanges
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updatePasswordErrorMessage());
+    merge(
+      this.signUpForm.controls.confirmPassword.statusChanges,
+      this.signUpForm.controls.confirmPassword.statusChanges
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updateConfirmPasswordErrorMessage());
   }
 
-  errorMessage = signal<signUpForm>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  errorNameMessage = signal<string>('');
+  errorEmailMessage = signal<string>('');
+  errorPasswordMessage = signal<string>('');
+  errorConfirmPasswordMessage = signal<string>('');
 
-  onSignUp() {}
-
-  getControlWithError() {
-    const form = this.signUpForm;
-
-    for (const controlName in form.controls) {
-      for (const controlName of Object.keys(
-        form.controls
-      ) as (keyof typeof form.controls)[]) {
-        return controlName;
-      }
-    }
-
-    return null;
+  onSignUp() {
+    console.log('onSignUp', this.signUpForm.value);
   }
 
-  updateErrorMessages(controlName: string) {
-    const form = this.signUpForm;
+  updateNameErrorMessage() {
+    const control = this.signUpForm.controls.name;
 
-    // Helper function to determine the error message for a control
-    const getErrorMessage = (controlName: string): string => {
-      const control = form.get(controlName);
+    this.errorNameMessage.set(
+      control.hasError('required')
+        ? 'Name is required'
+        : control.hasError('minlength')
+        ? 'Name must be at least 3 characters long'
+        : control.hasError('maxlength')
+        ? 'Name cannot exceed 30 characters'
+        : ''
+    );
+  }
 
-      if (control?.hasError('required')) {
-        return `${controlName} is required`;
-      }
-      if (control?.hasError('minlength')) {
-        return `${controlName} must be at least ${control?.errors?.['minlength'].requiredLength} characters`;
-      }
-      if (control?.hasError('maxlength')) {
-        return `${controlName} must be less than ${control?.errors?.['maxlength'].requiredLength} characters`;
-      }
-      if (control?.hasError('email')) {
-        return 'Please enter a valid email address';
-      }
-      if (
-        controlName === 'confirmPassword' &&
-        control?.value !== form.get('password')?.value
-      ) {
-        return 'Passwords do not match';
-      }
-      return '';
-    };
+  updateEmailErrorMessage() {
+    const control = this.signUpForm.controls.email;
 
-    // Update the specific error message for the control
-    this.errorMessage.set({
-      ...this.errorMessage(),
-      [controlName]: getErrorMessage(controlName),
-    });
+    this.errorEmailMessage.set(
+      control.hasError('required')
+        ? 'Email is required'
+        : control.hasError('email')
+        ? 'Invalid email address'
+        : ''
+    );
+  }
+
+  updatePasswordErrorMessage() {
+    const control = this.signUpForm.controls.password;
+
+    this.errorPasswordMessage.set(
+      control.hasError('required')
+        ? 'Password is required'
+        : control.hasError('minlength')
+        ? 'Password must be at least 6 characters long'
+        : control.hasError('maxlength')
+        ? 'Password cannot exceed 30 characters'
+        : ''
+    );
+  }
+
+  updateConfirmPasswordErrorMessage() {
+    const control = this.signUpForm.controls.confirmPassword;
+
+    this.errorConfirmPasswordMessage.set(
+      control.hasError('required')
+        ? 'Confirm Password is required'
+        : control.hasError('confirmedValidator')
+        ? 'Passwords do not match'
+        : ''
+    );
   }
 }
