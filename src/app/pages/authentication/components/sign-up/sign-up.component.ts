@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { map, merge, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { matchValidator } from '../../validators/match.validator';
 
 type SignUpForm = {
   name: string;
@@ -57,121 +58,67 @@ export class SignUpComponent implements OnInit {
       ]),
     },
     {
-      validators: this.matchValidator('password', 'confirmPassword'),
+      validators: matchValidator('password', 'confirmPassword'),
     }
   );
-
-  matchValidator(
-    controlName: string,
-    matchingControlName: string
-  ): ValidatorFn {
-    return (abstractControl: AbstractControl) => {
-      const control = abstractControl.get(controlName);
-      const matchingControl = abstractControl.get(matchingControlName);
-
-      if (
-        matchingControl!.errors &&
-        !matchingControl!.errors?.['confirmedValidator']
-      ) {
-        return null;
-      }
-
-      if (control!.value !== matchingControl!.value) {
-        const error = { confirmedValidator: 'Passwords do not match.' };
-        matchingControl!.setErrors(error);
-        return error;
-      } else {
-        matchingControl!.setErrors(null);
-        return null;
-      }
-    };
-  }
-
-  ngOnInit(): void {
-    merge(
-      this.signUpForm.controls.name.statusChanges,
-      this.signUpForm.controls.name.statusChanges
-    )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.updateNameErrorMessage());
-    merge(
-      this.signUpForm.controls.email.statusChanges,
-      this.signUpForm.controls.email.statusChanges
-    )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.updateEmailErrorMessage());
-    merge(
-      this.signUpForm.controls.password.statusChanges,
-      this.signUpForm.controls.password.statusChanges
-    )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.updatePasswordErrorMessage());
-    merge(
-      this.signUpForm.controls.confirmPassword.statusChanges,
-      this.signUpForm.controls.confirmPassword.statusChanges
-    )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.updateConfirmPasswordErrorMessage());
-  }
-
-  errorNameMessage = signal<string>('');
-  errorEmailMessage = signal<string>('');
-  errorPasswordMessage = signal<string>('');
-  errorConfirmPasswordMessage = signal<string>('');
 
   onSignUp() {
     console.log('onSignUp', this.signUpForm.value);
   }
 
-  updateNameErrorMessage() {
-    const control = this.signUpForm.controls.name;
-
-    this.errorNameMessage.set(
-      control.hasError('required')
-        ? 'Name is required'
-        : control.hasError('minlength')
-        ? 'Name must be at least 3 characters long'
-        : control.hasError('maxlength')
-        ? 'Name cannot exceed 30 characters'
-        : ''
-    );
+  ngOnInit(): void {
+    Object.entries(this.signUpForm.controls).forEach(([key, control]) => {
+      control.statusChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.updateErrorMessage(key as keyof SignUpForm));
+    });
   }
 
-  updateEmailErrorMessage() {
-    const control = this.signUpForm.controls.email;
+  errorMessages = {
+    name: signal<string>(''),
+    email: signal<string>(''),
+    password: signal<string>(''),
+    confirmPassword: signal<string>(''),
+  };
 
-    this.errorEmailMessage.set(
-      control.hasError('required')
-        ? 'Email is required'
-        : control.hasError('email')
-        ? 'Invalid email address'
-        : ''
-    );
+  updateErrorMessage(key: keyof SignUpForm) {
+    const control = this.signUpForm.controls[key];
+    let errorMessage = '';
+
+    if (control.hasError('required')) {
+      errorMessage = `${this.getFieldName(key)} is required.`;
+    } else if (control.hasError('minlength')) {
+      errorMessage = `${this.getFieldName(key)} must be at least ${
+        control.errors?.['minlength'].requiredLength
+      } characters long.`;
+    } else if (control.hasError('maxlength')) {
+      errorMessage = `${this.getFieldName(key)} cannot exceed ${
+        control.errors?.['maxlength'].requiredLength
+      } characters.`;
+    } else if (key === 'email' && control.hasError('email')) {
+      errorMessage = 'Please enter a valid email address.';
+    } else if (
+      key === 'confirmPassword' &&
+      control.hasError('confirmedValidator')
+    ) {
+      errorMessage = 'Passwords do not match.';
+    }
+
+    this.errorMessages[key].set(errorMessage);
   }
 
-  updatePasswordErrorMessage() {
-    const control = this.signUpForm.controls.password;
-
-    this.errorPasswordMessage.set(
-      control.hasError('required')
-        ? 'Password is required'
-        : control.hasError('minlength')
-        ? 'Password must be at least 6 characters long'
-        : control.hasError('maxlength')
-        ? 'Password cannot exceed 30 characters'
-        : ''
-    );
-  }
-
-  updateConfirmPasswordErrorMessage() {
-    const control = this.signUpForm.controls.confirmPassword;
-
-    this.errorConfirmPasswordMessage.set(
-      control.hasError('required')
-        ? 'Confirm Password is required'
-        : control.hasError('confirmedValidator')
-        ? 'Passwords do not match'
-        : ''
-    );
+  private getFieldName(key: keyof SignUpForm): string {
+    switch (key) {
+      case 'name':
+        return 'Name';
+      case 'email':
+        return 'Email';
+      case 'password':
+        return 'Password';
+      case 'confirmPassword':
+        return 'Confirm Password';
+      default:
+        return '';
+    }
   }
 }

@@ -5,28 +5,28 @@
       <mat-label>Імʼя та прізвище</mat-label>
       <input matInput type="text" formControlName="name" />
       @if (this.signUpForm.controls.name.invalid) {
-      <mat-error>{{ errorNameMessage() }}</mat-error>
+      <mat-error>{{ errorMessages.name() }}</mat-error>
       }
     </mat-form-field>
     <mat-form-field class="sign-up__form-field">
       <mat-label>E-mail</mat-label>
       <input matInput type="email" formControlName="email" />
       @if (this.signUpForm.controls.email.invalid) {
-      <mat-error>{{ errorEmailMessage() }}</mat-error>
+      <mat-error>{{ errorMessages.email() }}</mat-error>
       }
     </mat-form-field>
     <mat-form-field class="sign-up__form-field">
       <mat-label>Пароль</mat-label>
       <input matInput type="password" formControlName="password" />
       @if (this.signUpForm.controls.password.invalid ) {
-      <mat-error>{{ errorPasswordMessage() }}</mat-error>
+      <mat-error>{{ errorMessages.password() }}</mat-error>
       }
     </mat-form-field>
     <mat-form-field class="sign-up__form-field">
       <mat-label>Підтвердіть пароль</mat-label>
       <input matInput type="password" formControlName="confirmPassword" />
       @if ( this.signUpForm.controls.confirmPassword.invalid) {
-      <mat-error>{{ errorConfirmPasswordMessage() }}</mat-error>
+      <mat-error>{{ errorMessages.confirmPassword() }}</mat-error>
       }
     </mat-form-field>
     <button
