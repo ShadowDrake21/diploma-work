@@ -10,6 +10,9 @@
       <mat-label>E-mail</mat-label>
       <input matInput type="email" formControlName="email" />
       <mat-icon matSuffix>person</mat-icon>
+      @if (this.signInForm.controls.email.invalid) {
+      <mat-error>{{ errorMessages.email() }}</mat-error>
+      }
     </mat-form-field>
     <mat-form-field>
       <mat-label>Enter your password</mat-label>
@@ -28,6 +31,9 @@
       >
         <mat-icon>{{ hide() ? "visibility_off" : "visibility" }}</mat-icon>
       </button>
+      @if (this.signInForm.controls.email.invalid) {
+      <mat-error>{{ errorMessages.password() }}</mat-error>
+      }
     </mat-form-field>
     <div class="sign-in__form-options">
       <mat-checkbox

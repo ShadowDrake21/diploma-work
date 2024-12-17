@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {
@@ -12,7 +12,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  getFieldName,
+  getValidationErrorMessage,
+} from '../../../../shared/utils/form.utils';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+type SignInForm = {
+  email: string;
+  password: string;
+};
 @Component({
   selector: 'auth-sign-in',
   imports: [
@@ -29,15 +38,28 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './sign-in.component.scss',
 })
 export class SignInComponent {
+  destroyRef = inject(DestroyRef);
+
   protected signInForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [
-      Validators.required,
-      Validators.minLength(6),
-      Validators.maxLength(30),
-    ]),
+    password: new FormControl('', [Validators.required]),
     rememberMe: new FormControl(false),
   });
+
+  errorMessages = {
+    email: signal<string>(''),
+    password: signal<string>(''),
+  };
+
+  ngOnInit(): void {
+    Object.entries(this.signInForm.controls).forEach(([key, control]) => {
+      if (key !== 'rememberMe') {
+        control.statusChanges
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => this.updateErrorMessage(key as keyof SignInForm));
+      }
+    });
+  }
 
   hide = signal(true);
 
@@ -49,5 +71,10 @@ export class SignInComponent {
   onSignIn() {
     console.log('sign in');
     console.log(this.signInForm.value);
+  }
+
+  updateErrorMessage(key: keyof SignInForm) {
+    const control = this.signInForm.controls[key];
+    this.errorMessages[key].set(getValidationErrorMessage(control, key));
   }
 }

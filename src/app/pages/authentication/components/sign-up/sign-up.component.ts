@@ -15,6 +15,10 @@ import { RouterLink } from '@angular/router';
 import { map, merge, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { matchValidator } from '../../validators/match.validator';
+import {
+  getFieldName,
+  getValidationErrorMessage,
+} from '../../../../shared/utils/form.utils';
 
 type SignUpForm = {
   name: string;
@@ -83,42 +87,6 @@ export class SignUpComponent implements OnInit {
 
   updateErrorMessage(key: keyof SignUpForm) {
     const control = this.signUpForm.controls[key];
-    let errorMessage = '';
-
-    if (control.hasError('required')) {
-      errorMessage = `${this.getFieldName(key)} is required.`;
-    } else if (control.hasError('minlength')) {
-      errorMessage = `${this.getFieldName(key)} must be at least ${
-        control.errors?.['minlength'].requiredLength
-      } characters long.`;
-    } else if (control.hasError('maxlength')) {
-      errorMessage = `${this.getFieldName(key)} cannot exceed ${
-        control.errors?.['maxlength'].requiredLength
-      } characters.`;
-    } else if (key === 'email' && control.hasError('email')) {
-      errorMessage = 'Please enter a valid email address.';
-    } else if (
-      key === 'confirmPassword' &&
-      control.hasError('confirmedValidator')
-    ) {
-      errorMessage = 'Passwords do not match.';
-    }
-
-    this.errorMessages[key].set(errorMessage);
-  }
-
-  private getFieldName(key: keyof SignUpForm): string {
-    switch (key) {
-      case 'name':
-        return 'Name';
-      case 'email':
-        return 'Email';
-      case 'password':
-        return 'Password';
-      case 'confirmPassword':
-        return 'Confirm Password';
-      default:
-        return '';
-    }
+    this.errorMessages[key].set(getValidationErrorMessage(control, key));
   }
 }
