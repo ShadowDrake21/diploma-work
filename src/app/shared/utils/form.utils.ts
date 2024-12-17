@@ -3,13 +3,13 @@ import { FormControl } from '@angular/forms';
 export const getFieldName = (key: string): string => {
   switch (key) {
     case 'name':
-      return 'Name';
+      return "Ім'я";
     case 'email':
-      return 'Email';
+      return 'Електронна пошта';
     case 'password':
-      return 'Password';
+      return 'Пароль';
     case 'confirmPassword':
-      return 'Confirm Password';
+      return 'Підтвердження пароля';
     default:
       return '';
   }
@@ -22,22 +22,22 @@ export const getValidationErrorMessage = (
   let errorMessage = '';
 
   if (control.hasError('required')) {
-    errorMessage = `${getFieldName(key)} is required.`;
+    errorMessage = `${getFieldName(key)} є обов'язковим.`;
   } else if (control.hasError('minlength')) {
-    errorMessage = `${getFieldName(key)} must be at least ${
+    errorMessage = `${getFieldName(key)} має бути щонайменше ${
       control.errors?.['minlength'].requiredLength
-    } characters long.`;
+    } символів.`;
   } else if (control.hasError('maxlength')) {
-    errorMessage = `${getFieldName(key)} cannot exceed ${
+    errorMessage = `${getFieldName(key)} не може перевищувати ${
       control.errors?.['maxlength'].requiredLength
-    } characters.`;
+    } символів.`;
   } else if (key === 'email' && control.hasError('email')) {
-    errorMessage = 'Please enter a valid email address.';
+    errorMessage = 'Будь ласка, введіть дійсну електронну адресу.';
   } else if (
     key === 'confirmPassword' &&
     control.hasError('confirmedValidator')
   ) {
-    errorMessage = 'Passwords do not match.';
+    errorMessage = 'Паролі не співпадають.';
   }
 
   return errorMessage;
