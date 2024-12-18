@@ -23,6 +23,13 @@ export const AuthenticationRoutes: Routes = [
           ),
       },
       {
+        path: 'verification-code',
+        loadComponent: () =>
+          import(
+            './components/verification-code/verification-code.component'
+          ).then((c) => c.VerificationCodeComponent),
+      },
+      {
         path: 'reset-password',
         loadComponent: () =>
           import('./components/reset-password/reset-password.component').then(

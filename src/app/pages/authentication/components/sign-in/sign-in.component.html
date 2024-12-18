@@ -47,14 +47,10 @@
         >Забули пароль?</a
       >
     </div>
-    <button
-      mat-flat-button
-      class="sign-in__form-btn"
-      type="submit"
-      [disabled]="signInForm.invalid"
+
+    <shared-custom-button type="submit" [disabled]="signInForm.invalid"
+      >Ввійти</shared-custom-button
     >
-      Ввійти
-    </button>
   </form>
   <p class="sign-in__link">
     Не маєте аккаунту?

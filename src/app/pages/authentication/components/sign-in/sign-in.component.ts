@@ -17,6 +17,7 @@ import {
   getValidationErrorMessage,
 } from '../../../../shared/utils/form.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CustomButtonComponent } from '../../../../shared/components/custom-button/custom-button.component';
 
 type SignInForm = {
   email: string;
@@ -33,6 +34,7 @@ type SignInForm = {
     MatCheckboxModule,
     MatIconModule,
     ReactiveFormsModule,
+    CustomButtonComponent,
   ],
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',

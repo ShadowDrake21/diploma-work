@@ -11,7 +11,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { map, merge, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { matchValidator } from '../../validators/match.validator';
@@ -19,6 +19,7 @@ import {
   getFieldName,
   getValidationErrorMessage,
 } from '../../../../shared/utils/form.utils';
+import { CustomButtonComponent } from '../../../../shared/components/custom-button/custom-button.component';
 
 type SignUpForm = {
   name: string;
@@ -30,17 +31,19 @@ type SignUpForm = {
   selector: 'auth-sign-up',
   imports: [
     FormsModule,
-    MatButtonModule,
     RouterLink,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
+    CustomButtonComponent,
   ],
   templateUrl: './sign-up.component.html',
   styleUrl: './sign-up.component.scss',
 })
 export class SignUpComponent implements OnInit {
   destroyRef = inject(DestroyRef);
+
+  private router = inject(Router);
 
   protected signUpForm = new FormGroup(
     {
@@ -68,6 +71,7 @@ export class SignUpComponent implements OnInit {
 
   onSignUp() {
     console.log('onSignUp', this.signUpForm.value);
+    this.router.navigate(['/authentication/verification-code']);
   }
 
   ngOnInit(): void {

@@ -29,14 +29,9 @@
       <mat-error>{{ errorMessages.confirmPassword() }}</mat-error>
       }
     </mat-form-field>
-    <button
-      mat-flat-button
-      class="sign-up__form-btn"
-      type="submit"
-      [disabled]="signUpForm.invalid"
+    <shared-custom-button type="submit" [disabled]="signUpForm.invalid"
+      >Зареєструватися</shared-custom-button
     >
-      Зареєструватися
-    </button>
   </form>
   <p class="sign-up__link">
     Вже маєте аккаунт?

@@ -1,0 +1,9 @@
+<button
+  mat-flat-button
+  class="button"
+  [type]="type()"
+  [disabled]="disabled()"
+  (click)="onPress.emit()"
+>
+  <ng-content></ng-content>
+</button>
