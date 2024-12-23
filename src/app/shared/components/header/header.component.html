@@ -1,0 +1,40 @@
+<header>
+  <mat-toolbar
+    style="
+      background-color: rgb(236, 236, 236);
+      height: 80px;
+      padding: 10px 25px;
+      display: flex;
+      justify-content: space-between;
+    "
+  >
+    <div style="display: flex; gap: 20px; height: 100%; align-items: center">
+      <button
+        mat-icon-button
+        aria-label="Menu icon"
+        (click)="onSidebarToggle()"
+        [ngStyle]="isSidebarOpened() ? { backgroundColor: '#c4c4c4' } : {}"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+      <img src="logo.png" alt="logo" style="height: 100%" />
+    </div>
+    <h3>Система обліку науково-технічної продукції</h3>
+    <button
+      style="
+        height: 100%;
+        outline: none;
+        border: none;
+        cursor: pointer;
+        border-radius: 50%;
+        overflow: hidden;
+      "
+    >
+      <img
+        src="mock-avatar.jpg"
+        alt="avatar"
+        style="width: 100%; height: 100%"
+      />
+    </button>
+  </mat-toolbar>
+</header>

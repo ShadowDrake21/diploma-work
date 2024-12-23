@@ -1,1 +1,24 @@
-<p>dashboard works!</p>
+<shared-header (sidebarToggle)="toggleMenu()" [isSidebarOpened]="isOpened" />
+<mat-sidenav-container autosize>
+  <mat-sidenav
+    class="expanded"
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="!isOpened ? 'false' : 'true'"
+  >
+    <!-- [ngClass]="!isCollapsed ? 'expanded' : 'collapsed'" -->
+    <!-- [opened]="isMobile ? 'false' : 'true'" -->
+
+    <mat-nav-list>
+      <a mat-list-item>
+        <span class="entry">
+          <mat-icon>house</mat-icon>
+          <span>Dashboard</span>
+        </span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <h2>Content</h2>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
