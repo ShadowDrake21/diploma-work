@@ -1,1 +1,40 @@
-<p>sign-up works!</p>
+<div class="sign-up">
+  <h1 class="sign-up__title">Реєстрація користувача</h1>
+  <form class="sign-up__form" [formGroup]="signUpForm" (ngSubmit)="onSignUp()">
+    <mat-form-field class="sign-up__form-field">
+      <mat-label>Імʼя та прізвище</mat-label>
+      <input matInput type="text" formControlName="name" />
+      @if (this.signUpForm.controls.name.invalid) {
+      <mat-error>{{ errorMessages.name() }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field class="sign-up__form-field">
+      <mat-label>E-mail</mat-label>
+      <input matInput type="email" formControlName="email" />
+      @if (this.signUpForm.controls.email.invalid) {
+      <mat-error>{{ errorMessages.email() }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field class="sign-up__form-field">
+      <mat-label>Пароль</mat-label>
+      <input matInput type="password" formControlName="password" />
+      @if (this.signUpForm.controls.password.invalid ) {
+      <mat-error>{{ errorMessages.password() }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field class="sign-up__form-field">
+      <mat-label>Підтвердіть пароль</mat-label>
+      <input matInput type="password" formControlName="confirmPassword" />
+      @if ( this.signUpForm.controls.confirmPassword.invalid) {
+      <mat-error>{{ errorMessages.confirmPassword() }}</mat-error>
+      }
+    </mat-form-field>
+    <shared-custom-button type="submit" [disabled]="signUpForm.invalid"
+      >Зареєструватися</shared-custom-button
+    >
+  </form>
+  <p class="sign-up__link">
+    Вже маєте аккаунт?
+    <a routerLink="/authentication/sign-in">Авторизуватися</a>
+  </p>
+</div>

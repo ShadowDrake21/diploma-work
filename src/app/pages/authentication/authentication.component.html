@@ -1,1 +1,19 @@
-<p>authentication works!</p>
+<section class="auth">
+  <div class="auth-container">
+    <div class="auth-tabs">
+      <a
+        routerLink="/authentication/sign-in"
+        routerLinkActive="link-active"
+        class="auth-tabs__link"
+        >Вхід</a
+      >
+      <a
+        routerLink="/authentication/sign-up"
+        routerLinkActive="link-active"
+        class="auth-tabs__link"
+        >Реєстрація</a
+      >
+    </div>
+    <router-outlet></router-outlet>
+  </div>
+</section>
