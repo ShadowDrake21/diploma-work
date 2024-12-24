@@ -20,21 +20,8 @@
       <img src="logo.png" alt="logo" style="height: 100%" />
     </div>
     <h3>Система обліку науково-технічної продукції</h3>
-    <button
-      style="
-        height: 100%;
-        outline: none;
-        border: none;
-        cursor: pointer;
-        border-radius: 50%;
-        overflow: hidden;
-      "
-    >
-      <img
-        src="mock-avatar.jpg"
-        alt="avatar"
-        style="width: 100%; height: 100%"
-      />
-    </button>
+    <app-profile-dropdown
+      [userEmail]="'dmytro.krapyvianskyi@gmail.com'"
+    ></app-profile-dropdown>
   </mat-toolbar>
 </header>
