@@ -1,0 +1,83 @@
+<div style="padding: 10px">
+  <h3 style="padding-bottom: 10px">Notifications</h3>
+  <div
+    style="
+      max-height: 300px;
+      overflow-y: scroll;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    "
+  >
+    @for (notification of notifications; track $index) {
+    <a
+      [routerLink]="notification.action.link"
+      style="text-decoration: none; color: inherit"
+      ><div
+        [id]="notification.id"
+        class="notification"
+        [ngStyle]="{
+          'border-color':
+            notification.type === 'info'
+              ? '#2196F3'
+              : notification.type === 'warning'
+              ? '#FFC107'
+              : notification.type === 'success'
+              ? '#4CAF50'
+              : notification.type === 'error'
+              ? '#F44336'
+              : '#000000'
+        }"
+        style="
+          display: flex;
+          gap: 5px;
+          padding: 10px;
+          border-width: 1px;
+          border-style: solid;
+        "
+      >
+        <mat-icon
+          [ngClass]="{
+            read: notification.isRead,
+            high: notification.priority === 'high',
+            medium: notification.priority === 'medium',
+            low: notification.priority === 'low'
+          }"
+          >{{ notification.isRead ? "check" : "notifications" }}</mat-icon
+        >
+        <div style="flex: 1">
+          <h4
+            [ngClass]="{
+              high: notification.priority === 'high',
+              medium: notification.priority === 'medium',
+              low: notification.priority === 'low'
+            }"
+          >
+            {{ notification.title }}
+          </h4>
+          <p style="word-break: break-all; padding-bottom: 5px">
+            {{ notification.message | truncateText : 50 }}
+          </p>
+          <p style="font-size: 12px; line-height: 18px; text-align: right">
+            {{ notification.timestamp | date : "MMM d, y, h:mm a" }}
+          </p>
+        </div>
+      </div></a
+    >
+    }
+  </div>
+</div>
+
+<!-- {
+  id: '1', // Unique identifier for the notification
+  title: 'New Message', // Brief title
+  message: 'You have received a new message from John.', // Detailed message
+  type: 'info', // Type of notification ('info', 'warning', 'success', 'error')
+  timestamp: '2024-12-25T10:30:00Z', // Time the notification was created
+  isRead: false, // Boolean to track if the notification has been read
+  action: {
+    label: 'View Message', // Label for the action button
+    link: '/messages/123', // Link or callback for the action
+  },
+  priority: 'medium', // Priority level ('high', 'medium', 'low')
+}, -->

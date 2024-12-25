@@ -1,0 +1,30 @@
+<div class="recent-users">
+  <h3 class="recent-users__title">Recent users</h3>
+  <ul class="recent-users__list">
+    @for (user of recentUsers; track $index) {
+    <li class="recent-users__list-item">
+      <div class="recent-users__list-item__img--wrapper">
+        <img
+          [src]="user.avatar"
+          alt="{{ user.name }}'s avatar"
+          class="recent-users__list-item__img"
+        />
+      </div>
+      <div class="recent-users__list-item__info">
+        <h3 class="recent-users__list-item__info-name">
+          {{ user.name | truncateText : 30 }}
+          <span>
+            <mat-icon>{{
+              user.role === "user" ? "person" : "verified_user"
+            }}</mat-icon></span
+          >
+        </h3>
+
+        <p class="recent-users__list-item__info-activity">
+          {{ user.lastActive | date : "MMM d, h:mm a" }}
+        </p>
+      </div>
+    </li>
+    }
+  </ul>
+</div>

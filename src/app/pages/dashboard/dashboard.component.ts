@@ -7,6 +7,8 @@ import { RouterOutlet } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule, NgStyle } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { NotificationsComponent } from './components/notifications/notifications.component';
+import { RecentUsersComponent } from './components/recent-users/recent-users.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,6 +19,8 @@ import { MatIconModule } from '@angular/material/icon';
     RouterOutlet,
     CommonModule,
     MatIconModule,
+    NotificationsComponent,
+    RecentUsersComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -29,7 +33,7 @@ export class DashboardComponent {
   sidenav!: MatSidenav;
   isMobile = true;
   isCollapsed = true;
-  isOpened = false;
+  isOpened = true;
 
   constructor(private observer: BreakpointObserver) {}
 
