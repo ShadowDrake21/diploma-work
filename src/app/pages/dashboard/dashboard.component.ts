@@ -1,26 +1,23 @@
-import { Component, ViewChild } from '@angular/core';
-import { HeaderComponent } from '../../shared/components/header/header.component';
-import { MatSidenav } from '@angular/material/sidenav';
+import { Component } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
-import { RouterOutlet } from '@angular/router';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { CommonModule, NgStyle } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { NotificationsComponent } from './components/notifications/notifications.component';
-import { RecentUsersComponent } from './components/recent-users/recent-users.component';
+import { DashboardMetricsContent } from '../../../../content/dashboardMetrics.content';
+import { MetricCardItemComponent } from './components/metric-card-item/metric-card-item.component';
+import { recentProjectContent } from '../../../../content/recentProjects.content';
+import { RecentProjectDialogComponent } from './components/recent-project-dialog/recent-project-dialog.component';
+import { RecentProjectComponent } from './components/recent-project/recent-project.component';
 
 @Component({
   selector: 'app-dashboard',
   imports: [
-    HeaderComponent,
     MatSidenavModule,
     MatListModule,
-    RouterOutlet,
     CommonModule,
     MatIconModule,
-    NotificationsComponent,
-    RecentUsersComponent,
+    MetricCardItemComponent,
+    RecentProjectComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -29,43 +26,6 @@ import { RecentUsersComponent } from './components/recent-users/recent-users.com
   },
 })
 export class DashboardComponent {
-  @ViewChild(MatSidenav)
-  sidenav!: MatSidenav;
-  isMobile = true;
-  isCollapsed = true;
-  isOpened = true;
-
-  constructor(private observer: BreakpointObserver) {}
-
-  ngOnInit() {
-    this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
-      if (screenSize.matches) {
-        this.isMobile = true;
-      } else {
-        this.isMobile = false;
-      }
-    });
-  }
-
-  // toggleMenu() {
-  //   if (this.isMobile) {
-  //     this.sidenav.toggle();
-  //     this.isCollapsed = false; // On mobile, the menu can never be collapsed
-  //   } else {
-  //     this.sidenav.open(); // On desktop/tablet, the menu can never be fully closed
-  //     this.isCollapsed = !this.isCollapsed;
-  //   }
-  // }
-
-  toggleMenu() {
-    this.sidenav.toggle();
-    this.isOpened = !this.isOpened;
-    if (this.isMobile) {
-      this.sidenav.toggle();
-      this.isCollapsed = false; // On mobile, the menu can never be collapsed
-    } else {
-      this.sidenav.open(); // On desktop/tablet, the menu can never be fully closed
-      this.isCollapsed = !this.isCollapsed;
-    }
-  }
+  metricsData = DashboardMetricsContent;
+  recentProjects = recentProjectContent;
 }

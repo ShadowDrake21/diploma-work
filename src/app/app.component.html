@@ -1,6 +1,67 @@
-<div class="layout">
-  <main class="main">
-    <router-outlet />
-  </main>
-  <shared-footer></shared-footer>
-</div>
+<section class="layout">
+  <shared-header (sidebarToggle)="toggleMenu()" [isSidebarOpened]="isOpened" />
+
+  <mat-sidenav-container autosize>
+    <mat-sidenav
+      class="expanded"
+      [mode]="isMobile ? 'over' : 'side'"
+      [opened]="!isOpened ? 'false' : 'true'"
+      style="padding: 10px 0"
+    >
+      <!-- [ngClass]="!isCollapsed ? 'expanded' : 'collapsed'" -->
+      <!-- [opened]="isMobile ? 'false' : 'true'" -->
+
+      <mat-nav-list
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          height: 100%;
+        "
+      >
+        <h3 style="padding: 0 10px 10px">Navigation</h3>
+        <div>
+          <a mat-list-item>
+            <span class="entry">
+              <mat-icon>house</mat-icon>
+              <span>Dashboard</span>
+            </span>
+          </a>
+          <a mat-list-item>
+            <span class="entry">
+              <mat-icon>category</mat-icon>
+              <span>Products</span>
+            </span>
+          </a>
+          <a mat-list-item>
+            <span class="entry">
+              <mat-icon>group</mat-icon>
+              <span>Users</span>
+            </span>
+          </a>
+          <a mat-list-item>
+            <span class="entry">
+              <mat-icon>inventory_2</mat-icon>
+              <span>Products</span>
+            </span>
+          </a>
+          <a mat-list-item>
+            <span class="entry">
+              <mat-icon>settings</mat-icon>
+              <span>Settings</span>
+            </span>
+          </a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 20px">
+          <sidebar-notifications />
+          <sidebar-recent-users />
+        </div>
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <main class="main">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</section>

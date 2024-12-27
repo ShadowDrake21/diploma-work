@@ -1,27 +1,14 @@
-.expanded {
-  width: 250px;
-}
-
-.collapsed {
-  width: 0;
-}
-
-mat-sidenav-container {
-  flex: 1;
-  display: flex;
-}
-
-// Move the content down so that it won't be hidden by the toolbar
-mat-sidenav {
-  background-color: #eee;
-  .entry {
+.dashboard {
+  &-metric-card__list {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
+    width: 100%;
+    gap: 30px;
+    list-style: none;
+    overflow-x: scroll;
+    padding-bottom: 10px;
+
+    &-item {
+      width: 100%;
+    }
   }
 }
-
-// Move the content down so that it won't be hidden by the toolbar
-// mat-sidenav-content {
-// }
