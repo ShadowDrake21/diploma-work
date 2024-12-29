@@ -1,0 +1,25 @@
+.recent-project {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  padding: 15px 30px;
+  width: 300px;
+  background-color: #dddddd;
+  color: #000000;
+  gap: 10px;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  height: 100%;
+
+  &:hover {
+    background-color: #cccccc;
+  }
+
+  &__text {
+    width: 100%;
+    text-align: center;
+  }
+}

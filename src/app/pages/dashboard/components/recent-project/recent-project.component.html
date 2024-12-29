@@ -1,1 +1,5 @@
-<button mat-button (click)="openDialog()">Open dialog</button>
+<button mat-button class="recent-project" (click)="openDialog()">
+  <p class="recent-project__text">
+    {{ project().projectTitle }} {{ project().deadline }}
+  </p>
+</button>

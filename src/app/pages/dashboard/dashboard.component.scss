@@ -11,4 +11,21 @@
       width: 100%;
     }
   }
+
+  &-recent-project__list {
+    display: flex;
+    width: 100%;
+    list-style: none;
+    overflow-x: scroll;
+    padding-bottom: 10px;
+
+    &-item {
+      width: 100%;
+      border-right: 1px solid #000000;
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
 }

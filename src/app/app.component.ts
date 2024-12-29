@@ -1,5 +1,10 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterOutlet,
+} from '@angular/router';
 import { FooterComponent } from './shared/components/footer/footer.component';
 
 import { inject, ViewChild } from '@angular/core';
@@ -14,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NotificationsComponent } from './pages/dashboard/components/notifications/notifications.component';
 import { RecentUsersComponent } from './pages/dashboard/components/recent-users/recent-users.component';
 import { HeaderComponent } from './shared/components/header/header.component';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -30,13 +36,17 @@ import { HeaderComponent } from './shared/components/header/header.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private observer = inject(BreakpointObserver);
+  private router = inject(Router);
+
   @ViewChild(MatSidenav)
   sidenav!: MatSidenav;
   isMobile = true;
   isCollapsed = true;
   isOpened = true;
+
+  isAuth = true;
 
   ngOnInit() {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
@@ -46,6 +56,12 @@ export class AppComponent {
         this.isMobile = false;
       }
     });
+
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.isAuth = event.url.split('/').includes('authentication');
+      });
   }
 
   // toggleMenu() {

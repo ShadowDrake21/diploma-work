@@ -6,10 +6,10 @@
     </li>
     }
   </ul>
-  <ul>
+  <ul class="dashboard-recent-project__list">
     @for (item of recentProjects; track $index) {
-    <li class="dashboard-metric-card__list-item">
-      <app-recent-project />
+    <li class="dashboard-recent-project__list-item">
+      <dashboard-recent-project [project]="item" />
     </li>
     }
   </ul>

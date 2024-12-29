@@ -1,7 +1,10 @@
 <section class="layout">
+  @if (!isAuth) {
   <shared-header (sidebarToggle)="toggleMenu()" [isSidebarOpened]="isOpened" />
+  }
 
   <mat-sidenav-container autosize>
+    @if (!isAuth) {
     <mat-sidenav
       class="expanded"
       [mode]="isMobile ? 'over' : 'side'"
@@ -58,6 +61,7 @@
         </div>
       </mat-nav-list>
     </mat-sidenav>
+    }
     <mat-sidenav-content>
       <main class="main">
         <router-outlet></router-outlet>
