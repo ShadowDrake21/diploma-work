@@ -13,4 +13,11 @@
     </li>
     }
   </ul>
+  <div>
+    <div class="dashboard-project__list">
+      @for (project of recentProjects; track $index) {
+      <shared-project-card [project]="project" />
+      }
+    </div>
+  </div>
 </div>

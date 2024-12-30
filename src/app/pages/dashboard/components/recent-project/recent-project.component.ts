@@ -3,6 +3,7 @@ import { Component, inject, input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { RecentProjectDialogComponent } from '../recent-project-dialog/recent-project-dialog.component';
 import { DashboardRecentProjectItem } from '../../../../shared/types/dashboard.types';
+import { ProjectItem } from '../../../../shared/types/project.types';
 
 @Component({
   selector: 'dashboard-recent-project',
@@ -12,7 +13,7 @@ import { DashboardRecentProjectItem } from '../../../../shared/types/dashboard.t
 })
 export class RecentProjectComponent {
   readonly dialog = inject(MatDialog);
-  project = input.required<DashboardRecentProjectItem>();
+  project = input.required<ProjectItem>();
 
   openDialog() {
     const dialogRef = this.dialog.open(RecentProjectDialogComponent, {
