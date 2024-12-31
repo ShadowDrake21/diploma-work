@@ -13,7 +13,8 @@
     </li>
     }
   </ul>
-  <div>
+  <div class="dashboard-content">
+    <dashboard-filter-sidebar />
     <div class="dashboard-project__list">
       @for (project of recentProjects; track $index) {
       <shared-project-card [project]="project" />

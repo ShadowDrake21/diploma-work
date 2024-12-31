@@ -9,6 +9,7 @@ import { recentProjectContent } from '../../../../content/recentProjects.content
 import { RecentProjectDialogComponent } from './components/recent-project-dialog/recent-project-dialog.component';
 import { RecentProjectComponent } from './components/recent-project/recent-project.component';
 import { ProjectCardComponent } from '../../shared/components/project-card/project-card.component';
+import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +21,7 @@ import { ProjectCardComponent } from '../../shared/components/project-card/proje
     MetricCardItemComponent,
     RecentProjectComponent,
     ProjectCardComponent,
+    FilterSidebarComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

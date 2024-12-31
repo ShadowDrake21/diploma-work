@@ -23,7 +23,6 @@ import { recentProjectModalContent } from '../../../../../../content/recentProje
     CommonModule,
     MatDialogModule,
     MatButtonModule,
-    JsonPipe,
     MatProgressBarModule,
   ],
   templateUrl: './recent-project-dialog.component.html',
