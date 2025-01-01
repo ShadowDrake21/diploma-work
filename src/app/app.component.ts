@@ -32,6 +32,7 @@ import { filter } from 'rxjs';
     MatIconModule,
     NotificationsComponent,
     RecentUsersComponent,
+    FooterComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
