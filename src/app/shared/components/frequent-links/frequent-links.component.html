@@ -1,0 +1,10 @@
+<div class="frequent-links">
+  @for (link of frequentLinks; track link) {
+  <a
+    class="frequent-links__link"
+    [routerLink]="link.link"
+    routerLinkActive="active"
+    >{{ link.title }}</a
+  >
+  }
+</div>

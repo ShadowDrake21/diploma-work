@@ -1,0 +1,30 @@
+@let project = projectSig();
+
+<a class="project-card" routerLink="/project/{{ project.id }}">
+  <div class="project-card__status">
+    <div class="project-card__status-wrapper">
+      <p class="project-card__status-text">{{ project.statusProgress }}</p>
+      <p class="project-card__status-deadline">To: {{ project.deadline }}</p>
+    </div>
+    <mat-progress-bar
+      class="project-card__status-progress"
+      mode="determinate"
+      [value]="project?.progress"
+    ></mat-progress-bar>
+  </div>
+  <h3 class="project-card__title">{{ project.projectTitle }}</h3>
+  <div class="project-card__footer">
+    <div class="project-card__footer-members">
+      <h5 class="project-card__footer-members__title">Assigned To:</h5>
+      <ul class="project-card__footer-members__list">
+        @for (member of project.assignedTeamMembers; track $index) {
+        <li class="project-card__footer-members__list-item">
+          <p class="project-card__footer-members__list-item__text">
+            {{ member }}
+          </p>
+        </li>
+        }
+      </ul>
+    </div>
+  </div>
+</a>

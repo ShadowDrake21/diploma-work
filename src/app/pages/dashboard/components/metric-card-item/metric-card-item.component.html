@@ -1,0 +1,9 @@
+@let item = data();
+
+<a class="metric-card-item" routerLink="{{ item.link }}">
+  <mat-icon>{{ item.icon }}</mat-icon>
+
+  <div class="metric-card-item__title">{{ item.title }}</div>
+
+  <div class="metric-card-item__value">{{ item.value }}</div>
+</a>

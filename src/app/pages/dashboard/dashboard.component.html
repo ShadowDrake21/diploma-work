@@ -1,1 +1,25 @@
-<p>dashboard works!</p>
+<div style="flex: 1">
+  <ul class="dashboard-metric-card__list">
+    @for (item of metricsData; track $index) {
+    <li class="dashboard-metric-card__list-item">
+      <dashboard-metric-card-item [data]="item" />
+    </li>
+    }
+  </ul>
+  <ul class="dashboard-recent-project__list">
+    @for (item of recentProjects; track $index) {
+    <li class="dashboard-recent-project__list-item">
+      <dashboard-recent-project [project]="item" />
+    </li>
+    }
+  </ul>
+  <div class="dashboard-content">
+    <dashboard-filter-sidebar />
+    <div class="dashboard-project__list">
+      @for (project of recentProjects; track $index) {
+      <shared-project-card [project]="project" />
+      }
+    </div>
+  </div>
+  <shared-frequent-links />
+</div>
