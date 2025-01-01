@@ -1,0 +1,83 @@
+<div class="filter-sidebar">
+  <div class="filter-sidebar__group">
+    <a class="filter-sidebar__group-link" routerLink="#">Add Product/Patent</a>
+    <a class="filter-sidebar__group-link" routerLink="#"
+      >View My Projects/Patents</a
+    >
+  </div>
+  <div class="filter-sidebar__group">
+    <mat-form-field class="filter-sidebar__group-formfield" style="width: 100%">
+      <mat-label>Search</mat-label>
+      <input matInput type="text" [(ngModel)]="search" />
+      @if (search) {
+      <button matSuffix mat-icon-button (click)="search = ''">
+        <mat-icon>search</mat-icon>
+      </button>
+      }
+    </mat-form-field>
+  </div>
+  <div class="filter-sidebar__group">
+    <h4 class="filter-sidebar__group-title">Category</h4>
+    <mat-form-field class="filter-sidebar__group-formfield">
+      <mat-label>Category</mat-label>
+      <mat-select>
+        @for (filter of filters; track filter) {
+        <mat-option [value]="filter.value">{{ filter.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="filter-sidebar__group">
+    <h4 class="filter-sidebard__group-title">Status</h4>
+    <mat-checkbox class="filter-sidebar__group-checkbox"
+      >In Progress</mat-checkbox
+    >
+    <mat-checkbox class="filter-sidebar__group-checkbox"
+      >Completed</mat-checkbox
+    >
+    <mat-checkbox class="filter-sidebar__group-checkbox">Pending</mat-checkbox>
+  </div>
+  <div class="filter-sidebar__group">
+    <h4 class="filter-sidebar__group-title">Deadline</h4>
+    <mat-checkbox class="filter-sidebar__group-checkbox"
+      >Due Today</mat-checkbox
+    >
+    <mat-checkbox class="filter-sidebar__group-checkbox"
+      >Due This Week</mat-checkbox
+    >
+    <p class="filter-sidebar__group-interruptor">or</p>
+    <mat-form-field class="filter-sidebar__group-formfield">
+      <mat-label>Enter a date range</mat-label>
+      <mat-date-range-input [rangePicker]="picker">
+        <input matStartDate placeholder="Start date" />
+        <input matEndDate placeholder="End date" />
+      </mat-date-range-input>
+      <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+  </div>
+  <div class="filter-sidebar__group">
+    <h4 class="filter-sidebar__group-title">Priority</h4>
+    <mat-checkbox class="filter-sidebar__group-checkbox">High</mat-checkbox>
+    <mat-checkbox class="filter-sidebar__group-checkbox">Medium</mat-checkbox>
+    <mat-checkbox class="filter-sidebar__group-checkbox">Low</mat-checkbox>
+  </div>
+  <div class="filter-sidebar__group">
+    <h4 class="filter-sidebar__group-title">Project tags</h4>
+    <mat-form-field class="filter-sidebar__group-formfield">
+      <mat-label>Tags</mat-label>
+      <mat-select [formControl]="tags" multiple>
+        @for (tag of filterTags; track tag) {
+        <mat-option [value]="tag">{{ tag }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <button mat-stroked-button style="width: 100%">Search</button>
+</div>

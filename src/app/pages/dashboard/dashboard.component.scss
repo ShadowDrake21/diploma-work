@@ -1,0 +1,42 @@
+.dashboard {
+  &-metric-card__list {
+    display: flex;
+    width: 100%;
+    gap: 30px;
+    list-style: none;
+    overflow-x: scroll;
+    padding-bottom: 10px;
+
+    &-item {
+      width: 100%;
+    }
+  }
+
+  &-recent-project__list {
+    display: flex;
+    width: 100%;
+    list-style: none;
+    overflow-x: scroll;
+    padding-bottom: 10px;
+
+    &-item {
+      width: 100%;
+      border-right: 1px solid #000000;
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
+
+  &-project__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+
+  &-content {
+    display: flex;
+    gap: 20px;
+  }
+}

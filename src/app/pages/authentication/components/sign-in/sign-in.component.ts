@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {
@@ -9,7 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -39,8 +39,9 @@ type SignInForm = {
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',
 })
-export class SignInComponent {
+export class SignInComponent implements OnInit {
   destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
 
   protected signInForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -61,6 +62,11 @@ export class SignInComponent {
           .subscribe(() => this.updateErrorMessage(key as keyof SignInForm));
       }
     });
+
+    // this.route.url.subscribe(([url]) => {
+    //   const { path, parameters } = url;
+    //   console.log(path, parameters);
+    // });
   }
 
   hide = signal(true);

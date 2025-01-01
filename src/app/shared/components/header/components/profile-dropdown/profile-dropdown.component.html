@@ -1,0 +1,34 @@
+<div
+  class="profile-dropdown__wrapper"
+  clickOutside
+  (clickOutside)="clickedProfileOutside()"
+>
+  <div class="profile-dropdown__container">
+    <div class="dropdown-container">
+      <div class="dropdown-toggler" (click)="toggleProfile()">
+        <img
+          src="mock-avatar.jpg"
+          alt="avatar"
+          class="dropdown-toggler__image"
+        />
+      </div>
+      @if(isProfileOpened) {
+      <div class="dropdown profile-dropdown">
+        <div class="dropdown-email__wrapper">
+          <h5 class="dropdown-email">
+            {{ userEmail | truncateText : 22 : false | uppercase }}
+          </h5>
+        </div>
+        @for (item of profile; track $index) {
+        <div class="dropdown-item">
+          <a [routerLink]="item.link">{{ item.title }}</a>
+        </div>
+        }
+        <div class="dropdown-item">
+          <button (click)="onLogout()">Sign out</button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
