@@ -1,0 +1,30 @@
+.frequent-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #000000;
+
+  &__link {
+    display: block;
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    text-transform: capitalize;
+    padding: 10px;
+    transform: all 0.3s ease-in-out;
+
+    &.active {
+      color: rgb(255, 255, 255);
+      background-color: rgb(0, 0, 0);
+
+      &:hover {
+        color: rgb(255, 255, 255);
+      }
+    }
+
+    &:hover {
+      color: #6f0c0c;
+    }
+  }
+}
