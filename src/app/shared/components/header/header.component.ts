@@ -1,4 +1,11 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  input,
+  OnInit,
+  output,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -19,6 +26,7 @@ import { HeaderService } from '../../../core/services/header.service';
   styleUrl: './header.component.scss',
 })
 export class HeaderComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   private headerService = inject(HeaderService);
 
   headerTitle = '';
@@ -27,8 +35,8 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.headerService.headerTitle$.subscribe((title: string) => {
-      console.log('title', title);
       this.headerTitle = title;
+      this.cdr.detectChanges();
     });
   }
 
