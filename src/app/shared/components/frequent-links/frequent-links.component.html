@@ -4,6 +4,7 @@
     class="frequent-links__link"
     [routerLink]="link.link"
     routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
     >{{ link.title }}</a
   >
   }

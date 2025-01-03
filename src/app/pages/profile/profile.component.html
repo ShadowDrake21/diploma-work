@@ -1,52 +1,11 @@
 <div class="profile">
   <div class="profile__inner">
-    <div class="profile__top">
-      <div class="profile__image-wrapper">
-        <img
-          class="profile__image"
-          [src]="profile.imageUrl"
-          [alt]="profile.username"
-        />
-      </div>
-      <div class="profile__info">
-        <p class="profile__info-text">Name: {{ profile.name }}</p>
-        <p class="profile__info-text">Email: {{ profile.email }}</p>
-        <p class="profile__info-text">Role: {{ profile.role }}</p>
-        <p class="profile__info-text">Type: {{ profile.userType }}</p>
-        @if (profile.userType === "student" ) {
-        <p class="profile__info-text">Group: {{ profile.universityGroup }}</p>
-        }
-        <p class="profile__info-text">Date of birth: {{ profile.birthday }}</p>
+    <profile-info [profile]="profile" />
 
-        <div
-          style="
-            display: flex;
-            height: 50px;
-            gap: 5px;
-            align-items: center;
-            padding-top: 10px;
-          "
-        >
-          <p class="profile__info-text">Phone:</p>
-          @if (phoneEdit) {
-          <mat-form-field>
-            <mat-label>Telephone</mat-label>
-            <input matInput [(ngModel)]="profile.phone" placeholder="Phone"
-          /></mat-form-field>
-          <button mat-icon-button (click)="phoneEdit = false">
-            <mat-icon>done</mat-icon>
-          </button>
-          } @else {
-          <p class="profile__info-text">{{ profile.phone }}</p>
-          <button mat-icon-button (click)="phoneEdit = true">
-            <mat-icon>edit_square</mat-icon>
-          </button>
-          }
-        </div>
-      </div>
-    </div>
-    <div class="profile__bottom">
-      <profile-filter-panel />
-    </div>
+    <profile-projects
+      [myProjects]="myProjects"
+      [paginationService]="paginationService"
+    />
+    <shared-frequent-links />
   </div>
 </div>
