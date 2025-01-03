@@ -4,20 +4,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { projectTags } from '../../../../content/filterProjectTags.content';
-import { Filter } from '../../shared/types/filters.types';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { FilterPanelComponent } from './components/filter-panel/filter-panel.component';
+import { recentProjectContent } from '../../../../content/recentProjects.content';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { PaginationService } from '../../core/services/pagination.service';
+import { FrequentLinksComponent } from '../../shared/components/frequent-links/frequent-links.component';
+import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
+import { IProfileInfo } from '../../shared/types/profile.types';
+import { ProfileProjectsComponent } from './components/profile-projects/profile-projects.component';
 
 @Component({
   selector: 'app-profile',
@@ -32,17 +31,23 @@ import { FilterPanelComponent } from './components/filter-panel/filter-panel.com
     ReactiveFormsModule,
     MatSelectModule,
     MatButtonToggleModule,
-    FilterPanelComponent,
+
+    MatPaginatorModule,
+
+    FrequentLinksComponent,
+    ProfileInfoComponent,
+
+    ProfileProjectsComponent,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), PaginationService],
 })
 export class ProfileComponent implements OnInit {
   private headerService = inject(HeaderService);
-  phoneEdit = false;
+  paginationService = inject(PaginationService);
 
-  profile = {
+  profile: IProfileInfo = {
     username: '@edwardddrake',
     name: 'Edward D. Drake',
     email: 'edwardddrake@stu.cn.ua',
@@ -53,6 +58,8 @@ export class ProfileComponent implements OnInit {
     birthday: '25.01.2006',
     imageUrl: '/recent-users/user-1.jpg',
   };
+
+  myProjects = [...recentProjectContent, ...recentProjectContent];
 
   ngOnInit(): void {
     this.headerService.setTitle(`User ${this.profile.username}`);
