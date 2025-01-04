@@ -1,0 +1,41 @@
+@let paginationService = paginationServiceSig();
+
+<div class="profile__bottom">
+  <h4
+    style="
+      font-size: 24px;
+      line-height: 30px;
+      font-weight: 500;
+      padding-bottom: 10px;
+    "
+  >
+    My projects
+  </h4>
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-bottom: 20px;
+    "
+  >
+    <profile-filter-panel />
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center"
+    >
+      @for (project of paginationService.visibleElements; track $index) {
+      <shared-project-card [project]="project" />
+      }
+    </div>
+    @if(myProjectsSig().length > paginationService.itemsPerPage) {
+    <!-- get rid of the service in html (not important) -->
+    <shared-pagination
+      [pages]="pages"
+      [currentPage]="paginationService.currentPage"
+      (prevPage)="paginationService.prevPage()"
+      (nextPage)="paginationService.nextPage()"
+      (goToPage)="paginationService.goToPage($event)"
+    />
+    }
+  </div>
+</div>

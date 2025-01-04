@@ -1,0 +1,46 @@
+.profile__panel {
+  max-height: 300px;
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background-color: #d9d9d9;
+
+  &-left {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  &-right {
+    width: 100%;
+    button {
+      width: 100%;
+    }
+  }
+
+  &-group {
+    display: flex;
+    gap: 10px;
+    &__title {
+    }
+    &__checkbox {
+    }
+    &__interruptor {
+    }
+    &__formfield {
+    }
+  }
+
+  &-groups__wrapper {
+    display: flex;
+    // justify-content: center;
+    gap: 15px;
+  }
+}
+
+.column {
+  flex-direction: column;
+}
