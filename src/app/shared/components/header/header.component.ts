@@ -24,6 +24,7 @@ import { HeaderService } from '../../../core/services/header.service';
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
+  host: { style: 'position: absolute; z-index: 100; width: 100%;' },
 })
 export class HeaderComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);

@@ -5,11 +5,6 @@
   position: relative;
 }
 
-.main {
-  flex: 1;
-  padding-bottom: 30px;
-}
-
 .expanded {
   width: 250px;
 }
@@ -37,4 +32,7 @@ mat-sidenav {
 // Move the content down so that it won't be hidden by the toolbar
 mat-sidenav-content {
   flex: 1;
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
 }
