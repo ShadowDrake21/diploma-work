@@ -15,6 +15,6 @@ export const profile: Array<IProfile> = [
   },
   {
     title: 'Settings',
-    link: '/my-settings',
+    link: '/settings',
   },
 ];
