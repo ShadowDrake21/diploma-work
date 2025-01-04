@@ -27,17 +27,17 @@ export const routes: Routes = [
       import('./pages/admin/admin.module').then((c) => c.AdminModule),
   },
   {
-    path: 'profile',
+    path: 'my-profile',
     loadComponent: () =>
-      import('./pages/settings/settings.component').then(
-        (c) => c.SettingsComponent
+      import('./pages/profile/profile.component').then(
+        (c) => c.ProfileComponent
       ),
   },
   {
     path: 'settings',
     loadComponent: () =>
-      import('./pages/profile/profile.component').then(
-        (c) => c.ProfileComponent
+      import('./pages/settings/settings.component').then(
+        (c) => c.SettingsComponent
       ),
   },
   {

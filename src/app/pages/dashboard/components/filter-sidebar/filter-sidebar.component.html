@@ -21,7 +21,7 @@
     <mat-form-field class="filter-sidebar__group-formfield">
       <mat-label>Category</mat-label>
       <mat-select>
-        @for (filter of filters; track filter) {
+        @for (filter of types; track filter) {
         <mat-option [value]="filter.value">{{ filter.viewValue }}</mat-option>
         }
       </mat-select>

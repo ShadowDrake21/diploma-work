@@ -1,1 +1,11 @@
-<p>profile works!</p>
+<div class="profile">
+  <div class="profile__inner">
+    <profile-info [profile]="profile" />
+
+    <profile-projects
+      [myProjects]="myProjects"
+      [paginationService]="paginationService"
+    />
+    <shared-frequent-links />
+  </div>
+</div>

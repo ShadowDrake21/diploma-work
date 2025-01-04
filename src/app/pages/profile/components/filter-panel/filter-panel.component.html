@@ -1,0 +1,99 @@
+<div class="profile__panel">
+  <div class="profile__panel-left">
+    <div class="profile__panel-groups__wrapper">
+      <div class="column profile__panel-group">
+        <h4 class="profile__panel-group__title">Search</h4>
+        <mat-form-field style="max-width: 400px; width: 100%">
+          <mat-label>Search</mat-label>
+          <input matInput type="text" [(ngModel)]="search" />
+          @if (search) {
+          <button matSuffix mat-icon-button (click)="search = ''">
+            <mat-icon>close</mat-icon>
+          </button>
+          }
+        </mat-form-field>
+      </div>
+      <div class="profile__panel-group column">
+        <h4 class="profile__panel-group__title">Deadline</h4>
+        <mat-form-field class="profile__panel-group__formfield">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="Start date" />
+            <input matEndDate placeholder="End date" />
+          </mat-date-range-input>
+          <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+      <div class="profile__panel-group column">
+        <h4 class="profile__panel-group__title">Project tags</h4>
+        <mat-form-field class="profile__panel-group__formfield">
+          <mat-label>Tags</mat-label>
+          <mat-select [formControl]="tags" multiple>
+            @for (tag of filterTags; track tag) {
+            <mat-option [value]="tag">{{ tag }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="profile__panel-group column">
+        <h4 class="profile__panel-group__title">Sorting</h4>
+        <mat-form-field class="profile__panel-group__formfield">
+          <mat-label>Tags</mat-label>
+          <mat-select [formControl]="tags" multiple>
+            @for (option of sorting; track option) {
+            <mat-option [value]="option.value">{{
+              option.viewValue
+            }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="profile__panel-groups__wrapper" style="align-items: flex-end">
+      <div class="profile__panel-group column">
+        <h4 class="profile__panel-group__title">Status</h4>
+        <div class="profile__panel-group__formfield">
+          <mat-checkbox class="profile__panel-group__checkbox"
+            >In Progress</mat-checkbox
+          >
+          <mat-checkbox class="profile__panel-group__checkbox"
+            >Completed</mat-checkbox
+          >
+          <mat-checkbox class="profile__panel-group__checkbox"
+            >Pending</mat-checkbox
+          >
+        </div>
+      </div>
+      <div class="profile__panel-group column">
+        <h4 class="profile__panel-group__title">Quick filters</h4>
+        <mat-button-toggle-group
+          class="profile__panel-group__formfield"
+          name="quick-filters"
+        >
+          @for (filter of quickFilters; track $index) {
+          <mat-button-toggle [value]="filter.value">{{
+            filter.viewValue
+          }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+    </div>
+  </div>
+  <div class="profile__panel-right">
+    <button mat-flat-button>Search</button>
+  </div>
+</div>
+<!-- <div>
+    <mat-button-toggle-group name="filter-layout">
+      @for (layout of filterLayout; track $index) {
+      <mat-button-toggle [value]="layout.value"
+        ><mat-icon>{{ layout.viewValue }}</mat-icon></mat-button-toggle
+      >
+      }
+    </mat-button-toggle-group>
+  </div> -->

@@ -11,11 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { projectTags } from '../../../../../../content/filterProjectTags.content';
-
-interface Filter {
-  value: string;
-  viewValue: string;
-}
+import { Filter } from '../../../../shared/types/filters.types';
 
 @Component({
   selector: 'dashboard-filter-sidebar',
@@ -43,7 +39,7 @@ export class FilterSidebarComponent {
   tags = new FormControl('');
 
   filterTags = projectTags;
-  filters: Filter[] = [
+  types: Filter[] = [
     { value: 'patents', viewValue: 'Patents' },
     { value: 'research', viewValue: 'Research' },
     { value: 'development', viewValue: 'Development' },
