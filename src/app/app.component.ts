@@ -49,6 +49,7 @@ export class AppComponent implements OnInit {
   isOpened = true;
 
   isAuth = true;
+  isSettings = false;
 
   ngOnInit() {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
@@ -63,6 +64,7 @@ export class AppComponent implements OnInit {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => {
         this.isAuth = event.url.split('/').includes('authentication');
+        this.isSettings = event.url.split('/').includes('settings');
       });
   }
 

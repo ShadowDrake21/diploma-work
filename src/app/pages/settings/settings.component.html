@@ -1,1 +1,18 @@
-<p>settings works!</p>
+<a mat-tab-link routerLink="/">Go to Dashboard</a>
+
+<div class="settings-page">
+  <h1>Settings</h1>
+  <nav mat-tab-nav-bar>
+    <a mat-tab-link routerLink="general" routerLinkActive="active">General</a>
+    <a mat-tab-link routerLink="system" routerLinkActive="active">System</a>
+    <a mat-tab-link routerLink="research" routerLinkActive="active">Research</a>
+    <a mat-tab-link routerLink="reporting" routerLinkActive="active"
+      >Reporting</a
+    >
+    <a mat-tab-link routerLink="data-management" routerLinkActive="active"
+      >Data Management</a
+    >
+    <a mat-tab-link routerLink="advanced" routerLinkActive="active">Advanced</a>
+  </nav>
+  <router-outlet></router-outlet>
+</div>
