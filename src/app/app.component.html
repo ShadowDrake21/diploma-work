@@ -9,7 +9,7 @@
       class="expanded"
       [mode]="isMobile ? 'over' : 'side'"
       [opened]="!isOpened ? 'false' : 'true'"
-      style="padding: 10px 0"
+      style="padding: '80px 0 10px'"
     >
       <!-- [ngClass]="!isCollapsed ? 'expanded' : 'collapsed'" -->
       <!-- [opened]="isMobile ? 'false' : 'true'" -->
@@ -62,8 +62,8 @@
       </mat-nav-list>
     </mat-sidenav>
     }
-    <mat-sidenav-content>
-      <main class="main">
+    <mat-sidenav-content [ngStyle]="!isAuth ? { 'padding-top': '80px' } : {}">
+      <main class="main" [ngStyle]="!isAuth ? { padding: '10px 30px' } : {}">
         <router-outlet></router-outlet>
         <shared-footer />
       </main>

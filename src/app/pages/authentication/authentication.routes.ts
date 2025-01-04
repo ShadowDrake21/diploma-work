@@ -9,6 +9,11 @@ export const AuthenticationRoutes: Routes = [
       ),
     children: [
       {
+        path: '',
+        redirectTo: 'sign-in',
+        pathMatch: 'full',
+      },
+      {
         path: 'sign-in',
         loadComponent: () =>
           import('./components/sign-in/sign-in.component').then(

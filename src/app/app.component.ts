@@ -33,6 +33,7 @@ import { filter } from 'rxjs';
     NotificationsComponent,
     RecentUsersComponent,
     FooterComponent,
+    NgStyle,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
