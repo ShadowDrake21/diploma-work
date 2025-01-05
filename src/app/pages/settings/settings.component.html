@@ -1,18 +1,58 @@
-<a mat-tab-link routerLink="/">Go to Dashboard</a>
-
-<div class="settings-page">
-  <h1>Settings</h1>
-  <nav mat-tab-nav-bar>
-    <a mat-tab-link routerLink="general" routerLinkActive="active">General</a>
-    <a mat-tab-link routerLink="system" routerLinkActive="active">System</a>
-    <a mat-tab-link routerLink="research" routerLinkActive="active">Research</a>
-    <a mat-tab-link routerLink="reporting" routerLinkActive="active"
-      >Reporting</a
+<div class="settings">
+  <a mat-tab-link routerLink="/" class="settings-back"
+    ><mat-icon fontIcon="arrow_back" class="settings-back__icon"></mat-icon> Go
+    to Dashboard</a
+  >
+  <h1 class="settings-title">Settings</h1>
+  <div style="display: flex; justify-content: center; padding-bottom: 30px">
+    <nav
+      style="
+        display: flex;
+        justify-content: space-around;
+        width: 50%;
+        background-color: #ccc;
+        padding: 10px;
+      "
     >
-    <a mat-tab-link routerLink="data-management" routerLinkActive="active"
-      >Data Management</a
-    >
-    <a mat-tab-link routerLink="advanced" routerLinkActive="active">Advanced</a>
-  </nav>
-  <router-outlet></router-outlet>
+      <a
+        routerLink="/settings/general"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >General</a
+      >
+      <a
+        routerLink="/settings/system"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >System</a
+      >
+      <a
+        routerLink="/settings/research"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >Research</a
+      >
+      <a
+        routerLink="/settings/reporting"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >Reporting</a
+      >
+      <a
+        routerLink="/settings/data-management"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >Data Management</a
+      >
+      <a
+        routerLink="/settings/advanced"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >Advanced</a
+      >
+    </nav>
+  </div>
+  <div style="display: flex; justify-content: center">
+    <router-outlet></router-outlet>
+  </div>
 </div>

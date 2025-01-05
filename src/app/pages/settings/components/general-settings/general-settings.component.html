@@ -1,1 +1,68 @@
-<p>general-settings works!</p>
+<div class="general-settings">
+  <h2 class="general-settings__title">General Settings</h2>
+
+  <form class="general-settings__form" (ngSubmit)="saveSettings()">
+    <div class="general-settings__form-inner">
+      <mat-form-field class="general-settings__form-item">
+        <mat-label for="language">System Language</mat-label>
+        <mat-select name="language" [(ngModel)]="settings.language">
+          <mat-option value="ua">Ukrainian</mat-option>
+          <mat-option value="en">English</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="general-settings__form-item">
+        <mat-label for="sort-by">Default Sort By</mat-label>
+        <mat-select name="sort-by" [(ngModel)]="settings.display.sortBy">
+          <mat-option value="Year">Year</mat-option>
+          <mat-option value="Author">Author</mat-option>
+          <mat-option value="Type">Type</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="general-settings__form-item">
+        <mat-label for="items-per-page">Items Per Page</mat-label>
+        <mat-select
+          name="items-per-page"
+          [(ngModel)]="settings.display.itemsPerPage"
+        >
+          <mat-option [value]="10">10</mat-option>
+          <mat-option [value]="20">20</mat-option>
+          <mat-option [value]="50">50</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        "
+      >
+        <div class="general-settings__form-item">
+          <mat-checkbox
+            class="notifications"
+            name="notifications"
+            [(ngModel)]="settings.notifications"
+            >Enable Email Notifications</mat-checkbox
+          >
+        </div>
+
+        <mat-form-field class="general-settings__form-item">
+          <mat-label for="session-timeout">Session Timeout (minutes)</mat-label>
+          <input
+            for="session-timeout"
+            matInput
+            placeholder="Ex. Pizza"
+            type="number"
+            name="session-timeout"
+            [(ngModel)]="settings.security.sessionTimeout"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <button mat-flat-button type="submit" class="general-settings__form-btn">
+      Save Settings
+    </button>
+  </form>
+</div>
