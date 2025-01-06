@@ -1,1 +1,54 @@
-<p>reporting-settings works!</p>
+<div class="main-settings">
+  <h2 class="main-settings__title">Reporting Settings</h2>
+
+  <form
+    class="main-settings__form"
+    [formGroup]="settingsForm"
+    (ngSubmit)="saveReportingSettings()"
+  >
+    <div class="main-settings__form-inner">
+      <mat-form-field class="main-settings__form-item">
+        <mat-label name="report-format">Default Report Format</mat-label>
+        <mat-select name="report-format" formControlName="format">
+          <mat-option value="pdf">PDF</mat-option>
+          <mat-option value="excel">Excel</mat-option>
+          <mat-option value="csv">CSV</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="main-settings__form-item">
+        <mat-label name="delivery-method">Report Delivery Method</mat-label>
+        <mat-select name="delivery-method" formControlName="deliveryMethod">
+          <mat-option value="download">Download</mat-option>
+          <mat-option value="email">Email</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div style="display: flex; justify-content: space-between">
+        <mat-checkbox
+          class="main-settings__form-item"
+          name="schedule-reports"
+          formControlName="scheduleReports"
+        >
+          Enable Report Scheduling
+        </mat-checkbox>
+
+        <mat-checkbox
+          class="main-settings__form-item"
+          name="include-visualizations"
+          formControlName="includeVisualizations"
+        >
+          Include Charts/Graphs
+        </mat-checkbox>
+      </div>
+    </div>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      class="main-settings__form-btn"
+    >
+      Save Reporting Settings
+    </button>
+  </form>
+</div>
