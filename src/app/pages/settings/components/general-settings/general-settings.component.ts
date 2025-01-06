@@ -1,5 +1,11 @@
 import { Component } from '@angular/core';
-import { FormsModule, NgModel } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatFormFieldModule,
     MatCheckboxModule,
     MatButtonModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './general-settings.component.html',
   styleUrl: './general-settings.component.scss',
@@ -26,13 +33,31 @@ export class GeneralSettingsComponent {
       sortBy: 'Year',
       itemsPerPage: 10,
     },
-    notifications: {
-      enableEmail: true,
-    },
-    security: {
-      sessionTimeout: 45,
-    },
+    notifications: true,
+    sessionTimeout: 45,
   };
+
+  settingsForm = new FormGroup({
+    language: new FormControl(this.settings.language, [Validators.required]),
+    display: new FormGroup({
+      sortBy: new FormControl(this.settings.display.sortBy, [
+        Validators.required,
+      ]),
+      itemsPerPage: new FormControl(this.settings.display.itemsPerPage, [
+        Validators.required,
+      ]),
+    }),
+    notifications: new FormControl(this.settings.notifications, [
+      Validators.required,
+    ]),
+    sessionTimeout: new FormControl(this.settings.sessionTimeout, [
+      Validators.required,
+    ]),
+  });
+
+  resetToDefaults() {
+    console.log('Settings reset to defaults');
+  }
 
   saveSettings() {
     console.log('Settings saved', this.settings);

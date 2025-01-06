@@ -172,3 +172,25 @@ html {
     }
   }
 }
+
+.main-settings {
+  width: 500px;
+  &__title {
+    padding-bottom: 15px;
+    text-align: center;
+  }
+
+  &__form {
+    max-width: 100%;
+    &-inner {
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 20px;
+    }
+    &-item {
+    }
+    &-btn {
+      width: 100%;
+    }
+  }
+}

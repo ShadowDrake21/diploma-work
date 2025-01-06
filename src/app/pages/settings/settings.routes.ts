@@ -6,19 +6,13 @@ export const SettingsRoutes: Routes = [
     loadComponent: () =>
       import('./settings.component').then((m) => m.SettingsComponent),
     children: [
+      { path: '', redirectTo: 'general', pathMatch: 'full' },
       {
         path: 'general',
         loadComponent: () =>
           import(
             './components/general-settings/general-settings.component'
           ).then((m) => m.GeneralSettingsComponent),
-      },
-      {
-        path: 'system',
-        loadComponent: () =>
-          import('./components/system-settings/system-settings.component').then(
-            (m) => m.SystemSettingsComponent
-          ),
       },
       {
         path: 'research',
@@ -33,20 +27,6 @@ export const SettingsRoutes: Routes = [
           import(
             './components/reporting-settings/reporting-settings.component'
           ).then((m) => m.ReportingSettingsComponent),
-      },
-      {
-        path: 'data-management',
-        loadComponent: () =>
-          import(
-            './components/data-management-settings/data-management-settings.component'
-          ).then((m) => m.DataManagementSettingsComponent),
-      },
-      {
-        path: 'advanced',
-        loadComponent: () =>
-          import(
-            './components/advanced-settings/advanced-settings.component'
-          ).then((m) => m.AdvancedSettingsComponent),
       },
     ],
   },
