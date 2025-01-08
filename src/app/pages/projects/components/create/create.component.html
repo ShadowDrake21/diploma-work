@@ -1,1 +1,308 @@
-<p>create-project works!</p>
+<div>
+  <p style="text-align: center">
+    {{ subtext }}
+  </p>
+  <mat-stepper #stepper>
+    <mat-step [stepControl]="typeForm" errorMessage="Type is required.">
+      <form [formGroup]="generalInformationForm">
+        <ng-template matStepLabel>Select a project type</ng-template>
+        <mat-form-field>
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            @for (type of types; track type) {
+            <mat-option [value]="type.value">{{ type.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step
+      [stepControl]="generalInformationForm"
+      errorMessage="General information is required."
+    >
+      <form [formGroup]="generalInformationForm">
+        <ng-template matStepLabel>Fill out general information</ng-template>
+        <mat-form-field>
+          <mat-label>Title</mat-label>
+          <input
+            matInput
+            placeholder="Creation of a new graphics render model"
+            formControlName="title"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Description</mat-label>
+          <textarea
+            matInput
+            placeholder="A new model for the graphics render"
+            formControlName="description"
+          ></textarea>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Tags</mat-label>
+          <mat-select formControlName="tags">
+            @for (tag of tags; track tag) {
+            <mat-option [value]="tag.value">{{ tag.viewValue }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <shared-multiple-file-upload />
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    if
+    <mat-step
+      [stepControl]="
+        typeForm.value.type === 'publication'
+          ? publicationsForm
+          : typeForm.value.type === 'patent'
+          ? patentsForm
+          : researchProjects
+      "
+      errorMessage="Type-specific information is required."
+    >
+      @if ( typeForm.value.type === 'publication') {
+      <form [formGroup]="publicationsForm">
+        <ng-template matStepLabel>Fill out publication information</ng-template>
+        <mat-form-field>
+          <mat-label>Authors</mat-label>
+          <input
+            type="text"
+            placeholder="Author"
+            matInput
+            formControlName="authors"
+            [matAutocomplete]="auto"
+          />
+          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            @for (author of filteredAuthors | async; track authors) {
+            <mat-option [value]="author">{{ authors }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Publication date</mat-label>
+          <input matInput [matDatepicker]="picker" />
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+            formControlName="publicationDate"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Publication source</mat-label>
+          <input
+            type="text"
+            placeholder="Publication source"
+            matInput
+            formControlName="publicationSource"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>DOI/ISBN</mat-label>
+          <input
+            type="text"
+            placeholder="https://doi.org/10.1080/10509585.2015.1092083"
+            matInput
+            formControlName="doiIsbn"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Pages</mat-label>
+          <input
+            type="range"
+            placeholder="10-20"
+            matInput
+            formControlName="pages"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Journal volume</mat-label>
+          <input
+            type="number"
+            placeholder="1"
+            matInput
+            formControlName="journalVolume"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Issue Numbers</mat-label>
+          <input
+            type="number"
+            placeholder="1"
+            matInput
+            formControlName="issueNumbers"
+          />
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+      } @if ( typeForm.value.type === 'patent') {
+      <form [formGroup]="patentsForm">
+        <ng-template matStepLabel>Fill out patent information</ng-template>
+        <mat-form-field>
+          <mat-label>Primary author</mat-label>
+          <input
+            type="text"
+            placeholder="Antoni Macierewicz"
+            matInput
+            formControlName="primaryAuthor"
+            [matAutocomplete]="auto"
+          />
+          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            @for (author of filteredPrimaryAuthors | async; track authors) {
+            <mat-option [value]="author">{{ authors }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Co-inventors</mat-label>
+          <mat-select formControlName="coInventors" multiple>
+            <mat-select-trigger>
+              {{patentsForm.value.coInventors?.[0] || ''}}
+              @if ((patentsForm.value.coInventors?.length || 0) > 1) {
+              <span class="example-additional-selection">
+                (+{{ (patentsForm.value.coInventors?.length || 0) - 1 }}
+                {{
+                  patentsForm.value.coInventors?.length === 2
+                    ? "other"
+                    : "others"
+                }})
+              </span>
+              }
+            </mat-select-trigger>
+            @for (coInventor of authors; track coInventor) {
+            <mat-option [value]="coInventor">{{ coInventor }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Patent Registration Number</mat-label>
+          <input
+            type="text"
+            placeholder="US 7,654,321 B1"
+            matInput
+            formControlName="registrationNumber"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Date of Registration</mat-label>
+          <input matInput [matDatepicker]="picker" />
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+            formControlName="registrationDate"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Issuing Authority</mat-label>
+          <input
+            type="text"
+            placeholder="Issuing State"
+            matInput
+            formControlName="issuingAuthority"
+          />
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+      } @if ( typeForm.value.type === 'researchProjects') {
+      <form [formGroup]="patentsForm">
+        <ng-template matStepLabel>Fill out patent information</ng-template>
+        <mat-form-field>
+          <mat-label>Participants</mat-label>
+          <input
+            type="text"
+            placeholder="Andrzej Duda"
+            matInput
+            formControlName="participants"
+            [matAutocomplete]="auto"
+          />
+          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            @for (author of filteredParticipants | async; track authors) {
+            <mat-option [value]="author">{{ authors }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Budget</mat-label>
+          <input
+            type="number"
+            placeholder="1000000"
+            matInput
+            formControlName="budget"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Start date</mat-label>
+          <input matInput [matDatepicker]="picker" />
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+            formControlName="startDate"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>End date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="endDate" />
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            @for (status of statuses; track status) {
+            <mat-option [value]="status.value">{{
+              status.viewValue
+            }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Funding Source</mat-label>
+          <input
+            type="text"
+            placeholder="U.S. Small Business Administration (SBA)"
+            matInput
+            formControlName="fundingSource"
+          />
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+      }
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Done</ng-template>
+      <p>You are now done.</p>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+      </div>
+    </mat-step>
+  </mat-stepper>
+</div>
