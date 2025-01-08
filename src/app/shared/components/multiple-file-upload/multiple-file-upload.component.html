@@ -1,0 +1,27 @@
+<input type="file" class="file-input" multiple (change)="onChange($event)" />
+
+@if (files.length) {
+<mat-list class="file-section">
+  <div mat-subheader>Files</div>
+  @for (file of files; track $index) {
+  <mat-list-item>
+    <mat-icon matListItemIcon>note</mat-icon>
+    <div matListItemTitle>{{ file.name }}</div>
+    <div matListItemLine>{{ file.type }}</div>
+    <div matListItemLine>{{ file.size }} bytes</div>
+  </mat-list-item>
+  }
+
+  <button (click)="onUpload()" class="upload-button">Upload the file</button>
+
+  @switch (status) { @case ('uploading') {
+  <p>⏳ Uploading...</p>
+  } @case ('success') {
+  <p>✅ Done!</p>
+  } @case ('fail') {
+  <p>❌ Error!</p>
+  } @default {
+  <p>😶 Waiting to upload...</p>
+  } }
+</mat-list>
+}
