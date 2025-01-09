@@ -47,6 +47,7 @@ import { Filter } from '../../../../shared/types/filters.types';
     },
     provideNativeDateAdapter(),
   ],
+  host: { style: 'display: block; height: 100%' },
 })
 export class CreateProjectComponent implements OnInit {
   private headerService = inject(HeaderService);
@@ -60,8 +61,22 @@ export class CreateProjectComponent implements OnInit {
   ];
   tags = AVAILABLE_PROJECT_TAGS;
 
+  authors: string[] = [
+    'Dmytro Krapyvianskyi',
+    'Amelia Kastelik',
+    'John Doe',
+    'Michael Jackson',
+  ];
+
+  statuses: Filter[] = [
+    { value: 'proposed', viewValue: 'Proposed' },
+    { value: 'in-progress', viewValue: 'In Progress' },
+    { value: 'completed', viewValue: 'Completed' },
+    { value: 'cancelled', viewValue: 'Cancelled' },
+  ];
+
   typeForm = new FormGroup({
-    type: new FormControl('', [Validators.required]),
+    type: new FormControl(this.types[0].value, [Validators.required]),
   });
   generalInformationForm = new FormGroup({
     title: new FormControl('', [Validators.required]),
@@ -74,10 +89,13 @@ export class CreateProjectComponent implements OnInit {
     publicationDate: new FormControl(new Date(), [Validators.required]),
     publicationSource: new FormControl('', [Validators.required]),
     doiIsbn: new FormControl('', [Validators.required]),
-    pages: new FormControl(10, [Validators.required]),
+    startPage: new FormControl(10, [Validators.required]),
+    endPage: new FormControl(20, [Validators.required]),
     journalVolume: new FormControl(1, [Validators.required]),
     issueNumbers: new FormControl(1, [Validators.required]),
   });
+  // workForm = new FormGroup({
+  // });
   patentsForm = new FormGroup({
     primaryAuthor: new FormControl('', [Validators.required]),
     coInventors: new FormControl(['']),
@@ -90,26 +108,13 @@ export class CreateProjectComponent implements OnInit {
     budget: new FormControl(0, [Validators.required]),
     startDate: new FormControl(new Date(), [Validators.required]),
     endDate: new FormControl(new Date(), [Validators.required]),
-    status: new FormControl('', [Validators.required]),
+    status: new FormControl(this.statuses[0], [Validators.required]),
     fundingSource: new FormControl('', [Validators.required]),
   });
 
-  authors: string[] = [
-    'Dmytro Krapyvianskyi',
-    'Amelia Kastelik',
-    'John Doe',
-    'Michael Jackson',
-  ];
   filteredAuthors!: Observable<string[]>;
   filteredPrimaryAuthors!: Observable<string[]>;
   filteredParticipants!: Observable<string[]>;
-
-  statuses: Filter[] = [
-    { value: 'proposed', viewValue: 'Proposed' },
-    { value: 'in-progress', viewValue: 'In Progress' },
-    { value: 'completed', viewValue: 'Completed' },
-    { value: 'cancelled', viewValue: 'Cancelled' },
-  ];
 
   ngOnInit(): void {
     this.headerService.setTitle('Create New Entry');

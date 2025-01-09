@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { throwError } from 'rxjs';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'shared-multiple-file-upload',
@@ -15,6 +16,8 @@ export class MultipleFileUploadComponent {
   files: File[] = [];
 
   constructor(private http: HttpClient) {}
+
+  formField = input.required<FormControl>();
 
   ngOnInit(): void {}
 
