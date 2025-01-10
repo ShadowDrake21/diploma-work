@@ -1,10 +1,10 @@
 <section class="layout">
-  @if (!isAuth) {
+  @if (!isAuth && !isSettings) {
   <shared-header (sidebarToggle)="toggleMenu()" [isSidebarOpened]="isOpened" />
   }
 
   <mat-sidenav-container autosize>
-    @if (!isAuth) {
+    @if (!isAuth && !isSettings) {
     <mat-sidenav
       class="expanded"
       [mode]="isMobile ? 'over' : 'side'"
@@ -62,8 +62,13 @@
       </mat-nav-list>
     </mat-sidenav>
     }
-    <mat-sidenav-content [ngStyle]="!isAuth ? { 'padding-top': '80px' } : {}">
-      <main class="main" [ngStyle]="!isAuth ? { padding: '10px 30px' } : {}">
+    <mat-sidenav-content
+      [ngStyle]="!isAuth && !isSettings ? { 'padding-top': '80px' } : {}"
+    >
+      <main
+        class="main"
+        [ngStyle]="!isAuth && !isSettings ? { padding: '10px 30px 30px' } : {}"
+      >
         <router-outlet></router-outlet>
         <shared-footer />
       </main>

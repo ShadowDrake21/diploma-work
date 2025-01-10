@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { projectTags } from '../../../../../../content/filterProjectTags.content';
-import { Filter } from '../../../../shared/types/filters.types';
+import { projectTags } from '@content/filterProjectTags.content';
+import { Filter } from '@shared/types/filters.types';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';

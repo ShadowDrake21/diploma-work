@@ -1,0 +1,47 @@
+@let generalInformationForm = generalInformationFormSig();
+
+<form
+  [formGroup]="generalInformationForm"
+  style="display: flex; flex-direction: column; gap: 10px; padding: 15px 0"
+>
+  <mat-form-field>
+    <mat-label>Title</mat-label>
+    <input
+      matInput
+      placeholder="Creation of a new graphics render model"
+      formControlName="title"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea
+      matInput
+      placeholder="A new model for the graphics render"
+      formControlName="description"
+    ></textarea>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Tags</mat-label>
+    <mat-select formControlName="tags" multiple>
+      <input placeholder="Custom tag" />
+      @for (tag of tags; track tag) {
+      <mat-option [value]="tag.value">{{ tag.viewValue }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <shared-multiple-file-upload
+    [formField]="generalInformationForm.controls.attachments"
+  />
+
+  <div>
+    <button mat-button matStepperPrevious>Back</button>
+    <button
+      mat-button
+      matStepperNext
+      [disabled]="generalInformationForm.invalid"
+    >
+      Next
+    </button>
+  </div>
+</form>

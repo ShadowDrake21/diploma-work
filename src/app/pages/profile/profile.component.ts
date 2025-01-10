@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { HeaderService } from '../../core/services/header.service';
+import { HeaderService } from '@core/services/header.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,12 +10,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { recentProjectContent } from '../../../../content/recentProjects.content';
+import { recentProjectContent } from '@content/recentProjects.content';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { PaginationService } from '../../core/services/pagination.service';
-import { FrequentLinksComponent } from '../../shared/components/frequent-links/frequent-links.component';
+import { PaginationService } from '@core/services/pagination.service';
+import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
-import { IProfileInfo } from '../../shared/types/profile.types';
+import { IProfileInfo } from '@shared/types/profile.types';
 import { ProfileProjectsComponent } from './components/profile-projects/profile-projects.component';
 
 @Component({

@@ -1,21 +1,10 @@
-import { CommonModule, JsonPipe } from '@angular/common';
-import {
-  Component,
-  inject,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogModule,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { DashboardRecentProjectItemModal } from '../../../../shared/types/dashboard.types';
-import { DashboardMetricsContent } from '../../../../../../content/dashboardMetrics.content';
-import { recentProjectModalContent } from '../../../../../../content/recentProjects.content';
+import { recentProjectModalContent } from '@content/recentProjects.content';
+import { DashboardRecentProjectItemModal } from '@shared/types/dashboard.types';
 
 @Component({
   selector: 'app-recent-project-dialog',

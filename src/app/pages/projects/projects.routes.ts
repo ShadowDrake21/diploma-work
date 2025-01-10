@@ -6,6 +6,14 @@ export const ProjectsRoutes: Routes = [
     loadComponent: () =>
       import('./projects.component').then((c) => c.ProjectsComponent),
     children: [
+      { path: '', redirectTo: 'list', pathMatch: 'full' },
+      {
+        path: 'list',
+        loadComponent: () =>
+          import('./components/list/list.component').then(
+            (c) => c.ListProjectsComponent
+          ),
+      },
       {
         path: 'create',
         loadComponent: () =>

@@ -1,0 +1,77 @@
+@let patentsForm = patentsFormSig();
+
+<form
+  [formGroup]="patentsForm"
+  style="display: flex; flex-direction: column; gap: 10px; padding: 15px 0"
+>
+  <mat-form-field>
+    <mat-label>Primary author</mat-label>
+    <input
+      type="text"
+      placeholder="Antoni Macierewicz"
+      matInput
+      formControlName="primaryAuthor"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+      @for (author of filteredPrimaryAuthors | async; track author) {
+      <mat-option [value]="author">{{ author }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Co-inventors</mat-label>
+    <mat-select formControlName="coInventors" multiple>
+      <mat-select-trigger>
+        {{patentsForm.value.coInventors?.[0] || ''}}
+        @if ((patentsForm.value.coInventors?.length || 0) > 1) {
+        <span class="example-additional-selection">
+          (+{{ (patentsForm.value.coInventors?.length || 0) - 1 }}
+          {{
+            patentsForm.value.coInventors?.length === 2 ? "other" : "others"
+          }})
+        </span>
+        }
+      </mat-select-trigger>
+      <input placeholder="Custom tag" />
+      @for (coInventor of authors; track coInventor) {
+      <mat-option [value]="coInventor">{{ coInventor }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Patent Registration Number</mat-label>
+    <input
+      type="text"
+      placeholder="US 7,654,321 B1"
+      matInput
+      formControlName="registrationNumber"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Date of Registration</mat-label>
+    <input
+      matInput
+      [matDatepicker]="picker"
+      formControlName="registrationDate"
+    />
+    <mat-hint>MM/DD/YYYY</mat-hint>
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Issuing Authority</mat-label>
+    <input
+      type="text"
+      placeholder="Issuing State"
+      matInput
+      formControlName="issuingAuthority"
+    />
+  </mat-form-field>
+  <div>
+    <button mat-button matStepperPrevious>Back</button>
+    <button mat-button matStepperNext [disabled]="patentsForm.invalid">
+      Next
+    </button>
+  </div>
+</form>

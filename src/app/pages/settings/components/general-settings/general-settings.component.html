@@ -1,0 +1,84 @@
+<div class="main-settings">
+  <h2 class="main-settings__title">General Settings</h2>
+
+  <form
+    class="main-settings__form"
+    (ngSubmit)="saveSettings()"
+    [formGroup]="settingsForm"
+  >
+    <div class="main-settings__form-inner">
+      <mat-form-field class="main-settings__form-item">
+        <mat-label for="language">System Language</mat-label>
+        <mat-select name="language" formControlName="language" required>
+          <mat-option value="ua">Ukrainian</mat-option>
+          <mat-option value="en">English</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div [formGroup]="settingsForm.controls.display">
+        <mat-form-field class="main-settings__form-item">
+          <mat-label for="sort-by">Default Sort By</mat-label>
+          <mat-select name="sort-by" formControlName="sortBy" required>
+            <mat-option value="Year">Year</mat-option>
+            <mat-option value="Author">Author</mat-option>
+            <mat-option value="Type">Type</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="main-settings__form-item">
+          <mat-label for="items-per-page">Items Per Page</mat-label>
+          <mat-select
+            name="items-per-page"
+            formControlName="itemsPerPage"
+            required
+          >
+            <mat-option [value]="10">10</mat-option>
+            <mat-option [value]="20">20</mat-option>
+            <mat-option [value]="50">50</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        "
+      >
+        <div class="main-settings__form-item">
+          <mat-checkbox
+            class="notifications"
+            name="notifications"
+            formControlName="notifications"
+            required
+            >Enable Email Notifications</mat-checkbox
+          >
+        </div>
+
+        <mat-form-field class="main-settings__form-item">
+          <mat-label for="session-timeout">Session Timeout (minutes)</mat-label>
+          <input
+            for="session-timeout"
+            matInput
+            placeholder="Ex. Pizza"
+            type="number"
+            name="session-timeout"
+            formControlName="sessionTimeout"
+            required
+          />
+        </mat-form-field>
+      </div>
+      <button mat-button type="button" (click)="resetToDefaults()">
+        Reset to Default Settings
+      </button>
+    </div>
+    <button
+      mat-flat-button
+      type="submit"
+      class="main-settings__form-btn"
+      [disabled]="settingsForm.invalid"
+    >
+      Save Settings
+    </button>
+  </form>
+</div>
