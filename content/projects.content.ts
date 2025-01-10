@@ -1,4 +1,4 @@
-import { Filter } from '../src/app/shared/types/filters.types';
+import { Filter } from '@shared/types/filters.types';
 
 export const AVAILABLE_PROJECT_TAGS: Filter[] = [
   { value: 'ai', viewValue: 'AI' },

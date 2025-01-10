@@ -9,15 +9,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  getFieldName,
-  getValidationErrorMessage,
-} from '../../../../shared/utils/form.utils';
+import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CustomButtonComponent } from '../../../../shared/components/custom-button/custom-button.component';
+import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 
 type SignInForm = {
   email: string;
@@ -41,7 +38,6 @@ type SignInForm = {
 })
 export class SignInComponent implements OnInit {
   destroyRef = inject(DestroyRef);
-  private route = inject(ActivatedRoute);
 
   protected signInForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -62,11 +58,6 @@ export class SignInComponent implements OnInit {
           .subscribe(() => this.updateErrorMessage(key as keyof SignInForm));
       }
     });
-
-    // this.route.url.subscribe(([url]) => {
-    //   const { path, parameters } = url;
-    //   console.log(path, parameters);
-    // });
   }
 
   hide = signal(true);
