@@ -1,0 +1,76 @@
+@let researchProjects = researchProjectsFormSig();
+
+<form
+  [formGroup]="researchProjects"
+  style="display: flex; flex-direction: column; gap: 10px; padding: 15px 0"
+>
+  <mat-form-field>
+    <mat-label>Participants</mat-label>
+    <input
+      type="text"
+      placeholder="Andrzej Duda"
+      matInput
+      formControlName="participants"
+      [matAutocomplete]="auto"
+    />
+
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+      @for (participant of filteredParticipants | async; track participant) {
+      <mat-option [value]="participant">{{ participant }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Budget</mat-label>
+    <input
+      type="number"
+      placeholder="1000000"
+      matInput
+      formControlName="budget"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Start date</mat-label>
+    <input matInput [matDatepicker]="pickerFirst" formControlName="startDate" />
+    <mat-hint>MM/DD/YYYY</mat-hint>
+    <mat-datepicker-toggle
+      matIconSuffix
+      [for]="pickerFirst"
+    ></mat-datepicker-toggle>
+    <mat-datepicker #pickerFirst></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>End date</mat-label>
+    <input matInput [matDatepicker]="pickerSecond" formControlName="endDate" />
+    <mat-hint>MM/DD/YYYY</mat-hint>
+    <mat-datepicker-toggle
+      matIconSuffix
+      [for]="pickerSecond"
+    ></mat-datepicker-toggle>
+    <mat-datepicker #pickerSecond></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Status</mat-label>
+    <mat-select formControlName="status">
+      @for (status of statuses; track status) {
+      <mat-option [value]="status.value">{{ status.viewValue }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Funding Source</mat-label>
+    <input
+      type="text"
+      placeholder="U.S. Small Business Administration (SBA)"
+      matInput
+      formControlName="fundingSource"
+    />
+  </mat-form-field>
+  <div>
+    <button mat-button matStepperPrevious>Back</button>
+    <button mat-button matStepperNext [disabled]="researchProjects.invalid">
+      Next
+    </button>
+  </div>
+</form>

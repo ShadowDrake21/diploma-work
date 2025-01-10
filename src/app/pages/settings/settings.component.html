@@ -1,1 +1,40 @@
-<p>settings works!</p>
+<div class="settings">
+  <a mat-tab-link routerLink="/" class="settings-back"
+    ><mat-icon fontIcon="arrow_back" class="settings-back__icon"></mat-icon> Go
+    to Dashboard</a
+  >
+  <h1 class="settings-title">Settings</h1>
+  <div style="display: flex; justify-content: center; padding-bottom: 30px">
+    <nav
+      style="
+        display: flex;
+        justify-content: space-around;
+        width: 50%;
+        background-color: #ccc;
+        padding: 10px;
+      "
+    >
+      <a
+        routerLink="/settings/general"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >General</a
+      >
+      <a
+        routerLink="/settings/research"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >Research</a
+      >
+      <a
+        routerLink="/settings/reporting"
+        routerLinkActive="active"
+        class="settings-nav-link"
+        >Reporting</a
+      >
+    </nav>
+  </div>
+  <div style="display: flex; justify-content: center">
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,1 +1,56 @@
-<p>create-project works!</p>
+<p
+  style="
+    text-align: center;
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 500;
+    padding: 15px 0;
+  "
+>
+  {{ subtext }}
+</p>
+<mat-stepper #stepper orientation="vertical">
+  <mat-step
+    [stepControl]="typeForm"
+    label="Select a project type"
+    errorMessage="Type is required."
+  >
+    <create-project-type [typeForm]="typeForm" />
+  </mat-step>
+  <mat-step
+    [stepControl]="generalInformationForm"
+    label="Fill out general information"
+    errorMessage="General information is required."
+  >
+    <create-project-general-information
+      [generalInformationForm]="generalInformationForm"
+    />
+  </mat-step>
+  <mat-step
+    [stepControl]="
+      typeForm.value.type === 'publication'
+        ? publicationsForm
+        : typeForm.value.type === 'patent'
+        ? patentsForm
+        : researchProjects
+    "
+    errorMessage="Type-specific information is required."
+    label="Fill out work information"
+  >
+    @if ( typeForm.value.type === 'publication') {
+    <create-project-publication-form [publicationForm]="publicationsForm" />
+    }@else if ( typeForm.value.type === 'patent') {
+    <create-project-patent-form [patentsForm]="patentsForm" />
+    } @if ( typeForm.value.type === 'research') {
+    <create-project-research-form [researchProjectsForm]="researchProjects" />
+    }
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Done</ng-template>
+    <p>You are now done.</p>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button (click)="stepper.reset()">Reset</button>
+    </div>
+  </mat-step>
+</mat-stepper>

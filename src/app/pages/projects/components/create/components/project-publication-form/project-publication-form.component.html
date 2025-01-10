@@ -1,0 +1,88 @@
+@let publicationsForm = publicationsFormSig();
+
+<form
+  [formGroup]="publicationsForm"
+  style="display: flex; flex-direction: column; gap: 10px; padding: 15px 0"
+>
+  <mat-form-field>
+    <mat-label>Authors</mat-label>
+    <input
+      type="text"
+      placeholder="Author"
+      matInput
+      formControlName="authors"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+      @for (author of filteredAuthors | async; track author) {
+      <mat-option [value]="author">{{ author }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Publication date</mat-label>
+    <input
+      matInput
+      [matDatepicker]="picker"
+      formControlName="publicationDate"
+    />
+    <mat-hint>MM/DD/YYYY</mat-hint>
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Publication source</mat-label>
+    <input
+      type="text"
+      placeholder="Publication source"
+      matInput
+      formControlName="publicationSource"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>DOI/ISBN</mat-label>
+    <input
+      type="text"
+      placeholder="https://doi.org/10.1080/10509585.2015.1092083"
+      matInput
+      formControlName="doiIsbn"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Start pages</mat-label>
+    <input
+      type="number"
+      placeholder="10"
+      matInput
+      formControlName="startPage"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>End pages</mat-label>
+    <input type="number" placeholder="20" matInput formControlName="endPage" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Journal volume</mat-label>
+    <input
+      type="number"
+      placeholder="1"
+      matInput
+      formControlName="journalVolume"
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Issue Numbers</mat-label>
+    <input
+      type="number"
+      placeholder="1"
+      matInput
+      formControlName="issueNumbers"
+    />
+  </mat-form-field>
+  <div>
+    <button mat-button matStepperPrevious>Back</button>
+    <button mat-button matStepperNext [disabled]="publicationsForm.invalid">
+      Next
+    </button>
+  </div>
+</form>

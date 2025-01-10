@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DashboardMetricCardItem } from '../../../../shared/types/dashboard.types';
+import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({

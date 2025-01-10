@@ -10,8 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { projectTags } from '../../../../../../content/filterProjectTags.content';
-import { Filter } from '../../../../shared/types/filters.types';
+import { projectTags } from '@content/filterProjectTags.content';
+import { Filter } from '@shared/types/filters.types';
 
 @Component({
   selector: 'dashboard-filter-sidebar',
