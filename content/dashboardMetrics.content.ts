@@ -1,4 +1,4 @@
-import { DashboardMetricCardItem } from '../src/app/shared/types/dashboard.types';
+import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 
 export const DashboardMetricsContent: DashboardMetricCardItem[] = [
   {

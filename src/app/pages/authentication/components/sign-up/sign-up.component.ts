@@ -2,24 +2,17 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {
-  AbstractControl,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
-import { map, merge, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { matchValidator } from '../../validators/match.validator';
-import {
-  getFieldName,
-  getValidationErrorMessage,
-} from '../../../../shared/utils/form.utils';
-import { CustomButtonComponent } from '../../../../shared/components/custom-button/custom-button.component';
+import { getValidationErrorMessage } from '@shared/utils/form.utils';
+import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 
 type SignUpForm = {
   name: string;

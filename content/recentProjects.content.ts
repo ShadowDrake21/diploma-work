@@ -1,7 +1,7 @@
 import {
   DashboardRecentProjectItem,
   DashboardRecentProjectItemModal,
-} from '../src/app/shared/types/dashboard.types';
+} from '@shared/types/dashboard.types';
 
 export const recentProjectContent: DashboardRecentProjectItem[] = [
   {

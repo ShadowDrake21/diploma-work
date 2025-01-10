@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { RecentProjectDialogComponent } from '../recent-project-dialog/recent-project-dialog.component';
-import { DashboardRecentProjectItem } from '../../../../shared/types/dashboard.types';
-import { ProjectItem } from '../../../../shared/types/project.types';
+import { RecentProjectDialogComponent } from './components/recent-project-dialog/recent-project-dialog.component';
+import { ProjectItem } from '@shared/types/project.types';
 
 @Component({
   selector: 'dashboard-recent-project',

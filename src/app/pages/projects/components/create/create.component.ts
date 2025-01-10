@@ -1,4 +1,4 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import {
   FormControl,
@@ -7,20 +7,22 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { HeaderService } from '../../../../core/services/header.service';
+import { HeaderService } from '@core/services/header.service';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatSelectModule } from '@angular/material/select';
-import { AVAILABLE_PROJECT_TAGS } from '../../../../../../content/projects.content';
-import { MultipleFileUploadComponent } from '../../../../shared/components/multiple-file-upload/multiple-file-upload.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { map, Observable, startWith } from 'rxjs';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { Filter } from '../../../../shared/types/filters.types';
+import { ProjectTypeComponent } from './components/project-type/project-type.component';
+import { ProjectGeneralInformationComponent } from './components/project-general-information/project-general-information.component';
+import { ProjectPublicationFormComponent } from './components/project-publication-form/project-publication-form.component';
+import { ProjectPatentFormComponent } from './components/project-patent-form/project-patent-form.component';
+import { ProjectResearchFormComponent } from './components/project-research-form/project-research-form.component';
+import { statuses, types } from '@content/createProject.content';
 
 @Component({
   selector: 'project-creation',
@@ -33,10 +35,13 @@ import { Filter } from '../../../../shared/types/filters.types';
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
-    MultipleFileUploadComponent,
     MatAutocompleteModule,
-    AsyncPipe,
     MatDatepickerModule,
+    ProjectTypeComponent,
+    ProjectGeneralInformationComponent,
+    ProjectPublicationFormComponent,
+    ProjectPatentFormComponent,
+    ProjectResearchFormComponent,
   ],
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss',
@@ -54,29 +59,11 @@ export class CreateProjectComponent implements OnInit {
   subtext: string =
     'Choose the type of record you want to create and provide the required details.';
 
-  types = [
-    { value: 'publication', viewValue: 'Publication' },
-    { value: 'patent', viewValue: 'Patent' },
-    { value: 'research', viewValue: 'Research Project' },
-  ];
-  tags = AVAILABLE_PROJECT_TAGS;
-
-  authors: string[] = [
-    'Dmytro Krapyvianskyi',
-    'Amelia Kastelik',
-    'John Doe',
-    'Michael Jackson',
-  ];
-
-  statuses: Filter[] = [
-    { value: 'proposed', viewValue: 'Proposed' },
-    { value: 'in-progress', viewValue: 'In Progress' },
-    { value: 'completed', viewValue: 'Completed' },
-    { value: 'cancelled', viewValue: 'Cancelled' },
-  ];
+  types = types;
+  statuses = statuses;
 
   typeForm = new FormGroup({
-    type: new FormControl(this.types[0].value, [Validators.required]),
+    type: new FormControl('', [Validators.required]),
   });
   generalInformationForm = new FormGroup({
     title: new FormControl('', [Validators.required]),
@@ -94,8 +81,6 @@ export class CreateProjectComponent implements OnInit {
     journalVolume: new FormControl(1, [Validators.required]),
     issueNumbers: new FormControl(1, [Validators.required]),
   });
-  // workForm = new FormGroup({
-  // });
   patentsForm = new FormGroup({
     primaryAuthor: new FormControl('', [Validators.required]),
     coInventors: new FormControl(['']),
@@ -112,38 +97,8 @@ export class CreateProjectComponent implements OnInit {
     fundingSource: new FormControl('', [Validators.required]),
   });
 
-  filteredAuthors!: Observable<string[]>;
-  filteredPrimaryAuthors!: Observable<string[]>;
-  filteredParticipants!: Observable<string[]>;
-
   ngOnInit(): void {
     this.headerService.setTitle('Create New Entry');
-
-    this.filteredAuthors =
-      this.publicationsForm.controls.authors.valueChanges.pipe(
-        startWith(''),
-        map((value) => this._filter(typeof value === 'string' ? value : ''))
-      );
-
-    this.filteredPrimaryAuthors =
-      this.patentsForm.controls.primaryAuthor.valueChanges.pipe(
-        startWith(''),
-        map((value) => this._filter(value || ''))
-      );
-
-    this.filteredParticipants =
-      this.researchProjects.controls.participants.valueChanges.pipe(
-        startWith(''),
-        map((value) => this._filter(typeof value === 'string' ? value : ''))
-      );
-  }
-
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-
-    return this.authors.filter((author) =>
-      author.toLowerCase().includes(filterValue)
-    );
   }
 
   saveDraft() {
