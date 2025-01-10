@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { INotification } from '@shared/types/notifications.types';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TruncateTextPipe } from '@shared/pipes/truncate-text.pipe';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalComponent } from '@shared/components/modal/modal.component';
 
 @Component({
   selector: 'sidebar-notifications',
@@ -12,6 +14,7 @@ import { TruncateTextPipe } from '@shared/pipes/truncate-text.pipe';
   styleUrl: './notifications.component.scss',
 })
 export class NotificationsComponent {
+  dialog = inject(MatDialog);
   notifications: INotification[] = [
     {
       id: '1',
@@ -53,4 +56,13 @@ export class NotificationsComponent {
       priority: 'low',
     },
   ];
+
+  openNotification(id: string) {
+    this.dialog.open(ModalComponent, {
+      data: {
+        type: 'notification',
+        id,
+      },
+    });
+  }
 }

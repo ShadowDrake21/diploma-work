@@ -15,7 +15,10 @@
         </mat-select>
       </mat-form-field>
 
-      <div [formGroup]="settingsForm.controls.display">
+      <div
+        [formGroup]="settingsForm.controls.display"
+        style="display: flex; justify-content: space-between"
+      >
         <mat-form-field class="main-settings__form-item">
           <mat-label for="sort-by">Default Sort By</mat-label>
           <mat-select name="sort-by" formControlName="sortBy" required>

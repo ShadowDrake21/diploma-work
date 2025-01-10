@@ -10,10 +10,12 @@
     "
   >
     @for (notification of notifications; track $index) {
+    <!-- TODO: change a to button -->
     <a
-      [routerLink]="notification.action.link"
-      style="text-decoration: none; color: inherit"
-      ><div
+      (click)="openNotification(notification.id)"
+      style="text-decoration: none; color: inherit; cursor: pointer"
+    >
+      <div
         [id]="notification.id"
         class="notification"
         [ngStyle]="{
@@ -62,8 +64,8 @@
             {{ notification.timestamp | date : "MMM d, y, h:mm a" }}
           </p>
         </div>
-      </div></a
-    >
+      </div>
+    </a>
     }
   </div>
 </div>
