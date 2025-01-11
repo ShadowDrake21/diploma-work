@@ -1,0 +1,54 @@
+@let notification = notificationItemSig();
+
+<mat-list-item
+  role="listitem"
+  style="
+    height: 100%;
+    border: 1px solid #000;
+    margin-bottom: 10px;
+    padding: 20px 10px;
+  "
+>
+  <div style="flex: 1; display: flex; align-items: center; gap: 10px">
+    <div>
+      <mat-icon
+        [ngClass]="{
+          read: notification.isRead,
+          high: notification.priority === 'high',
+          medium: notification.priority === 'medium',
+          low: notification.priority === 'low'
+        }"
+      >
+        {{ notification.isRead ? "check" : "notifications" }}
+      </mat-icon>
+    </div>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        flex: 1;
+        align-items: center;
+      "
+    >
+      <div>
+        <h4>{{ notification.title }}</h4>
+        <p>{{ notification.message }}</p>
+        <p>{{ notification.timestamp | date : "dd/MM/yyyy HH:mm" }}</p>
+        <mat-chip-set>
+          @for (tag of notification.tags; track tag) {
+          <mat-chip>{{ tag }}</mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+      <div style="display: flex">
+        @if(!notification.isRead) {
+        <button mat-button (click)="onMarkAsRead()">Mark as Read</button>
+        }
+        <button mat-button cdkFocusInitial (click)="onItemAction()">
+          {{ notification.action.label }}
+        </button>
+        <button mat-button (click)="onItemDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</mat-list-item>
