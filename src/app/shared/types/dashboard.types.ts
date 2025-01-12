@@ -16,6 +16,7 @@ export type DashboardRecentProjectItem = {
 
 export interface DashboardRecentProjectItemModal {
   id: number;
+  type: 'publication' | 'research project' | 'patent';
   projectTitle: string;
   deadline: string;
   statusProgress: string;

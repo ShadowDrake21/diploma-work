@@ -1,0 +1,29 @@
+@let patent = patents[0];
+
+<div>
+  <div>
+    <h4>Primary author</h4>
+    <p>{{ patent?.primaryAuthor }}</p>
+  </div>
+
+  <div>
+    <h4>Co-inventors</h4>
+    <ul>
+      @for (coInventor of patent?.coInventors; track coInventor) {
+      <li>{{ coInventor }}</li>
+      }
+    </ul>
+  </div>
+  <div>
+    <h4>Registration number</h4>
+    <p>{{ patent?.registrationNumber }}</p>
+  </div>
+  <div>
+    <h4>Registration date</h4>
+    <p>{{ patent?.registrationDate | date : "mediumDate" }}</p>
+  </div>
+  <div>
+    <h4>Issuing authority</h4>
+    <p>{{ patent?.issuingAuthority }}</p>
+  </div>
+</div>

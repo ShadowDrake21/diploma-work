@@ -1,1 +1,67 @@
-<p>project-details works!</p>
+<div>
+  <button mat-flat-button>Edit <mat-icon>edit_note</mat-icon></button>
+  <button mat-flat-button>Delete <mat-icon>delete</mat-icon></button>
+  <button mat-flat-button>Share <mat-icon>share</mat-icon></button>
+</div>
+<div>
+  <h4>Status: {{ work?.statusProgress }}</h4>
+  <mat-progress-bar
+    class="project-card__status-progress"
+    mode="determinate"
+    [value]="work?.progress"
+  ></mat-progress-bar>
+</div>
+<div>
+  <h3>Basic</h3>
+  <p>Title: {{ work?.projectTitle }}</p>
+  <p>Description: {{ work?.shortDescription }}</p>
+  <p>{{ work?.lastUpdated }}</p>
+</div>
+<mat-chip-set>
+  @for (tag of work?.tags; track tag) {
+  <mat-chip>{{ tag }}</mat-chip>
+  }
+</mat-chip-set>
+@switch (work?.type) { @case('publication') {
+<details-publication />
+} @case('patent') {
+<details-patent />
+} @case('research project') { <details-research-project /> } @default {
+<p>Unknown work type</p>
+} }
+
+<div>
+  <h4>Attachments Section</h4>
+  <div>
+    <h5>Blueprint</h5>
+    <button mat-flat-button>
+      Download PDF <mat-icon>picture_as_pdf</mat-icon>
+    </button>
+  </div>
+  <div>
+    <h5>Something</h5>
+    <button mat-raised-button>
+      Download PDF <mat-icon>picture_as_pdf</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div>
+  <h4>Comments Section</h4>
+  <div>
+    <p>Comment 1</p>
+    <p>Comment 2</p>
+    <p>Comment 3</p>
+  </div>
+</div>
+
+<div>
+  <h4>Related Works</h4>
+  <ul style="display: flex; list-style: none">
+    <li>
+      <shared-project-card [project]="work!" />
+    </li>
+    <li><shared-project-card [project]="work!" /></li>
+    <li><shared-project-card [project]="work!" /></li>
+  </ul>
+</div>
