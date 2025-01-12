@@ -1,0 +1,36 @@
+@let publication = publications[0];
+
+<div>
+  <div>
+    <h4>Authors</h4>
+    <ul>
+      @for (author of publication.authors; track author) {
+      <li>{{ author }}</li>
+      }
+    </ul>
+  </div>
+  <div>
+    <h4>Publication date</h4>
+    <p>{{ publication.publicationDate | date : "mediumDate" }}</p>
+  </div>
+  <div>
+    <h4>Publication source</h4>
+    <p>{{ publication.publicationSource }}</p>
+  </div>
+  <div>
+    <h4>DOI/ISBN</h4>
+    <p>{{ publication.doiIsbn }}</p>
+  </div>
+  <div>
+    <h4>Pages</h4>
+    <p>{{ publication.startPage }} - {{ publication.endPage }}</p>
+  </div>
+  <div>
+    <h4>Journal volume</h4>
+    <p>{{ publication.journalVolume }}</p>
+  </div>
+  <div>
+    <h4>Issue numbers</h4>
+    <p>{{ publication.issueNumbers }}</p>
+  </div>
+</div>

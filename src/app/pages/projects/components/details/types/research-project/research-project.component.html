@@ -1,0 +1,39 @@
+@let researchProject = researchProjects[0];
+
+<div>
+  <!-- {
+      id: 'proj-001',
+      participants: ['Dr. Ava Taylor', 'Dr. Ethan White'],
+      budget: 50000,
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2024-12-31'),
+      status: 'In Progress',
+      fundingSource: 'National Science Foundation',
+    }, -->
+
+  <ul>
+    @for(participant of researchProject.participants; track participant) {
+    <li>{{ participant }}</li>
+    }
+  </ul>
+  <div>
+    <h4>Budget</h4>
+    <p>{{ researchProject.budget | currency : "USD" }}</p>
+  </div>
+  <div>
+    <h4>Start date</h4>
+    <p>{{ researchProject.startDate | date : "mediumDate" }}</p>
+  </div>
+  <div>
+    <h4>End date</h4>
+    <p>{{ researchProject.endDate | date : "mediumDate" }}</p>
+  </div>
+  <div>
+    <h4>Status</h4>
+    <p>{{ researchProject.status }}</p>
+  </div>
+  <div>
+    <h4>Funding source</h4>
+    <p>{{ researchProject.fundingSource }}</p>
+  </div>
+</div>
