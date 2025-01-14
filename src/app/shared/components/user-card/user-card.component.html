@@ -1,0 +1,43 @@
+@let user = userSig();
+
+<div class="user-card">
+  <img [src]="user.profilePicture" class="user-card__image" alt="user-image" />
+
+  <div class="user-card__content">
+    <h3>{{ user.fullName }}</h3>
+    <h4>{{ user.email }}</h4>
+    <p>{{ user.phone }}</p>
+    <p>
+      <span class="user-card__content-subtitle">Role:</span> {{ user.role }}
+    </p>
+    <p>
+      <span class="user-card__content-subtitle">Status:</span> {{ user.status }}
+    </p>
+    <p>
+      <span class="user-card__content-subtitle">Last active:</span>
+      {{ user.lastActive | date : "short" }}
+    </p>
+
+    <p>
+      <span class="user-card__content-subtitle">Affiliation:</span>
+      {{ user.affiliation }}
+    </p>
+    <mat-divider />
+    <p>
+      <span class="user-card__content-subtitle">Publications:</span>
+      {{ user.publications }}
+    </p>
+    <p>
+      <span class="user-card__content-subtitle">Patents:</span>
+      {{ user.patents }}
+    </p>
+    <p>
+      <span class="user-card__content-subtitle">Research projects:</span>
+      {{ user.ongoingProjects }}
+    </p>
+    <div>
+      <button mat-button>View Profile</button>
+      <button mat-button><mat-icon>chat</mat-icon></button>
+    </div>
+  </div>
+</div>
