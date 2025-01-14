@@ -1,0 +1,44 @@
+<div>
+  <div
+    style="
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px 0;
+    "
+  >
+    <mat-form-field class="example-form-field">
+      <mat-label>Notification search</mat-label>
+      <input matInput type="text" [formControl]="searchControl" />
+      @if (searchControl.value) {
+      <button
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="searchControl.setValue('')"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+      }
+    </mat-form-field>
+    <mat-button-toggle-group [formControl]="filterControl">
+      @for (filter of searchFilters; track filter) {
+      <mat-button-toggle [value]="filter.value">{{
+        filter.viewValue
+      }}</mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
+  <p style="font-weight: 700">All Notifications: {{ notifications.length }}</p>
+  <mat-list role="list">
+    @for (notification of notifications; track notification) {
+    <notifications-item [notificationItem]="notification" />
+    }
+  </mat-list>
+
+  <div style="width: 100%; display: flex; justify-content: flex-end">
+    <button mat-button (click)="onMarkAll()">Mark All as Read</button>
+    <button mat-button (click)="onClearAll()">Clear All</button>
+  </div>
+</div>

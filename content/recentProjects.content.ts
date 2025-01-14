@@ -89,6 +89,7 @@ export const recentProjectContent: DashboardRecentProjectItem[] = [
 export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   {
     id: 1,
+    type: 'publication',
     projectTitle: 'E-Shop Platform',
     deadline: '30.12',
     statusProgress: 'In Progress',
@@ -108,6 +109,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 2,
+    type: 'research project',
     projectTitle: 'Mobile App Development',
     deadline: '15.01',
     statusProgress: 'In Progress',
@@ -127,6 +129,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 3,
+    type: 'patent',
     projectTitle: 'Language Learning Platform',
     deadline: '25.02',
     statusProgress: 'In Progress',
@@ -146,6 +149,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 4,
+    type: 'publication',
     projectTitle: 'Student Management System',
     deadline: '10.03',
     statusProgress: 'Completed',
@@ -165,6 +169,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 5,
+    type: 'patent',
     projectTitle: 'AI Assistant for E-commerce',
     deadline: '05.01',
     statusProgress: 'In Progress',
@@ -184,6 +189,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 6,
+    type: 'research project',
     projectTitle: 'Automated Financial Tracker',
     deadline: '20.01',
     statusProgress: 'In Progress',
@@ -203,6 +209,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 7,
+    type: 'publication',
     projectTitle: 'Real-time Messaging App',
     deadline: '28.02',
     statusProgress: 'In Progress',
@@ -222,6 +229,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 8,
+    type: 'publication',
     projectTitle: 'Online Course Marketplace',
     deadline: '12.01',
     statusProgress: 'In Progress',
@@ -240,6 +248,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 9,
+    type: 'publication',
     projectTitle: 'Secure File Transfer System',
     deadline: '08.02',
     statusProgress: 'In Progress',
@@ -259,6 +268,7 @@ export const recentProjectModalContent: DashboardRecentProjectItemModal[] = [
   },
   {
     id: 10,
+    type: 'research project',
     projectTitle: 'Weather Forecasting App',
     deadline: '18.01',
     statusProgress: 'Completed',
