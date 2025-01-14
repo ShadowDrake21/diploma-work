@@ -45,6 +45,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'users',
+    loadComponent: () =>
+      import('./pages/users/users.component').then((c) => c.UsersComponent),
+  },
+  {
     path: 'not-found',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
