@@ -1,36 +1,40 @@
 @let publication = publications[0];
 
-<div>
-  <div>
-    <h4>Authors</h4>
-    <ul>
+<div class="publication">
+  <div class="publication__authors publication__section">
+    <h4 class="publication__section-title">Authors</h4>
+    <ul class="publication__authors-list">
       @for (author of publication.authors; track author) {
-      <li>{{ author }}</li>
+      <li class="publication__authors-list__item">{{ author }}</li>
       }
     </ul>
   </div>
-  <div>
-    <h4>Publication date</h4>
-    <p>{{ publication.publicationDate | date : "mediumDate" }}</p>
+  <div class="publication__section">
+    <h4 class="publication__section-title">Publication date</h4>
+    <p class="publication__section-text">
+      {{ publication.publicationDate | date : "mediumDate" }}
+    </p>
   </div>
-  <div>
-    <h4>Publication source</h4>
-    <p>{{ publication.publicationSource }}</p>
+  <div class="publication__section">
+    <h4 class="publication__section-title">Publication source</h4>
+    <p class="publication__section-text">{{ publication.publicationSource }}</p>
   </div>
-  <div>
-    <h4>DOI/ISBN</h4>
-    <p>{{ publication.doiIsbn }}</p>
+  <div class="publication__section">
+    <h4 class="publication__section-title">DOI/ISBN</h4>
+    <p class="publication__section-text">{{ publication.doiIsbn }}</p>
   </div>
-  <div>
-    <h4>Pages</h4>
-    <p>{{ publication.startPage }} - {{ publication.endPage }}</p>
+  <div class="publication__section">
+    <h4 class="publication__section-title">Pages</h4>
+    <p class="publication__section-text">
+      {{ publication.startPage }} - {{ publication.endPage }}
+    </p>
   </div>
-  <div>
-    <h4>Journal volume</h4>
-    <p>{{ publication.journalVolume }}</p>
+  <div class="publication__section">
+    <h4 class="publication__section-title">Journal volume</h4>
+    <p class="publication__section-text">{{ publication.journalVolume }}</p>
   </div>
-  <div>
-    <h4>Issue numbers</h4>
-    <p>{{ publication.issueNumbers }}</p>
+  <div class="publication__section">
+    <h4 class="publication__section-title">Issue numbers</h4>
+    <p class="publication__section-text">{{ publication.issueNumbers }}</p>
   </div>
 </div>

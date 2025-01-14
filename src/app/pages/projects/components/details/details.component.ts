@@ -12,6 +12,9 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { ProjectCardComponent } from '../../../../shared/components/project-card/project-card.component';
+import { CommentComponent } from '../../../../shared/components/comment/comment.component';
+import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'project-details',
@@ -25,6 +28,8 @@ import { ProjectCardComponent } from '../../../../shared/components/project-card
     MatChipSet,
     MatChip,
     ProjectCardComponent,
+    CommentComponent,
+    TitleCasePipe,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',

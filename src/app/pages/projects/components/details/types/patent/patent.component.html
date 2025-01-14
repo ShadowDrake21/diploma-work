@@ -1,29 +1,31 @@
 @let patent = patents[0];
 
-<div>
-  <div>
-    <h4>Primary author</h4>
-    <p>{{ patent?.primaryAuthor }}</p>
+<div class="patent">
+  <div class="patent__section">
+    <h4 class="patent__section-title">Primary author</h4>
+    <p class="patent__section-text">{{ patent?.primaryAuthor }}</p>
   </div>
 
-  <div>
-    <h4>Co-inventors</h4>
-    <ul>
+  <div class="patent__coinventors patent__section">
+    <h4 class="patent__section-title">Co-inventors</h4>
+    <ul class="patent__coinventors-list">
       @for (coInventor of patent?.coInventors; track coInventor) {
-      <li>{{ coInventor }}</li>
+      <li class="patent__coinventors-list__item">{{ coInventor }}</li>
       }
     </ul>
   </div>
-  <div>
-    <h4>Registration number</h4>
-    <p>{{ patent?.registrationNumber }}</p>
+  <div class="patent__section">
+    <h4 class="patent__section-title">Registration number</h4>
+    <p class="patent__section-text">{{ patent?.registrationNumber }}</p>
   </div>
-  <div>
-    <h4>Registration date</h4>
-    <p>{{ patent?.registrationDate | date : "mediumDate" }}</p>
+  <div class="patent__section">
+    <h4 class="patent__section-title">Registration date</h4>
+    <p class="patent__section-text">
+      {{ patent?.registrationDate | date : "mediumDate" }}
+    </p>
   </div>
-  <div>
-    <h4>Issuing authority</h4>
-    <p>{{ patent?.issuingAuthority }}</p>
+  <div class="patent__section">
+    <h4 class="patent__section-title">Issuing authority</h4>
+    <p class="patent__section-text">{{ patent?.issuingAuthority }}</p>
   </div>
 </div>
