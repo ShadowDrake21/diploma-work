@@ -38,6 +38,13 @@ export const routes: Routes = [
       import('./pages/settings/settings.module').then((c) => c.SettingsModule),
   },
   {
+    path: 'notifications',
+    loadComponent: () =>
+      import('./pages/notifications/notifications.component').then(
+        (c) => c.NotificationsComponent
+      ),
+  },
+  {
     path: 'not-found',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(

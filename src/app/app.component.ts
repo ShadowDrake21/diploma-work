@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterOutlet,
+} from '@angular/router';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { inject, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -26,6 +31,7 @@ import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/r
     RecentUsersComponent,
     FooterComponent,
     NgStyle,
+    RouterLink,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

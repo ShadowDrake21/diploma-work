@@ -10,4 +10,6 @@ export interface INotification {
     link: string;
   };
   priority: string;
+  category: string;
+  tags: string[];
 }
