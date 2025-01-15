@@ -16,7 +16,7 @@ import { PaginationService } from '@core/services/pagination.service';
 import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
 import { IProfileInfo } from '@shared/types/profile.types';
-import { ProfileProjectsComponent } from './components/profile-projects/profile-projects.component';
+import { ProfileProjectsComponent } from '../../shared/components/profile-projects/profile-projects.component';
 
 @Component({
   selector: 'app-profile',

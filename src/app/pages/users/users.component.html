@@ -8,9 +8,14 @@
       padding: 20px 0;
     "
   >
-    <mat-form-field>
-      <mat-label>Notification search</mat-label>
-      <input matInput type="text" [formControl]="searchControl" />
+    <mat-form-field style="display: flex; width: 100%">
+      <mat-label>User search</mat-label>
+      <input
+        matInput
+        type="text"
+        [formControl]="searchControl"
+        style="display: flex; width: 100%"
+      />
       @if (searchControl.value) {
       <button
         matSuffix
@@ -25,8 +30,20 @@
   </div>
   <p style="font-weight: 700">All Users: {{ users.length }}</p>
   <mat-list role="list">
-    @for (user of users; track user) {
-    <shared-user-card [user]="user" />
-    }
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center"
+    >
+      @for (user of paginationService.visibleElements; track user) {
+      <shared-user-card [user]="user" />
+      }
+    </div>
+    @if(users.length > paginationService.itemsPerPage) {
+    <shared-pagination
+      [pages]="pages"
+      [currentPage]="paginationService.currentPage"
+      (prevPage)="paginationService.prevPage()"
+      (nextPage)="paginationService.nextPage()"
+      (goToPage)="paginationService.goToPage($event)"
+    />}
   </mat-list>
 </div>

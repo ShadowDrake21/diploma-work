@@ -50,6 +50,11 @@ export const routes: Routes = [
       import('./pages/users/users.component').then((c) => c.UsersComponent),
   },
   {
+    path: 'users/:id',
+    loadComponent: () =>
+      import('./pages/user/user.component').then((c) => c.UserComponent),
+  },
+  {
     path: 'not-found',
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
