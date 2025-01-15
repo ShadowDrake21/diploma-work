@@ -27,7 +27,7 @@
       <shared-project-card [project]="project" />
       }
     </div>
-    @if(myProjectsSig().length > paginationService.itemsPerPage) {
+    @if(projectsSig().length > paginationService.itemsPerPage) {
     <!-- get rid of the service in html (not important) -->
     <shared-pagination
       [pages]="pages"

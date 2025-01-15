@@ -4,40 +4,59 @@
   <img [src]="user.profilePicture" class="user-card__image" alt="user-image" />
 
   <div class="user-card__content">
-    <h3>{{ user.fullName }}</h3>
-    <h4>{{ user.email }}</h4>
-    <p>{{ user.phone }}</p>
-    <p>
-      <span class="user-card__content-subtitle">Role:</span> {{ user.role }}
-    </p>
-    <p>
-      <span class="user-card__content-subtitle">Status:</span> {{ user.status }}
-    </p>
-    <p>
-      <span class="user-card__content-subtitle">Last active:</span>
-      {{ user.lastActive | date : "short" }}
-    </p>
-
-    <p>
-      <span class="user-card__content-subtitle">Affiliation:</span>
-      {{ user.affiliation }}
-    </p>
-    <mat-divider />
-    <p>
-      <span class="user-card__content-subtitle">Publications:</span>
-      {{ user.publications }}
-    </p>
-    <p>
-      <span class="user-card__content-subtitle">Patents:</span>
-      {{ user.patents }}
-    </p>
-    <p>
-      <span class="user-card__content-subtitle">Research projects:</span>
-      {{ user.ongoingProjects }}
-    </p>
-    <div>
-      <button mat-button>View Profile</button>
-      <button mat-button><mat-icon>chat</mat-icon></button>
+    <div class="user-card__content-header">
+      <h3 class="user-card__content-header__item">{{ user.fullName }}</h3>
+      <h4 class="user-card__content-header__item">{{ user.email }}</h4>
+    </div>
+    <div class="user-card__content-body">
+      <div class="user-card__content-body__part">
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Phone:</span>
+          {{ user.phone }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Role:</span> {{ user.role }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Status:</span>
+          {{ user.status }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Last active:</span>
+          {{ user.lastActive | date : "short" }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Affiliation:</span>
+          {{ user.affiliation }}
+        </p>
+      </div>
+      <mat-divider />
+      <div class="user-card__content-body__part">
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Publications:</span>
+          {{ user.publications }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Patents:</span>
+          {{ user.patents }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Research projects:</span>
+          {{ user.ongoingProjects }}
+        </p>
+      </div>
+    </div>
+    <div class="user-card__content-actions">
+      <button
+        mat-button
+        class="user-card__content-actions__btn"
+        (click)="goToProfile()"
+      >
+        View Profile
+      </button>
+      <button mat-button class="user-card__content-actions__btn">
+        Go to chat
+      </button>
     </div>
   </div>
 </div>
