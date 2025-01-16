@@ -11,20 +11,13 @@
     <div class="user-card__content-body">
       <div class="user-card__content-body__part">
         <p class="user-card__content-body__part-item">
-          <span class="user-card__content-subtitle">Phone:</span>
-          {{ user.phone }}
-        </p>
-        <p class="user-card__content-body__part-item">
           <span class="user-card__content-subtitle">Role:</span> {{ user.role }}
         </p>
         <p class="user-card__content-body__part-item">
           <span class="user-card__content-subtitle">Status:</span>
           {{ user.status }}
         </p>
-        <p class="user-card__content-body__part-item">
-          <span class="user-card__content-subtitle">Last active:</span>
-          {{ user.lastActive | date : "short" }}
-        </p>
+
         <p class="user-card__content-body__part-item">
           <span class="user-card__content-subtitle">Affiliation:</span>
           {{ user.affiliation }}
