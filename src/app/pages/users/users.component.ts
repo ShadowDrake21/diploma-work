@@ -19,6 +19,7 @@ import { PaginationService } from '@core/services/pagination.service';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { IUser } from '@shared/types/users.types';
 import { debounce, debounceTime, distinctUntilChanged } from 'rxjs';
+import { UsersListComponent } from '../../shared/components/users-list/users-list.component';
 
 @Component({
   selector: 'app-users',
@@ -34,8 +35,7 @@ import { debounce, debounceTime, distinctUntilChanged } from 'rxjs';
     MatListModule,
     MatChipsModule,
 
-    UserCardComponent,
-    PaginationComponent,
+    UsersListComponent,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',

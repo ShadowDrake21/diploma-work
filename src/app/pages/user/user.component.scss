@@ -1,4 +1,32 @@
 .user {
+  &-inner {
+  }
+  &-img {
+    &__wrapper {
+    }
+  }
+  &-content {
+    &__info {
+      &-item {
+      }
+    }
+    &__btns {
+      &-item {
+      }
+    }
+
+    &__metric-list {
+      &__item {
+      }
+    }
+
+    &__tags {
+      &-title {
+      }
+      &-item {
+      }
+    }
+  }
   &-metric__list {
     display: flex;
     gap: 15px;

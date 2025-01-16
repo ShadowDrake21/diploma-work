@@ -1,0 +1,40 @@
+<mat-tab-group (selectedIndexChange)="tabChanged($event)">
+  <mat-tab label="Publications">
+    <shared-profile-projects
+      [projects]="userProjects"
+      [paginationService]="paginationService"
+    />
+  </mat-tab>
+  <mat-tab label="Patents">
+    <shared-profile-projects
+      [projects]="userProjects"
+      [paginationService]="paginationService"
+    />
+  </mat-tab>
+  <mat-tab label="Research Projects">
+    <shared-profile-projects
+      [projects]="userProjects"
+      [paginationService]="paginationService"
+    />
+  </mat-tab>
+  <mat-tab label="Collaborators">
+    <shared-users-list
+      [paginationService]="paginationService"
+      [pages]="pages"
+    />
+  </mat-tab>
+  <mat-tab label="Contact information"
+    ><p><span>Email:</span> {{ userSig()?.email }}</p>
+    <p><span>Phone:</span> {{ userSig()?.phone }}</p>
+    <ul>
+      <h4>Social Links</h4>
+      @for (link of [{url: 'www.x.com', name: 'X (formely Twitter)'},{url:
+      'www.instagram.com', name: 'Instagram'}, {url: 'www.linkedin.com',
+      name:'LinkedIn'} ]; track link) {
+      <li>
+        <a [href]="link.url">{{ link.name }}</a>
+      </li>
+      }
+    </ul></mat-tab
+  >
+</mat-tab-group>

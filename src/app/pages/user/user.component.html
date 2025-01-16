@@ -1,33 +1,45 @@
-<div>
-  <div style="width: 300px; height: 300px">
-    <img
-      [src]="user?.profilePicture"
-      style="object-fit: cover; width: 100%; height: 100%"
-    />
+<div class="user">
+  <div class="user-inner">
+    <div class="user-img__wrapper" style="width: 300px; height: 300px">
+      <img
+        [src]="user?.profilePicture"
+        class="user-img"
+        style="object-fit: cover; width: 100%; height: 100%"
+      />
+    </div>
+    <div class="user-content">
+      <div class="user-content__info">
+        <p class="user-content__info-item">{{ user?.fullName }}</p>
+        <p class="user-content__info-item">{{ user?.role }}</p>
+        <p class="user-content__info-item">{{ user?.status }}</p>
+        <p class="user-content__info-item">{{ user?.affiliation }}</p>
+      </div>
+      <div class="user-content__btns">
+        <button mat-button class="user-content__btns-item">
+          Send a message
+        </button>
+        <button mat-button class="user-content__btns-item">Follow</button>
+      </div>
+      <ul class="user-content__metric-list">
+        @for (item of userMetrics(); track $index) {
+        <li class="user-content__metric-list__item">
+          <shared-metric-card-item [data]="item" />
+        </li>
+        }
+      </ul>
+      <ul class="user-content__tags">
+        <h3 class="user-content__tags-title">Tags/Skills</h3>
+        @for (tag of user?.tags; track tag) {
+        <li class="user-content__tags-item">
+          {{ tag }}
+        </li>
+        }
+      </ul>
+    </div>
   </div>
-  <div>
-    <p>{{ user?.fullName }}</p>
-    <p>{{ user?.role }}</p>
-    <p>{{ user?.status }}</p>
-    <p>{{ user?.email }}</p>
-    <p>{{ user?.affiliation }}</p>
-    <p>{{ user?.phone }}</p>
-  </div>
-  <div>
-    <button mat-button class="user-card__content-actions__btn">
-      Send a message
-    </button>
-    <button mat-button class="user-card__content-actions__btn">Follow</button>
-  </div>
-  <ul class="user-metric__list">
-    @for (item of userMetrics(); track $index) {
-    <li class="dashboard-metric-card__list-item">
-      <shared-metric-card-item [data]="item" />
-    </li>
-    }
-  </ul>
   <shared-profile-projects
     [projects]="userProjects"
     [paginationService]="paginationService"
   />
+  <user-tabs [user]="user" />
 </div>

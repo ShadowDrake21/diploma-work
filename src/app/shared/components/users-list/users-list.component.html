@@ -1,0 +1,19 @@
+@let paginationService = paginationServiceSig();
+
+<mat-list
+  role="list"
+  style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center"
+>
+  @for (user of paginationService.visibleElements; track user) {
+  <mat-list-item style="height: 100%; width: auto">
+    <shared-user-card [user]="user" />
+  </mat-list-item>
+  }
+</mat-list>
+<shared-pagination
+  [pages]="pages()"
+  [currentPage]="paginationService.currentPage"
+  (prevPage)="paginationService.prevPage()"
+  (nextPage)="paginationService.nextPage()"
+  (goToPage)="paginationService.goToPage($event)"
+/>
