@@ -3,7 +3,10 @@
     <a class="filter-sidebar__group-link" routerLink="/projects/create"
       >Add Product/Patent</a
     >
-    <a class="filter-sidebar__group-link" routerLink="#"
+    <a
+      class="filter-sidebar__group-link"
+      [routerLink]="['/projects/list']"
+      [queryParams]="{ mode: 'mine' }"
       >View My Projects/Patents</a
     >
   </div>

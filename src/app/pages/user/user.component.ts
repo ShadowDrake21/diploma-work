@@ -12,6 +12,8 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { UsersListComponent } from '@shared/components/users-list/users-list.component';
 import { TabsComponent } from './components/user-tabs/user-tabs.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-user',
@@ -21,6 +23,8 @@ import { TabsComponent } from './components/user-tabs/user-tabs.component';
     MatTabsModule,
     UsersListComponent,
     TabsComponent,
+    MatButtonModule,
+    MatChipsModule,
   ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss',

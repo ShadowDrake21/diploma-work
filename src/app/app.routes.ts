@@ -33,6 +33,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'my-comments',
+    loadComponent: () =>
+      import('./pages/comments/comments.component').then(
+        (c) => c.CommentsComponent
+      ),
+  },
+  {
     path: 'settings',
     loadChildren: () =>
       import('./pages/settings/settings.module').then((c) => c.SettingsModule),
