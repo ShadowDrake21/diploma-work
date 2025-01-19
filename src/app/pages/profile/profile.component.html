@@ -1,9 +1,8 @@
 <div class="profile">
   <div class="profile__inner">
     <profile-info [profile]="profile" />
-
-    <profile-projects
-      [myProjects]="myProjects"
+    <shared-profile-projects
+      [projects]="myProjects"
       [paginationService]="paginationService"
     />
     <shared-frequent-links />

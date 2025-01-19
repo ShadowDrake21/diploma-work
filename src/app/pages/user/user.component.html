@@ -1,0 +1,55 @@
+<div class="user">
+  <div class="user-inner">
+    <div class="user-img__wrapper">
+      <img [src]="user?.profilePicture" class="user-img" />
+    </div>
+    <div class="user-content">
+      <div class="user-content__info">
+        <p class="user-content__info-item">
+          <span class="user-content__info-item__span">Name:</span>
+          {{ user?.fullName }}
+        </p>
+        <p class="user-content__info-item">
+          <span class="user-content__info-item__span">Role:</span>
+          {{ user?.role }}
+        </p>
+        <p class="user-content__info-item">
+          <span class="user-content__info-item__span">Status:</span>
+          {{ user?.status }}
+        </p>
+        <p class="user-content__info-item">
+          <span class="user-content__info-item__span">Affiliation:</span>
+          {{ user?.affiliation }}
+        </p>
+      </div>
+      <div class="user-content__btns">
+        <button mat-button class="user-content__btns-item">
+          Send a message
+        </button>
+        <button mat-button class="user-content__btns-item">Follow</button>
+      </div>
+      <ul class="user-content__metric-list">
+        @for (item of userMetrics(); track $index) {
+        <li class="user-content__metric-list__item">
+          <shared-metric-card-item [data]="item" />
+        </li>
+        }
+      </ul>
+      <div class="user-content__tags">
+        <h3 class="user-content__tags-title">Tags/Skills</h3>
+        <mat-chip-set aria-label="Fish selection">
+          @for (tag of user?.tags; track tag) {
+          <mat-chip class="user-content__tags-item">
+            {{ tag }}
+          </mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+    </div>
+  </div>
+  <shared-profile-projects
+    [projects]="userProjects"
+    [paginationService]="paginationService"
+  />
+  <user-tabs [user]="user" />
+</div>

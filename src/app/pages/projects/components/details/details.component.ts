@@ -15,6 +15,7 @@ import { ProjectCardComponent } from '../../../../shared/components/project-card
 import { CommentComponent } from '../../../../shared/components/comment/comment.component';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 import { TitleCasePipe } from '@angular/common';
+import { userComments } from '@content/userComments.content';
 
 @Component({
   selector: 'project-details',
@@ -40,7 +41,7 @@ export class ProjectDetailsComponent implements OnInit {
 
   workId: number | null = null;
   work: DashboardRecentProjectItemModal | undefined = undefined;
-
+  comment = userComments[0];
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.workId = +params['id'];

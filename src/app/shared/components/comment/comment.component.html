@@ -1,19 +1,19 @@
+@let comment = commentSig();
+
 <div class="comment">
   <div class="comment-avatar">
-    <img
-      class="comment-avatar__img"
-      src="https://ocdn.eu/pulscms-transforms/1/CUYk9kuTURBXy9mMDFlODIxMi04NmE2LTRjMWEtYTgzMC01OGQxN2MxYzU5YzYuanBlZ5KaCs0B4M0BDigAAABLFBSTBc0B4M0BDt4AA6EwAaExAaEzww"
-      alt="avatar"
-    />
+    <img class="comment-avatar__img" [src]="comment.avatarUrl" alt="avatar" />
   </div>
 
   <div class="comment-box">
     <div class="comment-head">
       <div>
         <h6 class="comment-name by-author">
-          <a class="comment-name__link" href="#">Remigiusz Mróz</a>
+          <a class="comment-name__link" href="#">{{ comment.userName }}</a>
         </h6>
-        <span class="comment-name__time">20 minutes age</span>
+        <span class="comment-name__time">{{
+          comment.timestamp | timeAgo
+        }}</span>
       </div>
       <div>
         <mat-icon>reply</mat-icon>
