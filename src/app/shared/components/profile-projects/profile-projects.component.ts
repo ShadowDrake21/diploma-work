@@ -7,14 +7,14 @@ import { recentProjectContent } from '@content/recentProjects.content';
 import { DashboardRecentProjectItem } from '@shared/types/dashboard.types';
 
 @Component({
-  selector: 'profile-projects',
+  selector: 'shared-profile-projects',
   imports: [PaginationComponent, FilterPanelComponent, ProjectCardComponent],
   templateUrl: './profile-projects.component.html',
   styleUrl: './profile-projects.component.scss',
 })
 export class ProfileProjectsComponent implements OnInit {
-  myProjectsSig = input.required<DashboardRecentProjectItem[]>({
-    alias: 'myProjects',
+  projectsSig = input.required<DashboardRecentProjectItem[]>({
+    alias: 'projects',
   });
   paginationServiceSig = input.required<PaginationService>({
     alias: 'paginationService',

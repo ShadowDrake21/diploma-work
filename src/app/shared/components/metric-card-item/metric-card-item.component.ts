@@ -5,7 +5,7 @@ import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'dashboard-metric-card-item',
+  selector: 'shared-metric-card-item',
   imports: [CommonModule, RouterLink, MatIcon],
   templateUrl: './metric-card-item.component.html',
   styleUrl: './metric-card-item.component.scss',

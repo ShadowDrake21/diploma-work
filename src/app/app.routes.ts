@@ -33,6 +33,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'my-comments',
+    loadComponent: () =>
+      import('./pages/comments/comments.component').then(
+        (c) => c.CommentsComponent
+      ),
+  },
+  {
     path: 'settings',
     loadChildren: () =>
       import('./pages/settings/settings.module').then((c) => c.SettingsModule),
@@ -43,6 +50,16 @@ export const routes: Routes = [
       import('./pages/notifications/notifications.component').then(
         (c) => c.NotificationsComponent
       ),
+  },
+  {
+    path: 'users',
+    loadComponent: () =>
+      import('./pages/users/users.component').then((c) => c.UsersComponent),
+  },
+  {
+    path: 'users/:id',
+    loadComponent: () =>
+      import('./pages/user/user.component').then((c) => c.UserComponent),
   },
   {
     path: 'not-found',

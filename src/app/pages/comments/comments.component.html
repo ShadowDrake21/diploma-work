@@ -1,0 +1,15 @@
+<div>
+  <h3 style="text-align: center; padding-bottom: 10px">My comments</h3>
+  @for (comment of paginationService.visibleElements; track comments) {
+  <shared-comment [comment]="comment" />
+  } @if(comments.length > paginationService.itemsPerPage) {
+  <!-- get rid of the service in html (not important) -->
+  <shared-pagination
+    [pages]="pages"
+    [currentPage]="paginationService.currentPage"
+    (prevPage)="paginationService.prevPage()"
+    (nextPage)="paginationService.nextPage()"
+    (goToPage)="paginationService.goToPage($event)"
+  />
+  }
+</div>

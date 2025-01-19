@@ -73,18 +73,18 @@
 
     <div class="details-comments__container">
       <ul class="details-comments__list">
-        <shared-comment />
+        <shared-comment [comment]="comment" />
 
         <ul class="details-comments__list details-comments__reply-list">
-          <shared-comment />
-          <shared-comment />
+          <shared-comment [comment]="comment" />
+          <shared-comment [comment]="comment" />
         </ul>
 
         <li>
-          <shared-comment />
+          <shared-comment [comment]="comment" />
           <ul class="details-comments__list details-comments__reply-list">
-            <shared-comment />
-            <shared-comment />
+            <shared-comment [comment]="comment" />
+            <shared-comment [comment]="comment" />
           </ul>
         </li>
       </ul>

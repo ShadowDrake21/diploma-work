@@ -1,0 +1,55 @@
+@let user = userSig();
+
+<div class="user-card">
+  <img [src]="user.profilePicture" class="user-card__image" alt="user-image" />
+
+  <div class="user-card__content">
+    <div class="user-card__content-header">
+      <h3 class="user-card__content-header__item">{{ user.fullName }}</h3>
+      <h4 class="user-card__content-header__item">{{ user.email }}</h4>
+    </div>
+    <div class="user-card__content-body">
+      <div class="user-card__content-body__part">
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Role:</span> {{ user.role }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Status:</span>
+          {{ user.status }}
+        </p>
+
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Affiliation:</span>
+          {{ user.affiliation }}
+        </p>
+      </div>
+      <mat-divider />
+      <div class="user-card__content-body__part">
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Publications:</span>
+          {{ user.publications }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Patents:</span>
+          {{ user.patents }}
+        </p>
+        <p class="user-card__content-body__part-item">
+          <span class="user-card__content-subtitle">Research projects:</span>
+          {{ user.ongoingProjects }}
+        </p>
+      </div>
+    </div>
+    <div class="user-card__content-actions">
+      <button
+        mat-button
+        class="user-card__content-actions__btn"
+        (click)="goToProfile()"
+      >
+        View Profile
+      </button>
+      <button mat-button class="user-card__content-actions__btn">
+        Go to chat
+      </button>
+    </div>
+  </div>
+</div>

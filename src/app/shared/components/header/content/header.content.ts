@@ -6,12 +6,8 @@ export const profile: Array<IProfile> = [
     link: '/my-profile',
   },
   {
-    title: 'My projects',
-    link: '/my-projects',
-  },
-  {
     title: 'My comments',
-    link: '/my-reading-challenges',
+    link: '/my-comments',
   },
   {
     title: 'Settings',
