@@ -1,0 +1,27 @@
+<div style="padding-bottom: 20px">
+  <h2 style="text-align: center; padding-bottom: 20px">Pending Actions</h2>
+  <div style="display: flex; flex-direction: column; gap: 20px">
+    <div>
+      <h3>Pending Approvals</h3>
+      <mat-list role="list">
+        <mat-list-item role="listitem"><a href="#">Project 1</a></mat-list-item>
+        <mat-list-item role="listitem"><a href="#">Project 2</a></mat-list-item>
+        <mat-list-item role="listitem"><a href="#">Project 3</a></mat-list-item>
+      </mat-list>
+    </div>
+    <div>
+      <h3>Flagged Content</h3>
+      <mat-list role="list" style="height: 100%">
+        <mat-list-item role="listitem" style="height: 100%"
+          ><a href="#">Project 1</a></mat-list-item
+        >
+        <mat-list-item role="listitem" style="height: 100%">
+          <shared-comment [comment]="comment" />
+        </mat-list-item>
+        <mat-list-item role="listitem" style="height: 100%"
+          ><a href="#">Project 3</a></mat-list-item
+        >
+      </mat-list>
+    </div>
+  </div>
+</div>
