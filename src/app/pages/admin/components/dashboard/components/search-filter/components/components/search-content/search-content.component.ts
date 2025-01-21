@@ -52,7 +52,7 @@ export class SearchContentComponent {
 
   ngOnInit(): void {
     this.paginationUsage();
-    this.cdr.detectChanges(); // Manually trigger change detection
+    this.cdr.detectChanges();
   }
 
   paginationUsage() {
