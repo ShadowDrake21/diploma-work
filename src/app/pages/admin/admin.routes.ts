@@ -22,14 +22,7 @@ export const AdminRoutes: Routes = [
           ).then((c) => c.ContentManagementComponent),
       },
       {
-        path: 'data-management',
-        loadComponent: () =>
-          import('./components/data-management/data-management.component').then(
-            (c) => c.DataManagementComponent
-          ),
-      },
-      {
-        path: 'users-managements',
+        path: 'users-management',
         loadComponent: () =>
           import(
             './components/users-management/users-management.component'
@@ -41,13 +34,6 @@ export const AdminRoutes: Routes = [
           import(
             './components/monitoring-analytics/monitoring-analytics.component'
           ).then((c) => c.MonitoringAnalyticsComponent),
-      },
-      {
-        path: 'roles',
-        loadComponent: () =>
-          import('./components/roles/roles.component').then(
-            (c) => c.RolesComponent
-          ),
       },
     ],
   },
