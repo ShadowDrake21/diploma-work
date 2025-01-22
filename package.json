@@ -23,6 +23,7 @@
     "@auth0/angular-jwt": "^5.2.0",
     "@fortawesome/angular-fontawesome": "^1.0.0",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "ag-charts-angular": "^11.0.4",
     "date-fns": "^4.1.0",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.14.5",

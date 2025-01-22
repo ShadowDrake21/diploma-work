@@ -1,0 +1,30 @@
+<div style="display: flex; flex-direction: column; gap: 20px">
+  <div style="display: flex; flex-direction: column; align-self: center">
+    <h2 style="text-align: center; padding-bottom: 10px">Users</h2>
+
+    <form
+      [formGroup]="userForm"
+      style="display: flex; gap: 20px; align-items: center"
+    >
+      <mat-form-field
+        ><input matInput placeholder="Name" formControlName="name"
+      /></mat-form-field>
+      <mat-form-field
+        ><input matInput placeholder="Email" formControlName="email"
+      /></mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Role" formControlName="role"
+      /></mat-form-field>
+      <button mat-raised-button color="primary" (click)="searchUsers()">
+        Search
+      </button>
+    </form>
+  </div>
+  <div>
+    <shared-users-list
+      [paginationService]="paginationService"
+      [pages]="pages"
+      type="general"
+    />
+  </div>
+</div>

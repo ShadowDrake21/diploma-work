@@ -1,0 +1,75 @@
+<div>
+  <h3 style="text-align: center; padding-bottom: 10px">Projects</h3>
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-bottom: 20px;
+    "
+  >
+    <profile-filter-panel />
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center"
+    >
+      <button
+        mat-raised-button
+        color="primary"
+        style="width: 100%"
+        (click)="addPublication()"
+      >
+        Add project
+      </button>
+      @for (project of paginationService.visibleElements; track $index) {
+      <div>
+        <shared-project-card [project]="project" />
+        <div
+          style="
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+            padding: 10px 0;
+          "
+        >
+          <div style="display: flex; gap: 10px; flex-direction: column">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="approve(project.id)"
+              style="width: 100%"
+            >
+              Approve
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="editUser(project.id)"
+              style="width: 100%"
+            >
+              Edit
+            </button>
+            <button
+              mat-raised-button
+              color="warn"
+              (click)="deleteUser(project.id)"
+              style="width: 100%"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    @if(projects.length > paginationService.itemsPerPage) {
+    <!-- get rid of the service in html (not important) -->
+    <shared-pagination
+      [pages]="pages"
+      [currentPage]="paginationService.currentPage"
+      (prevPage)="paginationService.prevPage()"
+      (nextPage)="paginationService.nextPage()"
+      (goToPage)="paginationService.goToPage($event)"
+    />
+    }
+  </div>
+</div>

@@ -6,26 +6,34 @@ export const AdminRoutes: Routes = [
     loadComponent: () =>
       import('./admin.component').then((c) => c.AdminComponent),
     children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
-        path: 'content',
+        path: 'dashboard',
         loadComponent: () =>
-          import('./components/content/content.component').then(
-            (c) => c.ContentComponent
+          import('./components/dashboard/dashboard.component').then(
+            (c) => c.DashboardComponent
           ),
       },
       {
-        path: 'manage-users',
+        path: 'content-management',
         loadComponent: () =>
-          import('./components/manage-users/manage-users.component').then(
-            (c) => c.ManageUsersComponent
-          ),
+          import(
+            './components/content-management/content-management.component'
+          ).then((c) => c.ContentManagementComponent),
       },
       {
-        path: 'roles',
+        path: 'users-management',
         loadComponent: () =>
-          import('./components/roles/roles.component').then(
-            (c) => c.RolesComponent
-          ),
+          import(
+            './components/users-management/users-management.component'
+          ).then((c) => c.UsersManagementComponent),
+      },
+      {
+        path: 'monotoring-analytics',
+        loadComponent: () =>
+          import(
+            './components/monitoring-analytics/monitoring-analytics.component'
+          ).then((c) => c.MonitoringAnalyticsComponent),
       },
     ],
   },
