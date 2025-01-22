@@ -6,7 +6,47 @@
 >
   @for (user of paginationService.visibleElements; track user) {
   <mat-list-item style="height: 100%; width: auto">
+    @if(typeSig() === 'admin' ) {
+    <div>
+      <shared-user-card [user]="user" />
+      <div
+        style="
+          display: flex;
+          gap: 10px;
+          flex-direction: column;
+          padding: 10px 0;
+        "
+      >
+        <div style="display: flex; gap: 10px">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="editUser(user)"
+            style="width: 100%"
+          >
+            Disable
+          </button>
+          <button
+            mat-raised-button
+            color="warn"
+            (click)="deleteUser(user)"
+            style="width: 100%"
+          >
+            Delete
+          </button>
+        </div>
+        <mat-form-field>
+          <mat-label>Role</mat-label>
+          <mat-select>
+            <mat-option value="admin">Admin</mat-option>
+            <mat-option value="user">User</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    } @else {
     <shared-user-card [user]="user" />
+    }
   </mat-list-item>
   }
 </mat-list>

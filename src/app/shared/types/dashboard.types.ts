@@ -2,7 +2,7 @@ export type DashboardMetricCardItem = {
   icon: string;
   title: string;
   value: string;
-  link: string;
+  link?: string;
 };
 
 export type DashboardRecentProjectItem = {
