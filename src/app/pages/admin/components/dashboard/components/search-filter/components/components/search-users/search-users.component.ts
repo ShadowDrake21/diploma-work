@@ -1,11 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
-import { statuses } from '@content/createProject.content';
 import { usersContent } from '@content/users.content';
-import { Filter } from '@shared/types/filters.types';
 import { UsersListComponent } from '@shared/components/users-list/users-list.component';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { PaginationService } from '@core/services/pagination.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,6 +22,7 @@ import { MatButtonModule } from '@angular/material/button';
   ],
   templateUrl: './search-users.component.html',
   styleUrl: './search-users.component.scss',
+  providers: [PaginationService],
 })
 export class SearchUsersComponent implements OnInit {
   paginationService = inject(PaginationService);

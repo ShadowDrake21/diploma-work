@@ -1,8 +1,8 @@
-<div>
-  <h2 style="padding-bottom: 20px; text-align: center">User Management</h2>
-  <div style="padding-bottom: 20px">
-    <form [formGroup]="searchForm" style="display: flex; gap: 15px">
-      <mat-form-field style="display: flex; width: 100%">
+<div class="users-management">
+  <h2 class="users-management__title">User Management</h2>
+  <div class="users-management__form-container">
+    <form class="users-management__form" [formGroup]="searchForm">
+      <mat-form-field class="users-management__form-item">
         <mat-label>User search</mat-label>
         <input
           matInput
@@ -21,7 +21,7 @@
         >}
       </mat-form-field>
 
-      <mat-form-field style="display: flex; width: 100%">
+      <mat-form-field class="users-management__form-item">
         <mat-label>Role</mat-label>
         <mat-select formControlName="role">
           <mat-option value="">All</mat-option>
@@ -31,7 +31,7 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field style="display: flex; width: 100%">
+      <mat-form-field class="users-management__form-item">
         <mat-label>Activity</mat-label>
         <mat-select formControlName="activity">
           <mat-option value="">All</mat-option>
@@ -40,7 +40,7 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field style="display: flex; width: 100%">
+      <mat-form-field class="users-management__form-item">
         <mat-label>Sort by</mat-label>
         <mat-select formControlName="sort">
           <mat-option value="registrationDate">Registration Date</mat-option>

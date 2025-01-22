@@ -1,3 +1,45 @@
+.notifications {
+  padding: 10px;
+  &-title {
+    padding-bottom: 10px;
+  }
+
+  &-container {
+    max-height: 300px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  &-item {
+    display: flex;
+    gap: 5px;
+    padding: 10px;
+    border-width: 1px;
+    border-style: solid;
+    &__link {
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    &__content {
+      flex: 1;
+
+      &-message {
+        word-break: break-all;
+        padding-bottom: 5px;
+      }
+      &-timestamp {
+        font-size: 12px;
+        line-height: 18px;
+        text-align: right;
+      }
+    }
+  }
+}
+
 .high {
   color: red;
 }

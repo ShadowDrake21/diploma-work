@@ -1,23 +1,14 @@
-<div style="padding: 10px">
-  <h3 style="padding-bottom: 10px">Notifications</h3>
-  <div
-    style="
-      max-height: 300px;
-      overflow-y: scroll;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    "
-  >
+<div class="notifications">
+  <h3 class="notifications-title">Notifications</h3>
+  <div class="notifications-container">
     @for (notification of notifications; track $index) {
-    <!-- TODO: change a to button -->
     <a
       (click)="openNotification(notification.id)"
-      style="text-decoration: none; color: inherit; cursor: pointer"
+      class="notifications-item__link"
     >
       <div
         [id]="notification.id"
-        class="notification"
+        class="notifications-item"
         [ngStyle]="{
           'border-color':
             notification.type === 'info'
@@ -30,13 +21,6 @@
               ? '#F44336'
               : '#000000'
         }"
-        style="
-          display: flex;
-          gap: 5px;
-          padding: 10px;
-          border-width: 1px;
-          border-style: solid;
-        "
       >
         <mat-icon
           [ngClass]="{
@@ -47,8 +31,9 @@
           }"
           >{{ notification.isRead ? "check" : "notifications" }}</mat-icon
         >
-        <div style="flex: 1">
+        <div class="notifications-item__content">
           <h4
+            class="notifications-item__content-title"
             [ngClass]="{
               high: notification.priority === 'high',
               medium: notification.priority === 'medium',
@@ -57,10 +42,10 @@
           >
             {{ notification.title }}
           </h4>
-          <p style="word-break: break-all; padding-bottom: 5px">
+          <p class="notifications-item__content-message">
             {{ notification.message | truncateText : 50 }}
           </p>
-          <p style="font-size: 12px; line-height: 18px; text-align: right">
+          <p class="notifications-item__content-timestamp">
             {{ notification.timestamp | date : "MMM d, y, h:mm a" }}
           </p>
         </div>
@@ -69,17 +54,3 @@
     }
   </div>
 </div>
-
-<!-- {
-  id: '1', // Unique identifier for the notification
-  title: 'New Message', // Brief title
-  message: 'You have received a new message from John.', // Detailed message
-  type: 'info', // Type of notification ('info', 'warning', 'success', 'error')
-  timestamp: '2024-12-25T10:30:00Z', // Time the notification was created
-  isRead: false, // Boolean to track if the notification has been read
-  action: {
-    label: 'View Message', // Label for the action button
-    link: '/messages/123', // Link or callback for the action
-  },
-  priority: 'medium', // Priority level ('high', 'medium', 'low')
-}, -->

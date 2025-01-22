@@ -1,19 +1,3 @@
-.settings-back {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  padding: 15px 20px;
-  background-color: #000;
-  width: 200px;
-  color: #fff;
-  &__icon {
-    color: #fff;
-  }
-}
-
 .settings {
   padding-top: 50px;
   position: relative;
@@ -21,21 +5,54 @@
     text-align: center;
     padding: 20px 0;
   }
-}
 
-.settings-nav-link {
-  display: block;
-  padding: 15px 20px;
-  text-decoration: none;
-  transition: all 0.3s ease-in-out;
-  color: inherit;
-
-  &:hover {
-    background-color: #bdbdbd;
+  &-back {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 15px 20px;
+    background-color: #000;
+    width: 200px;
+    color: #fff;
+    &__icon {
+      color: #fff;
+    }
   }
 
-  &.active {
-    background-color: #000;
-    color: #fff;
+  &-nav {
+    display: flex;
+    justify-content: space-around;
+    width: 50%;
+    background-color: #ccc;
+    padding: 10px;
+    &__wrapper {
+      display: flex;
+      justify-content: center;
+      padding-bottom: 30px;
+    }
+    &-link {
+      display: block;
+      padding: 15px 20px;
+      text-decoration: none;
+      transition: all 0.3s ease-in-out;
+      color: inherit;
+
+      &:hover {
+        background-color: #bdbdbd;
+      }
+
+      &.active {
+        background-color: #000;
+        color: #fff;
+      }
+    }
+  }
+
+  &-content {
+    display: flex;
+    justify-content: center;
   }
 }
