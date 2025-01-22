@@ -1,0 +1,17 @@
+.notifications {
+  &-inner {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px 0;
+  }
+  &__subtext {
+    font-weight: 700;
+  }
+  &__btns {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+}

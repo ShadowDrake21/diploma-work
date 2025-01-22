@@ -22,13 +22,6 @@ export const ProjectsRoutes: Routes = [
           ),
       },
       {
-        path: 'update',
-        loadComponent: () =>
-          import('./components/update/update.component').then(
-            (c) => c.UpdateProjectComponent
-          ),
-      },
-      {
         path: ':id',
         loadComponent: () =>
           import('./components/details/details.component').then(

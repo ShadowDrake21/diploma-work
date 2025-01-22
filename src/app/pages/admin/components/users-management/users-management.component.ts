@@ -1,13 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { UsersListComponent } from '../../../../shared/components/users-list/users-list.component';
+import { UsersListComponent } from '@shared/components/users-list/users-list.component';
 import { PaginationService } from '@core/services/pagination.service';
 import { usersContent } from '@content/users.content';
-import {
-  MatFormField,
-  MatFormFieldModule,
-  MatLabel,
-} from '@angular/material/form-field';
-import { MatSelect, MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';

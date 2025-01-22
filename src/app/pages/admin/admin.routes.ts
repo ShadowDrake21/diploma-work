@@ -28,13 +28,6 @@ export const AdminRoutes: Routes = [
             './components/users-management/users-management.component'
           ).then((c) => c.UsersManagementComponent),
       },
-      {
-        path: 'monotoring-analytics',
-        loadComponent: () =>
-          import(
-            './components/monitoring-analytics/monitoring-analytics.component'
-          ).then((c) => c.MonitoringAnalyticsComponent),
-      },
     ],
   },
 ];

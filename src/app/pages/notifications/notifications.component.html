@@ -1,13 +1,5 @@
-<div>
-  <div
-    style="
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 20px 0;
-    "
-  >
+<div class="notifications">
+  <div class="notifications-inner">
     <mat-form-field>
       <mat-label>Notification search</mat-label>
       <input matInput type="text" [formControl]="searchControl" />
@@ -30,14 +22,16 @@
       }
     </mat-button-toggle-group>
   </div>
-  <p style="font-weight: 700">All Notifications: {{ notifications.length }}</p>
+  <p class="notifications__subtext">
+    All Notifications: {{ notifications.length }}
+  </p>
   <mat-list role="list">
     @for (notification of notifications; track notification) {
     <notifications-item [notificationItem]="notification" />
     }
   </mat-list>
 
-  <div style="width: 100%; display: flex; justify-content: flex-end">
+  <div class="notifications__btns">
     <button mat-button (click)="onMarkAll()">Mark All as Read</button>
     <button mat-button (click)="onClearAll()">Clear All</button>
   </div>

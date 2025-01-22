@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MetricCardItemComponent } from '../../../../../../shared/components/metric-card-item/metric-card-item.component';
+import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import {
   AdminContentMetrics,
   AdminEngagementMetrics,
