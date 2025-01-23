@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { frequentLinksContent } from '../../../../../content/frequentLinks.content';
+import { frequentLinksContent } from '@content/frequentLinks.content';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 

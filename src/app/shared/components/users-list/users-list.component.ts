@@ -5,9 +5,7 @@ import { PaginationService } from '@core/services/pagination.service';
 import { UserCardComponent } from '../user-card/user-card.component';
 import { MatFormField, MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { NavigationEnd, Router } from '@angular/router';
-import { filter, map, Observable } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'shared-users-list',
@@ -18,7 +16,6 @@ import { AsyncPipe } from '@angular/common';
     MatSelectModule,
     MatButtonModule,
     MatFormField,
-    AsyncPipe,
   ],
   templateUrl: './users-list.component.html',
   styleUrl: './users-list.component.scss',

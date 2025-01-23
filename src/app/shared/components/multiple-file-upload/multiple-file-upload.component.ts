@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, input } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { throwError } from 'rxjs';
 import { FormControl } from '@angular/forms';
 
 @Component({

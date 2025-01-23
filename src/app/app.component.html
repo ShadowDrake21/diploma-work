@@ -5,23 +5,15 @@
   <mat-sidenav-container autosize>
     @if (!isAuth && !isSettings) {
     <mat-sidenav
-      class="expanded"
+      class="sidenav expanded"
       [mode]="isMobile ? 'over' : 'side'"
       [opened]="!isOpened ? 'false' : 'true'"
-      style="padding: '80px 0 10px'"
     >
       <!-- [ngClass]="!isCollapsed ? 'expanded' : 'collapsed'" -->
       <!-- [opened]="isMobile ? 'false' : 'true'" -->
 
-      <mat-nav-list
-        style="
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding-top: 100px;
-        "
-      >
-        <h3 style="padding: 0 10px 10px">Navigation</h3>
+      <mat-nav-list class="sidenav-list">
+        <h3 class="sidenav-list__title">Navigation</h3>
         <div>
           <a mat-list-item routerLink="/">
             <span class="entry">
@@ -53,7 +45,7 @@
             </span>
           </a>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 20px">
+        <div class="sidenav-list__additions">
           <sidebar-notifications />
           <sidebar-recent-users />
         </div>

@@ -17,7 +17,7 @@
 
       <div
         [formGroup]="settingsForm.controls.display"
-        style="display: flex; justify-content: space-between"
+        class="main-settings__form-group"
       >
         <mat-form-field class="main-settings__form-item">
           <mat-label for="sort-by">Default Sort By</mat-label>
@@ -41,13 +41,7 @@
           </mat-select>
         </mat-form-field>
       </div>
-      <div
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
-      >
+      <div class="main-settings__form-row">
         <div class="main-settings__form-item">
           <mat-checkbox
             class="notifications"

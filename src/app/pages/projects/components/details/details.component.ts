@@ -11,9 +11,8 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChip, MatChipSet } from '@angular/material/chips';
-import { ProjectCardComponent } from '../../../../shared/components/project-card/project-card.component';
-import { CommentComponent } from '../../../../shared/components/comment/comment.component';
-import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
+import { CommentComponent } from '@shared/components/comment/comment.component';
 import { TitleCasePipe } from '@angular/common';
 import { userComments } from '@content/userComments.content';
 

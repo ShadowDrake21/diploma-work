@@ -1,20 +1,12 @@
-<div>
-  <div
-    style="
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 20px 0;
-    "
-  >
-    <mat-form-field style="display: flex; width: 100%">
+<div class="users">
+  <div class="users__form">
+    <mat-form-field>
       <mat-label>User search</mat-label>
       <input
         matInput
         type="text"
         [formControl]="searchControl"
-        style="display: flex; width: 100%"
+        class="users__form-field__input"
       />
       @if (searchControl.value) {
       <button
@@ -28,8 +20,8 @@
       }
     </mat-form-field>
   </div>
-  <p style="font-weight: 700">All Users: {{ users.length }}</p>
-  <div style="height: 100%">
+  <p class="users__paragraph">All Users: {{ users.length }}</p>
+  <div class="users__list">
     <shared-users-list
       [paginationService]="paginationService"
       [pages]="pages"

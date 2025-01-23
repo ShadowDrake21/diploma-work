@@ -19,9 +19,11 @@
     "module": "ES2022",
     "baseUrl": "src",
     "paths": {
+      "@models/*": ["app/shared/models/*"],
+      "@pipes/*": ["app/shared/pipes/*"],
+      "@shared/*": ["app/shared/*"],
       "@pages/*": ["app/pages/*"],
       "@core/*": ["app/core/*"],
-      "@shared/*": ["app/shared/*"],
       "@content/*": ["../content/*"],
     },
   },

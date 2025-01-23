@@ -1,9 +1,6 @@
 @let researchProjects = researchProjectsFormSig();
 
-<form
-  [formGroup]="researchProjects"
-  style="display: flex; flex-direction: column; gap: 10px; padding: 15px 0"
->
+<form [formGroup]="researchProjects" class="project-research__form">
   <mat-form-field>
     <mat-label>Participants</mat-label>
     <input

@@ -10,7 +10,6 @@ import { HeaderService } from '@core/services/header.service';
 import { PaginationService } from '@core/services/pagination.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { UsersListComponent } from '@shared/components/users-list/users-list.component';
 import { TabsComponent } from './components/user-tabs/user-tabs.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -21,7 +20,6 @@ import { MatChipsModule } from '@angular/material/chips';
     MetricCardItemComponent,
     ProfileProjectsComponent,
     MatTabsModule,
-    UsersListComponent,
     TabsComponent,
     MatButtonModule,
     MatChipsModule,
