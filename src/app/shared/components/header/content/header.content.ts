@@ -1,4 +1,4 @@
-import { IProfile } from '../../../models/dropmenu.model';
+import { IProfile } from '@shared/types/dropmenu.types';
 
 export const profile: Array<IProfile> = [
   {

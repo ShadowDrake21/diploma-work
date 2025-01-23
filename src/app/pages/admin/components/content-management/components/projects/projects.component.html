@@ -1,17 +1,8 @@
-<div>
-  <h3 style="text-align: center; padding-bottom: 10px">Projects</h3>
-  <div
-    style="
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding-bottom: 20px;
-    "
-  >
+<div class="projects">
+  <h3 class="projects__title">Projects</h3>
+  <div class="projects__content">
     <profile-filter-panel />
-    <div
-      style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center"
-    >
+    <div class="projects__list">
       <button
         mat-raised-button
         color="primary"
@@ -23,42 +14,34 @@
       @for (project of paginationService.visibleElements; track $index) {
       <div>
         <shared-project-card [project]="project" />
-        <div
-          style="
-            display: flex;
-            gap: 10px;
-            flex-direction: column;
-            padding: 10px 0;
-          "
-        >
-          <div style="display: flex; gap: 10px; flex-direction: column">
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="approve(project.id)"
-              style="width: 100%"
-            >
-              Approve
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="editUser(project.id)"
-              style="width: 100%"
-            >
-              Edit
-            </button>
-            <button
-              mat-raised-button
-              color="warn"
-              (click)="deleteUser(project.id)"
-              style="width: 100%"
-            >
-              Delete
-            </button>
-          </div>
+        <div class="projects__actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="approve(project.id)"
+            style="width: 100%"
+          >
+            Approve
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="editUser(project.id)"
+            style="width: 100%"
+          >
+            Edit
+          </button>
+          <button
+            mat-raised-button
+            color="warn"
+            (click)="deleteUser(project.id)"
+            style="width: 100%"
+          >
+            Delete
+          </button>
         </div>
       </div>
+
       }
     </div>
     @if(projects.length > paginationService.itemsPerPage) {

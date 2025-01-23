@@ -187,6 +187,15 @@ html {
       flex-direction: column;
       padding-bottom: 20px;
     }
+    &-group {
+      display: flex;
+      justify-content: space-between;
+    }
+    &-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
     &-item {
     }
     &-btn {

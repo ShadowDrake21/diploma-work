@@ -3,7 +3,7 @@ import { Component, Input, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { TruncateTextPipe } from '../../../../pipes/truncate-text.pipe';
+import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { profile } from '../../content/header.content';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 
@@ -24,7 +24,6 @@ export class ProfileDropdownComponent {
   private router = inject(Router);
 
   @Input({ required: true }) userEmail: string = '';
-  // @Input({ required: true }) clickedLi!: string;
 
   faUser = faUser;
   profile = profile;

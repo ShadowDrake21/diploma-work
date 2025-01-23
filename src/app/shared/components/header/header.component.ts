@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { CommonModule } from '@angular/common';
 import { ProfileDropdownComponent } from './components/profile-dropdown/profile-dropdown.component';
-import { HeaderService } from '../../../core/services/header.service';
+import { HeaderService } from '@core/services/header.service';
 
 @Component({
   selector: 'shared-header',
