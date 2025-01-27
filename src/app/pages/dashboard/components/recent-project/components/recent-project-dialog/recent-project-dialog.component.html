@@ -1,9 +1,14 @@
-<h2 mat-dialog-title style="text-align: center">
+<h2
+  class="recent-project__dialog-title"
+  mat-dialog-title
+  style="text-align: center"
+>
   {{ extendedData?.projectTitle }}
 </h2>
-<mat-dialog-content class="mat-typography">
+<mat-dialog-content class="mat-typography recent-project__dialog">
   <div
-    style="display: flex; justify-content: space-between; padding-bottom: 10px"
+    class="recent-project__dialog-item"
+    style="display: flex; justify-content: space-between"
   >
     <div style="display: flex; gap: 10px">
       <h3>Deadline:</h3>
@@ -18,14 +23,14 @@
       </p>
     </div>
   </div>
-  <div style="padding-bottom: 10px">
+  <div class="recent-project__dialog-item">
     <h3>Progress:</h3>
     <mat-progress-bar
       mode="determinate"
       [value]="extendedData?.progress"
     ></mat-progress-bar>
   </div>
-  <div style="padding-bottom: 10px">
+  <div class="recent-project__dialog-item">
     <h3>Assigned Team Members:</h3>
     <div style="display: flex; justify-content: space-around">
       @for (member of extendedData?.assignedTeamMembers; track $index) {
@@ -35,16 +40,17 @@
       }
     </div>
   </div>
-  <div style="padding-bottom: 10px">
+  <div class="recent-project__dialog-item">
     <h3>Description:</h3>
     <p>{{ extendedData?.shortDescription }}</p>
   </div>
-  <div style="padding-bottom: 10px">
+  <div class="recent-project__dialog-item">
     <h3>Priority:</h3>
     <p>{{ extendedData?.priorityLevel }}</p>
   </div>
   <div
-    style="display: flex; justify-content: space-between; padding-bottom: 10px"
+    class="recent-project__dialog-item"
+    style="display: flex; justify-content: space-between"
   >
     <div>
       <h3>Created on:</h3>
@@ -55,7 +61,7 @@
       <p>{{ extendedData?.lastUpdated }}</p>
     </div>
   </div>
-  <div style="padding-bottom: 10px">
+  <div class="recent-project__dialog-item">
     <h3>Tags:</h3>
     <div style="display: flex; gap: 10px; justify-content: space-between">
       @for (tag of extendedData?.tags; track $index) {
@@ -63,11 +69,11 @@
       }
     </div>
   </div>
-  <div style="padding-bottom: 10px">
+  <div class="recent-project__dialog-item">
     <h3>Contact:</h3>
     <p>{{ extendedData?.contact?.name }} {{ extendedData?.contact?.email }}</p>
   </div>
-  <div style="padding-bottom: 10px">
+  <div class="recent-project__dialog-item">
     <h3>Files:</h3>
     <div style="display: flex; justify-content: space-between">
       @for (file of extendedData?.files; track $index) {

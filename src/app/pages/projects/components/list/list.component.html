@@ -1,10 +1,6 @@
-<div
-  style="display: flex; flex-direction: column; gap: 20px; padding-bottom: 20px"
->
+<div class="list">
   <profile-filter-panel />
-  <div
-    style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center"
-  >
+  <div class="list__projects">
     @for (project of paginationService.visibleElements; track $index) {
     <shared-project-card [project]="project" />
     }

@@ -1,9 +1,6 @@
 @let publicationsForm = publicationsFormSig();
 
-<form
-  [formGroup]="publicationsForm"
-  style="display: flex; flex-direction: column; gap: 10px; padding: 15px 0"
->
+<form [formGroup]="publicationsForm" class="project-publication__form">
   <mat-form-field>
     <mat-label>Authors</mat-label>
     <input

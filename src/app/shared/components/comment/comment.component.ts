@@ -1,6 +1,5 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { PaginationService } from '@core/services/pagination.service';
 import { TimeAgoPipe } from '@shared/pipes/time-ago.pipe';
 import { IComment } from '@shared/types/comment.types';
 

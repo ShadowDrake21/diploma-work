@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'admin-dashboard-quick-actions',
-  imports: [],
+  imports: [MatButtonModule],
   templateUrl: './quick-actions.component.html',
   styleUrl: './quick-actions.component.scss',
 })
