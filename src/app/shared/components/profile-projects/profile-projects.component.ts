@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';

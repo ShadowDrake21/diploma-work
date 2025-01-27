@@ -1,33 +1,31 @@
-<div style="padding-bottom: 20px">
-  <h2 style="text-align: center; padding-bottom: 20px">
-    Metrics and Statistics
-  </h2>
-  <div style="display: flex; flex-direction: column; gap: 20px">
-    <div style="display: flex; flex-direction: column; gap: 15px">
-      <h3>User Metrics</h3>
-      <ul style="list-style: none; display: flex; gap: 15px; overflow: scroll">
+<div class="metrics-statistics">
+  <h2 class="metrics-statistics__title">Metrics and Statistics</h2>
+  <div class="metrics-statistics__container">
+    <div class="metrics-statistics__part">
+      <h3 class="metrics-statistics__part-title">User Metrics</h3>
+      <ul class="metrics-statistics__part-list">
         @for (item of userMetrics; track $index) {
-        <li class="dashboard-metric-card__list-item">
+        <li class="metrics-statistics__part-list__item">
           <shared-metric-card-item [data]="item" />
         </li>
         }
       </ul>
     </div>
-    <div style="display: flex; flex-direction: column; gap: 15px">
-      <h3>Content Metrics</h3>
-      <ul style="list-style: none; display: flex; gap: 15px; overflow: scroll">
+    <div class="metrics-statistics__part">
+      <h3 class="metrics-statistics__part-title">Content Metrics</h3>
+      <ul class="metrics-statistics__part-list">
         @for (item of contentMetrics; track $index) {
-        <li class="dashboard-metric-card__list-item">
+        <li class="metrics-statistics__part-list__item">
           <shared-metric-card-item [data]="item" />
         </li>
         }
       </ul>
     </div>
-    <div style="display: flex; flex-direction: column; gap: 15px">
-      <h3>Engagement Metrics</h3>
-      <ul style="list-style: none; display: flex; gap: 15px; overflow: scroll">
+    <div class="metrics-statistics__part">
+      <h3 class="metrics-statistics__part-title">Engagement Metrics</h3>
+      <ul class="metrics-statistics__part-list">
         @for (item of engagementMetrics; track $index) {
-        <li class="dashboard-metric-card__list-item" style="width: 100%">
+        <li class="metrics-statistics__part-list__item">
           <shared-metric-card-item [data]="item" />
         </li>
         }

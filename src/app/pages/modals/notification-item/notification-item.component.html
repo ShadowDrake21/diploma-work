@@ -1,57 +1,50 @@
-<div>
+<div class="notification-item">
   @if(notificationItem) {
-  <h2 mat-dialog-title style="text-align: center">
+  <h2 class="notification-item__title" mat-dialog-title>
     {{ notificationItem.title }}
   </h2>
-  <mat-dialog-content class="mat-typography">
-    <div>
-      <div
-        class="notification"
-        [ngStyle]="{
-          'border-color':
-            notificationItem.type === 'info'
-              ? '#2196F3'
-              : notificationItem.type === 'warning'
-              ? '#FFC107'
-              : notificationItem.type === 'success'
-              ? '#4CAF50'
-              : notificationItem.type === 'error'
-              ? '#F44336'
-              : '#000000'
+  <mat-dialog-content class="mat-typography" class="notification-item__content">
+    <div
+      class="notification-item__content-inner"
+      [ngStyle]="{
+        'border-color':
+          notificationItem.type === 'info'
+            ? '#2196F3'
+            : notificationItem.type === 'warning'
+            ? '#FFC107'
+            : notificationItem.type === 'success'
+            ? '#4CAF50'
+            : notificationItem.type === 'error'
+            ? '#F44336'
+            : '#000000'
+      }"
+    >
+      <mat-icon
+        class="notification-item__content-icon"
+        [ngClass]="{
+          read: notificationItem.isRead,
+          high: notificationItem.priority === 'high',
+          medium: notificationItem.priority === 'medium',
+          low: notificationItem.priority === 'low'
         }"
-        style="
-          display: flex;
-          gap: 5px;
-          padding: 10px;
-          border-width: 1px;
-          border-style: solid;
-        "
       >
-        <mat-icon
+        {{ notificationItem.isRead ? "check" : "notifications" }}
+      </mat-icon>
+      <div class="notification-item__content-texts">
+        <!-- <h4
           [ngClass]="{
-            read: notificationItem.isRead,
             high: notificationItem.priority === 'high',
             medium: notificationItem.priority === 'medium',
             low: notificationItem.priority === 'low'
           }"
-        >
-          {{ notificationItem.isRead ? "check" : "notifications" }}
-        </mat-icon>
-        <div style="flex: 1">
-          <h4
-            [ngClass]="{
-              high: notificationItem.priority === 'high',
-              medium: notificationItem.priority === 'medium',
-              low: notificationItem.priority === 'low'
-            }"
-          ></h4>
-          <p style="word-break: break-all; padding-bottom: 5px">
-            {{ notificationItem.message }}
-          </p>
-          <p style="font-size: 14px; color: #9e9e9e; margin: 0">
-            {{ notificationItem.timestamp | date : "dd/MM/yyyy HH:mm" }}
-          </p>
-        </div>
+          class="notification-item__content-texts__title"
+        ></h4> -->
+        <p class="notification-item__content-texts__message">
+          {{ notificationItem.message }}
+        </p>
+        <p class="notification-item__content-texts__time">
+          {{ notificationItem.timestamp | date : "dd/MM/yyyy HH:mm" }}
+        </p>
       </div>
     </div>
   </mat-dialog-content>

@@ -1,15 +1,7 @@
 @let notification = notificationItemSig();
 
-<mat-list-item
-  role="listitem"
-  style="
-    height: 100%;
-    border: 1px solid #000;
-    margin-bottom: 10px;
-    padding: 20px 10px;
-  "
->
-  <div style="flex: 1; display: flex; align-items: center; gap: 10px">
+<mat-list-item class="notification-item" role="listitem">
+  <div class="notification-item__container">
     <div>
       <mat-icon
         [ngClass]="{
@@ -22,14 +14,7 @@
         {{ notification.isRead ? "check" : "notifications" }}
       </mat-icon>
     </div>
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        flex: 1;
-        align-items: center;
-      "
-    >
+    <div class="notification-item__content">
       <div>
         <h4>{{ notification.title }}</h4>
         <p>{{ notification.message }}</p>
@@ -40,7 +25,7 @@
           }
         </mat-chip-set>
       </div>
-      <div style="display: flex">
+      <div class="notification-item__btns">
         @if(!notification.isRead) {
         <button mat-button (click)="onMarkAsRead()">Mark as Read</button>
         }
