@@ -14,7 +14,6 @@ import com.backend.app.model.User;
 public interface UserRepository extends JpaRepository<User, Long>{
 	
 	Optional<User> findByEmail(String email);
-	Optional<User> findByUsername(String username);
 	List<User> findByRole(Role role);
 	
 	@Query("SELECT u FROM User u WHERE u.email = :email AND u.role = :role")
