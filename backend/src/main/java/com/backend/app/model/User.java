@@ -5,14 +5,6 @@ import jakarta.persistence.*;
 @Entity
 @Table(name="users")
 public class User {
-
-	public User(Long id, String email, Role role) {
-		super();
-		this.id = id;
-		this.email = email;
-		this.role = role;
-	}
-
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,13 +12,28 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(unique=true, nullable = false)
+    @Column( nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
     private Role role;
+    
+    public User() {}
 
+    public User(Long id, String email, String password, Role role) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
+	public User(Long id, String email, Role role) {
+		super();
+		this.id = id;
+		this.email = email;
+		this.role = role;
+	}
 
     public Long getId() {
         return id;

@@ -12,11 +12,13 @@ export class UserService {
 
   private getAuthHeaders() {
     const token = localStorage.getItem('authToken');
-    return {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${token}`,
-      }),
-    };
+    return token
+      ? {
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+          }),
+        }
+      : {};
   }
 
   public createUser(user: ICreateUser): Observable<IAuthorizedUser> {
