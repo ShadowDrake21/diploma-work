@@ -13,6 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { matchValidator } from '../../validators/match.validator';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
+import { AuthService } from '@core/authentication/auth.service';
 
 type SignUpForm = {
   name: string;
@@ -37,6 +38,7 @@ export class SignUpComponent implements OnInit {
   destroyRef = inject(DestroyRef);
 
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   protected signUpForm = new FormGroup(
     {
@@ -56,14 +58,28 @@ export class SignUpComponent implements OnInit {
         Validators.minLength(6),
         Validators.maxLength(30),
       ]),
+      role: new FormControl<'user' | 'admin'>('user', Validators.required),
     },
     {
       validators: matchValidator('password', 'confirmPassword'),
     }
   );
 
+  // VERIFICATION CODE CHECK
   onSignUp() {
-    console.log('onSignUp', this.signUpForm.value);
+    const { email, password, role } = this.signUpForm.value;
+
+    if (!email || !password || !role) return;
+
+    this.authService.register(email, password, role).subscribe({
+      next: (token) => {
+        localStorage.setItem('authToken', token);
+        this.router.navigate(['/']);
+      },
+      error: (error) => {
+        console.error('Registration failed', error);
+      },
+    });
     this.router.navigate(['/authentication/verification-code']);
   }
 
