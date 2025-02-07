@@ -38,14 +38,23 @@ public class AuthController {
 		if(userService.userExistsByEmail(email)) {
 			return ResponseEntity.badRequest().body("Email is already in use!");
 		}
+//		
+//		User newUser = new User();
+//		newUser.setEmail(email);
+//		newUser.setPassword(passwordEncoder.encode(password));
+//		newUser.setRole(role);
+//		
+//		userService.saveUser(newUser);
 		
-		User newUser = new User();
-		newUser.setEmail(email);
-		newUser.setPassword(passwordEncoder.encode(password));
-		newUser.setRole(role);
+		String encodedPassword = passwordEncoder.encode(password);
 		
-		userService.saveUser(newUser);
-		
-		return ResponseEntity.ok("User registered successfully!");
+		userService.savePendingUser(email, encodedPassword, role);
+		return ResponseEntity.ok("Verification code sent! Please check your email.");
+	}
+	
+	@PostMapping("/verify")
+	public ResponseEntity<String> verify(@RequestParam String email, @RequestParam String code) {
+		boolean verified = userService.verifyUser(email, code);
+		return verified ? ResponseEntity.ok("User verified successfully!") : ResponseEntity.badRequest().body("Invalid verification code.");
 	}
 }

@@ -62,7 +62,7 @@ public class UserController {
 		Optional<UserDTO> user = userService.getUserById(id);
 		
 		if(user.isPresent()) {
-			userService.deleteUser(new User(id, user.get().getEmail(), user.get().getRole()));
+			userService.deleteUser(id);
 			return ResponseEntity.noContent().build();
 		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

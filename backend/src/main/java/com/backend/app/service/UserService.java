@@ -11,12 +11,40 @@ import com.backend.app.model.Role;
 import com.backend.app.model.User;
 import com.backend.app.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class UserService {
 	private final UserRepository userRepository;
+	private final EmailService emailService;
 	
-	public UserService(UserRepository userRepository) {
+	public UserService(UserRepository userRepository, EmailService emailService) {
 		this.userRepository = userRepository;
+		this.emailService = emailService;
+	}
+	
+	public void savePendingUser(String email, String password, Role role) {
+		String verificationCode = emailService.generateVerificationCode();
+		
+		User user = new User(email, password, role);
+		user.setVerificationCode(verificationCode);
+		user.setVerified(false);
+		userRepository.save(user);
+		
+		emailService.sendVerificationCode(email, verificationCode);
+		
+	}
+	
+	public boolean verifyUser(String email, String code) {
+		User user = userRepository.findByEmail(email).orElse(null);
+		
+		if(user != null && user.getVerificationCode().equals(code) ) {
+			user.setVerified(true);
+			user.setVerificationCode(null);
+			userRepository.save(user);
+			return true;
+		}
+		return false;
 	}
 	
 	public UserDTO saveUser(User user) {
@@ -43,8 +71,14 @@ public class UserService {
 		return userRepository.existsByEmail(email);
 	}
 	
-	public void deleteUser(User user) {
-		userRepository.delete(user);
+	public void deleteUser(Long id) {
+		Optional<User>  user = userRepository.findById(id);
+		if(user.isPresent()) {
+			userRepository.deleteById(id);
+		}
+		else {
+			throw new EntityNotFoundException("User not found with ID " + id);
+		}
 	}
 	
 	private UserDTO mapToDTO(User user) {
