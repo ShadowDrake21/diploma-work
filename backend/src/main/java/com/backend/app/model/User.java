@@ -19,18 +19,23 @@ public class User {
     @Column(nullable=false)
     private Role role;
     
+    @Column(nullable = true)
+    private String verificationCode;
+ 
+    @Column(nullable = false)
+    private boolean verified = false;
+    
+    
     public User() {}
 
-    public User(Long id, String email, String password, Role role) {
-        this.id = id;
+    public User( String email, String password, Role role) {
         this.email = email;
         this.password = password;
         this.role = role;
     }
 
-	public User(Long id, String email, Role role) {
+	public User(String email, Role role) {
 		super();
-		this.id = id;
 		this.email = email;
 		this.role = role;
 	}
@@ -65,5 +70,21 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+    
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
 }
