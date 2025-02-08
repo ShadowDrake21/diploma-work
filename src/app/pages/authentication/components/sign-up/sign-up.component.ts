@@ -58,7 +58,7 @@ export class SignUpComponent implements OnInit {
         Validators.minLength(6),
         Validators.maxLength(30),
       ]),
-      role: new FormControl<'user' | 'admin'>('user', Validators.required),
+      role: new FormControl<'USER' | 'ADMIN'>('USER', Validators.required),
     },
     {
       validators: matchValidator('password', 'confirmPassword'),
@@ -67,14 +67,16 @@ export class SignUpComponent implements OnInit {
 
   // VERIFICATION CODE CHECK
   onSignUp() {
-    const { email, password, role } = this.signUpForm.value;
+    const { name, email, password, role } = this.signUpForm.value;
 
-    if (!email || !password || !role) return;
+    if (!name || !email || !password || !role) return;
 
-    this.authService.register(email, password, role).subscribe({
-      next: (token) => {
-        localStorage.setItem('authToken', token);
-        this.router.navigate(['/']);
+    this.authService.register(name, email, password, role).subscribe({
+      next: (response) => {
+        console.log(response);
+        this.router.navigate(['/authentication/verification-code'], {
+          queryParams: { email },
+        });
       },
       error: (error) => {
         console.error('Registration failed', error);

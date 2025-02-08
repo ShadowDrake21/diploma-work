@@ -22,4 +22,9 @@
       >Відправити</shared-custom-button
     >
   </div>
+  @if(verificationMessage) {
+  <div class="error-message">
+    {{ verificationMessage }}
+  </div>
+  }
 </div>

@@ -23,10 +23,10 @@ public class UserService {
 		this.emailService = emailService;
 	}
 	
-	public void savePendingUser(String email, String password, Role role) {
+	public void savePendingUser(String username, String email, String password, Role role) {
 		String verificationCode = emailService.generateVerificationCode();
 		
-		User user = new User(email, password, role);
+		User user = new User(username, email, password, role);
 		user.setVerificationCode(verificationCode);
 		user.setVerified(false);
 		userRepository.save(user);

@@ -8,6 +8,9 @@ public class User {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+	
+	 @Column(nullable = false)
+	    private String username;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -19,7 +22,7 @@ public class User {
     @Column(nullable=false)
     private Role role;
     
-    @Column(nullable = true)
+    @Column(nullable = true, name = "verification_code")
     private String verificationCode;
  
     @Column(nullable = false)
@@ -28,7 +31,8 @@ public class User {
     
     public User() {}
 
-    public User( String email, String password, Role role) {
+    public User(String username, String email, String password, Role role) {
+    	this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
