@@ -1,11 +1,16 @@
 package com.backend.app.controller;
 
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.backend.app.dto.RegisterRequest;
 import com.backend.app.model.Role;
 import com.backend.app.model.User;
 import com.backend.app.service.UserService;
@@ -18,6 +23,8 @@ public class AuthController {
 	private final JwtUtil jwtUtil;
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
 	
 	public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
@@ -34,7 +41,13 @@ public class AuthController {
 	}
 	
 	@PostMapping("/register")
-	public ResponseEntity<String> register(@RequestParam String email, @RequestParam String password, @RequestParam Role role){
+	public ResponseEntity<String> register(@RequestBody RegisterRequest request){
+		String username = request.getUsername();
+		 String email = request.getEmail();
+		    String password = request.getPassword();
+		    Role role = request.getRole();
+        logger.info("Received registration request with username: {} and email: {} and role: {}", username, email, role);
+
 		if(userService.userExistsByEmail(email)) {
 			return ResponseEntity.badRequest().body("Email is already in use!");
 		}
@@ -48,7 +61,7 @@ public class AuthController {
 		
 		String encodedPassword = passwordEncoder.encode(password);
 		
-		userService.savePendingUser(email, encodedPassword, role);
+		userService.savePendingUser(username, email, encodedPassword, role);
 		return ResponseEntity.ok("Verification code sent! Please check your email.");
 	}
 	

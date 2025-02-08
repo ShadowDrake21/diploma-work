@@ -33,15 +33,21 @@ export class AuthService {
   }
 
   public register(
+    username: string,
     email: string,
     password: string,
     role: string
   ): Observable<string> {
     return this.http.post<string>(`${this.apiUrl}/register`, {
-      email,
-      password,
-      role,
+      username: 'Dima Krapyvianskyi',
+      email: 'dimka670020040@gmail.com',
+      password: 'password123',
+      role: 'USER', // Make sure the role is set correctly
     });
+  }
+
+  public verifyUser(email: string, code: string): Observable<string> {
+    return this.http.post<string>(`${this.apiUrl}/verify`, { email, code });
   }
 
   public logout() {

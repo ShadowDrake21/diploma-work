@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '@core/authentication/auth.service';
 
 @Component({
   selector: 'app-verification-code',
@@ -8,10 +9,20 @@ import { Router } from '@angular/router';
   templateUrl: './verification-code.component.html',
   styleUrl: './verification-code.component.scss',
 })
-export class VerificationCodeComponent {
+export class VerificationCodeComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
 
   inputValues: string[] = [];
+  verificationMessage: string = '';
+  email: string = '';
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe((params) => {
+      this.email = params['email'] || '';
+    });
+  }
 
   goToNextInput(event: KeyboardEvent, index: number): void {
     const key = event.key;
@@ -86,8 +97,27 @@ export class VerificationCodeComponent {
     return null;
   }
 
+  private getVerificationCode(): string {
+    return this.inputValues.join('');
+  }
+
   public onSubmit() {
-    console.log('Verification code submitted');
-    this.router.navigate(['/dashboard']);
+    const code = this.getVerificationCode();
+
+    if (code.length !== 6) {
+      this.verificationMessage = 'Please enter a valid 6-digit code';
+      return;
+    }
+
+    this.authService.verifyUser(this.email, code).subscribe({
+      next: (response) => {
+        this.verificationMessage = 'Verification successful';
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        this.verificationMessage =
+          'Invalid verification code. Please try again';
+      },
+    });
   }
 }
