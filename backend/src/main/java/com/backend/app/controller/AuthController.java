@@ -2,6 +2,9 @@ package com.backend.app.controller;
 
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +44,7 @@ public class AuthController {
 	}
 	
 	@PostMapping("/register")
-	public ResponseEntity<String> register(@RequestBody RegisterRequest request){
+	public ResponseEntity<Map<String, String>> register(@RequestBody RegisterRequest request){
 		String username = request.getUsername();
 		 String email = request.getEmail();
 		    String password = request.getPassword();
@@ -49,7 +52,10 @@ public class AuthController {
         logger.info("Received registration request with username: {} and email: {} and role: {}", username, email, role);
 
 		if(userService.userExistsByEmail(email)) {
-			return ResponseEntity.badRequest().body("Email is already in use!");
+			Map<String, String> errorResponse = new HashMap<>();
+			errorResponse.put("error", "Email is already in use!");
+			
+			return ResponseEntity.badRequest().body(errorResponse);
 		}
 //		
 //		User newUser = new User();
@@ -62,7 +68,10 @@ public class AuthController {
 		String encodedPassword = passwordEncoder.encode(password);
 		
 		userService.savePendingUser(username, email, encodedPassword, role);
-		return ResponseEntity.ok("Verification code sent! Please check your email.");
+		
+		Map<String, String> response = new HashMap<>();
+		response.put("message", "Verification code sent! Please check your email.");
+		return ResponseEntity.ok(response);
 	}
 	
 	@PostMapping("/verify")
