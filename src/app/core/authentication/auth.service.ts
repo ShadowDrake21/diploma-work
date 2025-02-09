@@ -21,12 +21,18 @@ export class AuthService {
     this.currentUser = this.currentUserSub.asObservable();
   }
 
-  public login(email: string, password: string): Observable<string> {
+  public login(
+    email: string,
+    password: string
+  ): Observable<{ message: string; authToken: string }> {
     return this.http
-      .post<string>(`${this.apiUrl}/login`, { email, password })
+      .post<{ message: string; authToken: string }>(`${this.apiUrl}/login`, {
+        email,
+        password,
+      })
       .pipe(
         tap((response) => {
-          localStorage.setItem('authToken', response);
+          localStorage.setItem('authToken', response.authToken);
           this.currentUserSub.next(response);
         })
       );
@@ -39,15 +45,25 @@ export class AuthService {
     role: string
   ): Observable<string> {
     return this.http.post<string>(`${this.apiUrl}/register`, {
-      username: 'Dima Krapyvianskyi',
-      email: 'dimka670020040@gmail.com',
-      password: 'password123',
-      role: 'USER', // Make sure the role is set correctly
+      username,
+      email,
+      password,
+      role,
     });
   }
 
-  public verifyUser(email: string, code: string): Observable<string> {
-    return this.http.post<string>(`${this.apiUrl}/verify`, { email, code });
+  public verifyUser(
+    email: string,
+    code: string
+  ): Observable<{ message: string; authToken: string }> {
+    return this.http
+      .post<{ message: string; authToken: string }>(`${this.apiUrl}/verify`, {
+        email,
+        code,
+      })
+      .pipe(
+        tap((response) => localStorage.setItem('authToken', response.authToken))
+      );
   }
 
   public logout() {

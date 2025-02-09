@@ -111,10 +111,12 @@ export class VerificationCodeComponent implements OnInit {
 
     this.authService.verifyUser(this.email, code).subscribe({
       next: (response) => {
+        console.log(response);
         this.verificationMessage = 'Verification successful';
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/']);
       },
       error: (error) => {
+        console.error('Verification failed', error);
         this.verificationMessage =
           'Invalid verification code. Please try again';
       },

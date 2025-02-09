@@ -13,7 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.backend.app.dto.LoginRequest;
 import com.backend.app.dto.RegisterRequest;
+import com.backend.app.dto.VerifyRequest;
 import com.backend.app.model.Role;
 import com.backend.app.model.User;
 import com.backend.app.service.UserService;
@@ -36,19 +38,44 @@ public class AuthController {
 		this.passwordEncoder = passwordEncoder;
 	}
 	
+//	LOGIN: HASH PASSWORD 
+	
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
-		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-		String token = jwtUtil.generateToken(email);
-		return ResponseEntity.ok(token);
+	public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
+		String email = request.getEmail();
+		String password = request.getPassword();
+		
+		Map<String, String> response = new HashMap<>();
+		    
+		    if (request.getEmail() == null || request.getEmail().isEmpty()) {
+		        response.put("error", "Email is required.");
+		        return ResponseEntity.badRequest().body(response);
+		    }
+		    if (request.getPassword() == null || request.getPassword().isEmpty()) {
+		        response.put("error", "Password is required.");
+		        return ResponseEntity.badRequest().body(response);
+		    }
+
+		    try {
+		    	authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+		    	
+		    	String token = jwtUtil.generateToken(email);
+		    	response.put("message", "Login successful!");
+		    	response.put("authToken", token);
+		    	return ResponseEntity.ok(response);
+		    }
+		    catch (Exception e) {
+		    	response.put("error", "Invalid email or password!");
+		    	return ResponseEntity.badRequest().body(response);
+			}
 	}
 	
 	@PostMapping("/register")
 	public ResponseEntity<Map<String, String>> register(@RequestBody RegisterRequest request){
 		String username = request.getUsername();
-		 String email = request.getEmail();
-		    String password = request.getPassword();
-		    Role role = request.getRole();
+		String email = request.getEmail();
+		String password = request.getPassword();
+		Role role = request.getRole();
         logger.info("Received registration request with username: {} and email: {} and role: {}", username, email, role);
 
 		if(userService.userExistsByEmail(email)) {
@@ -57,13 +84,6 @@ public class AuthController {
 			
 			return ResponseEntity.badRequest().body(errorResponse);
 		}
-//		
-//		User newUser = new User();
-//		newUser.setEmail(email);
-//		newUser.setPassword(passwordEncoder.encode(password));
-//		newUser.setRole(role);
-//		
-//		userService.saveUser(newUser);
 		
 		String encodedPassword = passwordEncoder.encode(password);
 		
@@ -75,8 +95,23 @@ public class AuthController {
 	}
 	
 	@PostMapping("/verify")
-	public ResponseEntity<String> verify(@RequestParam String email, @RequestParam String code) {
+	public ResponseEntity<Map<String, String>> verify(@RequestBody VerifyRequest request) {
+		String email = request.getEmail();
+		String code = request.getCode();
+		
 		boolean verified = userService.verifyUser(email, code);
-		return verified ? ResponseEntity.ok("User verified successfully!") : ResponseEntity.badRequest().body("Invalid verification code.");
+		
+		if(verified) {
+			String token = jwtUtil.generateToken(email);
+			
+			Map<String, String> response = new HashMap<>();
+			response.put("message", "User verified successfully!");
+			response.put("authToken", token);
+			return ResponseEntity.ok(response);
+		} else {
+			Map<String, String> errorResponse = new HashMap<>();
+			errorResponse.put("error", "Invalid verification code.");
+			return ResponseEntity.badRequest().body(errorResponse);
+		}
 	}
 }
