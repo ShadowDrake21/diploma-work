@@ -52,14 +52,12 @@ public class UserService {
 		return mapToDTO(savedUser);
 	}
 	
-	public Optional<UserDTO> getUserById(Long id) {
-		Optional<User> user =  userRepository.findById(id);
-		return user.map(this::mapToDTO);
+	public Optional<User> getUserById(Long id) {
+		return userRepository.findById(id);
 	}
 	
-	public Optional<UserDTO> getUserByEmail(String email) {
-		Optional<User> user = userRepository.findByEmail(email);
-		return user.map(this::mapToDTO);
+	public Optional<User> getUserByEmail(String email) {
+		return userRepository.findByEmail(email);
 	}
 	
 	public List<UserDTO> getUsersByRole(Role role) {
