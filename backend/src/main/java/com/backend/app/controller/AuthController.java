@@ -4,6 +4,7 @@ package com.backend.app.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,19 @@ public class AuthController {
 		    }
 
 		    try {
-		    	authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+		    	Optional<User> optionalUser = userService.getUserByEmail(email);
+		    	
+		    	if(optionalUser.isEmpty()) {
+		    		response.put("error", "Invalid email or password!");
+			    	return ResponseEntity.badRequest().body(response);
+		    	}
+		    	
+		    	User user = optionalUser.get();
+		    	
+		    	if(!passwordEncoder.matches(password, user.getPassword())) {
+		    		response.put("error", "Invalid email or password!");
+		    		return ResponseEntity.badRequest().body(response);
+		    	}
 		    	
 		    	String token = jwtUtil.generateToken(email);
 		    	response.put("message", "Login successful!");
@@ -65,8 +78,9 @@ public class AuthController {
 		    	return ResponseEntity.ok(response);
 		    }
 		    catch (Exception e) {
-		    	response.put("error", "Invalid email or password!");
-		    	return ResponseEntity.badRequest().body(response);
+		    	logger.error("Login error: ", e);
+		        response.put("error", "An error occurred while logging in.");
+		        return ResponseEntity.internalServerError().body(response);
 			}
 	}
 	

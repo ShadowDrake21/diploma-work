@@ -34,14 +34,14 @@ public class UserController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-		Optional<UserDTO> user = userService.getUserById(id);
+	public ResponseEntity<User> getUserById(@PathVariable Long id) {
+		Optional<User> user = userService.getUserById(id);
 		return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 	
 	@GetMapping("/email/{email}")
-	public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-		Optional<UserDTO> user = userService.getUserByEmail(email);
+	public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+		Optional<User> user = userService.getUserByEmail(email);
 		return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 	
@@ -59,7 +59,7 @@ public class UserController {
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-		Optional<UserDTO> user = userService.getUserById(id);
+		Optional<User> user = userService.getUserById(id);
 		
 		if(user.isPresent()) {
 			userService.deleteUser(id);

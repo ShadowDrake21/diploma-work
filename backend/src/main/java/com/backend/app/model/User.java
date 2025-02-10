@@ -1,5 +1,7 @@
 package com.backend.app.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -27,6 +29,12 @@ public class User {
  
     @Column(nullable = false)
     private boolean verified = false;
+    
+    @Column(unique = true, name = "reset_token")
+    private String resetToken;
+    
+    @Column(name = "token_expiration")
+    private LocalDateTime tokenExpiration;
     
     
     public User() {}
@@ -91,4 +99,28 @@ public class User {
     public void setVerified(boolean verified) {
         this.verified = verified;
     }
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getResetToken() {
+		return resetToken;
+	}
+
+	public void setResetToken(String resetToken) {
+		this.resetToken = resetToken;
+	}
+
+	public LocalDateTime getTokenExpiration() {
+		return tokenExpiration;
+	}
+
+	public void setTokenExpiration(LocalDateTime tokenExpiration) {
+		this.tokenExpiration = tokenExpiration;
+	}
 }

@@ -25,6 +25,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "ag-charts-angular": "^11.0.4",
     "date-fns": "^4.1.0",
+    "jwt-decode": "^4.0.0",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.14.5",
     "tslib": "^2.3.0",

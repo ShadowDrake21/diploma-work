@@ -25,4 +25,13 @@ public class EmailService {
 	public String generateVerificationCode() {
 		return String.format("%06d", new Random().nextInt(999999));
 	}
+	
+	public void sendPasswordResetEmail(String email, String resetToken) {
+		String resetLink = "http://localhost:4200/reset-password?token=" + resetToken;
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(email);
+		message.setSubject("Password Reset Request");
+		message.setText("Click the following link to reset your password: " + resetToken);
+		mailSender.send(message);
+	}
 }

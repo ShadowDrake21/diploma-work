@@ -23,4 +23,9 @@ public interface UserRepository extends JpaRepository<User, Long>{
 	
 	@Query("SELECT u FROM User u WHERE u.role = :role")
 	List<User> findByRole(@Param("role") Role role, Pageable pageable);
+	
+	Optional<User> findByResetToken(String resetToken);
+	
+	@Query("SELECT u FROM User u WHERE u.resetToken IS NOT NULL AND u.tokenExpiration < CURRENT_TIMESTAMP")
+	List<User> findExpiredResetTokens();
 }

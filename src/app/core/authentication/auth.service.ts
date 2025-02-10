@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -15,10 +16,36 @@ export class AuthService {
   public currentUser!: Observable<any>;
 
   constructor() {
-    this.currentUserSub = new BehaviorSubject<any>(
-      JSON.parse(localStorage.getItem('authToken') || '{}')
-    );
+    const token = localStorage.getItem('authToken');
+    const user = token ? this.decodeToken(token) : null;
+    console.log('User', user);
+    this.currentUserSub = new BehaviorSubject<any>(user);
     this.currentUser = this.currentUserSub.asObservable();
+  }
+
+  private decodeToken(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (error) {
+      console.log('Error decoding token', error);
+      return null;
+    }
+  }
+
+  public isAuthenticated(): boolean {
+    const token = localStorage.getItem('authToken');
+    if (!token) return false;
+
+    try {
+      const decodedToken = this.decodeToken(token);
+      const isExpired = decodedToken.exp
+        ? decodedToken.exp < Date.now() / 1000
+        : false;
+      return !isExpired;
+    } catch (error) {
+      console.error('Error decoding token', error);
+      return false;
+    }
   }
 
   public login(
@@ -33,7 +60,7 @@ export class AuthService {
       .pipe(
         tap((response) => {
           localStorage.setItem('authToken', response.authToken);
-          this.currentUserSub.next(response);
+          this.currentUserSub.next(this.decodeToken(response.authToken));
         })
       );
   }
@@ -62,7 +89,10 @@ export class AuthService {
         code,
       })
       .pipe(
-        tap((response) => localStorage.setItem('authToken', response.authToken))
+        tap((response) => {
+          localStorage.setItem('authToken', response.authToken);
+          this.currentUserSub.next(this.decodeToken(response.authToken));
+        })
       );
   }
 
