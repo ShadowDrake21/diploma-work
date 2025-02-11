@@ -96,6 +96,23 @@ export class AuthService {
       );
   }
 
+  public requestPasswordReset(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/request-password-reset`,
+      { email }
+    );
+  }
+
+  public resetPassword(
+    token: string,
+    newPassword: string
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/reset-password`,
+      { token, newPassword }
+    );
+  }
+
   public logout() {
     localStorage.removeItem('authToken');
     this.currentUserSub.next(null);

@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.*;
 
 import com.backend.app.dto.LoginRequest;
 import com.backend.app.dto.RegisterRequest;
+import com.backend.app.dto.RequestPasswordResetRequest;
+import com.backend.app.dto.ResetPasswordRequest;
 import com.backend.app.dto.VerifyRequest;
 import com.backend.app.model.Role;
 import com.backend.app.model.User;
+import com.backend.app.service.PasswordResetService;
 import com.backend.app.service.UserService;
 import com.backend.app.util.JwtUtil;
 
@@ -29,17 +32,17 @@ public class AuthController {
 	private final JwtUtil jwtUtil;
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
+	private final PasswordResetService passwordResetService;
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 	
-	public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder) {
+	public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder, PasswordResetService passwordResetService) {
 		this.authenticationManager = authenticationManager;
 		this.jwtUtil = jwtUtil;
 		this.userService = userService;
 		this.passwordEncoder = passwordEncoder;
+		this.passwordResetService = passwordResetService;
 	}
-	
-//	LOGIN: HASH PASSWORD 
 	
 	@PostMapping("/login")
 	public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
@@ -126,6 +129,47 @@ public class AuthController {
 			Map<String, String> errorResponse = new HashMap<>();
 			errorResponse.put("error", "Invalid verification code.");
 			return ResponseEntity.badRequest().body(errorResponse);
+		}
+	}
+	
+	@PostMapping("/request-password-reset")
+	public ResponseEntity<Map<String, String>> requestPasswordReset(@RequestBody RequestPasswordResetRequest request) {
+		String email = request.getEmail();
+		
+		Map<String, String> response = new HashMap<>();
+		if(email == null || email.isEmpty()) {
+			response.put("error", "Email is required.");
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+	    boolean emailSent = passwordResetService.sendResetLink(email);
+	    if (emailSent) {
+	        response.put("message", "Password reset link has been sent to your email.");
+	        return ResponseEntity.ok(response);
+	    } else {
+	        response.put("error", "Email not found.");
+	        return ResponseEntity.badRequest().body(response);
+	    }
+	}
+	
+	@PostMapping("/reset-password")
+	public ResponseEntity<Map<String, String>> resetPassword(@RequestBody ResetPasswordRequest request) {
+		String token = request.getToken();
+		String newPassword = request.getNewPassword();
+		
+		Map<String, String> response = new HashMap<>();
+		if (token == null || newPassword == null || newPassword.isEmpty()) {
+		    response.put("error", "Invalid request.");
+		    return ResponseEntity.badRequest().body(response);
+		}
+
+		boolean passwordUpdated = passwordResetService.resetPassword(token, newPassword);
+		if (passwordUpdated) {
+		   response.put("message", "Password updated successfully!");
+		   return ResponseEntity.ok(response);
+		} else {
+		   response.put("error", "Invalid or expired token.");
+		   return ResponseEntity.badRequest().body(response);
 		}
 	}
 }

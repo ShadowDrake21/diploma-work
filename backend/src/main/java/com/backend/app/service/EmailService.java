@@ -27,11 +27,11 @@ public class EmailService {
 	}
 	
 	public void sendPasswordResetEmail(String email, String resetToken) {
-		String resetLink = "http://localhost:4200/reset-password?token=" + resetToken;
+		String resetLink = "http://localhost:4200/authentication/recover-password/reset-password?token=" + resetToken;
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setSubject("Password Reset Request");
-		message.setText("Click the following link to reset your password: " + resetToken);
+		message.setText("Click the following link to reset your password: " + resetLink);
 		mailSender.send(message);
 	}
 }
