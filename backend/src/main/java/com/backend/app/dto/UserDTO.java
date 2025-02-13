@@ -1,6 +1,6 @@
 package com.backend.app.dto;
 
-import com.backend.app.model.Role;
+import com.backend.app.enums.Role;
 
 public class UserDTO {	
     public UserDTO() {}

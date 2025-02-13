@@ -19,7 +19,7 @@ import com.backend.app.dto.RegisterRequest;
 import com.backend.app.dto.RequestPasswordResetRequest;
 import com.backend.app.dto.ResetPasswordRequest;
 import com.backend.app.dto.VerifyRequest;
-import com.backend.app.model.Role;
+import com.backend.app.enums.Role;
 import com.backend.app.model.User;
 import com.backend.app.service.PasswordResetService;
 import com.backend.app.service.UserService;

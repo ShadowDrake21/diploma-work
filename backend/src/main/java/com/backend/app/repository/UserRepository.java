@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.backend.app.model.Role;
+import com.backend.app.enums.Role;
 import com.backend.app.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long>{
