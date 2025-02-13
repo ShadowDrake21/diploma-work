@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.UserDTO;
-import com.backend.app.model.Role;
+import com.backend.app.enums.Role;
 import com.backend.app.model.User;
 import com.backend.app.repository.UserRepository;
 

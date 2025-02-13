@@ -2,6 +2,8 @@ package com.backend.app.model;
 
 import java.time.LocalDateTime;
 
+import com.backend.app.enums.Role;
+
 import jakarta.persistence.*;
 
 @Entity

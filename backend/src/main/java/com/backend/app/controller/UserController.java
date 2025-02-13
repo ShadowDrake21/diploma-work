@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.dto.UserDTO;
-import com.backend.app.model.Role;
+import com.backend.app.enums.Role;
 import com.backend.app.model.User;
 import com.backend.app.service.UserService;
 
