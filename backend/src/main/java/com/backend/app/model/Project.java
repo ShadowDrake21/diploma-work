@@ -1,6 +1,7 @@
 package com.backend.app.model;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.backend.app.enums.ProjectType;
@@ -17,7 +18,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
 @Entity
-@Table(name = "project")
+@Table(name = "projects")
 public class Project {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,12 +35,10 @@ public class Project {
 	private String description;
 	
 	@Column(name="created_at", updatable = false)
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdAt;
+	private LocalDateTime createdAt;
 	
 	@Column(name = "updated_at")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updatedAt;
+	private LocalDateTime updatedAt;
 	
 	public Project(UUID id, ProjectType type, String title, String description) {
 		super();
@@ -88,19 +87,19 @@ public class Project {
 		this.description = description;
 	}
 
-	public Date getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(Date createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt() {
+	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(Date updatedAt) {
+	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 }
