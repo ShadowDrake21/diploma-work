@@ -1,6 +1,7 @@
 package com.backend.app.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,11 +21,26 @@ public class S3Controller {
 	}
 	
 	@PostMapping("/upload")
-	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-		return ResponseEntity.ok(s3Service.uploadFile(file));
+	public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file) {
+		try {
+			String fileUrl = s3Service.uploadFile(file);
+			return ResponseEntity.ok("File uploaded successfully: " + fileUrl);
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body("Failed to upload file: " + e.getMessage());
+		}
 	}
 	
+	
+    @DeleteMapping("/delete/{fileName}")
 	public ResponseEntity<String> deleteFile(@PathVariable String fileName) {
-		return ResponseEntity.ok(s3Service.deleteFile(fileName));
+		try {
+			s3Service.deleteFile(fileName);
+			return ResponseEntity.ok("File deleted successfully: " + fileName);
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body("Failed to delete file: " + e.getMessage());
+		}
 	}
 }
+
+// TODO: Array of files
+// TODO: Controllers of project, publication, patent, research
