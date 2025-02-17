@@ -23,6 +23,15 @@ public class ProjectService {
 		return projectRepository.findById(id);
 	}
 	
+	public Optional<Project> updateProject(UUID id, Project newProject) {
+		return projectRepository.findById(id).map(existingProject -> {
+			existingProject.setType(newProject.getType());
+			existingProject.setTitle(newProject.getTitle());
+			existingProject.setDescription(newProject.getDescription());
+			return projectRepository.save(existingProject);
+		});
+}
+	
 	public Project saveProject(Project project) {
 		return projectRepository.save(project);
 	}

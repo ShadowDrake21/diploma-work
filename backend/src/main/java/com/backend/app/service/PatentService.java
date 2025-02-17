@@ -23,6 +23,18 @@ public class PatentService {
 		return patentRepository.findById(id);
 	}
 	
+	public Optional<Patent> updatePatent(UUID id, Patent newPatent) {
+		return patentRepository.findById(id).map(existingPatent -> {
+			existingPatent.setProject(newPatent.getProject());
+			existingPatent.setPrimaryAuthor(newPatent.getPrimaryAuthor());
+			existingPatent.setRegistrationNumber(newPatent.getRegistrationNumber());
+			existingPatent.setRegistrationDate(newPatent.getRegistrationDate());
+			existingPatent.setIssuingAuthority(newPatent.getIssuingAuthority());
+			
+			return patentRepository.save(existingPatent);
+		});
+}
+	
 	public Patent savePatent(Patent patent) {
 		return patentRepository.save(patent);
 	}

@@ -23,6 +23,20 @@ public class PublicationService {
 		return publicationRepository.findById(id);
 	}
 	
+	public Optional<Publication> updatePublication(UUID id, Publication newPublication) {
+		return publicationRepository.findById(id).map(existingPublication -> {
+			existingPublication.setProject(newPublication.getProject());
+			existingPublication.setPublicationSource(newPublication.getPublicationSource());
+			existingPublication.setDoiIsbn(newPublication.getDoiIsbn());
+			existingPublication.setStartPage(newPublication.getStartPage());
+			existingPublication.setEndPage(newPublication.getEndPage());
+			existingPublication.setJournalVolume(newPublication.getJournalVolume());
+			existingPublication.setIssueNumber(newPublication.getIssueNumber());
+		
+			return publicationRepository.save(existingPublication);
+		});
+}
+	
 	public Publication savePublication(Publication publication) {
 		return publicationRepository.save(publication);
 	}

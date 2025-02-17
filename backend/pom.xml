@@ -104,6 +104,11 @@
     		<artifactId>s3</artifactId>
     		<version>2.30.17</version>
 		</dependency>
+		<dependency>
+    		<groupId>org.mapstruct</groupId>
+    		<artifactId>mapstruct</artifactId>
+    		<version>1.6.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>
