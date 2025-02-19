@@ -8,7 +8,7 @@ import com.backend.app.model.Project;
 
 @Mapper
 public interface ProjectMapper {
-	ProjectMapper iNSTANCE = Mappers.getMapper(ProjectMapper.class);
+	ProjectMapper INSTANCE = Mappers.getMapper(ProjectMapper.class);
 	
 	ProjectDTO toDTO(Project project);
 	Project toEntity(ProjectDTO projectDTO);

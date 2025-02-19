@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { BASE_URL } from '@core/constants/default-variables';
 import { IAuthorizedUser, ICreateUser } from '@shared/types/users.types';
 import { Observable } from 'rxjs';
 
@@ -8,7 +9,7 @@ import { Observable } from 'rxjs';
 })
 export class UserService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/users';
+  private apiUrl = BASE_URL + 'users';
 
   private getAuthHeaders() {
     const token = localStorage.getItem('authToken');

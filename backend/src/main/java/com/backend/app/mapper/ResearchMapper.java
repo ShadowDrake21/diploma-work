@@ -10,6 +10,6 @@ import com.backend.app.model.Research;
 public interface ResearchMapper {
 	ResearchMapper INSTANCE = Mappers.getMapper(ResearchMapper.class);
 	
-	ResearchDTO toDto(Research research);
+	ResearchDTO toDTO(Research research);
 	Research toEntity(ResearchDTO researchDTO);
 }

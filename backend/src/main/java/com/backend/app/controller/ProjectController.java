@@ -27,7 +27,7 @@ public class ProjectController {
 	@Autowired
 	private ProjectService projectService;
 	
-	@Autowired
+	@Autowired	
 	private ProjectMapper projectMapper;
 	
 	@GetMapping
