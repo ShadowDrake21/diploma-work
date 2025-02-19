@@ -3,6 +3,7 @@ package com.backend.app.controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.app.dto.PatentDTO;
+import com.backend.app.mapper.PatentMapper;
 import com.backend.app.model.Patent;
 import com.backend.app.service.PatentService;
 
@@ -24,24 +27,30 @@ public class PatentController {
 	@Autowired
 	private PatentService patentService;
 	
+	@Autowired
+	private PatentMapper patentMapper;
+	
 	@GetMapping
-	public List<Patent> getAllPatents(){
-		return patentService.findAllPatents();
+	public List<PatentDTO> getAllPatents(){
+		return patentService.findAllPatents().stream().map(patentMapper::toDTO).collect(Collectors.toList());
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Optional<Patent>> getPatentById(@PathVariable UUID id) {
-		return ResponseEntity.ok(patentService.findPatentById(id));
+	public PatentDTO getPatentById(@PathVariable UUID id) {
+		Optional<Patent> patentOptional = patentService.findPatentById(id);
+		return patentOptional.map(patentMapper::toDTO)
+	            .orElseThrow(() -> new RuntimeException("Patent not found with id: " + id));
 	}
 	
 	@PostMapping
-	public Patent createPatent(@RequestBody Patent patent) {
-		return patentService.savePatent(patent);
+	public PatentDTO createPatent(@RequestBody Patent patent) {
+		return patentMapper.toDTO(patentService.savePatent(patent));
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Optional<Patent>> updatePatent(@PathVariable UUID id, @RequestBody Patent patent) {
-		return ResponseEntity.ok(patentService.updatePatent(id, patent));
+	public PatentDTO updatePatent(@PathVariable UUID id, @RequestBody Patent patent) {
+		Optional<Patent> patentOptional = patentService.updatePatent(id, patent);
+		return patentOptional.map(patentMapper::toDTO).orElseThrow(() -> new RuntimeException("Patent not found with id: " + id));
 	}
 	
 	@DeleteMapping("/{id}")

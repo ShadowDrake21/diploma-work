@@ -43,4 +43,3 @@ public class S3Controller {
 }
 
 // TODO: Array of files
-// TODO: Controllers of project, publication, patent, research
