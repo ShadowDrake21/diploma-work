@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { BASE_URL } from '@core/constants/default-variables';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -7,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class AttachmentsService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/s3';
+  private apiUrl = BASE_URL + 's3';
 
   uploadFile(file: File): Observable<string> {
     const formData = new FormData();
