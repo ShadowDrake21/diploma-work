@@ -43,6 +43,9 @@ public class Project {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 	
+	public Project() {
+	}
+
 	public Project(UUID id, ProjectType type, String title, String description) {
 		super();
 		this.id = id;

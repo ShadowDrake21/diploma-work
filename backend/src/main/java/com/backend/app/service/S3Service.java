@@ -3,10 +3,17 @@ package com.backend.app.service;
 import java.io.IOException;
 import java.lang.module.ModuleDescriptor.Builder;
 import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.backend.app.dto.FileMetadataDTO;
+import com.backend.app.model.FileMetadata;
+import com.backend.app.repository.FileMetadataRepository;
 
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -21,15 +28,17 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 @Service
 public class S3Service {
 	private final S3Client s3Client;
-    private final S3Presigner s3Presigner;
+//    private final S3Presigner s3Presigner;
+    private final FileMetadataRepository fileMetadataRepository;
 
 	
 	@Value("${aws.s3.bucket-name")
 	private String bucketName;
 	
-	public S3Service(S3Client s3Client, S3Presigner s3Presigner) {
+	public S3Service(S3Client s3Client, FileMetadataRepository fileMetadataRepository) {
 		this.s3Client = s3Client;
-		this.s3Presigner = s3Presigner;
+//		this.s3Presigner = s3Presigner;
+		this.fileMetadataRepository = fileMetadataRepository;
 	}
 	
 	public String uploadFile(MultipartFile file) {
@@ -64,14 +73,41 @@ public class S3Service {
 		return "File deleted: " + fileName;
 	}
 	
-	public String generatePresignedUrl(String fileName) {
-		 try {
-		       GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(fileName).build();
-		       
-		       PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(builder -> builder.getObjectRequest(getObjectRequest).signatureDuration(Duration.ofHours(1)));
-		       return presignedRequest.url().toString();
-		    } catch (Exception e) {
-		        throw new RuntimeException("Failed to generate pre-signed URL", e);
-		    }
+//	public String generatePresignedUrl(String fileName) {
+//		 try {
+//		       GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(fileName).build();
+//		       
+//		       PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(builder -> builder.getObjectRequest(getObjectRequest).signatureDuration(Duration.ofHours(1)));
+//		       return presignedRequest.url().toString();
+//		    } catch (Exception e) {
+//		        throw new RuntimeException("Failed to generate pre-signed URL", e);
+//		    }
+//	}
+//	
+	public FileMetadataDTO getFileMetadata(UUID fileId) {
+		FileMetadata metadata = fileMetadataRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File metadata not found"));
+		
+		return new FileMetadataDTO(
+                metadata.getId(),
+                metadata.getFileName(),
+                metadata.getFileUrl(),
+                metadata.getEntityType(),
+                metadata.getEntityId(),
+                metadata.getUploadedAt()
+        );
 	}
+	
+	public List<FileMetadataDTO> getFilesByEntity(String entityType, UUID entityId) {
+	     return fileMetadataRepository.findByEntityTypeAndEntityId(entityType, entityId)
+	              .stream()
+	              .map(metadata -> new FileMetadataDTO(
+	                        metadata.getId(),
+	                        metadata.getFileName(),
+	                        metadata.getFileUrl(),
+	                        metadata.getEntityType(),
+	                        metadata.getEntityId(),
+	                        metadata.getUploadedAt()
+	                ))
+	                .collect(Collectors.toList());
+	    }
 }

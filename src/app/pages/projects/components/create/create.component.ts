@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -23,6 +23,11 @@ import { ProjectPublicationFormComponent } from './components/project-publicatio
 import { ProjectPatentFormComponent } from './components/project-patent-form/project-patent-form.component';
 import { ProjectResearchFormComponent } from './components/project-research-form/project-research-form.component';
 import { statuses, types } from '@content/createProject.content';
+import { ProjectService } from '@core/services/project.service';
+import { PatentService } from '@core/services/patent.service';
+import { PublicationService } from '@core/services/publication.service';
+import { ResearchService } from '@core/services/research.service';
+import { AttachmentsService } from '@core/services/attachments.service';
 
 @Component({
   selector: 'project-creation',
@@ -56,6 +61,12 @@ import { statuses, types } from '@content/createProject.content';
 })
 export class CreateProjectComponent implements OnInit {
   private headerService = inject(HeaderService);
+  private projectService = inject(ProjectService);
+  private publicationService = inject(PublicationService);
+  private patentService = inject(PatentService);
+  private researchService = inject(ResearchService);
+  private attachmentsService = inject(AttachmentsService);
+
   subtext: string =
     'Choose the type of record you want to create and provide the required details.';
 
@@ -106,6 +117,25 @@ export class CreateProjectComponent implements OnInit {
   }
 
   submitForm() {
-    console.log('Form submitted');
+    const selectedType = this.typeForm.value.type;
+    const availableTypes = this.types.map((type) => type.value);
+
+    this.projectService
+      .createProject({
+        title: this.generalInformationForm.value.title,
+        description: this.generalInformationForm.value.description,
+        type: selectedType,
+      })
+      .subscribe((response) => console.log('Project created:', response));
+
+    // if (selectedType === availableTypes[0]) {
+    //   this.publicationService.createPublication(this.publicationsForm.value);
+    // }
+    // if (selectedType === availableTypes[1]) {
+    //   this.patentService.createPatent(this.patentsForm.value);
+    // }
+    // if (selectedType === availableTypes[2]) {
+    //   this.researchService.createResearch(this.researchProjects.value);
+    // }
   }
 }
