@@ -3,8 +3,12 @@ package com.backend.app.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.backend.app.enums.ProjectType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,7 +30,8 @@ public class FileMetadata {
     private String fileUrl;
 
     @Column(name = "entity_type", nullable = false)
-    private String entityType;
+    @Enumerated(EnumType.STRING)
+    private ProjectType entityType;
 
     @Column(name = "entity_id", nullable = false)
     private UUID entityId;
@@ -58,11 +63,11 @@ public class FileMetadata {
 		this.fileUrl = fileUrl;
 	}
 
-	public String getEntityType() {
+	public ProjectType getEntityType() {
 		return entityType;
 	}
 
-	public void setEntityType(String entityType) {
+	public void setEntityType(ProjectType entityType) {
 		this.entityType = entityType;
 	}
 

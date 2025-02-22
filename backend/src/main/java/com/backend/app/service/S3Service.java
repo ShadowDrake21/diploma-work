@@ -3,6 +3,10 @@ package com.backend.app.service;
 import java.io.IOException;
 import java.lang.module.ModuleDescriptor.Builder;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.app.dto.FileMetadataDTO;
+import com.backend.app.enums.ProjectType;
 import com.backend.app.model.FileMetadata;
 import com.backend.app.repository.FileMetadataRepository;
 
@@ -34,6 +39,9 @@ public class S3Service {
 	
 	@Value("${aws.s3.bucket-name")
 	private String bucketName;
+
+	@Value("${aws.s3.region")
+	private String region;
 	
 	public S3Service(S3Client s3Client, FileMetadataRepository fileMetadataRepository) {
 		this.s3Client = s3Client;
@@ -41,12 +49,27 @@ public class S3Service {
 		this.fileMetadataRepository = fileMetadataRepository;
 	}
 	
-	public String uploadFile(MultipartFile file) {
+	public String getPublicFileUrl(String fileName) {
+		return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
+	}
+	
+	public String uploadFile(MultipartFile file, ProjectType entityType) {
 		String fileName = file.getOriginalFilename();
+		String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
 		
 		try {
 			s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(fileName).contentType(file.getContentType()).build(), RequestBody.fromBytes(file.getBytes()));
 			
+			LocalDateTime uploadedAt = new Date().toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
+			
+	        FileMetadata metadata = new FileMetadata();
+	        metadata.setFileName(fileName);
+	        metadata.setFileUrl(fileUrl);
+	        metadata.setEntityType(entityType); // or "patent", "research_project", etc.
+	        metadata.setEntityId(UUID.randomUUID());
+	        metadata.setUploadedAt(uploadedAt);
+	        fileMetadataRepository.save(metadata);
+	        
 			return "File uploaded successfully: " + fileName;
 		}
 		catch (IOException e) {
