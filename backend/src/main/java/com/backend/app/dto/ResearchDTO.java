@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import lombok.Data;
 
-@Data
 public class ResearchDTO {
 	 private UUID id;
 	 private UUID projectId; 
@@ -15,4 +14,53 @@ public class ResearchDTO {
 	 private LocalDate endDate;
 	 private String status;
 	 private String fundingSource;
+	 
+	 
+	public ResearchDTO() {
+		super();
+	}
+	public UUID getId() {
+		return id;
+	}
+	public void setId(UUID id) {
+		this.id = id;
+	}
+	public UUID getProjectId() {
+		return projectId;
+	}
+	public void setProjectId(UUID projectId) {
+		this.projectId = projectId;
+	}
+	public BigDecimal getBudget() {
+		return budget;
+	}
+	public void setBudget(BigDecimal budget) {
+		this.budget = budget;
+	}
+	public LocalDate getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(LocalDate startDate) {
+		this.startDate = startDate;
+	}
+	public LocalDate getEndDate() {
+		return endDate;
+	}
+	public void setEndDate(LocalDate endDate) {
+		this.endDate = endDate;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getFundingSource() {
+		return fundingSource;
+	}
+	public void setFundingSource(String fundingSource) {
+		this.fundingSource = fundingSource;
+	}
+	 
+	 
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.app.dto.FileMetadataDTO;
+import com.backend.app.enums.ProjectType;
 import com.backend.app.service.S3Service;
 
 @RestController
@@ -26,11 +27,14 @@ public class S3Controller {
 	}
 	
 	@PostMapping("/upload")
-	public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file) {
+	public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String entityType) {
 		try {
-			String fileUrl = s3Service.uploadFile(file);
+			ProjectType type = ProjectType.valueOf(entityType);
+			String fileUrl = s3Service.uploadFile(file, type);
 			return ResponseEntity.ok("File uploaded successfully: " + fileUrl);
-		} catch (Exception e) {
+		} catch(IllegalArgumentException e) {
+			return ResponseEntity.status(400).body("Invalid entity type: " + entityType);
+		}catch (Exception e) {
 			return ResponseEntity.status(500).body("Failed to upload file: " + e.getMessage());
 		}
 	}
@@ -46,15 +50,16 @@ public class S3Controller {
 		}
 	}
     
-//    @GetMapping("/download/{fileName}")
-//    public ResponseEntity<String> getFileUrl(@PathVariable String fileName) {
-//    	try {
-//			String fileUrl= s3Service.generatePresignedUrl(fileName);
-//			return ResponseEntity.ok(fileUrl);
-//		} catch (Exception e) {
-//			return ResponseEntity.status(500).body("Failed to generate file URL: " + e.getMessage());
-//		}
-//    }
+
+    @GetMapping("/public-url/{fileName}")
+    public ResponseEntity<String> getPublicFileUrl(@PathVariable String fileName) {
+    	try {
+			String fileUrl = s3Service.getPublicFileUrl(fileName);
+			return ResponseEntity.ok(fileUrl);
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body("Failed to generate public URL: " + e.getMessage());
+		}
+    }
     
     @GetMapping("/metadata/{fileId}")
     public ResponseEntity<FileMetadataDTO> getFileMetadata(@PathVariable UUID fileId) {

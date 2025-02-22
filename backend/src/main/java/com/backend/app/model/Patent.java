@@ -1,5 +1,6 @@
 package com.backend.app.model;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -34,12 +35,16 @@ public class Patent {
 	
 	@Column(name="registration_date", length = 100)
 	@Temporal(TemporalType.DATE)
-	private String registrationDate;
+	private LocalDate registrationDate;
 	
 	@Column(name = "issuing_authority", length = 255)
 	private String issuingAuthority;
 
-	public Patent(Project project, User primaryAuthor, String registrationNumber, String registrationDate,
+	public Patent() {
+		super();
+	}
+
+	public Patent(Project project, User primaryAuthor, String registrationNumber, LocalDate registrationDate,
 			String issuingAuthority) {
 		super();
 		this.project = project;
@@ -81,11 +86,11 @@ public class Patent {
 		this.registrationNumber = registrationNumber;
 	}
 
-	public String getRegistrationDate() {
+	public LocalDate getRegistrationDate() {
 		return registrationDate;
 	}
 
-	public void setRegistrationDate(String registrationDate) {
+	public void setRegistrationDate(LocalDate registrationDate) {
 		this.registrationDate = registrationDate;
 	}
 

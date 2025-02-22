@@ -39,6 +39,10 @@ public class Research {
 	@Column(nullable = false, length = 255)
 	private String fundingSource;
 	
+	public Research() {
+		super();
+	}
+	
 	public Research(Project project, BigDecimal budget, LocalDate startDate, LocalDate endDate, String status,
 			String fundingSource) {
 		super();
