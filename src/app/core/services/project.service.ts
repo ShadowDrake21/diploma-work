@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { Observable } from 'rxjs';
@@ -20,7 +20,11 @@ export class ProjectService {
   }
 
   createProject(project: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, project);
+    return this.http.post(`${this.apiUrl}`, project, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
   }
 
   updateProject(id: string, project: any): Observable<any> {
