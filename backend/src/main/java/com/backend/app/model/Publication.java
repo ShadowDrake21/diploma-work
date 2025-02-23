@@ -1,5 +1,6 @@
 package com.backend.app.model;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -22,32 +23,49 @@ public class Publication {
 	@JoinColumn(name = "project_id", nullable = false)
 	private Project project;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, name = "publication_date")
+	private LocalDate publicationDate;
+	
+	@Column(nullable = false, name = "publication_source")
 	private String publicationSource;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, name = "doi_isbn")
 	private String doiIsbn;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, name = "start_page")
 	private int startPage;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "end_page")
 	private int endPage;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, name = "journal_volume")
 	private int journalVolume;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, name = "issue_number")
 	private int issueNumber;
 	
 	public Publication() {
 		super();
 	}
-
+	
 	public Publication(Project project, String publicationSource, String doiIsbn, int startPage, int endPage,
 			int journalVolume, int issueNumber) {
 		super();
 		this.project = project;
+		this.publicationSource = publicationSource;
+		this.doiIsbn = doiIsbn;
+		this.startPage = startPage;
+		this.endPage = endPage;
+		this.journalVolume = journalVolume;
+		this.issueNumber = issueNumber;
+	}
+
+
+	public Publication(UUID projectId, String publicationSource, String doiIsbn, int startPage, int endPage,
+			int journalVolume, int issueNumber) {
+		super();
+		this.project = new Project();
+		this.project.setId(projectId);
 		this.publicationSource = publicationSource;
 		this.doiIsbn = doiIsbn;
 		this.startPage = startPage;

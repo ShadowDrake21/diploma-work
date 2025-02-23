@@ -90,7 +90,7 @@ export class CreateProjectComponent implements OnInit {
     startPage: new FormControl(10, [Validators.required]),
     endPage: new FormControl(20, [Validators.required]),
     journalVolume: new FormControl(1, [Validators.required]),
-    issueNumbers: new FormControl(1, [Validators.required]),
+    issueNumber: new FormControl(1, [Validators.required]),
   });
   patentsForm = new FormGroup({
     primaryAuthor: new FormControl('', [Validators.required]),
@@ -119,23 +119,48 @@ export class CreateProjectComponent implements OnInit {
   submitForm() {
     const selectedType = this.typeForm.value.type;
     const availableTypes = this.types.map((type) => type.value);
-
-    this.projectService
+    console.log('Selected type:', selectedType);
+    const createProjecySub = this.projectService
       .createProject({
         title: this.generalInformationForm.value.title,
         description: this.generalInformationForm.value.description,
         type: selectedType,
       })
-      .subscribe((response) => console.log('Project created:', response));
+      .subscribe((response) => {
+        const projectId = response.id;
+
+        if (selectedType === availableTypes[0]) {
+          this.publicationService
+            .createPublication({
+              projectId,
+              ...this.publicationsForm.value,
+              publicationDate: new Date(
+                this.publicationsForm.value.publicationDate!
+              ).toISOString(),
+            })
+            .subscribe((response) =>
+              console.log('Publication created:', response)
+            );
+        }
+
+        // if (selectedType === availableTypes[1]) {
+        //   this.patentService.createPatent(this.patentsForm.value);
+        // }
+        // if (selectedType === availableTypes[2]) {
+        //   this.researchService.createResearch(this.researchProjects.value);
+        // }
+      });
 
     // if (selectedType === availableTypes[0]) {
-    //   this.publicationService.createPublication(this.publicationsForm.value);
+    //   this.publicationService
+    //     .createPublication(this.publicationsForm.value)
+    //     .subscribe((response) => console.log('Publication created:', response));
     // }
-    // if (selectedType === availableTypes[1]) {
-    //   this.patentService.createPatent(this.patentsForm.value);
-    // }
-    // if (selectedType === availableTypes[2]) {
-    //   this.researchService.createResearch(this.researchProjects.value);
-    // }
+    // // if (selectedType === availableTypes[1]) {
+    // //   this.patentService.createPatent(this.patentsForm.value);
+    // // }
+    // // if (selectedType === availableTypes[2]) {
+    // //   this.researchService.createResearch(this.researchProjects.value);
+    // // }
   }
 }

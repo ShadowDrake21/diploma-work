@@ -20,20 +20,20 @@
   </mat-step>
   <mat-step
     [stepControl]="
-      typeForm.value.type === 'publication'
+      typeForm.value.type === 'PUBLICATION'
         ? publicationsForm
-        : typeForm.value.type === 'patent'
+        : typeForm.value.type === 'PATENT'
         ? patentsForm
         : researchProjects
     "
     errorMessage="Type-specific information is required."
     label="Fill out work information"
   >
-    @if ( typeForm.value.type === 'publication') {
+    @if ( typeForm.value.type === 'PUBLICATION') {
     <create-project-publication-form [publicationForm]="publicationsForm" />
-    }@else if ( typeForm.value.type === 'patent') {
+    }@else if ( typeForm.value.type === 'PATENT') {
     <create-project-patent-form [patentsForm]="patentsForm" />
-    } @if ( typeForm.value.type === 'research') {
+    } @if ( typeForm.value.type === 'RESEARCH') {
     <create-project-research-form [researchProjectsForm]="researchProjects" />
     }
   </mat-step>
@@ -43,6 +43,7 @@
     <div>
       <button mat-button matStepperPrevious>Back</button>
       <button mat-button (click)="stepper.reset()">Reset</button>
+      <button mat-button (click)="submitForm()">Submit</button>
     </div>
   </mat-step>
 </mat-stepper>

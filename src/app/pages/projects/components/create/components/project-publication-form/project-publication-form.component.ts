@@ -46,7 +46,7 @@ export class ProjectPublicationFormComponent implements OnInit {
       startPage: FormControl<number | null>;
       endPage: FormControl<number | null>;
       journalVolume: FormControl<number | null>;
-      issueNumbers: FormControl<number | null>;
+      issueNumber: FormControl<number | null>;
     }>
   >({ alias: 'publicationForm' });
 

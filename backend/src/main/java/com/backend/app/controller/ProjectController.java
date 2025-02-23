@@ -1,5 +1,6 @@
 package com.backend.app.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +47,11 @@ public class ProjectController {
 	
 	@PostMapping
 	public ProjectDTO createProject(@RequestBody Project project) {
+		  if (project.getCreatedAt() == null) {
+		        project.setCreatedAt(LocalDateTime.now());
+		    }
+		    project.setUpdatedAt(LocalDateTime.now());
+		    
 		return projectMapper.toDTO(projectService.saveProject(project));
 	}
 	
