@@ -45,9 +45,8 @@ public class PublicationService {
 	
 	public Publication createPublication(CreatePublicationRequest request) {
 		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new RuntimeException("Project not found with ID: " + request.getProjectId()));
-		
 		Publication publication = new Publication(
-				project, request.getPublicationSource(), request.getDoiIsbn(), request.getStartPage(), request.getEndPage(), request.getJournalVolume(), request.getIssueNumber()
+				project, request.getPublicationDate(), request.getPublicationSource(), request.getDoiIsbn(), request.getStartPage(), request.getEndPage(), request.getJournalVolume(), request.getIssueNumber()
 				);
 		
 		return publicationRepository.save(publication);

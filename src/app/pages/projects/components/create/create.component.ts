@@ -94,7 +94,7 @@ export class CreateProjectComponent implements OnInit {
   });
   patentsForm = new FormGroup({
     primaryAuthor: new FormControl('', [Validators.required]),
-    coInventors: new FormControl(['']),
+    coInventors: new FormControl(['16']),
     registrationNumber: new FormControl(''),
     registrationDate: new FormControl(new Date()),
     issuingAuthority: new FormControl(''),
@@ -143,24 +143,41 @@ export class CreateProjectComponent implements OnInit {
             );
         }
 
-        // if (selectedType === availableTypes[1]) {
-        //   this.patentService.createPatent(this.patentsForm.value);
-        // }
-        // if (selectedType === availableTypes[2]) {
-        //   this.researchService.createResearch(this.researchProjects.value);
-        // }
-      });
+        if (selectedType === availableTypes[1]) {
+          const coInventors = this.patentsForm.value.coInventors?.map(
+            (coInventor: string) => parseInt(coInventor)
+          );
 
-    // if (selectedType === availableTypes[0]) {
-    //   this.publicationService
-    //     .createPublication(this.publicationsForm.value)
-    //     .subscribe((response) => console.log('Publication created:', response));
-    // }
-    // // if (selectedType === availableTypes[1]) {
-    // //   this.patentService.createPatent(this.patentsForm.value);
-    // // }
-    // // if (selectedType === availableTypes[2]) {
-    // //   this.researchService.createResearch(this.researchProjects.value);
-    // // }
+          console.log('Co-inventors:', coInventors);
+
+          this.patentService
+            .createPatent({
+              projectId,
+              ...this.patentsForm.value,
+              primaryAuthorId: 15,
+              registrationDate: new Date(
+                this.patentsForm.value.registrationDate!
+              ).toISOString(),
+              coInventors: coInventors?.length ? coInventors : null,
+            })
+            .subscribe((response) => console.log('Patent created:', response));
+        }
+        if (selectedType === availableTypes[2]) {
+          this.researchService
+            .createResearch({
+              projectId,
+              ...this.researchProjects.value,
+              startDate: new Date(
+                this.researchProjects.value.startDate!
+              ).toISOString(),
+              endDate: new Date(
+                this.researchProjects.value.endDate!
+              ).toISOString(),
+            })
+            .subscribe((response) =>
+              console.log('Research created:', response)
+            );
+        }
+      });
   }
 }

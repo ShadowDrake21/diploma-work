@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { Observable } from 'rxjs';
@@ -20,7 +20,11 @@ export class ResearchService {
   }
 
   createResearch(research: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, research);
+    return this.http.post(`${this.apiUrl}`, research, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
   }
 
   updateResearch(id: string, research: any): Observable<any> {

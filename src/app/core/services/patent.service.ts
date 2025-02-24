@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { Observable } from 'rxjs';
@@ -20,7 +20,11 @@ export class PatentService {
   }
 
   createPatent(patent: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, patent);
+    return this.http.post(`${this.apiUrl}`, patent, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
   }
 
   updatePatent(id: string, patent: any): Observable<any> {

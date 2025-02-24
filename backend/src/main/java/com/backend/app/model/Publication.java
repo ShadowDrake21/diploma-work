@@ -48,10 +48,11 @@ public class Publication {
 		super();
 	}
 	
-	public Publication(Project project, String publicationSource, String doiIsbn, int startPage, int endPage,
+	public Publication(Project project, LocalDate publicationDate, String publicationSource, String doiIsbn, int startPage, int endPage,
 			int journalVolume, int issueNumber) {
 		super();
 		this.project = project;
+		this.publicationDate = publicationDate;
 		this.publicationSource = publicationSource;
 		this.doiIsbn = doiIsbn;
 		this.startPage = startPage;
@@ -61,11 +62,12 @@ public class Publication {
 	}
 
 
-	public Publication(UUID projectId, String publicationSource, String doiIsbn, int startPage, int endPage,
+	public Publication(UUID projectId, LocalDate publicationDate, String publicationSource, String doiIsbn, int startPage, int endPage,
 			int journalVolume, int issueNumber) {
 		super();
 		this.project = new Project();
 		this.project.setId(projectId);
+		this.publicationDate = publicationDate;
 		this.publicationSource = publicationSource;
 		this.doiIsbn = doiIsbn;
 		this.startPage = startPage;

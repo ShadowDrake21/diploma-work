@@ -15,6 +15,7 @@ public class PatentCoInventorId implements Serializable {
     public PatentCoInventorId() {}
 
     public PatentCoInventorId(UUID patentId, Long userId) {
+    	System.out.println("patentid " + patentId + " " + userId);
         this.patentId = patentId;
         this.userId = userId;
     }
