@@ -1,8 +1,11 @@
 package com.backend.app.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -39,6 +43,9 @@ public class Patent {
 	
 	@Column(name = "issuing_authority", length = 255)
 	private String issuingAuthority;
+	
+	@OneToMany(mappedBy = "patent", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PatentCoInventor> coInventors = new ArrayList<>();
 
 	public Patent() {
 		super();
@@ -101,6 +108,22 @@ public class Patent {
 	public void setIssuingAuthority(String issuingAuthority) {
 		this.issuingAuthority = issuingAuthority;
 	}
+
+	public List<PatentCoInventor> getCoInventors() {
+		return coInventors;
+	}
+
+	public void setCoInventors(List<PatentCoInventor> coInventors) {
+		this.coInventors = coInventors;
+	}
 	
+	public void addCoInventor(PatentCoInventor coInventor) {
+		coInventors.add(coInventor);
+		coInventor.setPatent(this); // the back-reference to this Patent
+	}
 	
+	public void removeCoInventor(PatentCoInventor coInventor) {
+		coInventors.remove(coInventor);
+		coInventor.setPatent(null); 
+	}
 }

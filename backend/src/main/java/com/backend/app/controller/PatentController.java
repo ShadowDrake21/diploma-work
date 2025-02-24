@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.app.dto.CreatePatentRequest;
 import com.backend.app.dto.PatentDTO;
 import com.backend.app.mapper.PatentMapper;
 import com.backend.app.model.Patent;
@@ -45,8 +46,9 @@ public class PatentController {
 	}
 	
 	@PostMapping
-	public PatentDTO createPatent(@RequestBody Patent patent) {
-		return patentMapper.toDTO(patentService.savePatent(patent));
+	public PatentDTO createPatent(@RequestBody CreatePatentRequest request) {
+		Patent patent = patentService.createPatent(request);
+ 		return patentMapper.toDTO(patentService.savePatent(patent));
 	}
 	
 	@PutMapping("/{id}")

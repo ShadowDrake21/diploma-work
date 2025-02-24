@@ -1,9 +1,14 @@
 package com.backend.app.dto;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+
+import com.backend.app.util.DateFormat;
 
 public class CreatePublicationRequest {
     private UUID projectId;
+    private LocalDate publicationDate;
     private String publicationSource;
     private String doiIsbn;
     private int startPage;
@@ -19,7 +24,16 @@ public class CreatePublicationRequest {
         this.projectId = projectId;
     }
 
-    public String getPublicationSource() {
+    public LocalDate getPublicationDate() {
+		return publicationDate;
+	}
+
+	public void setPublicationDate(String publicationDate) {
+		LocalDate formattedDate = DateFormat.parseIncomeDate(publicationDate);
+		this.publicationDate = formattedDate;
+	}
+
+	public String getPublicationSource() {
         return publicationSource;
     }
 
