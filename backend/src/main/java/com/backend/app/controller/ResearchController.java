@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.app.dto.CreateResearchRequest;
 import com.backend.app.dto.ResearchDTO;
 import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.Research;
@@ -24,12 +25,15 @@ import com.backend.app.service.ResearchService;
 @RestController
 @RequestMapping("/api/researches")
 public class ResearchController {
-	@Autowired
 	private ResearchService researchService;
-	
-	@Autowired
 	private ResearchMapper researchMapper;
 	
+	public ResearchController(ResearchService researchService, ResearchMapper researchMapper) {
+		super();
+		this.researchService = researchService;
+		this.researchMapper = researchMapper;
+	}
+
 	@GetMapping
 	public List<ResearchDTO> getAllResearches(){
 		return researchService.findAllResearches().stream().map(researchMapper::toDTO).collect(Collectors.toList());
@@ -43,7 +47,8 @@ public class ResearchController {
 	}
 	
 	@PostMapping
-	public ResearchDTO createResearch(@RequestBody Research research) {
+	public ResearchDTO createResearch(@RequestBody CreateResearchRequest request) {
+		Research research = researchService.createResearch(request);
 		return researchMapper.toDTO(researchService.saveResearch(research));
 	}
 	

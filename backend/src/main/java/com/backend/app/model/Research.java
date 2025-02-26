@@ -2,8 +2,11 @@ package com.backend.app.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -38,6 +42,9 @@ public class Research {
 	
 	@Column(nullable = false, length = 255)
 	private String fundingSource;
+	
+	@OneToMany(mappedBy = "research", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ResearchParticipant> researchParticipants = new ArrayList<>();
 	
 	public Research() {
 		super();
@@ -109,6 +116,23 @@ public class Research {
 	public void setFundingSource(String fundingSource) {
 		this.fundingSource = fundingSource;
 	}
+
+	public List<ResearchParticipant> getResearchParticipants() {
+		return researchParticipants;
+	}
+
+	public void setResearchParticipants(List<ResearchParticipant> researchParticipants) {
+		this.researchParticipants = researchParticipants;
+	}
 	
+	public void addParticipant(ResearchParticipant researchParticipant) {
+		researchParticipants.add(researchParticipant);
+		researchParticipant.setResearch(this);
+	}
+	
+	public void removeParticipant(ResearchParticipant researchParticipant) {
+		researchParticipants.remove(researchParticipant);
+		researchParticipant.setResearch(this);
+	}
 	
 }

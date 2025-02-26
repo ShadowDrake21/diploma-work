@@ -1,34 +1,36 @@
 package com.backend.app.model;
 
-import jakarta.persistence.EmbeddedId;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "patents_co_inventors")
+@Table(name = "patents_co_inventors", uniqueConstraints = {@UniqueConstraint(columnNames = {"patent_id", "user_id"})})
 public class PatentCoInventor {
-	@EmbeddedId //for composite keys
-	private PatentCoInventorId id;
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@MapsId("patentId")
 	@JoinColumn(name = "patent_id", referencedColumnName = "id", nullable = false)
 	private Patent patent;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@MapsId("userId")
 	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
 	private User user;
 
-	public PatentCoInventorId getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(PatentCoInventorId id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
