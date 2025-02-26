@@ -100,7 +100,7 @@ export class CreateProjectComponent implements OnInit {
     issuingAuthority: new FormControl(''),
   });
   researchProjects = new FormGroup({
-    participants: new FormControl([''], [Validators.required]),
+    participants: new FormControl(['15', '16'], [Validators.required]),
     budget: new FormControl(0, [Validators.required]),
     startDate: new FormControl(new Date(), [Validators.required]),
     endDate: new FormControl(new Date(), [Validators.required]),
@@ -163,6 +163,11 @@ export class CreateProjectComponent implements OnInit {
             .subscribe((response) => console.log('Patent created:', response));
         }
         if (selectedType === availableTypes[2]) {
+          const participants = this.researchProjects.value.participants?.map(
+            (participant: string) => parseInt(participant)
+          );
+
+          console.log('Participants:', participants);
           this.researchService
             .createResearch({
               projectId,
@@ -173,6 +178,7 @@ export class CreateProjectComponent implements OnInit {
               endDate: new Date(
                 this.researchProjects.value.endDate!
               ).toISOString(),
+              participants,
             })
             .subscribe((response) =>
               console.log('Research created:', response)

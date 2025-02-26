@@ -16,7 +16,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { CreateWorkService } from '@core/services/create-work.service';
 import { map, Observable, startWith } from 'rxjs';
 import { Filter } from '@shared/types/filters.types';
-import { statuses } from '@content/createProject.content';
+import { authors, statuses } from '@content/createProject.content';
 
 @Component({
   selector: 'create-project-research-form',
@@ -50,15 +50,7 @@ export class ProjectResearchFormComponent implements OnInit {
   >({ alias: 'researchProjectsForm' });
 
   statuses = statuses;
-  filteredParticipants!: Observable<string[]>;
+  participants = authors;
 
-  ngOnInit(): void {
-    this.filteredParticipants =
-      this.researchProjectsFormSig().controls.participants.valueChanges.pipe(
-        startWith(''),
-        map((value) =>
-          this.createWorkService._filter(typeof value === 'string' ? value : '')
-        )
-      );
-  }
+  ngOnInit(): void {}
 }

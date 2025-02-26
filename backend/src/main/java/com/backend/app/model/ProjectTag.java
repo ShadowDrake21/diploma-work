@@ -1,26 +1,27 @@
 package com.backend.app.model;
 
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "project_tags")
+@Table(name = "project_tags", uniqueConstraints = {@UniqueConstraint(columnNames = {"project_id", "tag_id"})})
 public class ProjectTag {
-	@EmbeddedId
-	private ProjectTagId id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@MapsId("projectId")
 	@JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false)
 	private Project project;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@MapsId("tagId")
 	@JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = false)
 	private Tag tag;
 	
@@ -29,18 +30,18 @@ public class ProjectTag {
 	public ProjectTag() {
 	}
 
-	public ProjectTag(ProjectTagId id, Project project, Tag tag) {
+	public ProjectTag(Long id, Project project, Tag tag) {
 		super();
 		this.id = id;
 		this.project = project;
 		this.tag = tag;
 	}
 
-	public ProjectTagId getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(ProjectTagId id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

@@ -3,19 +3,11 @@
 <form [formGroup]="researchProjects" class="project-research__form">
   <mat-form-field>
     <mat-label>Participants</mat-label>
-    <input
-      type="text"
-      placeholder="Andrzej Duda"
-      matInput
-      formControlName="participants"
-      [matAutocomplete]="auto"
-    />
-
-    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-      @for (participant of filteredParticipants | async; track participant) {
+    <mat-select formControlName="participants" multiple>
+      @for (participant of participants; track participant) {
       <mat-option [value]="participant">{{ participant }}</mat-option>
       }
-    </mat-autocomplete>
+    </mat-select>
   </mat-form-field>
 
   <mat-form-field>
