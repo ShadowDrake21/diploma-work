@@ -35,6 +35,10 @@ public class ResearchService {
 		return researchRepository.findById(id);
 	}
 	
+	public List<Research> findResearchByProjectId(UUID projectId) {
+		return researchRepository.findByProjectId(projectId);
+	}
+	
 	public Optional<Research> updateResearch(UUID id, Research newResearch) {
 		return researchRepository.findById(id).map(existingResearch -> {
 			existingResearch.setProject(newResearch.getProject());

@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.mapstruct.ap.shaded.freemarker.core.ReturnInstruction.Return;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,10 @@ public class PatentService {
 		return patentRepository.findById(id);
 	}
 	
+	public List<Patent> findPatentByProjectId(UUID projectId) {
+		return patentRepository.findByProjectId(projectId);
+	}
+	
 	public Optional<Patent> updatePatent(UUID id, Patent newPatent) {
 		return patentRepository.findById(id).map(existingPatent -> {
 			existingPatent.setProject(newPatent.getProject());
@@ -44,7 +49,7 @@ public class PatentService {
 			
 			return patentRepository.save(existingPatent);
 		});
-}
+	}
 	
 	public Patent createPatent(CreatePatentRequest request) {
 		System.out.println("patent: " + request.getProjectId() + " primary: " + request.getPrimaryAuthorId() + " and coinventors: " + request.getCoInventors().getFirst());

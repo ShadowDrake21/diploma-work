@@ -1,5 +1,6 @@
 package com.backend.app.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +10,5 @@ import com.backend.app.model.Publication;
 
 @Repository
 public interface PublicationRepository extends JpaRepository<Publication, UUID>{
-
+	List<Publication> findByProjectId(UUID projectId);
 }

@@ -29,6 +29,10 @@ public class PublicationService {
 		return publicationRepository.findById(id);
 	}
 	
+	public List<Publication> findPublicationByProjectId(UUID projectId) {
+		return publicationRepository.findByProjectId(projectId);
+	}
+	
 	public Optional<Publication> updatePublication(UUID id, Publication newPublication) {
 		return publicationRepository.findById(id).map(existingPublication -> {
 			existingPublication.setProject(newPublication.getProject());

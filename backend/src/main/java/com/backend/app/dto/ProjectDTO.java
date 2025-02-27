@@ -13,6 +13,7 @@ public class ProjectDTO {
 	private ProjectType type;
 	private String title;
 	private String description;
+	private int progress;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	
@@ -50,6 +51,14 @@ public class ProjectDTO {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public int getProgress() {
+		return progress;
+	}
+
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 
 	public LocalDateTime getCreatedAt() {
