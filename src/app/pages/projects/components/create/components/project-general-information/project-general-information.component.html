@@ -12,6 +12,15 @@
       formControlName="title"
     />
   </mat-form-field>
+  <div style="display: flex; flex-direction: column">
+    <mat-label>Progress</mat-label>
+    <mat-slider min="0" max="100" step="1" showTickMarks discrete>
+      <input
+        matSliderThumb
+        [(value)]="generalInformationFormSig().controls.progress.value"
+      />
+    </mat-slider>
+  </div>
   <mat-form-field>
     <mat-label>Description</mat-label>
     <textarea

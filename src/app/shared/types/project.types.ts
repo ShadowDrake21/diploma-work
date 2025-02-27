@@ -4,5 +4,15 @@ export type ProjectItem = {
   deadline: string;
   statusProgress: string;
   progress: number;
-  assignedTeamMembers: string[];
+  type: string;
+};
+
+export type Project = {
+  id: string;
+  type: string;
+  title: string;
+  progress: number;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
 };

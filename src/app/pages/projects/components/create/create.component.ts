@@ -79,6 +79,7 @@ export class CreateProjectComponent implements OnInit {
   generalInformationForm = new FormGroup({
     title: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
+    progress: new FormControl(0, [Validators.min(0), Validators.max(100)]),
     tags: new FormControl(['AI', 'Biotechnology', 'Sustainability']),
     attachments: new FormControl(['']),
   });
@@ -125,6 +126,7 @@ export class CreateProjectComponent implements OnInit {
         title: this.generalInformationForm.value.title,
         description: this.generalInformationForm.value.description,
         type: selectedType,
+        progress: this.generalInformationForm.value.progress,
       })
       .subscribe((response) => {
         const projectId = response.id;

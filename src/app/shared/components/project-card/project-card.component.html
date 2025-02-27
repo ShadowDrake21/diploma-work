@@ -3,8 +3,16 @@
 <a class="project-card" routerLink="/projects/{{ project.id }}">
   <div class="project-card__status">
     <div class="project-card__status-wrapper">
-      <p class="project-card__status-text">{{ project.statusProgress }}</p>
-      <p class="project-card__status-deadline">To: {{ project.deadline }}</p>
+      <p class="project-card__status-text">
+        {{
+          project.progress === 100
+            ? "Complete"
+            : project.progress < 100 && project.progress > 0
+            ? "In Progress"
+            : "Assigned"
+        }}
+      </p>
+      <p class="project-card__status-text">{{ project?.progress }}%</p>
     </div>
     <mat-progress-bar
       class="project-card__status-progress"
@@ -12,19 +20,13 @@
       [value]="project?.progress"
     ></mat-progress-bar>
   </div>
-  <h3 class="project-card__title">{{ project.projectTitle }}</h3>
+  <h3 class="project-card__title">{{ project.title }}</h3>
   <div class="project-card__footer">
     <div class="project-card__footer-members">
-      <h5 class="project-card__footer-members__title">Assigned To:</h5>
-      <ul class="project-card__footer-members__list">
-        @for (member of project.assignedTeamMembers; track $index) {
-        <li class="project-card__footer-members__list-item">
-          <p class="project-card__footer-members__list-item__text">
-            {{ member }}
-          </p>
-        </li>
-        }
-      </ul>
+      <h5 class="project-card__footer-members__title">Type:</h5>
+      <h5 class="project-card__status-text">
+        {{ project.type | titlecase }}
+      </h5>
     </div>
   </div>
 </a>

@@ -1,13 +1,11 @@
 package com.backend.app.model;
 
-import java.sql.Date;
+
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import com.backend.app.enums.ProjectType;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,10 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "projects")
@@ -37,6 +32,9 @@ public class Project {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String description;
 	
+	@Column(nullable = false)
+	private int progress;
+	
 	@Column(name="created_at", updatable = false)
 	private LocalDateTime createdAt;
 	
@@ -46,21 +44,23 @@ public class Project {
 	public Project() {
 	}
 
-	public Project(UUID id, ProjectType type, String title, String description) {
+	public Project(UUID id, ProjectType type, String title, String description, int progress) {
 		super();
 		this.id = id;
 		this.type = type;
 		this.title = title;
 		this.description = description;
+		this.progress = progress;
 	}
 	
-	public Project(ProjectType type, String title, String description) {
+	public Project(ProjectType type, String title, String description, int progress) {
 		super();
 		this.type = type;
 		this.title = title;
 		this.description = description;
+		this.progress = progress;
 	}
-	
+
 	public UUID getId() {
 		return id;
 	}
@@ -91,6 +91,14 @@ public class Project {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public int getProgress() {
+		return progress;
+	}
+
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 
 	public LocalDateTime getCreatedAt() {

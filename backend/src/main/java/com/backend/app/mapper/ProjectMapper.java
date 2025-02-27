@@ -17,6 +17,7 @@ public class ProjectMapper {
 		projectDTO.setId(project.getId());
 		projectDTO.setType(project.getType());
 		projectDTO.setTitle(project.getTitle());
+		projectDTO.setProgress(project.getProgress());
 		projectDTO.setDescription(project.getDescription());
 		projectDTO.setCreatedAt(project.getCreatedAt());
 		projectDTO.setUpdatedAt(project.getUpdatedAt());
@@ -33,6 +34,7 @@ public class ProjectMapper {
       project.setId(projectDTO.getId());
       project.setType(projectDTO.getType());
       project.setTitle(projectDTO.getTitle());
+      project.setProgress(projectDTO.getProgress());
       project.setDescription(projectDTO.getDescription());
       project.setCreatedAt(projectDTO.getCreatedAt());
       project.setUpdatedAt(projectDTO.getUpdatedAt());

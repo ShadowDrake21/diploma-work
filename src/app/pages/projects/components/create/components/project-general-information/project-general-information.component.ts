@@ -15,6 +15,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MultipleFileUploadComponent } from '@shared/components/multiple-file-upload/multiple-file-upload.component';
 import { AVAILABLE_PROJECT_TAGS } from '@content/projects.content';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'create-project-general-information',
@@ -29,7 +30,7 @@ import { AVAILABLE_PROJECT_TAGS } from '@content/projects.content';
     MatSelectModule,
     MultipleFileUploadComponent,
     MatAutocompleteModule,
-
+    MatSliderModule,
     MatDatepickerModule,
   ],
   templateUrl: './project-general-information.component.html',
@@ -40,6 +41,7 @@ export class ProjectGeneralInformationComponent {
     FormGroup<{
       title: FormControl<string | null>;
       description: FormControl<string | null>;
+      progress: FormControl<number | null>;
       tags: FormControl<string[] | null>;
       attachments: FormControl<string[] | null>;
     }>
