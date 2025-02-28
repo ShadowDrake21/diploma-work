@@ -15,6 +15,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { map, Observable, startWith } from 'rxjs';
 import { CreateWorkService } from '@core/services/create-work.service';
+import { authors } from '@content/createProject.content';
 
 @Component({
   selector: 'create-project-publication-form',
@@ -50,6 +51,7 @@ export class ProjectPublicationFormComponent implements OnInit {
     }>
   >({ alias: 'publicationForm' });
 
+  authors = authors;
   filteredAuthors!: Observable<string[]>;
 
   ngOnInit(): void {

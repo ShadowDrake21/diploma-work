@@ -1,5 +1,6 @@
 package com.backend.app.dto;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.Data;
 public class PublicationDTO {
     private UUID id;
     private UUID projectId; 
+    private LocalDate publicationDate;
     private String publicationSource;
     private String doiIsbn;
     private int startPage;
@@ -30,6 +32,12 @@ public class PublicationDTO {
 	}
 	public void setProjectId(UUID projectId) {
 		this.projectId = projectId;
+	}
+	public LocalDate getPublicationDate() {
+		return publicationDate;
+	}
+	public void setPublicationDate(LocalDate publicationDate) {
+		this.publicationDate = publicationDate;
 	}
 	public String getPublicationSource() {
 		return publicationSource;

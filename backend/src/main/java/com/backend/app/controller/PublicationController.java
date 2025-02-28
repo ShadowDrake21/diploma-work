@@ -46,6 +46,7 @@ public class PublicationController {
 	
 	@PostMapping
 	public ResponseEntity<Publication> createPublication(@RequestBody CreatePublicationRequest request) {
+		System.out.println("authors " + request.getAuthors());
 		Publication publication = publicationService.createPublication(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(publication);
 	}

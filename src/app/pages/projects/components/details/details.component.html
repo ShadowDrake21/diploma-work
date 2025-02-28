@@ -1,13 +1,28 @@
+<!-- @if (project$ | async; as project) {
+  @switch (project.type) {
+    @case('publication') {
+      <details-publication [work]="project" />
+    }
+    @case('patent') {
+      <details-patent [work]="project" />
+    }
+    @case('research project') {
+      <details-research-project [work]="project" />
+    }
+  }
+} -->
+@if (project$ | async; as project) {
 <div class="details">
   <div class="details-header">
     <div class="details-header__status">
       <h4 class="details-header__status-title">
-        Status: {{ work?.statusProgress }} or {{ work?.progress }}%
+        Status: {{ getStatusOnProgess(project.progress) }} or
+        {{ project.progress }}%
       </h4>
       <mat-progress-bar
         class="details-header__status-progress"
         mode="determinate"
-        [value]="work?.progress"
+        [value]="project.progress"
       ></mat-progress-bar>
     </div>
     <div class="details-header__btns">
@@ -25,15 +40,15 @@
   <div class="details-basic">
     <h3 class="details-basic__section-title">Basic</h3>
     <p class="details-basic__title details-basic__item">
-      <span class="details-subtitle">Title:</span> {{ work?.projectTitle }}
+      <span class="details-subtitle">Title:</span> {{ project.title }}
     </p>
     <p class="details-basic__description details-basic__item">
       <span class="details-subtitle">Description:</span>
-      {{ work?.shortDescription }}
+      {{ project.description }}
     </p>
     <p class="details-basic__lastupdated details-basic__item">
       <span class="details-subtitle">Last updated:</span>
-      {{ work?.lastUpdated }}
+      {{ project.updatedAt | date : "medium" }}
     </p>
     <mat-chip-set class="details-tags">
       @for (tag of work?.tags; track tag) {
@@ -43,11 +58,12 @@
   </div>
   <div class="details-content">
     <h3 class="details-basic__section-title">{{ work?.type | titlecase }}</h3>
-    @switch (work?.type) { @case('publication') {
-    <details-publication />
-    } @case('patent') {
-    <details-patent />
-    } @case('research project') { <details-research-project /> } @default {
+    @switch (project.type) { @case('PUBLICATION') {
+    <details-publication [id]="project.id" />
+    } @case('PATENT') {
+    <details-patent [id]="project.id" />
+    } @case('RESEARCH') { <details-research-project [id]="project.id" /> }
+    @default {
     <p>Unknown work type</p>
     } }
   </div>
@@ -112,3 +128,4 @@
     </ul>
   </div> -->
 </div>
+}

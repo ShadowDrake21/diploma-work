@@ -2,6 +2,7 @@ package com.backend.app.dto;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 import com.backend.app.util.DateFormat;
@@ -15,6 +16,7 @@ public class CreatePublicationRequest {
     private int endPage;
     private int journalVolume;
     private int issueNumber;
+    private List<Long> authors;
 
     public UUID getProjectId() {
         return projectId;
@@ -80,4 +82,12 @@ public class CreatePublicationRequest {
     public void setIssueNumber(int issueNumber) {
         this.issueNumber = issueNumber;
     }
+
+	public List<Long> getAuthors() {
+		return authors;
+	}
+
+	public void setAuthors(List<Long> authors) {
+		this.authors = authors;
+	}
 }
