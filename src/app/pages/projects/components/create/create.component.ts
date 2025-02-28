@@ -84,7 +84,7 @@ export class CreateProjectComponent implements OnInit {
     attachments: new FormControl(['']),
   });
   publicationsForm = new FormGroup({
-    authors: new FormControl([''], [Validators.required]),
+    authors: new FormControl(['15', '16'], [Validators.required]),
     publicationDate: new FormControl(new Date(), [Validators.required]),
     publicationSource: new FormControl('', [Validators.required]),
     doiIsbn: new FormControl('', [Validators.required]),
@@ -132,10 +132,14 @@ export class CreateProjectComponent implements OnInit {
         const projectId = response.id;
 
         if (selectedType === availableTypes[0]) {
+          const authors = this.publicationsForm.value.authors?.map(
+            (author: string) => parseInt(author)
+          );
           this.publicationService
             .createPublication({
               projectId,
               ...this.publicationsForm.value,
+              authors,
               publicationDate: new Date(
                 this.publicationsForm.value.publicationDate!
               ).toISOString(),

@@ -25,6 +25,7 @@ public class PublicationMapper {
         
         publicationDTO.setId(publication.getId());
         publicationDTO.setProjectId(publication.getProject().getId());
+        publicationDTO.setPublicationDate(publication.getPublicationDate());
         publicationDTO.setPublicationSource(publication.getPublicationSource());
         publicationDTO.setDoiIsbn(publication.getDoiIsbn());
         publicationDTO.setStartPage(publication.getStartPage());
@@ -42,6 +43,7 @@ public class PublicationMapper {
         Publication publication = new Publication();
         publication.setId(publicationDTO.getId());
         publication.setProject(getProjectById(publicationDTO.getProjectId()));
+        publication.setPublicationDate(publicationDTO.getPublicationDate());
         publication.setPublicationSource(publicationDTO.getPublicationSource());
         publication.setDoiIsbn(publicationDTO.getDoiIsbn());
         publication.setStartPage(publicationDTO.getStartPage());

@@ -13,7 +13,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { CommentComponent } from '@shared/components/comment/comment.component';
-import { TitleCasePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { userComments } from '@content/userComments.content';
 import { PublicationService } from '@core/services/publication.service';
 import { PatentService } from '@core/services/patent.service';
@@ -21,7 +21,7 @@ import { ResearchService } from '@core/services/research.service';
 import { ProjectService } from '@core/services/project.service';
 import { Project } from '@shared/types/project.types';
 import { Observable, tap } from 'rxjs';
-
+import { getStatusOnProgess } from '@shared/utils/format.utils';
 @Component({
   selector: 'project-details',
   imports: [
@@ -36,6 +36,8 @@ import { Observable, tap } from 'rxjs';
     ProjectCardComponent,
     CommentComponent,
     TitleCasePipe,
+    AsyncPipe,
+    DatePipe,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
@@ -52,10 +54,12 @@ export class ProjectDetailsComponent implements OnInit {
   work: DashboardRecentProjectItemModal | undefined = undefined;
   comment = userComments[0];
 
-  projectSub!: Observable<Project | undefined>;
-  publicationSub!: Observable<any>;
-  patentSub!: Observable<any>;
-  researchSub!: Observable<any>;
+  project$!: Observable<Project | undefined>;
+  publication$!: Observable<any>;
+  patent$!: Observable<any>;
+  research$!: Observable<any>;
+
+  getStatusOnProgess = getStatusOnProgess;
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -69,22 +73,22 @@ export class ProjectDetailsComponent implements OnInit {
   getWorkById() {
     if (!this.workId) return;
 
-    this.projectSub = this.projectService.getProjectById(this.workId);
+    this.project$ = this.projectService.getProjectById(this.workId);
 
-    this.projectSub.subscribe((project) => {
+    this.project$.subscribe((project) => {
       console.log('project', project);
       if (project?.type === 'PUBLICATION') {
         console.log('publication');
-        this.publicationSub = this.projectService.getPublicationByProjectId(
+        this.publication$ = this.projectService.getPublicationByProjectId(
           this.workId!
         );
 
-        this.publicationSub.subscribe((publication) => {
+        this.publication$.subscribe((publication) => {
           console.log('publication', publication);
         });
       } else if (project?.type === 'PATENT') {
         console.log('patent');
-        this.patentSub = this.projectService
+        this.patent$ = this.projectService
           .getPatentByProjectId(this.workId!)
           .pipe(
             tap((patent) => {
@@ -93,7 +97,7 @@ export class ProjectDetailsComponent implements OnInit {
           );
       } else {
         console.log('research');
-        this.researchSub = this.projectService
+        this.research$ = this.projectService
           .getResearchByProjectId(this.workId!)
           .pipe(
             tap((research) => {

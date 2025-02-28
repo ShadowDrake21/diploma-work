@@ -1,5 +1,4 @@
-@let publication = publications[0];
-
+@if (publication$ | async; as publication) {
 <div class="publication">
   <div class="publication__authors publication__section">
     <h4 class="publication__section-title">Authors</h4>
@@ -35,6 +34,7 @@
   </div>
   <div class="publication__section">
     <h4 class="publication__section-title">Issue numbers</h4>
-    <p class="publication__section-text">{{ publication.issueNumbers }}</p>
+    <p class="publication__section-text">{{ publication.issueNumber }}</p>
   </div>
 </div>
+}

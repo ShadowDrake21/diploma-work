@@ -92,6 +92,14 @@ public class Publication {
 		this.project = project;
 	}
 
+	public LocalDate getPublicationDate() {
+		return publicationDate;
+	}
+
+	public void setPublicationDate(LocalDate publicationDate) {
+		this.publicationDate = publicationDate;
+	}
+
 	public String getPublicationSource() {
 		return publicationSource;
 	}
