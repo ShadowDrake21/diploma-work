@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.CreatePublicationRequest;
+import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.model.Project;
 import com.backend.app.model.Publication;
 import com.backend.app.model.PublicationAuthor;
@@ -118,5 +119,11 @@ public class PublicationService {
 	@Transactional 
 	public void deleteProject(UUID id) {
 		publicationRepository.deleteById(id);
+	}
+	
+	public List<ResponseUserDTO> getPublicationAuthorsInfo(UUID publicationId) {
+		System.out.println("getPublicationAuthorsInfo " + publicationId);
+		Publication publication = publicationRepository.findById(publicationId) .orElseThrow(() -> new RuntimeException("Publication not found with ID: " + publicationId));
+		return publicationAuthorRepository.getAuthorsInfoByPublication(publication);
 	}
 }

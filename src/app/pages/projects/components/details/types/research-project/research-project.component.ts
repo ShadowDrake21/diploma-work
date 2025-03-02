@@ -1,13 +1,30 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { AsyncPipe, CurrencyPipe, DatePipe } from '@angular/common';
+import { Component, inject, Input } from '@angular/core';
+import { ProjectService } from '@core/services/project.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'details-research-project',
-  imports: [CurrencyPipe, DatePipe],
+  imports: [CurrencyPipe, DatePipe, AsyncPipe],
   templateUrl: './research-project.component.html',
   styleUrl: './research-project.component.scss',
 })
 export class ResearchProjectComponent {
+  private projectService = inject(ProjectService);
+
+  @Input({ required: true })
+  id!: string;
+
+  research$!: Observable<any>;
+
+  ngOnInit(): void {
+    this.research$ = this.projectService.getResearchByProjectId(this.id!);
+
+    this.research$.subscribe((research) => {
+      console.log('research', research);
+    });
+  }
+
   researchProjects = [
     {
       id: 'proj-001',

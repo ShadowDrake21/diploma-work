@@ -1,26 +1,34 @@
 package com.backend.app.mapper;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
 import com.backend.app.dto.PublicationDTO;
+import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.model.Project;
 import com.backend.app.model.Publication;
 import com.backend.app.repository.ProjectRepository;
+import com.backend.app.repository.PublicationAuthorRepository;
+import com.backend.app.repository.PublicationRepository;
+import com.backend.app.service.PublicationService;
 
 @Component
 public class PublicationMapper {
 	private final ProjectRepository projectRepository;
+	private final PublicationService publicationService;
 
-    public PublicationMapper(ProjectRepository projectRepository) {
+    public PublicationMapper(ProjectRepository projectRepository, PublicationService publicationService) {
 		this.projectRepository = projectRepository;
+		this.publicationService = publicationService;
 	}
 
 	public PublicationDTO toDTO(Publication publication) {
         if(publication == null) {
         	return null;
         }
+        List<ResponseUserDTO> authorsDTO = publicationService.getPublicationAuthorsInfo(publication.getId());
         PublicationDTO publicationDTO = new PublicationDTO();
         
         publicationDTO.setId(publication.getId());
@@ -32,6 +40,7 @@ public class PublicationMapper {
         publicationDTO.setEndPage(publication.getEndPage());
         publicationDTO.setJournalVolume(publication.getJournalVolume());
         publicationDTO.setIssueNumber(publication.getIssueNumber());
+        publicationDTO.setAuthors(authorsDTO);
         
         return publicationDTO;
     }

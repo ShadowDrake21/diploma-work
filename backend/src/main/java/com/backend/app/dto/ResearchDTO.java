@@ -2,6 +2,7 @@ package com.backend.app.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import lombok.Data;
@@ -14,6 +15,7 @@ public class ResearchDTO {
 	 private LocalDate endDate;
 	 private String status;
 	 private String fundingSource;
+	 private List<ResponseUserDTO> participants;
 	 
 	 
 	public ResearchDTO() {
@@ -61,6 +63,10 @@ public class ResearchDTO {
 	public void setFundingSource(String fundingSource) {
 		this.fundingSource = fundingSource;
 	}
-	 
-	 
+	public List<ResponseUserDTO> getParticipants() {
+		return participants;
+	}
+	public void setParticipants(List<ResponseUserDTO> participants) {
+		this.participants = participants;
+	}
 }

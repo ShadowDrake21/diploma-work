@@ -5,17 +5,21 @@ import com.backend.app.enums.Role;
 public class UserDTO {	
     public UserDTO() {}
 
-	public UserDTO(Long id, String email, Role role) {
-		super();
-		this.id = id;
-		this.email = email;
-		this.role = role;
-	}
-	
 	private Long id;	
 	
 	private String email;
+	
+	private String username;
+	
 	private Role role;
+	
+	public UserDTO(Long id, String email, String username, Role role) {
+		super();
+		this.id = id;
+		this.email = email;
+		this.username = username;
+		this.role = role;
+	}
 	
 	public Long getId() {
 		return id;
@@ -31,6 +35,14 @@ public class UserDTO {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public Role getRole() {

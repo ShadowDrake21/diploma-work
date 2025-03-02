@@ -8,6 +8,7 @@ import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +31,7 @@ public class Patent {
 	@JoinColumn(name = "project_id", nullable = false)
 	private Project project;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "primary_author", nullable = false)
 	private User primaryAuthor;
 	
@@ -44,7 +45,7 @@ public class Patent {
 	@Column(name = "issuing_authority", length = 255)
 	private String issuingAuthority;
 	
-	@OneToMany(mappedBy = "patent", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "patent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<PatentCoInventor> coInventors = new ArrayList<>();
 
 	public Patent() {

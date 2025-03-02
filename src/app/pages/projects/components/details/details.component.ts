@@ -79,22 +79,8 @@ export class ProjectDetailsComponent implements OnInit {
       console.log('project', project);
       if (project?.type === 'PUBLICATION') {
         console.log('publication');
-        this.publication$ = this.projectService.getPublicationByProjectId(
-          this.workId!
-        );
-
-        this.publication$.subscribe((publication) => {
-          console.log('publication', publication);
-        });
       } else if (project?.type === 'PATENT') {
         console.log('patent');
-        this.patent$ = this.projectService
-          .getPatentByProjectId(this.workId!)
-          .pipe(
-            tap((patent) => {
-              console.log('patent', patent);
-            })
-          );
       } else {
         console.log('research');
         this.research$ = this.projectService
