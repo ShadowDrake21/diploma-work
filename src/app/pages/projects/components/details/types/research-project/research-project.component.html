@@ -1,11 +1,13 @@
-@let researchProject = researchProjects[0];
+@if (research$ | async; as researchProject) {
 
 <div class="research-project">
   <div class="research-project__authors research-project__section">
     <h4 class="research-project__section-title">Participant</h4>
     <ul class="research-project__authors-list">
       @for(participant of researchProject.participants; track participant) {
-      <li class="research-project__authors-list__item">{{ participant }}</li>
+      <li class="research-project__authors-list__item">
+        {{ participant.name }}
+      </li>
       }
     </ul>
   </div>
@@ -38,3 +40,4 @@
     </p>
   </div>
 </div>
+}

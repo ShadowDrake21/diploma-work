@@ -32,7 +32,7 @@ public class PatentService {
 	}
 	
 	public Optional<Patent> findPatentById(UUID id) {
-		return patentRepository.findById(id);
+		return patentRepository.findByIdWithConInventors(id);
 	}
 	
 	public List<Patent> findPatentByProjectId(UUID projectId) {

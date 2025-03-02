@@ -1,8 +1,11 @@
 package com.backend.app.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -43,6 +47,9 @@ public class Publication {
 	
 	@Column(nullable = false, name = "issue_number")
 	private int issueNumber;
+	
+	@OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PublicationAuthor> publicationAuthors = new ArrayList<>();
 	
 	public Publication() {
 		super();
@@ -147,4 +154,14 @@ public class Publication {
 	public void setIssueNumber(int issueNumber) {
 		this.issueNumber = issueNumber;
 	}
+
+	public List<PublicationAuthor> getPublicationAuthors() {
+		return publicationAuthors;
+	}
+
+	public void setPublicationAuthors(List<PublicationAuthor> publicationAuthors) {
+		this.publicationAuthors = publicationAuthors;
+	}
+	
+	
 }
