@@ -28,6 +28,7 @@ import { PatentService } from '@core/services/patent.service';
 import { PublicationService } from '@core/services/publication.service';
 import { ResearchService } from '@core/services/research.service';
 import { AttachmentsService } from '@core/services/attachments.service';
+import { TagService } from '@core/services/tag.service';
 
 @Component({
   selector: 'project-creation',
@@ -80,7 +81,7 @@ export class CreateProjectComponent implements OnInit {
     title: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
     progress: new FormControl(0, [Validators.min(0), Validators.max(100)]),
-    tags: new FormControl(['AI', 'Biotechnology', 'Sustainability']),
+    tags: new FormControl(['']),
     attachments: new FormControl(['']),
   });
   publicationsForm = new FormGroup({
@@ -117,16 +118,23 @@ export class CreateProjectComponent implements OnInit {
     console.log('Draft saved');
   }
 
+  // TODO: Project-Tag table, entities don't save
+
   submitForm() {
     const selectedType = this.typeForm.value.type;
     const availableTypes = this.types.map((type) => type.value);
+    const tags = this.generalInformationForm.value.tags;
+
     console.log('Selected type:', selectedType);
+    console.log('Tags:', tags);
+
     const createProjecySub = this.projectService
       .createProject({
         title: this.generalInformationForm.value.title,
         description: this.generalInformationForm.value.description,
         type: selectedType,
         progress: this.generalInformationForm.value.progress,
+        tags,
       })
       .subscribe((response) => {
         const projectId = response.id;

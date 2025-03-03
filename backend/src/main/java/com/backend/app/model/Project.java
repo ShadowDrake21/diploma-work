@@ -2,10 +2,12 @@ package com.backend.app.model;
 
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 import com.backend.app.enums.ProjectType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +15,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -40,6 +43,9 @@ public class Project {
 	
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+	
+	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<ProjectTag> projectTags;
 	
 	public Project() {
 	}
@@ -116,4 +122,14 @@ public class Project {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+
+	public Set<ProjectTag> getProjectTags() {
+		return projectTags;
+	}
+
+	public void setProjectTags(Set<ProjectTag> projectTags) {
+		this.projectTags = projectTags;
+	}
+	
+	
 }

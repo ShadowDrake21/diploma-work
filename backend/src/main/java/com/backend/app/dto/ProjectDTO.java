@@ -1,6 +1,7 @@
 package com.backend.app.dto;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 import com.backend.app.enums.ProjectType;
@@ -16,6 +17,7 @@ public class ProjectDTO {
 	private int progress;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private Set<TagDTO> tags;
 	
 	public ProjectDTO() {
 	
@@ -75,5 +77,13 @@ public class ProjectDTO {
 
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public Set<TagDTO> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<TagDTO> tags) {
+		this.tags = tags;
 	}
 }

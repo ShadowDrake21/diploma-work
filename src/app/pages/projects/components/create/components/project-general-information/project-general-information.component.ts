@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -16,6 +16,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MultipleFileUploadComponent } from '@shared/components/multiple-file-upload/multiple-file-upload.component';
 import { AVAILABLE_PROJECT_TAGS } from '@content/projects.content';
 import { MatSliderModule } from '@angular/material/slider';
+import { TagService } from '@core/services/tag.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'create-project-general-information',
@@ -36,7 +38,9 @@ import { MatSliderModule } from '@angular/material/slider';
   templateUrl: './project-general-information.component.html',
   styleUrl: './project-general-information.component.scss',
 })
-export class ProjectGeneralInformationComponent {
+export class ProjectGeneralInformationComponent implements OnInit {
+  private tagService = inject(TagService);
+
   generalInformationFormSig = input.required<
     FormGroup<{
       title: FormControl<string | null>;
@@ -47,5 +51,9 @@ export class ProjectGeneralInformationComponent {
     }>
   >({ alias: 'generalInformationForm' });
 
-  tags = AVAILABLE_PROJECT_TAGS;
+  tags$!: Observable<any>;
+
+  ngOnInit(): void {
+    this.tags$ = this.tagService.getAllTags();
+  }
 }
