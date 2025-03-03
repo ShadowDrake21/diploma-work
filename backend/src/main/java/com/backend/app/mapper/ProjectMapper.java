@@ -1,12 +1,23 @@
 package com.backend.app.mapper;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.backend.app.dto.ProjectDTO;
+import com.backend.app.dto.TagDTO;
 import com.backend.app.model.Project;
+import com.backend.app.model.ProjectTag;
+import com.backend.app.model.Tag;
+import com.backend.app.repository.TagRepository;
 
 @Component
 public class ProjectMapper {
+	@Autowired
+    private TagRepository tagRepository;
+	
 	public ProjectDTO toDTO(Project project) {
 		if(project == null) {
 			return null;
@@ -21,6 +32,11 @@ public class ProjectMapper {
 		projectDTO.setDescription(project.getDescription());
 		projectDTO.setCreatedAt(project.getCreatedAt());
 		projectDTO.setUpdatedAt(project.getUpdatedAt());
+		
+		if(project.getProjectTags() != null) {
+			Set<TagDTO> tagDTOs = project.getProjectTags().stream().map(projectTag -> new TagDTO(projectTag.getTag().getId(), projectTag.getTag().getName())).collect(Collectors.toSet());
+			projectDTO.setTags(tagDTOs);
+		}
 		
 		return projectDTO;
 	}
@@ -38,6 +54,17 @@ public class ProjectMapper {
       project.setDescription(projectDTO.getDescription());
       project.setCreatedAt(projectDTO.getCreatedAt());
       project.setUpdatedAt(projectDTO.getUpdatedAt());
+      
+      if(projectDTO.getTags() != null) {
+    	  Set<ProjectTag> projectTags = projectDTO.getTags().stream().map(tagDTO -> {
+    		  Tag tag = tagRepository.findById(tagDTO.getId()).orElseThrow(() -> new RuntimeException("Tag not found with ID: " + tagDTO.getId()));
+    		  ProjectTag projectTag = new ProjectTag();
+    		  projectTag.setProject(project);
+    		  projectTag.setTag(tag);
+    		  return projectTag;
+    	  }).collect(Collectors.toSet());
+    	  project.setProjectTags(projectTags);
+      }
 		
       return project;
 	}

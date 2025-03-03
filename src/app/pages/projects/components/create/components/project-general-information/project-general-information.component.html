@@ -1,4 +1,5 @@
-@let generalInformationForm = generalInformationFormSig();
+@let generalInformationForm = generalInformationFormSig(); @let tags = tags$ |
+async;
 
 <form
   [formGroup]="generalInformationForm"
@@ -34,7 +35,7 @@
     <mat-select formControlName="tags" multiple>
       <input placeholder="Custom tag" />
       @for (tag of tags; track tag) {
-      <mat-option [value]="tag.value">{{ tag.viewValue }}</mat-option>
+      <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
