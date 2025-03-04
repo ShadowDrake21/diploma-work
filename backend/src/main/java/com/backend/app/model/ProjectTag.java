@@ -25,14 +25,10 @@ public class ProjectTag {
 	@JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = false)
 	private Tag tag;
 	
-	
-
 	public ProjectTag() {
 	}
 
 	public ProjectTag(Long id, Project project, Tag tag) {
-		super();
-		this.id = id;
 		this.project = project;
 		this.tag = tag;
 	}
