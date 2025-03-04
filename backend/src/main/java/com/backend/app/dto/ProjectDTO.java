@@ -17,7 +17,7 @@ public class ProjectDTO {
 	private int progress;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	private Set<TagDTO> tags;
+	private Set<String> tags;
 	
 	public ProjectDTO() {
 	
@@ -79,11 +79,11 @@ public class ProjectDTO {
 		this.updatedAt = updatedAt;
 	}
 
-	public Set<TagDTO> getTags() {
+	public Set<String> getTags() {
 		return tags;
 	}
 
-	public void setTags(Set<TagDTO> tags) {
+	public void setTags(Set<String> tags) {
 		this.tags = tags;
 	}
 }

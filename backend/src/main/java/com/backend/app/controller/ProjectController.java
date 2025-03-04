@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,14 +81,19 @@ public class ProjectController {
 	}
 	
 	@PostMapping
-	public ProjectDTO createProject(@RequestBody Project project) {
-		  if (project.getCreatedAt() == null) {
-		        project.setCreatedAt(LocalDateTime.now());
-		    }
-		    project.setUpdatedAt(LocalDateTime.now());
-		    
-		return projectMapper.toDTO(projectService.saveProject(project));
-	}
+    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO) {
+        // Log the incoming payload
+        System.out.println("Received payload from frontend:");
+        System.out.println("Title: " + projectDTO.getTitle());
+        System.out.println("Description: " + projectDTO.getDescription());
+        System.out.println("Type: " + projectDTO.getType());
+        System.out.println("Progress: " + projectDTO.getProgress());
+        System.out.println("Tags: " + projectDTO.getTags());
+
+        // Process the payload
+        ProjectDTO createdProject = projectService.createProject(projectDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
+    }
 	
 	@PutMapping("/{id}")
 	public ProjectDTO updateProject(@PathVariable UUID id, @RequestBody Project project) {

@@ -1,6 +1,7 @@
 package com.backend.app.mapper;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,9 @@ public class ProjectMapper {
 		projectDTO.setCreatedAt(project.getCreatedAt());
 		projectDTO.setUpdatedAt(project.getUpdatedAt());
 		
-		if(project.getProjectTags() != null) {
-			Set<TagDTO> tagDTOs = project.getProjectTags().stream().map(projectTag -> new TagDTO(projectTag.getTag().getId(), projectTag.getTag().getName())).collect(Collectors.toSet());
-			projectDTO.setTags(tagDTOs);
+		if(project.getTags() != null) {
+			Set<String> tagIds = project.getTags().stream().map(projectTag -> projectTag.getTag().getId().toString()).collect(Collectors.toSet());
+			projectDTO.setTags(tagIds);
 		}
 		
 		return projectDTO;
@@ -56,14 +57,15 @@ public class ProjectMapper {
       project.setUpdatedAt(projectDTO.getUpdatedAt());
       
       if(projectDTO.getTags() != null) {
-    	  Set<ProjectTag> projectTags = projectDTO.getTags().stream().map(tagDTO -> {
-    		  Tag tag = tagRepository.findById(tagDTO.getId()).orElseThrow(() -> new RuntimeException("Tag not found with ID: " + tagDTO.getId()));
+    	  Set<ProjectTag> projectTags = projectDTO.getTags().stream().map(tagId -> {
+    		  UUID id = UUID.fromString(tagId);
+    		  Tag tag = tagRepository.findById(id).orElseThrow(() -> new RuntimeException("Tag not found with ID: " + tagId));
     		  ProjectTag projectTag = new ProjectTag();
     		  projectTag.setProject(project);
     		  projectTag.setTag(tag);
     		  return projectTag;
     	  }).collect(Collectors.toSet());
-    	  project.setProjectTags(projectTags);
+    	  project.setTags(projectTags);
       }
 		
       return project;

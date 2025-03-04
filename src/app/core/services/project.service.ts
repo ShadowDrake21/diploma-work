@@ -57,6 +57,7 @@ export class ProjectService {
   }
 
   createProject(project: any): Observable<any> {
+    console.log('createProject', project.tags);
     return this.http.post(`${this.apiUrl}`, project, {
       headers: new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('authToken')}`,

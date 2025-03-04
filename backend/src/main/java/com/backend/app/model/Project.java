@@ -2,6 +2,7 @@ package com.backend.app.model;
 
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,7 +46,7 @@ public class Project {
 	private LocalDateTime updatedAt;
 	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProjectTag> projectTags;
+	private Set<ProjectTag> tags = new HashSet<>();
 	
 	public Project() {
 	}
@@ -123,13 +124,21 @@ public class Project {
 		this.updatedAt = updatedAt;
 	}
 
-	public Set<ProjectTag> getProjectTags() {
-		return projectTags;
+	public Set<ProjectTag> getTags() {
+		return tags;
 	}
 
-	public void setProjectTags(Set<ProjectTag> projectTags) {
-		this.projectTags = projectTags;
+	public void setTags(Set<ProjectTag> tags) {
+		this.tags = tags;
 	}
 	
-	
+	public void addTag(ProjectTag tag) {
+		tags.add(tag);
+		tag.setProject(this);
+    }
+
+    public void removeTag(ProjectTag tag) {
+    	tags.remove(tag);
+    	tag.setProject(null);
+    }
 }
