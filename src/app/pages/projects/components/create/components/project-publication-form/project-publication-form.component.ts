@@ -68,7 +68,7 @@ export class ProjectPublicationFormComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['authorSig']) {
-      console.log('Authors:', this.authorsSig());
+      console.log('Authors ngOnChanges:', this.authorsSig());
       this.publicationsFormSig().controls.authors.setValue(this.authorsSig());
     }
   }

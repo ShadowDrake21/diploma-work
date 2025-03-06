@@ -1,5 +1,6 @@
 package com.backend.app.mapper;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,19 +36,19 @@ public class ProjectMapper {
 		projectDTO.setUpdatedAt(project.getUpdatedAt());
 		
 		if(project.getTags() != null) {
-			Set<String> tagIds = project.getTags().stream().map(projectTag -> projectTag.getTag().getId().toString()).collect(Collectors.toSet());
-			projectDTO.setTags(tagIds);
+			Set<UUID> tagIds = project.getTags().stream().map(projectTag -> projectTag.getTag().getId()).collect(Collectors.toSet());
+			projectDTO.setTagIds(tagIds);
 		}
 		
 		return projectDTO;
 	}
 	
-	public Project toEntity(ProjectDTO projectDTO) {
+	public Project toEntity(ProjectDTO projectDTO, List<Tag> tags) {
       if (projectDTO == null) {
       return null;
   }
       Project project = new Project();
-      
+       
       project.setId(projectDTO.getId());
       project.setType(projectDTO.getType());
       project.setTitle(projectDTO.getTitle());
@@ -56,14 +57,12 @@ public class ProjectMapper {
       project.setCreatedAt(projectDTO.getCreatedAt());
       project.setUpdatedAt(projectDTO.getUpdatedAt());
       
-      if(projectDTO.getTags() != null) {
-    	  Set<ProjectTag> projectTags = projectDTO.getTags().stream().map(tagId -> {
-    		  UUID id = UUID.fromString(tagId);
-    		  Tag tag = tagRepository.findById(id).orElseThrow(() -> new RuntimeException("Tag not found with ID: " + tagId));
+      if(tags != null) {
+    	  Set<ProjectTag> projectTags = tags.stream().map(tag -> {
     		  ProjectTag projectTag = new ProjectTag();
-    		  projectTag.setProject(project);
-    		  projectTag.setTag(tag);
-    		  return projectTag;
+              projectTag.setProject(project);
+              projectTag.setTag(tag);
+              return projectTag;
     	  }).collect(Collectors.toSet());
     	  project.setTags(projectTags);
       }

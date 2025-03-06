@@ -81,17 +81,17 @@ public class ProjectController {
 	}
 	
 	@PostMapping
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO) {
+    public ResponseEntity<Project> createProject(@RequestBody ProjectDTO projectDTO) {
         // Log the incoming payload
         System.out.println("Received payload from frontend:");
         System.out.println("Title: " + projectDTO.getTitle());
         System.out.println("Description: " + projectDTO.getDescription());
         System.out.println("Type: " + projectDTO.getType());
         System.out.println("Progress: " + projectDTO.getProgress());
-        System.out.println("Tags: " + projectDTO.getTags());
+//        System.out.println("Tags: " + projectDTO.getTags());
 
         // Process the payload
-        ProjectDTO createdProject = projectService.createProject(projectDTO);
+        Project createdProject = projectService.createProject(projectDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
 	

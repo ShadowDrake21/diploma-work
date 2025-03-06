@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.ProjectDTO;
+import com.backend.app.mapper.ProjectMapper;
 import com.backend.app.model.Project;
 import com.backend.app.model.ProjectTag;
 import com.backend.app.model.Tag;
@@ -23,6 +25,9 @@ public class ProjectService {
 	
 	@Autowired
 	private TagRepository tagRepository;
+	
+	@Autowired
+    private ProjectMapper projectMapper;
 	
 	public List<Project> findAllProjects(){
 		return projectRepository.findAll();
@@ -40,51 +45,17 @@ public class ProjectService {
 			return projectRepository.save(existingProject);
 		});
 }
-	 public ProjectDTO createProject(ProjectDTO projectDTO) {
-	        // Log the incoming payload
-	        System.out.println("Received payload in service:");
-	        System.out.println("Title: " + projectDTO.getTitle());
-	        System.out.println("Description: " + projectDTO.getDescription());
-	        System.out.println("Type: " + projectDTO.getType());
-	        System.out.println("Progress: " + projectDTO.getProgress());
-	        System.out.println("Tags: " + projectDTO.getTags());
+	 public Project createProject(ProjectDTO projectDTO) {
+		  // Fetch tags by their IDs
+	        Set<UUID> tagIds = projectDTO.getTagIds() != null ? projectDTO.getTagIds() : new HashSet<>();;
 
-	        // Convert DTO to Entity and save the project
-	        Project project = new Project();
-	        project.setTitle(projectDTO.getTitle());
-	        project.setDescription(projectDTO.getDescription());
-	        project.setType(projectDTO.getType());
-	        project.setProgress(projectDTO.getProgress());
-
-	        // Handle tags (if needed)
-	        if (projectDTO.getTags() != null) {
-	        	Set<ProjectTag> projectTags = projectDTO.getTags().stream().map(tagId -> {
-	        		UUID id = UUID.fromString(tagId);
-	        		Tag tag  = tagRepository.findById(id).orElseThrow(() -> new RuntimeException("Tag not found with ID: " + tagId));
-                    ProjectTag projectTag = new ProjectTag();
-                    projectTag.setProject(project);
-                    projectTag.setTag(tag);
-                    return projectTag;
-                })
-                .collect(Collectors.toSet());
-	        	project.setTags(projectTags);
- 	        }
-
-	        Project savedProject = projectRepository.save(project);
-
-	        // Convert Entity back to DTO and return
-	        ProjectDTO savedProjectDTO = new ProjectDTO();
-	        savedProjectDTO.setId(savedProject.getId());
-	        savedProjectDTO.setTitle(savedProject.getTitle());
-	        savedProjectDTO.setDescription(savedProject.getDescription());
-	        savedProjectDTO.setType(savedProject.getType());
-	        savedProjectDTO.setProgress(savedProject.getProgress());
+	        // Convert DTO to entity
 	        
-	        if(savedProject.getTags() != null) {
-	        	savedProjectDTO.setTags(savedProject.getTags().stream().map(projectTag -> projectTag.getTag().getId().toString()).collect(Collectors.toSet()));
-	        }
+	        List<Tag> tags = tagRepository.findAllById(tagIds);
 
-	        return savedProjectDTO;
+	        Project project = projectMapper.toEntity(projectDTO, tags);
+
+	        return projectRepository.save(project);
 	    }
 	
 	public Project saveProject(Project project) {
