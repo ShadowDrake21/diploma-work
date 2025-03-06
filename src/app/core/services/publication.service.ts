@@ -20,6 +20,7 @@ export class PublicationService {
   }
 
   createPublication(publication: any): Observable<any> {
+    console.log(publication);
     return this.http.post(`${this.apiUrl}`, publication, {
       headers: new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('authToken')}`,

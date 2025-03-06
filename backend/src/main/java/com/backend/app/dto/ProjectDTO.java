@@ -1,10 +1,12 @@
 package com.backend.app.dto;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import com.backend.app.enums.ProjectType;
+import com.backend.app.model.Tag;
 
 import lombok.Data;
 
@@ -17,7 +19,7 @@ public class ProjectDTO {
 	private int progress;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	private Set<String> tags;
+	private Set<UUID> tagIds =  new HashSet<UUID>();
 	
 	public ProjectDTO() {
 	
@@ -79,11 +81,11 @@ public class ProjectDTO {
 		this.updatedAt = updatedAt;
 	}
 
-	public Set<String> getTags() {
-		return tags;
+	public Set<UUID> getTagIds() {
+		return tagIds;
 	}
 
-	public void setTags(Set<String> tags) {
-		this.tags = tags;
+	public void setTagIds(Set<UUID> tagIds) {
+		this.tagIds = tagIds;
 	}
 }

@@ -1,5 +1,7 @@
 package com.backend.app.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,6 +25,7 @@ public class ProjectTag {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = false)
+	@JsonBackReference
 	private Tag tag;
 	
 	public ProjectTag() {

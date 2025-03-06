@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.backend.app.enums.ProjectType;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -46,6 +47,7 @@ public class Project {
 	private LocalDateTime updatedAt;
 	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
 	private Set<ProjectTag> tags = new HashSet<>();
 	
 	public Project() {
