@@ -50,6 +50,7 @@ export class ProjectPublicationFormComponent implements OnInit {
       issueNumber: FormControl<number | null>;
     }>
   >({ alias: 'publicationForm' });
+  allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
 
   authors = authors;
   filteredAuthors!: Observable<string[]>;
