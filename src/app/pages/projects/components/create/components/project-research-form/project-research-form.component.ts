@@ -49,6 +49,7 @@ export class ProjectResearchFormComponent implements OnInit {
     }>
   >({ alias: 'researchProjectsForm' });
   allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
+  authorsSig = input.required<any[] | null>({ alias: 'authors' });
 
   statuses = statuses;
   participants = authors;

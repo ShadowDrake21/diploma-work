@@ -18,7 +18,7 @@ public interface PublicationAuthorRepository extends JpaRepository<PublicationAu
 	boolean existsByPublicationAndUser(Publication publication, User user);
 	void deleteByPublication(Publication publication);
 	
-	@Query("SELECT new com.backend.app.dto.ResponseUserDTO(pa.id, u.username) " +
+	@Query("SELECT new com.backend.app.dto.ResponseUserDTO(u.id, u.username) " +
 		       "FROM PublicationAuthor pa JOIN pa.user u WHERE pa.publication = :publication")
 	List<ResponseUserDTO> getAuthorsInfoByPublication(@Param("publication") Publication publication);
 			

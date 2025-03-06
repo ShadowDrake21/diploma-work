@@ -1,5 +1,13 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, inject, input, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -35,7 +43,9 @@ import { authors } from '@content/createProject.content';
   templateUrl: './project-publication-form.component.html',
   styleUrl: './project-publication-form.component.scss',
 })
-export class ProjectPublicationFormComponent implements OnInit {
+export class ProjectPublicationFormComponent
+  implements OnInit, AfterViewInit, OnChanges
+{
   private createWorkService = inject(CreateWorkService);
 
   publicationsFormSig = input.required<
@@ -51,17 +61,49 @@ export class ProjectPublicationFormComponent implements OnInit {
     }>
   >({ alias: 'publicationForm' });
   allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
+  authorsSig = input.required<any[] | null>({ alias: 'authors' });
 
-  authors = authors;
+  // authors = authors;
   filteredAuthors!: Observable<string[]>;
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['authorSig']) {
+      console.log('Authors:', this.authorsSig());
+      this.publicationsFormSig().controls.authors.setValue(this.authorsSig());
+    }
+  }
+
   ngOnInit(): void {
-    this.filteredAuthors =
-      this.publicationsFormSig().controls.authors.valueChanges.pipe(
-        startWith(''),
-        map((value) =>
-          this.createWorkService._filter(typeof value === 'string' ? value : '')
-        )
-      );
+    console.log(
+      'Authors Form Control Value:',
+      this.publicationsFormSig().controls.authors.value
+    );
+    console.log('All Users:', this.allUsersSig());
+  }
+
+  ngAfterViewInit(): void {
+    // Force Angular to update the UI after the view is initialized
+    console.log('Authors:', this.authorsSig());
+    setTimeout(() => {
+      this.publicationsFormSig().controls.authors.setValue(this.authorsSig()); // Replace with actual fetched data
+    });
+  }
+
+  compareAuthors(authorId1: string, authorId2: string): boolean {
+    console.log('authorId1', authorId1);
+    console.log('authorId2', authorId2);
+    console.log(
+      'authorId1 === authorId2',
+      authorId1.toString() === authorId2.toString()
+    );
+    return authorId1.toString() === authorId2.toString();
+  }
+
+  getAuthorName(authorId: string): string {
+    const author = this.allUsersSig()?.find(
+      (user) => user.id.toString() === authorId
+    );
+    console.log('getAuthorName', author);
+    return author ? author.username : '';
   }
 }

@@ -26,7 +26,11 @@
       ></mat-progress-bar>
     </div>
     <div class="details-header__btns">
-      <button mat-flat-button class="details-header__btns-item">
+      <button
+        mat-flat-button
+        class="details-header__btns-item"
+        (click)="onEdit()"
+      >
         Edit <mat-icon>edit_note</mat-icon>
       </button>
       <button mat-flat-button class="details-header__btns-item">
