@@ -1,4 +1,5 @@
-@let allUsers = allUsers$ | async;
+@let allUsers = allUsers$ | async; @let project = project$ | async; @let subtext
+= project ? 'Edit your project' : 'Create a new project';
 
 <p class="create-subtext">
   {{ subtext }}
@@ -35,16 +36,19 @@
     <create-project-publication-form
       [publicationForm]="publicationsForm"
       [allUsers]="allUsers"
+      [authors]="authors"
     />
     }@else if ( typeForm.value.type === 'PATENT') {
     <create-project-patent-form
       [patentsForm]="patentsForm"
       [allUsers]="allUsers"
+      [authors]="authors"
     />
     } @if ( typeForm.value.type === 'RESEARCH') {
     <create-project-research-form
       [researchProjectsForm]="researchProjects"
       [allUsers]="allUsers"
+      [authors]="authors"
     />
     }
   </mat-step>

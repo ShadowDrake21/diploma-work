@@ -1,5 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterModule,
+  RouterOutlet,
+} from '@angular/router';
 import { recentProjectModalContent } from '@content/recentProjects.content';
 import { DashboardRecentProjectItemModal } from '@shared/types/dashboard.types';
 import { PublicationComponent } from './types/publication/publication.component';
@@ -43,6 +48,7 @@ import { getStatusOnProgess } from '@shared/utils/format.utils';
   styleUrl: './details.component.scss',
 })
 export class ProjectDetailsComponent implements OnInit {
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
   private projectService = inject(ProjectService);
@@ -102,5 +108,12 @@ export class ProjectDetailsComponent implements OnInit {
     } else {
       this.headerService.setTitle('Project Details');
     }
+  }
+
+  onEdit() {
+    this.router.navigate(['../create'], {
+      relativeTo: this.route,
+      queryParams: { id: this.workId },
+    });
   }
 }

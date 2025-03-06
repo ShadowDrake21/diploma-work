@@ -31,6 +31,7 @@ import { AttachmentsService } from '@core/services/attachments.service';
 import { TagService } from '@core/services/tag.service';
 import { UserService } from '@core/services/user.service';
 import { Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'project-creation',
@@ -63,6 +64,7 @@ import { Observable } from 'rxjs';
   host: { style: 'display: block; height: 100%' },
 })
 export class CreateProjectComponent implements OnInit {
+  private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
   private userService = inject(UserService);
   private projectService = inject(ProjectService);
@@ -70,6 +72,11 @@ export class CreateProjectComponent implements OnInit {
   private patentService = inject(PatentService);
   private researchService = inject(ResearchService);
   private attachmentsService = inject(AttachmentsService);
+
+  projectId: string | null = null;
+  project$!: Observable<any | undefined>;
+  typedProject$!: Observable<any | undefined>;
+  authors: any[] = [];
 
   subtext: string =
     'Choose the type of record you want to create and provide the required details.';
@@ -118,6 +125,81 @@ export class CreateProjectComponent implements OnInit {
   ngOnInit(): void {
     this.headerService.setTitle('Create New Entry');
     this.allUsers$ = this.userService.getAllUsers();
+    this.projectId = this.route.snapshot.queryParamMap.get('id');
+
+    if (this.projectId) {
+      this.project$ = this.projectService.getProjectById(this.projectId);
+      const sub = this.project$.subscribe((project) => {
+        this.generalInformationForm.patchValue({
+          title: project?.title,
+          description: project?.description,
+          progress: project?.progress,
+          tags: project?.tags.map((tag: any) => tag.id + ''),
+        });
+        this.typeForm.patchValue({
+          type: project?.type,
+        });
+        if (project?.type === 'PUBLICATION') {
+          this.projectService
+            .getPublicationByProjectId(this.projectId!)
+            .subscribe((publication) => {
+              console.log('authors:', publication);
+              this.authors = publication.authors.map((author: any) => {
+                console.log('Author:', author);
+                return author.id;
+              });
+              console.log('Authors getPublicationByProjectId:', this.authors);
+              this.publicationsForm.patchValue({
+                authors: publication.authors.map((author: any) =>
+                  author.id.toString()
+                ),
+                publicationDate: new Date(publication.publicationDate),
+                publicationSource: publication.publicationSource,
+                doiIsbn: publication.doiIsbn,
+                startPage: publication.startPage,
+                endPage: publication.endPage,
+                journalVolume: publication.journalVolume,
+                issueNumber: publication.issueNumber,
+              });
+            });
+        }
+        if (project?.type === 'PATENT') {
+          this.projectService
+            .getPatentByProjectId(this.projectId!)
+            .subscribe((patent) => {
+              this.authors = patent.coInventors.map((coInventor: any) => {
+                return coInventor.id;
+              });
+              this.patentsForm.patchValue({
+                primaryAuthor: patent.primaryAuthorId,
+                coInventors: patent.coInventors.map(
+                  (coInventor: any) => coInventor.id + ''
+                ),
+                registrationNumber: patent.registrationNumber,
+                registrationDate: new Date(patent.registrationDate),
+                issuingAuthority: patent.issuingAuthority,
+              });
+            });
+        }
+        if (project?.type === 'RESEARCH') {
+          const sub = this.typedProject$.subscribe((research) => {
+            this.authors = research.participants.map((participant: any) => {
+              return participant.id;
+            });
+            this.researchProjects.patchValue({
+              participants: research.participants.map(
+                (participant: any) => participant.id + ''
+              ),
+              budget: research.budget,
+              startDate: new Date(research.startDate),
+              endDate: new Date(research.endDate),
+              status: research.status,
+              fundingSource: research.fundingSource,
+            });
+          });
+        }
+      });
+    }
   }
 
   saveDraft() {
@@ -127,6 +209,11 @@ export class CreateProjectComponent implements OnInit {
   // TODO: Project-Tag table, entities don't save
 
   submitForm() {
+    if (this.projectId) {
+      this.updateProject();
+    } else {
+      this.createProject();
+    }
     const selectedType = this.typeForm.value.type;
     const availableTypes = this.types.map((type) => type.value);
     const tags = this.generalInformationForm.value.tags;
@@ -205,5 +292,13 @@ export class CreateProjectComponent implements OnInit {
             );
         }
       });
+  }
+
+  createProject() {
+    console.log('Project created');
+  }
+
+  updateProject() {
+    console.log('Project updated');
   }
 }

@@ -47,6 +47,7 @@ export class ProjectPatentFormComponent {
     }>
   >({ alias: 'patentsForm' });
   allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
+  authorsSig = input.required<any[] | null>({ alias: 'authors' });
 
   authors = authors;
 }

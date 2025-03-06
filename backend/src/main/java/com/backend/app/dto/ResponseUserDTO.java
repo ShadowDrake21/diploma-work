@@ -2,14 +2,14 @@ package com.backend.app.dto;
 
 public class ResponseUserDTO {
 	private Long id;
-	private String name;
+	private String username;
 	
 	public ResponseUserDTO() {}
 
-	public ResponseUserDTO(Long id, String name) {
+	public ResponseUserDTO(Long id, String username) {
 		super();
 		this.id = id;
-		this.name = name;
+		this.username = username;
 	}
 
 	public Long getId() {
@@ -20,11 +20,13 @@ public class ResponseUserDTO {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setUsername(String username) {
+		this.username = username;
 	}
+
+	
 }
