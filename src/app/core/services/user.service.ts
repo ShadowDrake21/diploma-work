@@ -22,6 +22,10 @@ export class UserService {
       : {};
   }
 
+  public getAllUsers(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl, this.getAuthHeaders());
+  }
+
   public createUser(user: ICreateUser): Observable<IAuthorizedUser> {
     return this.http.post<IAuthorizedUser>(
       this.apiUrl,

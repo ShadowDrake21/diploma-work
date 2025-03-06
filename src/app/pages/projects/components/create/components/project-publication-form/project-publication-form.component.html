@@ -18,8 +18,8 @@
         }
       </mat-select-trigger>
       <input placeholder="Jake Smith" />
-      @for (author of authors; track author) {
-      <mat-option [value]="author">{{ author }}</mat-option>
+      @for (author of allUsersSig(); track author) {
+      <mat-option [value]="author.id">{{ author.username }}</mat-option>
       }
     </mat-select>
   </mat-form-field>

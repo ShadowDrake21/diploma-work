@@ -48,6 +48,7 @@ export class ProjectResearchFormComponent implements OnInit {
       fundingSource: FormControl<string | null>;
     }>
   >({ alias: 'researchProjectsForm' });
+  allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
 
   statuses = statuses;
   participants = authors;

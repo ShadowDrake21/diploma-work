@@ -79,11 +79,17 @@ public class UserService {
 		}
 	}
 	
+	public List<UserDTO> getAllUsers(){
+		List<User> users = userRepository.findAll();
+		return users.stream().map(this::mapToDTO).collect(Collectors.toList());
+	}
+	
 	private UserDTO mapToDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setEmail(user.getEmail());
         userDTO.setRole(user.getRole());
+        userDTO.setUsername(user.getUsername());
         return userDTO;
     }
 }

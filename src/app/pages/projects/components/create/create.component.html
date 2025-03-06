@@ -1,3 +1,5 @@
+@let allUsers = allUsers$ | async;
+
 <p class="create-subtext">
   {{ subtext }}
 </p>
@@ -30,11 +32,20 @@
     label="Fill out work information"
   >
     @if ( typeForm.value.type === 'PUBLICATION') {
-    <create-project-publication-form [publicationForm]="publicationsForm" />
+    <create-project-publication-form
+      [publicationForm]="publicationsForm"
+      [allUsers]="allUsers"
+    />
     }@else if ( typeForm.value.type === 'PATENT') {
-    <create-project-patent-form [patentsForm]="patentsForm" />
+    <create-project-patent-form
+      [patentsForm]="patentsForm"
+      [allUsers]="allUsers"
+    />
     } @if ( typeForm.value.type === 'RESEARCH') {
-    <create-project-research-form [researchProjectsForm]="researchProjects" />
+    <create-project-research-form
+      [researchProjectsForm]="researchProjects"
+      [allUsers]="allUsers"
+    />
     }
   </mat-step>
   <mat-step>

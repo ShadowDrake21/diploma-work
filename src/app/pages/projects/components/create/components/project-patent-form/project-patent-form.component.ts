@@ -34,7 +34,7 @@ import { authors } from '@content/createProject.content';
   templateUrl: './project-patent-form.component.html',
   styleUrl: './project-patent-form.component.scss',
 })
-export class ProjectPatentFormComponent implements OnInit {
+export class ProjectPatentFormComponent {
   private createWorkService = inject(CreateWorkService);
 
   patentsFormSig = input.required<
@@ -46,15 +46,7 @@ export class ProjectPatentFormComponent implements OnInit {
       issuingAuthority: FormControl<string | null>;
     }>
   >({ alias: 'patentsForm' });
+  allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
 
   authors = authors;
-  filteredPrimaryAuthors!: Observable<string[]>;
-
-  ngOnInit(): void {
-    this.filteredPrimaryAuthors =
-      this.patentsFormSig().controls.primaryAuthor.valueChanges.pipe(
-        startWith(''),
-        map((value) => this.createWorkService._filter(value || ''))
-      );
-  }
 }

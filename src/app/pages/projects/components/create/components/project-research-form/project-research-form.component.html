@@ -4,8 +4,10 @@
   <mat-form-field>
     <mat-label>Participants</mat-label>
     <mat-select formControlName="participants" multiple>
-      @for (participant of participants; track participant) {
-      <mat-option [value]="participant">{{ participant }}</mat-option>
+      @for (participant of allUsersSig(); track participant) {
+      <mat-option [value]="participant.id">{{
+        participant.username
+      }}</mat-option>
       }
     </mat-select>
   </mat-form-field>

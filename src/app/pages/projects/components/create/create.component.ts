@@ -29,6 +29,8 @@ import { PublicationService } from '@core/services/publication.service';
 import { ResearchService } from '@core/services/research.service';
 import { AttachmentsService } from '@core/services/attachments.service';
 import { TagService } from '@core/services/tag.service';
+import { UserService } from '@core/services/user.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'project-creation',
@@ -62,6 +64,7 @@ import { TagService } from '@core/services/tag.service';
 })
 export class CreateProjectComponent implements OnInit {
   private headerService = inject(HeaderService);
+  private userService = inject(UserService);
   private projectService = inject(ProjectService);
   private publicationService = inject(PublicationService);
   private patentService = inject(PatentService);
@@ -73,6 +76,8 @@ export class CreateProjectComponent implements OnInit {
 
   types = types;
   statuses = statuses;
+
+  allUsers$!: Observable<any[]>;
 
   typeForm = new FormGroup({
     type: new FormControl('', [Validators.required]),
@@ -112,6 +117,7 @@ export class CreateProjectComponent implements OnInit {
 
   ngOnInit(): void {
     this.headerService.setTitle('Create New Entry');
+    this.allUsers$ = this.userService.getAllUsers();
   }
 
   saveDraft() {
