@@ -88,7 +88,7 @@ public class ProjectController {
         System.out.println("Description: " + projectDTO.getDescription());
         System.out.println("Type: " + projectDTO.getType());
         System.out.println("Progress: " + projectDTO.getProgress());
-//        System.out.println("Tags: " + projectDTO.getTags());
+        System.out.println("Tags: " + projectDTO.getTagIds().size());
 
         // Process the payload
         Project createdProject = projectService.createProject(projectDTO);

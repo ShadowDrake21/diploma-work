@@ -19,4 +19,6 @@ public interface ProjectTagRepository extends JpaRepository<ProjectTag, Long>{
 	List<ProjectTag> findByTagId(@Param("tagId") UUID tagId);
 	
 	void deleteByProjectIdAndTagId(UUID projectId, UUID tagId);
+	
+	boolean existsByProjectIdAndTagId(UUID projectId, UUID tagId);
 }

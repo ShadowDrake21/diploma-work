@@ -17,9 +17,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-
+import jakarta.persistence.JoinColumn; 
 @Entity
 @Table(name = "projects")
 public class Project {
@@ -46,9 +50,13 @@ public class Project {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 	
-	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonManagedReference
-	private Set<ProjectTag> tags = new HashSet<>();
+	 @ManyToMany
+	    @JoinTable(
+	        name = "project_tags",
+	        joinColumns = @JoinColumn(name = "project_id"), // Corrected
+	        inverseJoinColumns = @JoinColumn(name = "tag_id") // Corrected
+	        )
+	private Set<Tag> tags = new HashSet<>();
 	
 	public Project() {
 	}
@@ -68,6 +76,17 @@ public class Project {
 		this.title = title;
 		this.description = description;
 		this.progress = progress;
+	}
+	
+	@PrePersist
+	protected void onCreate() {
+		createdAt = LocalDateTime.now();
+		updatedAt = LocalDateTime.now();
+	}
+	
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = LocalDateTime.now();
 	}
 
 	public UUID getId() {
@@ -126,21 +145,21 @@ public class Project {
 		this.updatedAt = updatedAt;
 	}
 
-	public Set<ProjectTag> getTags() {
+	public Set<Tag> getTags() {
 		return tags;
 	}
 
-	public void setTags(Set<ProjectTag> tags) {
+	public void setTags(Set<Tag> tags) {
 		this.tags = tags;
 	}
 	
-	public void addTag(ProjectTag tag) {
+	public void addTag(Tag tag) {
 		tags.add(tag);
-		tag.setProject(this);
+		tag.getProjects().add(this);
     }
 
-    public void removeTag(ProjectTag tag) {
+    public void removeTag(Tag tag) {
     	tags.remove(tag);
-    	tag.setProject(null);
+    	tag.getProjects().remove(this);
     }
 }
