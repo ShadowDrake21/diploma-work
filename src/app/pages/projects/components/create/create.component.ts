@@ -227,7 +227,7 @@ export class CreateProjectComponent implements OnInit {
         description: this.generalInformationForm.value.description,
         type: selectedType,
         progress: this.generalInformationForm.value.progress,
-        tags,
+        tagIds: tags,
       })
       .subscribe((response) => {
         const projectId = response.id;
@@ -236,6 +236,7 @@ export class CreateProjectComponent implements OnInit {
           const authors = this.publicationsForm.value.authors?.map(
             (author: string) => parseInt(author)
           );
+          console.log('Authors:', authors);
           this.publicationService
             .createPublication({
               projectId,

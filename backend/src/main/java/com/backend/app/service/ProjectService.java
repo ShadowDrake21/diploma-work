@@ -1,6 +1,7 @@
 package com.backend.app.service;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +17,7 @@ import com.backend.app.model.Project;
 import com.backend.app.model.ProjectTag;
 import com.backend.app.model.Tag;
 import com.backend.app.repository.ProjectRepository;
+import com.backend.app.repository.ProjectTagRepository;
 import com.backend.app.repository.TagRepository;
 
 @Service
@@ -25,6 +27,9 @@ public class ProjectService {
 	
 	@Autowired
 	private TagRepository tagRepository;
+	
+	 @Autowired
+	    private ProjectTagRepository projectTagRepository; 
 	
 	@Autowired
     private ProjectMapper projectMapper;
@@ -42,30 +47,37 @@ public class ProjectService {
 			existingProject.setType(newProject.getType());
 			existingProject.setTitle(newProject.getTitle());
 			existingProject.setDescription(newProject.getDescription());
+			
+			Set<Tag> newTags = newProject.getTags();
+			Set<Tag> existingTags = existingProject.getTags();
+			
+			existingTags.removeIf(existingTag -> !newTags.contains(existingTag));
+			
+			for(Tag newTag : newTags) {
+				if(!existingTags.contains(newTag)) {
+					existingProject.addTag(newTag);
+				}
+			}
 			return projectRepository.save(existingProject);
 		});
 }
 	 public Project createProject(ProjectDTO projectDTO) {
-		  // Fetch tags by their IDs
-	        Set<UUID> tagIds = projectDTO.getTagIds() != null ? projectDTO.getTagIds() : new HashSet<>();;
+	        Project project = projectMapper.toEntity(projectDTO);
+
+	        Set<UUID> tagIds = projectDTO.getTagIds() != null ? projectDTO.getTagIds() : new HashSet<>();
+	        for (UUID uuid : tagIds) {
+				System.out.println("tag id: " + uuid);
+			}
 
 	        // Convert DTO to entity
 	        
-	        List<Tag> tags = tagRepository.findAllById(tagIds);
+	        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
+	        
+	        project.setTags(tags);
 
-	        Project project = projectMapper.toEntity(projectDTO, tags);
-
+	        System.out.println("last tags: " + project.getTags().toString());
 	        return projectRepository.save(project);
 	    }
-	
-	public Project saveProject(Project project) {
-		if(project.getTags() != null) {
-			for(ProjectTag projectTag : project.getTags()) {
-				projectTag.setProject(project);
-			}
-		}
-		return projectRepository.save(project);
-	}
 	
 	public void deleteProject(UUID id) {
 		projectRepository.deleteById(id);

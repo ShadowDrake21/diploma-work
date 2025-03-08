@@ -18,7 +18,7 @@ import com.backend.app.repository.TagRepository;
 @Component
 public class ProjectMapper {
 	@Autowired
-    private TagRepository tagRepository;
+    private TagMapper tagMapper;
 	
 	public ProjectDTO toDTO(Project project) {
 		if(project == null) {
@@ -36,14 +36,14 @@ public class ProjectMapper {
 		projectDTO.setUpdatedAt(project.getUpdatedAt());
 		
 		if(project.getTags() != null) {
-			Set<UUID> tagIds = project.getTags().stream().map(projectTag -> projectTag.getTag().getId()).collect(Collectors.toSet());
+			Set<UUID> tagIds = project.getTags().stream().map(Tag::getId).collect(Collectors.toSet());
 			projectDTO.setTagIds(tagIds);
 		}
 		
 		return projectDTO;
 	}
 	
-	public Project toEntity(ProjectDTO projectDTO, List<Tag> tags) {
+	public Project toEntity(ProjectDTO projectDTO) {
       if (projectDTO == null) {
       return null;
   }
@@ -56,16 +56,6 @@ public class ProjectMapper {
       project.setDescription(projectDTO.getDescription());
       project.setCreatedAt(projectDTO.getCreatedAt());
       project.setUpdatedAt(projectDTO.getUpdatedAt());
-      
-      if(tags != null) {
-    	  Set<ProjectTag> projectTags = tags.stream().map(tag -> {
-    		  ProjectTag projectTag = new ProjectTag();
-              projectTag.setProject(project);
-              projectTag.setTag(tag);
-              return projectTag;
-    	  }).collect(Collectors.toSet());
-    	  project.setTags(projectTags);
-      }
 		
       return project;
 	}

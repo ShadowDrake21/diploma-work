@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.ietf.jgss.Oid;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,6 +53,7 @@ public class Publication {
 	private int issueNumber;
 	
 	@OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
 	private List<PublicationAuthor> publicationAuthors = new ArrayList<>();
 	
 	public Publication() {
@@ -163,5 +168,14 @@ public class Publication {
 		this.publicationAuthors = publicationAuthors;
 	}
 	
+	public void addPublicationAuthor(PublicationAuthor publicationAuthor) {
+		publicationAuthors.add(publicationAuthor);
+		publicationAuthor.setPublication(this);
+	}
+	
+	public void removePublicationAuthor(PublicationAuthor publicationAuthor) {
+		publicationAuthors.remove(publicationAuthor);
+		publicationAuthor.setPublication(null);
+	}
 	
 }

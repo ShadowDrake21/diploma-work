@@ -64,16 +64,27 @@ public class PublicationService {
 	public Publication createPublication(CreatePublicationRequest request) {
 		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new RuntimeException("Project not found with ID: " + request.getProjectId()));
 		Publication publication = new Publication(
-				project, request.getPublicationDate(), request.getPublicationSource(), request.getDoiIsbn(), request.getStartPage(), request.getEndPage(), request.getJournalVolume(), request.getIssueNumber()
+				project, request.getPublicationDate(),
+				request.getPublicationSource(), 
+				request.getDoiIsbn(), 
+				request.getStartPage(), 
+				request.getEndPage(), 
+				request.getJournalVolume(),
+				request.getIssueNumber()
 				);
 		
-		Publication savedPublication = publicationRepository.save(publication);
 		
 		for(Long userId : request.getAuthors()) {
-			addPublicationAuthor(savedPublication.getId(), userId);
+			User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+			PublicationAuthor publicationAuthor = new PublicationAuthor();
+			publicationAuthor.setPublication(publication);
+			publicationAuthor.setUser(user);
+			
+			publication.addPublicationAuthor(publicationAuthor);
+
 		}
 		
-		return savedPublication;
+		return  publicationRepository.save(publication);
 	}
 	
 	@Transactional 

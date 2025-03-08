@@ -1,7 +1,10 @@
 package com.backend.app.model;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -9,8 +12,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import com.backend.app.model.Project;
 
 @Entity
 @Table(name="tags")
@@ -22,8 +27,9 @@ public class Tag {
 	@Column(name = "name", length = 100, nullable = false, unique = true)
 	private String name;
 	
-	@OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProjectTag> projectTags;
+	@ManyToMany(mappedBy = "tags")
+	@JsonIgnore
+	private Set<Project> projects = new HashSet<>();
 	
 	public Tag() {
 		
@@ -49,13 +55,11 @@ public class Tag {
 		this.name = name;
 	}
 
-	public Set<ProjectTag> getProjectTags() {
-		return projectTags;
+	public Set<Project> getProjects() {
+		return projects;
 	}
 
-	public void setProjectTags(Set<ProjectTag> projectTags) {
-		this.projectTags = projectTags;
-	}
-	
-	
+	public void setProjects(Set<Project> projects) {
+		this.projects = projects;
+	}		
 }
