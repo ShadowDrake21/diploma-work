@@ -35,7 +35,7 @@ import { authors, statuses } from '@content/createProject.content';
   templateUrl: './project-research-form.component.html',
   styleUrl: './project-research-form.component.scss',
 })
-export class ProjectResearchFormComponent implements OnInit {
+export class ProjectResearchFormComponent {
   private createWorkService = inject(CreateWorkService);
 
   researchProjectsFormSig = input.required<
@@ -54,5 +54,14 @@ export class ProjectResearchFormComponent implements OnInit {
   statuses = statuses;
   participants = authors;
 
-  ngOnInit(): void {}
+  compareParticipants = (
+    coParticipantId1: string,
+    coParticipantId2: string
+  ) => {
+    return coParticipantId1.toString() === coParticipantId2.toString();
+  };
+
+  compareStatuses = (status1: string, status2: Filter) => {
+    return status1 === status2.value;
+  };
 }

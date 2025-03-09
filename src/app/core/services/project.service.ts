@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { Project } from '@shared/types/project.types';
-import { Observable } from 'rxjs';
+import { catchError, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -21,11 +21,20 @@ export class ProjectService {
   }
 
   getProjectById(id: string): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`, {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      }),
-    });
+    console.log('getProjectById', `${this.apiUrl}/${id}`);
+    return this.http
+      .get<Project>(`${this.apiUrl}/${id}`, {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+        }),
+      })
+      .pipe(
+        tap((response) => console.log('Project response:', response)),
+        catchError((error) => {
+          console.error('Error fetching project:', error);
+          throw error;
+        })
+      );
   }
 
   getPublicationByProjectId(projectId: string): Observable<any> {

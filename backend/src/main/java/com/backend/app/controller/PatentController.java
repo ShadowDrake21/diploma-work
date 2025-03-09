@@ -50,9 +50,10 @@ public class PatentController {
 	}
 	
 	@PutMapping("/{id}")
-	public PatentDTO updatePatent(@PathVariable UUID id, @RequestBody Patent patent) {
-		Optional<Patent> patentOptional = patentService.updatePatent(id, patent);
-		return patentOptional.map(patentMapper::toDTO).orElseThrow(() -> new RuntimeException("Patent not found with id: " + id));
+	public PatentDTO updatePatent(@PathVariable UUID id, @RequestBody PatentDTO patentDTO) {
+		Patent patent = patentMapper.toEntity(patentDTO);
+		Optional<Patent> updatedPatent = patentService.updatePatent(id, patent);
+		return updatedPatent.map(patentMapper::toDTO).orElseThrow(() -> new RuntimeException("Patent not found with id: " + id));
 	}
 	
 	@DeleteMapping("/{id}")

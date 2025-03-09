@@ -32,7 +32,7 @@ async;
   </mat-form-field>
   <mat-form-field>
     <mat-label>Tags</mat-label>
-    <mat-select formControlName="tags" multiple>
+    <mat-select formControlName="tags" multiple [compareWith]="compareTags">
       <input placeholder="Custom tag" />
       @for (tag of tags; track tag) {
       <mat-option [value]="tag.id">{{ tag.name }}</mat-option>

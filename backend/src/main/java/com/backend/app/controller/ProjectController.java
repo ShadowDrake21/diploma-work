@@ -75,9 +75,16 @@ public class ProjectController {
 	
 	@GetMapping("/{id}")
 	public ProjectDTO getProjectById(@PathVariable UUID id) {
-		Optional<Project> projectOptional = projectService.findProjectById(id);
-		return projectOptional.map(projectMapper::toDTO)
-	            .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+	    System.out.println("id getProjectid " + id);
+	    Optional<Project> projectOptional = projectService.findProjectById(id);
+	    if (projectOptional.isPresent()) {
+	        System.out.println("project present");
+	        Project project = projectOptional.get();
+	        System.out.println("Project data: " + project); // Log the project data
+	        return projectMapper.toDTO(project);
+	    } else {
+	        throw new RuntimeException("Project not found with id: " + id);
+	    }
 	}
 	
 	@PostMapping

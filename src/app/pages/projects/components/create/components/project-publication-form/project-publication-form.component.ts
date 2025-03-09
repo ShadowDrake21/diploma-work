@@ -44,7 +44,7 @@ import { authors } from '@content/createProject.content';
   styleUrl: './project-publication-form.component.scss',
 })
 export class ProjectPublicationFormComponent
-  implements OnInit, AfterViewInit, OnChanges
+  implements AfterViewInit, OnChanges
 {
   private createWorkService = inject(CreateWorkService);
 
@@ -68,17 +68,8 @@ export class ProjectPublicationFormComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['authorSig']) {
-      console.log('Authors ngOnChanges:', this.authorsSig());
       this.publicationsFormSig().controls.authors.setValue(this.authorsSig());
     }
-  }
-
-  ngOnInit(): void {
-    console.log(
-      'Authors Form Control Value:',
-      this.publicationsFormSig().controls.authors.value
-    );
-    console.log('All Users:', this.allUsersSig());
   }
 
   ngAfterViewInit(): void {
@@ -100,10 +91,9 @@ export class ProjectPublicationFormComponent
   }
 
   getAuthorName(authorId: string): string {
-    const author = this.allUsersSig()?.find(
-      (user) => user.id.toString() === authorId
-    );
-    console.log('getAuthorName', author);
+    const author = this.allUsersSig()?.find((user) => {
+      return user.id.toString() === authorId.toString();
+    });
     return author ? author.username : '';
   }
 }

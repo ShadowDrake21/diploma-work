@@ -50,4 +50,14 @@ export class ProjectPatentFormComponent {
   authorsSig = input.required<any[] | null>({ alias: 'authors' });
 
   authors = authors;
+
+  comparePrimaryAuthors = (authorId1: string, authorId2: string) => {
+    console.log('compatePrimaryAuthors', authorId1, authorId2);
+    return authorId1.toString() === authorId2.toString();
+  };
+
+  compareCoInventors = (coInventorId1: string, coInventorId2: string) => {
+    console.log('compareCoInventors', coInventorId1, coInventorId2);
+    return coInventorId1.toString() === coInventorId2.toString();
+  };
 }

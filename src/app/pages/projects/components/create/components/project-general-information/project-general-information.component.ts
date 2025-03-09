@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -17,7 +17,7 @@ import { MultipleFileUploadComponent } from '@shared/components/multiple-file-up
 import { AVAILABLE_PROJECT_TAGS } from '@content/projects.content';
 import { MatSliderModule } from '@angular/material/slider';
 import { TagService } from '@core/services/tag.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'create-project-general-information',
@@ -38,7 +38,7 @@ import { Observable } from 'rxjs';
   templateUrl: './project-general-information.component.html',
   styleUrl: './project-general-information.component.scss',
 })
-export class ProjectGeneralInformationComponent implements OnInit {
+export class ProjectGeneralInformationComponent {
   private tagService = inject(TagService);
 
   generalInformationFormSig = input.required<
@@ -53,7 +53,15 @@ export class ProjectGeneralInformationComponent implements OnInit {
 
   tags$!: Observable<any>;
 
+  private tagsChangesSubscription!: Subscription;
+
   ngOnInit(): void {
     this.tags$ = this.tagService.getAllTags();
+  }
+
+  compareTags(tagId1: string, tagId2: string): boolean {
+    console.log('tagId1', tagId1);
+    console.log('tagId2', tagId2);
+    return tagId1 === tagId2;
   }
 }

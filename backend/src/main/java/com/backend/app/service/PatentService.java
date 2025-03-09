@@ -1,4 +1,5 @@
 package com.backend.app.service;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +47,12 @@ public class PatentService {
 			existingPatent.setRegistrationNumber(newPatent.getRegistrationNumber());
 			existingPatent.setRegistrationDate(newPatent.getRegistrationDate());
 			existingPatent.setIssuingAuthority(newPatent.getIssuingAuthority());
+			
+			existingPatent.getCoInventors().clear();
+			for(PatentCoInventor coInventor : newPatent.getCoInventors()) {
+				coInventor.setPatent(existingPatent);
+				existingPatent.addCoInventor(coInventor);
+			}
 			
 			return patentRepository.save(existingPatent);
 		});
