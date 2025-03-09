@@ -3,7 +3,10 @@
 <form [formGroup]="patentsForm" class="project-patent__form">
   <mat-form-field>
     <mat-label>Primary author</mat-label>
-    <mat-select formControlName="coInventors">
+    <mat-select
+      formControlName="primaryAuthor"
+      [compareWith]="comparePrimaryAuthors"
+    >
       @for (author of allUsersSig(); track author) {
       <mat-option [value]="author.id">{{ author.username }}</mat-option>
       }
@@ -11,7 +14,11 @@
   </mat-form-field>
   <mat-form-field>
     <mat-label>Co-inventors</mat-label>
-    <mat-select formControlName="coInventors" multiple>
+    <mat-select
+      formControlName="coInventors"
+      multiple
+      [compareWith]="compareCoInventors"
+    >
       @for (coInventor of allUsersSig(); track coInventor) {
       <mat-option [value]="coInventor.id">{{ coInventor.username }}</mat-option>
       }
@@ -48,8 +55,6 @@
   </mat-form-field>
   <div>
     <button mat-button matStepperPrevious>Back</button>
-    <button mat-button matStepperNext [disabled]="patentsForm.invalid">
-      Next
-    </button>
+    <button mat-button matStepperNext>Next</button>
   </div>
 </form>

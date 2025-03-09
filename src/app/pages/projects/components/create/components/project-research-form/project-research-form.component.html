@@ -3,7 +3,11 @@
 <form [formGroup]="researchProjects" class="project-research__form">
   <mat-form-field>
     <mat-label>Participants</mat-label>
-    <mat-select formControlName="participants" multiple>
+    <mat-select
+      formControlName="participants"
+      multiple
+      [compareWith]="compareParticipants"
+    >
       @for (participant of allUsersSig(); track participant) {
       <mat-option [value]="participant.id">{{
         participant.username
@@ -43,7 +47,7 @@
   </mat-form-field>
   <mat-form-field>
     <mat-label>Status</mat-label>
-    <mat-select formControlName="status">
+    <mat-select formControlName="status" [compareWith]="compareStatuses">
       @for (status of statuses; track status) {
       <mat-option [value]="status.value">{{ status.viewValue }}</mat-option>
       }
@@ -56,6 +60,7 @@
       placeholder="U.S. Small Business Administration (SBA)"
       matInput
       formControlName="fundingSource"
+      [value]="researchProjects.controls.fundingSource.value"
     />
   </mat-form-field>
   <div>
