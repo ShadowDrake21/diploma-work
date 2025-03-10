@@ -53,6 +53,7 @@ public class PublicationController {
 	
 	@PutMapping("/{id}")
 	public PublicationDTO updatePublication(@PathVariable UUID id, @RequestBody Publication publication) {
+		System.out.println("update publication");
 		Optional<Publication> publicationOptional = publicationService.updatePublication(id, publication);
 		return publicationOptional.map(publicationMapper::toDTO).orElseThrow(() -> new RuntimeException("Publication not found with id: " + id));
 	}

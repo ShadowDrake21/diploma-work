@@ -43,39 +43,25 @@ public class ProjectService {
 	}
 	
 	public Optional<Project> updateProject(UUID id, Project newProject) {
+		System.out.println("id, project: " + id + " " + newProject.getTitle());
 		return projectRepository.findById(id).map(existingProject -> {
 			existingProject.setType(newProject.getType());
 			existingProject.setTitle(newProject.getTitle());
 			existingProject.setDescription(newProject.getDescription());
 			
-			Set<Tag> newTags = newProject.getTags();
-			Set<Tag> existingTags = existingProject.getTags();
-			
-			existingTags.removeIf(existingTag -> !newTags.contains(existingTag));
-			
-			for(Tag newTag : newTags) {
-				if(!existingTags.contains(newTag)) {
-					existingProject.addTag(newTag);
-				}
-			}
+			Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(newProject.getTags().stream().map(Tag::getId).collect(Collectors.toSet())));
+			existingProject.setTags(newTags);
+			System.out.println("before saving");
 			return projectRepository.save(existingProject);
 		});
 }
 	 public Project createProject(ProjectDTO projectDTO) {
 	        Project project = projectMapper.toEntity(projectDTO);
-
-	        Set<UUID> tagIds = projectDTO.getTagIds() != null ? projectDTO.getTagIds() : new HashSet<>();
-	        for (UUID uuid : tagIds) {
-				System.out.println("tag id: " + uuid);
-			}
-
-	        // Convert DTO to entity
 	        
-	        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
+	        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
 	        
 	        project.setTags(tags);
 
-	        System.out.println("last tags: " + project.getTags().toString());
 	        return projectRepository.save(project);
 	    }
 	

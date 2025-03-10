@@ -189,26 +189,29 @@ export class CreateProjectComponent implements OnInit {
             });
         }
         if (project?.type === 'RESEARCH') {
-          const sub = this.typedProject$.subscribe((research) => {
-            this.authors = research.participants.map((participant: any) => {
-              return participant.id;
+          const sub = this.projectService
+            .getResearchByProjectId(this.projectId!)
+            .subscribe((research) => {
+              console.log('Research:', research);
+              this.authors = research.participants.map((participant: any) => {
+                return participant.id;
+              });
+              console.log(
+                'budget, fundingSource',
+                research.budget,
+                research.fundingSource
+              );
+              this.researchProjects.patchValue({
+                participants: research.participants.map(
+                  (participant: any) => participant.id + ''
+                ),
+                budget: research.budget,
+                startDate: new Date(research.startDate),
+                endDate: new Date(research.endDate),
+                status: research.status,
+                fundingSource: research.fundingSource,
+              });
             });
-            console.log(
-              'budget, fundingSource',
-              research.budget,
-              research.fundingSource
-            );
-            this.researchProjects.patchValue({
-              participants: research.participants.map(
-                (participant: any) => participant.id + ''
-              ),
-              budget: research.budget,
-              startDate: new Date(research.startDate),
-              endDate: new Date(research.endDate),
-              status: research.status,
-              fundingSource: research.fundingSource,
-            });
-          });
         }
       });
     }
@@ -223,6 +226,7 @@ export class CreateProjectComponent implements OnInit {
   submitForm() {
     if (this.projectId) {
       this.updateProject();
+      return;
     } else {
       this.createProject();
     }
@@ -261,6 +265,8 @@ export class CreateProjectComponent implements OnInit {
             .subscribe((response) =>
               console.log('Publication created:', response)
             );
+
+          // PUBLICATION UPDATE ERRORS
         }
 
         if (selectedType === availableTypes[1]) {
@@ -325,49 +331,56 @@ export class CreateProjectComponent implements OnInit {
         description: this.generalInformationForm.value.description,
         progress: this.generalInformationForm.value.progress,
         tags: this.generalInformationForm.value.tags,
+        type: this.typeForm.value.type,
       })
       .subscribe((projectResponse) => {
         console.log('Project updated:', projectResponse);
 
         const selectedType = this.typeForm.value.type;
-        if (selectedType === 'PUBLICATION') {
-          this.publicationService
-            .updatePublication(projectId, {
-              authors: this.publicationsForm.value.authors,
-              publicationDate: this.publicationsForm.value.publicationDate,
-              publicationSource: this.publicationsForm.value.publicationSource,
-              doiIsbn: this.publicationsForm.value.doiIsbn,
-              startPage: this.publicationsForm.value.startPage,
-              endPage: this.publicationsForm.value.endPage,
-              journalVolume: this.publicationsForm.value.journalVolume,
-              issueNumber: this.publicationsForm.value.issueNumber,
-            })
-            .subscribe({
-              next: (publicationResponse) =>
-                console.log('Publication updated:', publicationResponse),
-              error: (error) => console.error('Error updating patent:', error),
-            });
-        } else if (selectedType === 'PATENT') {
-          const coInventors = this.patentsForm.value.coInventors?.map(
-            (coInventor: string) => parseInt(coInventor)
-          );
 
-          this.patentService
-            .updatePatent(projectId, {
-              primaryAuthor: this.patentsForm.value.primaryAuthor,
-              registrationNumber: this.patentsForm.value.registrationNumber,
-              registrationDate: new Date(
-                this.patentsForm.value.registrationDate!
-              ).toISOString(),
-              issuingAuthority: this.patentsForm.value.issuingAuthority,
-              coInventors: coInventors?.length ? coInventors : null,
-            })
-            .subscribe({
-              next: (patentResponse) =>
-                console.log('Patent updated:', patentResponse),
-              error: (error) => console.error('Error updating patent:', error),
-            });
-        }
+        this.typedProject$.subscribe((typedProject) => {
+          if (selectedType === 'PUBLICATION') {
+            this.publicationService
+              .updatePublication(typedProject.id, {
+                authors: this.publicationsForm.value.authors,
+                publicationDate: this.publicationsForm.value.publicationDate,
+                publicationSource:
+                  this.publicationsForm.value.publicationSource,
+                doiIsbn: this.publicationsForm.value.doiIsbn,
+                startPage: this.publicationsForm.value.startPage,
+                endPage: this.publicationsForm.value.endPage,
+                journalVolume: this.publicationsForm.value.journalVolume,
+                issueNumber: this.publicationsForm.value.issueNumber,
+              })
+              .subscribe({
+                next: (publicationResponse) =>
+                  console.log('Publication updated:', publicationResponse),
+                error: (error) =>
+                  console.error('Error updating publication:', error),
+              });
+          } else if (selectedType === 'PATENT') {
+            const coInventors = this.patentsForm.value.coInventors?.map(
+              (coInventor: string) => parseInt(coInventor)
+            );
+
+            this.patentService
+              .updatePatent(projectId, {
+                primaryAuthor: this.patentsForm.value.primaryAuthor,
+                registrationNumber: this.patentsForm.value.registrationNumber,
+                registrationDate: new Date(
+                  this.patentsForm.value.registrationDate!
+                ).toISOString(),
+                issuingAuthority: this.patentsForm.value.issuingAuthority,
+                coInventors: coInventors?.length ? coInventors : null,
+              })
+              .subscribe({
+                next: (patentResponse) =>
+                  console.log('Patent updated:', patentResponse),
+                error: (error) =>
+                  console.error('Error updating patent:', error),
+              });
+          }
+        });
       });
   }
 }

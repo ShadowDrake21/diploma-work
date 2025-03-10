@@ -89,21 +89,14 @@ public class ProjectController {
 	
 	@PostMapping
     public ResponseEntity<Project> createProject(@RequestBody ProjectDTO projectDTO) {
-        // Log the incoming payload
-        System.out.println("Received payload from frontend:");
-        System.out.println("Title: " + projectDTO.getTitle());
-        System.out.println("Description: " + projectDTO.getDescription());
-        System.out.println("Type: " + projectDTO.getType());
-        System.out.println("Progress: " + projectDTO.getProgress());
-        System.out.println("Tags: " + projectDTO.getTagIds().size());
-
-        // Process the payload
         Project createdProject = projectService.createProject(projectDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
 	
 	@PutMapping("/{id}")
 	public ProjectDTO updateProject(@PathVariable UUID id, @RequestBody Project project) {
+		System.out.println("Received update request for project ID: " + id);
+	    System.out.println("Project update data: " + project);
 		Optional<Project> projectOptional =projectService.updateProject(id, project);
 		return projectOptional.map(projectMapper::toDTO).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
 	}

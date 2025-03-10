@@ -28,7 +28,11 @@ export class PatentService {
   }
 
   updatePatent(id: string, patent: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, patent);
+    return this.http.put(`${this.apiUrl}/${id}`, patent, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
   }
 
   deletePatent(id: string): Observable<any> {

@@ -50,11 +50,11 @@ public class Project {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 	
-	 @ManyToMany
+	 @ManyToMany(cascade = CascadeType.ALL)
 	    @JoinTable(
 	        name = "project_tags",
-	        joinColumns = @JoinColumn(name = "project_id"), // Corrected
-	        inverseJoinColumns = @JoinColumn(name = "tag_id") // Corrected
+	        joinColumns = @JoinColumn(name = "project_id"), 
+	        inverseJoinColumns = @JoinColumn(name = "tag_id") 
 	        )
 	private Set<Tag> tags = new HashSet<>();
 	
