@@ -75,7 +75,11 @@ export class ProjectService {
   }
 
   updateProject(id: string, project: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, project);
+    return this.http.put(`${this.apiUrl}/${id}`, project, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
   }
 
   deleteProject(id: string): Observable<any> {

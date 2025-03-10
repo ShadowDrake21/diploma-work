@@ -28,7 +28,11 @@ export class ResearchService {
   }
 
   updateResearch(id: string, research: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, research);
+    return this.http.put(`${this.apiUrl}/${id}`, research, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
   }
 
   deleteResearch(id: string): Observable<any> {

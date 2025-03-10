@@ -48,6 +48,7 @@ public class PublicationService {
 	
 	@Transactional 
 	public Optional<Publication> updatePublication(UUID id, Publication newPublication) {
+		System.out.println("authors: " + newPublication.getPublicationAuthors().get(0).getUser().getUsername());
 		return publicationRepository.findById(id).map(existingPublication -> {
 			existingPublication.setProject(newPublication.getProject());
 			existingPublication.setPublicationSource(newPublication.getPublicationSource());
@@ -56,6 +57,11 @@ public class PublicationService {
 			existingPublication.setEndPage(newPublication.getEndPage());
 			existingPublication.setJournalVolume(newPublication.getJournalVolume());
 			existingPublication.setIssueNumber(newPublication.getIssueNumber());
+			
+			existingPublication.getPublicationAuthors().clear();
+			for(PublicationAuthor author : newPublication.getPublicationAuthors()) {
+				existingPublication.addPublicationAuthor(author);
+			}
 		
 			return publicationRepository.save(existingPublication);
 		});

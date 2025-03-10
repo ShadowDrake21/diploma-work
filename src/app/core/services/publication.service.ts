@@ -29,7 +29,12 @@ export class PublicationService {
   }
 
   updatePublication(id: string, publication: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, publication);
+    console.log('updatePublication', publication);
+    return this.http.put(`${this.apiUrl}/${id}`, publication, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
   }
 
   deletePublication(id: string): Observable<any> {
