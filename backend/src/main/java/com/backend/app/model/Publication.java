@@ -56,6 +56,8 @@ public class Publication {
 	@JsonManagedReference
 	private List<PublicationAuthor> publicationAuthors = new ArrayList<>();
 	
+	// ERROR: duplicate key value violates unique constraint "unique_publication_user"
+	
 	public Publication() {
 		super();
 	}

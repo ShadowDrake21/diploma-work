@@ -43,9 +43,7 @@ import { authors } from '@content/createProject.content';
   templateUrl: './project-publication-form.component.html',
   styleUrl: './project-publication-form.component.scss',
 })
-export class ProjectPublicationFormComponent
-  implements AfterViewInit, OnChanges
-{
+export class ProjectPublicationFormComponent implements OnChanges {
   private createWorkService = inject(CreateWorkService);
 
   publicationsFormSig = input.required<
@@ -70,14 +68,6 @@ export class ProjectPublicationFormComponent
     if (changes['authorSig']) {
       this.publicationsFormSig().controls.authors.setValue(this.authorsSig());
     }
-  }
-
-  ngAfterViewInit(): void {
-    // Force Angular to update the UI after the view is initialized
-    console.log('Authors:', this.authorsSig());
-    setTimeout(() => {
-      this.publicationsFormSig().controls.authors.setValue(this.authorsSig()); // Replace with actual fetched data
-    });
   }
 
   compareAuthors(authorId1: string, authorId2: string): boolean {
