@@ -48,8 +48,13 @@ public class PublicationService {
 	
 	@Transactional 
 	public Optional<Publication> updatePublication(UUID id, Publication newPublication) {
-		System.out.println("authors: " + newPublication.getPublicationAuthors().get(0).getUser().getUsername());
-		return publicationRepository.findById(id).map(existingPublication -> {
+		System.out.println("Updating publication with ID: " + id);
+	    System.out.println("Project: " + newPublication.getProject());
+	    System.out.println("Publication authors: " + newPublication.getPublicationAuthors().size());
+	    return publicationRepository.findById(id).map(existingPublication -> {
+			if (newPublication.getProject() == null) {
+	            throw new IllegalArgumentException("Project cannot be null");
+	        }
 			existingPublication.setProject(newPublication.getProject());
 			existingPublication.setPublicationSource(newPublication.getPublicationSource());
 			existingPublication.setDoiIsbn(newPublication.getDoiIsbn());
@@ -60,6 +65,7 @@ public class PublicationService {
 			
 			existingPublication.getPublicationAuthors().clear();
 			for(PublicationAuthor author : newPublication.getPublicationAuthors()) {
+				author.setPublication(newPublication);
 				existingPublication.addPublicationAuthor(author);
 			}
 		

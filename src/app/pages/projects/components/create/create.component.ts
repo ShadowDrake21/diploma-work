@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -30,7 +30,7 @@ import { ResearchService } from '@core/services/research.service';
 import { AttachmentsService } from '@core/services/attachments.service';
 import { TagService } from '@core/services/tag.service';
 import { UserService } from '@core/services/user.service';
-import { Observable } from 'rxjs';
+import { Observable, of, Subscription, switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -63,7 +63,7 @@ import { ActivatedRoute } from '@angular/router';
   ],
   host: { style: 'display: block; height: 100%' },
 })
-export class CreateProjectComponent implements OnInit {
+export class CreateProjectComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
   private userService = inject(UserService);
@@ -122,6 +122,8 @@ export class CreateProjectComponent implements OnInit {
     fundingSource: new FormControl('', [Validators.required]),
   });
 
+  subscriptions: Subscription[] = [];
+
   ngOnInit(): void {
     this.headerService.setTitle('Create New Entry');
     this.allUsers$ = this.userService.getAllUsers();
@@ -129,10 +131,26 @@ export class CreateProjectComponent implements OnInit {
 
     if (this.projectId) {
       this.project$ = this.projectService.getProjectById(this.projectId);
+
+      this.typedProject$ = this.project$.pipe(
+        switchMap((project) => {
+          if (!project) return of(undefined);
+
+          if (project.type === 'PUBLICATION') {
+            return this.projectService.getPublicationByProjectId(
+              this.projectId!
+            );
+          } else if (project.type === 'PATENT') {
+            return this.projectService.getPatentByProjectId(this.projectId!);
+          } else if (project.type === 'RESEARCH') {
+            return this.projectService.getResearchByProjectId(this.projectId!);
+          } else {
+            return of(undefined);
+          }
+        })
+      );
+
       const sub = this.project$.subscribe((project) => {
-        console.log('Project:', project);
-        console.log('type:', project?.type);
-        console.log('tags:', project?.tagIds);
         this.typeForm.patchValue({
           type: project?.type,
         });
@@ -214,6 +232,8 @@ export class CreateProjectComponent implements OnInit {
             });
         }
       });
+
+      this.subscriptions.push(sub);
     }
   }
 
@@ -311,6 +331,8 @@ export class CreateProjectComponent implements OnInit {
             );
         }
       });
+
+    this.subscriptions.push(createProjecySub);
   }
 
   createProject() {
@@ -325,7 +347,7 @@ export class CreateProjectComponent implements OnInit {
       return;
     }
 
-    this.projectService
+    const updateProjectSub = this.projectService
       .updateProject(projectId, {
         title: this.generalInformationForm.value.title,
         description: this.generalInformationForm.value.description,
@@ -338,12 +360,27 @@ export class CreateProjectComponent implements OnInit {
 
         const selectedType = this.typeForm.value.type;
 
-        this.typedProject$.subscribe((typedProject) => {
+        const typedSub = this.typedProject$.subscribe((typedProject) => {
+          if (!typedProject) {
+            console.error('Typed project is not defined');
+            return;
+          }
           if (selectedType === 'PUBLICATION') {
-            this.publicationService
+            console.log('publication updating');
+            const publicationAuthors = this.publicationsForm.value.authors?.map(
+              (author: string) => ({
+                user: {
+                  id: parseInt(author),
+                },
+              })
+            );
+            const updatePublicationSub = this.publicationService
               .updatePublication(typedProject.id, {
-                authors: this.publicationsForm.value.authors,
-                publicationDate: this.publicationsForm.value.publicationDate,
+                project: { id: this.projectId },
+                publicationAuthors,
+                publicationDate: new Date(
+                  this.publicationsForm.value.publicationDate!
+                ).toISOString(),
                 publicationSource:
                   this.publicationsForm.value.publicationSource,
                 doiIsbn: this.publicationsForm.value.doiIsbn,
@@ -358,12 +395,14 @@ export class CreateProjectComponent implements OnInit {
                 error: (error) =>
                   console.error('Error updating publication:', error),
               });
+
+            this.subscriptions.push(updatePublicationSub);
           } else if (selectedType === 'PATENT') {
             const coInventors = this.patentsForm.value.coInventors?.map(
               (coInventor: string) => parseInt(coInventor)
             );
 
-            this.patentService
+            const updatePatentSub = this.patentService
               .updatePatent(projectId, {
                 primaryAuthor: this.patentsForm.value.primaryAuthor,
                 registrationNumber: this.patentsForm.value.registrationNumber,
@@ -379,8 +418,18 @@ export class CreateProjectComponent implements OnInit {
                 error: (error) =>
                   console.error('Error updating patent:', error),
               });
+
+            this.subscriptions.push(updatePatentSub);
           }
         });
+
+        this.subscriptions.push(typedSub);
       });
+
+    this.subscriptions.push(updateProjectSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 }
