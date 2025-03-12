@@ -18,6 +18,8 @@ import com.backend.app.repository.PublicationAuthorRepository;
 import com.backend.app.repository.PublicationRepository;
 import com.backend.app.repository.UserRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -33,6 +35,9 @@ public class PublicationService {
 	
 	@Autowired
 	private PublicationAuthorRepository publicationAuthorRepository;
+	
+    @PersistenceContext
+	private EntityManager entityManager;
 	
 	public List<Publication> findAllPublications(){
 		return publicationRepository.findAll();
@@ -63,7 +68,10 @@ public class PublicationService {
 			existingPublication.setJournalVolume(newPublication.getJournalVolume());
 			existingPublication.setIssueNumber(newPublication.getIssueNumber());
 			
+	        System.out.println("Clearing existing authors...");
 			existingPublication.getPublicationAuthors().clear();
+			
+			entityManager.flush();
 			for(PublicationAuthor author : newPublication.getPublicationAuthors()) {
 				author.setPublication(newPublication);
 				existingPublication.addPublicationAuthor(author);

@@ -347,12 +347,13 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const tags = this.generalInformationForm.value.tags;
     const updateProjectSub = this.projectService
       .updateProject(projectId, {
         title: this.generalInformationForm.value.title,
         description: this.generalInformationForm.value.description,
         progress: this.generalInformationForm.value.progress,
-        tags: this.generalInformationForm.value.tags,
+        tagIds: tags,
         type: this.typeForm.value.type,
       })
       .subscribe((projectResponse) => {

@@ -75,6 +75,7 @@ export class ProjectService {
   }
 
   updateProject(id: string, project: any): Observable<any> {
+    console.log('updateProject', project);
     return this.http.put(`${this.apiUrl}/${id}`, project, {
       headers: new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('authToken')}`,
@@ -83,6 +84,10 @@ export class ProjectService {
   }
 
   deleteProject(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
   }
 }

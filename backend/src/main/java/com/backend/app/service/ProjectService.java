@@ -42,18 +42,31 @@ public class ProjectService {
 		return projectRepository.findById(id);
 	}
 	
-	public Optional<Project> updateProject(UUID id, Project newProject) {
-		System.out.println("id, project: " + id + " " + newProject.getTitle());
-		return projectRepository.findById(id).map(existingProject -> {
-			existingProject.setType(newProject.getType());
-			existingProject.setTitle(newProject.getTitle());
-			existingProject.setDescription(newProject.getDescription());
-			
-			Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(newProject.getTags().stream().map(Tag::getId).collect(Collectors.toSet())));
-			existingProject.setTags(newTags);
-			System.out.println("before saving");
-			return projectRepository.save(existingProject);
-		});
+	public Optional<Project> updateProject(UUID id, ProjectDTO projectDTO) {
+		System.out.println("id, project: " + id + " " + projectDTO.getTitle());
+		System.out.println("update project tags: " + projectDTO.getTagIds().size());
+		
+		projectDTO.getTagIds().forEach(tagId -> System.out.println("Tag ID: " + tagId));
+
+	    return projectRepository.findById(id).map(existingProject -> {
+            Project updatedProject = projectMapper.toEntity(projectDTO);
+
+            updatedProject.setId(existingProject.getId());
+
+            Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
+
+            
+            existingProject.getTags().clear();
+            existingProject.setTags(newTags);
+
+            existingProject.setType(updatedProject.getType());
+            existingProject.setTitle(updatedProject.getTitle());
+            existingProject.setDescription(updatedProject.getDescription());
+            existingProject.setProgress(updatedProject.getProgress());
+
+            System.out.println("before saving");
+            return projectRepository.save(existingProject);
+        });
 }
 	 public Project createProject(ProjectDTO projectDTO) {
 	        Project project = projectMapper.toEntity(projectDTO);

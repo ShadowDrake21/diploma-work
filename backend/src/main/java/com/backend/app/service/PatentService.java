@@ -59,7 +59,6 @@ public class PatentService {
 	}
 	
 	public Patent createPatent(CreatePatentRequest request) {
-		System.out.println("patent: " + request.getProjectId() + " primary: " + request.getPrimaryAuthorId() + " and coinventors: " + request.getCoInventors().getFirst());
 		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new RuntimeException("Project not found with ID: " + request.getProjectId()));
 		User user = userRepository.findById(request.getPrimaryAuthorId()).orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getPrimaryAuthorId()));;
 		Patent patent = new Patent(
