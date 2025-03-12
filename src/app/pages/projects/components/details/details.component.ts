@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   ActivatedRoute,
   Router,
@@ -25,8 +25,9 @@ import { PatentService } from '@core/services/patent.service';
 import { ResearchService } from '@core/services/research.service';
 import { ProjectService } from '@core/services/project.service';
 import { Project } from '@shared/types/project.types';
-import { Observable, tap } from 'rxjs';
+import { forkJoin, Observable, Subscription, tap } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
+import { TagService } from '@core/services/tag.service';
 @Component({
   selector: 'project-details',
   imports: [
@@ -47,11 +48,12 @@ import { getStatusOnProgess } from '@shared/utils/format.utils';
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
 })
-export class ProjectDetailsComponent implements OnInit {
+export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
   private projectService = inject(ProjectService);
+  private tagService = inject(TagService);
   private publicationService = inject(PublicationService);
   private patentService = inject(PatentService);
   private researchService = inject(ResearchService);
@@ -61,19 +63,23 @@ export class ProjectDetailsComponent implements OnInit {
   comment = userComments[0];
 
   project$!: Observable<Project | undefined>;
+  tags$!: Observable<any>;
   publication$!: Observable<any>;
   patent$!: Observable<any>;
   research$!: Observable<any>;
 
+  subscriptions: Subscription[] = [];
+
   getStatusOnProgess = getStatusOnProgess;
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
+    const paramsSub = this.route.params.subscribe((params) => {
       this.workId = params['id'];
       console.log('params', params);
     });
 
     this.getWorkById();
+    this.subscriptions.push(paramsSub);
   }
 
   getWorkById() {
@@ -81,8 +87,13 @@ export class ProjectDetailsComponent implements OnInit {
 
     this.project$ = this.projectService.getProjectById(this.workId);
 
-    this.project$.subscribe((project) => {
+    const projectSub = this.project$.subscribe((project) => {
       console.log('project', project);
+      this.tags$ = project?.tagIds
+        ? forkJoin(
+            project?.tagIds.map((tagId) => this.tagService.getTagById(tagId))
+          )
+        : new Observable();
       if (project?.type === 'PUBLICATION') {
         console.log('publication');
       } else if (project?.type === 'PATENT') {
@@ -108,6 +119,8 @@ export class ProjectDetailsComponent implements OnInit {
     } else {
       this.headerService.setTitle('Project Details');
     }
+
+    this.subscriptions.push(projectSub);
   }
 
   onEdit() {
@@ -115,5 +128,19 @@ export class ProjectDetailsComponent implements OnInit {
       relativeTo: this.route,
       queryParams: { id: this.workId },
     });
+  }
+
+  onDelete() {
+    const deleteSub = this.projectService
+      .deleteProject(this.workId!)
+      .subscribe(() => {
+        this.router.navigate(['/projects/list']);
+      });
+
+    this.subscriptions.push(deleteSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 }

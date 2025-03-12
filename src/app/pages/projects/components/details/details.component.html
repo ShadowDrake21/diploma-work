@@ -33,7 +33,7 @@
       >
         Edit <mat-icon>edit_note</mat-icon>
       </button>
-      <button mat-flat-button class="details-header__btns-item">
+      <button mat-flat-button class="details-header__btns-item" (click)="onDelete()">
         Delete <mat-icon>delete</mat-icon>
       </button>
       <button mat-flat-button class="details-header__btns-item">
@@ -85,6 +85,18 @@
         </button>
       </li>
       }
+    </ul>
+  </div>
+  <div class="details-attachments">
+    <h3 class="details-attachments__title">Project tags:</h3>
+    <ul class="details-attachments__list">
+      @if(tags$| async; as tags ) { @for (tag of tags; track tag) {
+      <li class="details-attachments__list-item">
+        <button mat-flat-button class="details-attachments__list-item__btn">
+          {{ tag.name }}
+        </button>
+      </li>
+      } }
     </ul>
   </div>
 

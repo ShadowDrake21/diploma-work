@@ -1,5 +1,6 @@
 package com.backend.app.mapper;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -20,6 +21,9 @@ public class ProjectMapper {
 	@Autowired
     private TagMapper tagMapper;
 	
+	@Autowired
+	private TagRepository tagRepository;
+	
 	public ProjectDTO toDTO(Project project) {
 		if(project == null) {
 			return null;
@@ -38,7 +42,9 @@ public class ProjectMapper {
 		if(project.getTags() != null) {
 			Set<UUID> tagIds = project.getTags().stream().map(Tag::getId).collect(Collectors.toSet());
 			projectDTO.setTagIds(tagIds);
-		}
+		} else {
+			projectDTO.setTagIds(new HashSet<>());
+	      }
 		
 		return projectDTO;
 	}
@@ -56,6 +62,14 @@ public class ProjectMapper {
       project.setDescription(projectDTO.getDescription());
       project.setCreatedAt(projectDTO.getCreatedAt());
       project.setUpdatedAt(projectDTO.getUpdatedAt());
+      
+      if (projectDTO.getTagIds() != null && !projectDTO.getTagIds().isEmpty()) {
+    	Set<Tag> tags = new HashSet<Tag>(tagRepository.findAllById(projectDTO.getTagIds()));
+      	project.setTags(tags);
+      } else {
+    	  project.setTags(new HashSet<>());
+      }
+      
 		
       return project;
 	}

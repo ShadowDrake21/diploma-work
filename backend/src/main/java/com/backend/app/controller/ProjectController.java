@@ -94,11 +94,13 @@ public class ProjectController {
     }
 	
 	@PutMapping("/{id}")
-	public ProjectDTO updateProject(@PathVariable UUID id, @RequestBody Project project) {
+	public ProjectDTO updateProject(@PathVariable UUID id, @RequestBody ProjectDTO projectDTO) {
 		System.out.println("Received update request for project ID: " + id);
-	    System.out.println("Project update data: " + project);
-		Optional<Project> projectOptional =projectService.updateProject(id, project);
-		return projectOptional.map(projectMapper::toDTO).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+	    System.out.println("Project update data: " + projectDTO.getTagIds());
+	    projectDTO.getTagIds().forEach(tagId -> System.out.println("update Tag ID: " + tagId));
+
+		Optional<Project> updatedProject =projectService.updateProject(id, projectDTO);
+		return updatedProject.map(projectMapper::toDTO).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
 	}
 	
 	@DeleteMapping("/{id}")
