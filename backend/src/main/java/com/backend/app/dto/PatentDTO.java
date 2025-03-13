@@ -11,11 +11,11 @@ public class PatentDTO {
     private UUID id;
     private UUID projectId; 
     private Long primaryAuthorId;
-    private UserDTO primaryAuthor;
+    private transient UserDTO primaryAuthor;
     private String registrationNumber;
     private LocalDate registrationDate;
     private String issuingAuthority;
-    private List<PatentCoInventorDTO> coInventors;
+    private List<Long> coInventors;
     
     public UUID getId() {
 		return id;
@@ -60,10 +60,10 @@ public class PatentDTO {
 	public void setIssuingAuthority(String issuingAuthority) {
 		this.issuingAuthority = issuingAuthority;
 	}
-	public List<PatentCoInventorDTO> getCoInventors() {
+	public List<Long> getCoInventors() {
 		return coInventors;
 	}
-	public void setCoInventors(List<PatentCoInventorDTO> patentCoInventorsDTO) {
+	public void setCoInventors(List<Long> patentCoInventorsDTO) {
 		this.coInventors = patentCoInventorsDTO;
 	}
 	

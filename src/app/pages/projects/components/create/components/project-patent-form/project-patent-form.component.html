@@ -1,4 +1,5 @@
 @let patentsForm = patentsFormSig();
+@let allUsers = allUsers$ | async;
 
 <form [formGroup]="patentsForm" class="project-patent__form">
   <mat-form-field>
@@ -7,7 +8,7 @@
       formControlName="primaryAuthor"
       [compareWith]="comparePrimaryAuthors"
     >
-      @for (author of allUsersSig(); track author) {
+      @for (author of allUsers; track author) {
       <mat-option [value]="author.id">{{ author.username }}</mat-option>
       }
     </mat-select>
@@ -19,7 +20,7 @@
       multiple
       [compareWith]="compareCoInventors"
     >
-      @for (coInventor of allUsersSig(); track coInventor) {
+      @for (coInventor of allUsers; track coInventor) {
       <mat-option [value]="coInventor.id">{{ coInventor.username }}</mat-option>
       }
     </mat-select>

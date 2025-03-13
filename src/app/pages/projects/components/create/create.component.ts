@@ -108,7 +108,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   });
   patentsForm = new FormGroup({
     primaryAuthor: new FormControl('', [Validators.required]),
-    coInventors: new FormControl(['16']),
+    coInventors: new FormControl<number[] | null>([16]),
     registrationNumber: new FormControl(''),
     registrationDate: new FormControl(new Date()),
     issuingAuthority: new FormControl(''),
@@ -188,6 +188,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           this.projectService
             .getPatentByProjectId(this.projectId!)
             .subscribe((patent) => {
+              console.log('loading patent', patent.coInventors);
               this.authors = patent.coInventors.map((coInventor: any) => {
                 return coInventor.id;
               });
@@ -197,9 +198,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
               );
               this.patentsForm.patchValue({
                 primaryAuthor: patent.primaryAuthorId,
-                coInventors: patent.coInventors.map(
-                  (coInventor: any) => coInventor.userId + ''
-                ),
+                coInventors: patent.coInventors,
                 registrationNumber: patent.registrationNumber,
                 registrationDate: new Date(patent.registrationDate),
                 issuingAuthority: patent.issuingAuthority,
@@ -291,7 +290,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
 
         if (selectedType === availableTypes[1]) {
           const coInventors = this.patentsForm.value.coInventors?.map(
-            (coInventor: string) => parseInt(coInventor)
+            (coInventor) => coInventor
           );
 
           console.log('Co-inventors:', coInventors);
@@ -400,12 +399,13 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
             this.subscriptions.push(updatePublicationSub);
           } else if (selectedType === 'PATENT') {
             const coInventors = this.patentsForm.value.coInventors?.map(
-              (coInventor: string) => parseInt(coInventor)
+              (coInventor) => coInventor
             );
 
             const updatePatentSub = this.patentService
-              .updatePatent(projectId, {
-                primaryAuthor: this.patentsForm.value.primaryAuthor,
+              .updatePatent(typedProject.id, {
+                projectId: this.projectId,
+                primaryAuthorId: this.patentsForm.value.primaryAuthor,
                 registrationNumber: this.patentsForm.value.registrationNumber,
                 registrationDate: new Date(
                   this.patentsForm.value.registrationDate!

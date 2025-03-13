@@ -16,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { authors } from '@content/createProject.content';
+import { UserService } from '@core/services/user.service';
 
 @Component({
   selector: 'create-project-patent-form',
@@ -34,30 +35,43 @@ import { authors } from '@content/createProject.content';
   templateUrl: './project-patent-form.component.html',
   styleUrl: './project-patent-form.component.scss',
 })
-export class ProjectPatentFormComponent {
+export class ProjectPatentFormComponent implements OnInit {
   private createWorkService = inject(CreateWorkService);
+  private userService = inject(UserService);
 
   patentsFormSig = input.required<
     FormGroup<{
       primaryAuthor: FormControl<string | null>;
-      coInventors: FormControl<string[] | null>;
+      coInventors: FormControl<number[] | null>;
       registrationNumber: FormControl<string | null>;
       registrationDate: FormControl<Date | null>;
       issuingAuthority: FormControl<string | null>;
     }>
   >({ alias: 'patentsForm' });
-  allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
+  allUsers$!: Observable<any[]>;
   authorsSig = input.required<any[] | null>({ alias: 'authors' });
 
   authors = authors;
 
-  comparePrimaryAuthors = (authorId1: string, authorId2: string) => {
+  ngOnInit(): void {
+    console.log('ngOnInit', this.patentsFormSig().value.coInventors);
+    this.allUsers$ = this.userService.getAllUsers();
+  }
+
+  comparePrimaryAuthors = (authorId1: number, authorId2: number) => {
     console.log('compatePrimaryAuthors', authorId1, authorId2);
-    return authorId1.toString() === authorId2.toString();
+    return authorId1 === authorId2;
   };
 
-  compareCoInventors = (coInventorId1: string, coInventorId2: string) => {
-    console.log('compareCoInventors', coInventorId1, coInventorId2);
-    return coInventorId1.toString() === coInventorId2.toString();
+  compareCoInventors = (coInventorId1: number, coInventorId2: number) => {
+    console.log(
+      'compareCoInventors',
+      coInventorId1,
+      coInventorId2,
+      typeof coInventorId1,
+      typeof coInventorId2,
+      this.patentsFormSig().value.coInventors
+    );
+    return coInventorId1 === coInventorId2;
   };
 }

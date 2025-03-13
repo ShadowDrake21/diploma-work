@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.dto.UserDTO;
 import com.backend.app.enums.Role;
 import com.backend.app.model.User;
@@ -52,8 +53,9 @@ public class UserService {
 		return mapToDTO(savedUser);
 	}
 	
-	public Optional<User> getUserById(Long id) {
-		return userRepository.findById(id);
+	public ResponseUserDTO getUserById(Long id) {
+		User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with ID " + id));
+		return mapToResponseDTO(user);
 	}
 	
 	public Optional<User> getUserByEmail(String email) {
@@ -91,5 +93,12 @@ public class UserService {
         userDTO.setRole(user.getRole());
         userDTO.setUsername(user.getUsername());
         return userDTO;
+    }
+	
+	private ResponseUserDTO mapToResponseDTO(User user) {
+        ResponseUserDTO responseUserDTO = new ResponseUserDTO();
+        responseUserDTO.setId(user.getId());
+        responseUserDTO.setUsername(user.getUsername());
+        return responseUserDTO;
     }
 }
