@@ -53,11 +53,10 @@ public class PatentMapper {
 		patentDTO.setRegistrationDate(patent.getRegistrationDate());
 		patentDTO.setIssuingAuthority(patent.getIssuingAuthority());
 		
-		List<PatentCoInventorDTO> coInventorDTOs = patent.getCoInventors().stream().map(coInventor -> 
-		new PatentCoInventorDTO(
-				coInventor.getId(), coInventor.getUser().getId(), coInventor.getUser().getUsername())).collect(Collectors.toList());
+		List<Long> coInventorIds = patent.getCoInventors().stream().map(coInventor -> 
+				 coInventor.getUser().getId()).collect(Collectors.toList());
 		 
-		patentDTO.setCoInventors(coInventorDTOs);
+		patentDTO.setCoInventors(coInventorIds);
 		
  		return patentDTO;
 	}
@@ -68,20 +67,21 @@ public class PatentMapper {
   }
       Patent patent = new Patent();
       
+      System.out.println("patentDTO: " + patentDTO.getId());
       patent.setId(patentDTO.getId());
       patent.setProject(getProjectById(patentDTO.getProjectId()));
       if(patentDTO.getPrimaryAuthorId() != null) {
     	  User fetchedUser = userRepository.findById(patentDTO.getPrimaryAuthorId()).orElseThrow(() -> new RuntimeException("User not found with ID: " + patentDTO.getPrimaryAuthorId()));    	  
     	  patent.setPrimaryAuthor(fetchedUser);
       }
-      patent.setPrimaryAuthor(getAuthorById(patentDTO.getPrimaryAuthorId()));
+//      patent.setPrimaryAuthor(getAuthorById(patentDTO.getPrimaryAuthorId()));
       patent.setRegistrationNumber(patentDTO.getRegistrationNumber());
 	patent.setRegistrationDate(patentDTO.getRegistrationDate());
 		patent.setIssuingAuthority(patentDTO.getIssuingAuthority());
 		
 		if(patentDTO.getCoInventors() != null) {
-			for(PatentCoInventorDTO coInventorDTO : patentDTO.getCoInventors()) {
-				User user = userRepository.findById(coInventorDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found with ID: " + coInventorDTO.getUserId()));
+			for(Long userId : patentDTO.getCoInventors()) {
+				User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 				PatentCoInventor coInventor = new PatentCoInventor();
 				coInventor.setPatent(patent);
 				coInventor.setUser(user);

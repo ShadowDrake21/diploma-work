@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.dto.UserDTO;
 import com.backend.app.enums.Role;
 import com.backend.app.model.User;
@@ -40,9 +41,8 @@ public class UserController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<User> getUserById(@PathVariable Long id) {
-		Optional<User> user = userService.getUserById(id);
-		return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+	public ResponseUserDTO getUserById(@PathVariable Long id) {
+		return userService.getUserById(id);
 	}
 	
 	@GetMapping("/email/{email}")
@@ -65,12 +65,12 @@ public class UserController {
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-		Optional<User> user = userService.getUserById(id);
-		
-		if(user.isPresent()) {
-			userService.deleteUser(id);
-			return ResponseEntity.noContent().build();
-		}
+//		Respo user = userService.getUserById(id);
+//		
+//		if(user.isPresent()) {
+//			userService.deleteUser(id);
+//			return ResponseEntity.noContent().build();
+//		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 	}
 }
