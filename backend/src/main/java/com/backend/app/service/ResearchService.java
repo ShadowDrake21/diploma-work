@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +17,10 @@ import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.ResearchRepository;
 import com.backend.app.repository.UserRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+
 @Service
 public class ResearchService {
 	@Autowired
@@ -26,6 +31,9 @@ public class ResearchService {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	 @PersistenceContext
+		private EntityManager entityManager;
 	
 	public List<Research> findAllResearches(){
 		return researchRepository.findAll();
@@ -39,6 +47,7 @@ public class ResearchService {
 		return researchRepository.findByProjectId(projectId);
 	}
 	
+	@Transactional 
 	public Optional<Research> updateResearch(UUID id, Research newResearch) {
 		return researchRepository.findById(id).map(existingResearch -> {
 			existingResearch.setProject(newResearch.getProject());
@@ -48,10 +57,18 @@ public class ResearchService {
 			existingResearch.setStatus(newResearch.getStatus());
 			existingResearch.setFundingSource(newResearch.getFundingSource());
 			
+			existingResearch.getResearchParticipants().clear();
+			entityManager.flush();
+			for(ResearchParticipant participant : newResearch.getResearchParticipants()) {
+				participant.setResearch(existingResearch);
+				existingResearch.addParticipant(participant);
+			}
+			
 			return researchRepository.save(existingResearch);
 		});
 	}
 	
+	@Transactional 
 	public Research createResearch(CreateResearchRequest request) {
 		System.out.println("patent: " + request.getProjectId() + " primary: " + request.getParticipants());
 

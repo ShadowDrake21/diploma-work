@@ -53,9 +53,10 @@ public class ResearchController {
 	}
 	
 	@PutMapping("/{id}")
-	public ResearchDTO updateResearch(@PathVariable UUID id, @RequestBody Research research) {
-		Optional<Research> researchOptional = researchService.updateResearch(id, research);
-		return researchOptional.map(researchMapper::toDTO).orElseThrow(() -> new RuntimeException("Research not found with id: " + id));
+	public ResearchDTO updateResearch(@PathVariable UUID id, @RequestBody ResearchDTO researchDTO) {
+		Research research = researchMapper.toEntity(researchDTO);
+		Optional<Research> updatedResearch = researchService.updateResearch(id, research);
+		return updatedResearch.map(researchMapper::toDTO).orElseThrow(() -> new RuntimeException("Research not found with id: " + id));
 	}
 	
 	@DeleteMapping("/{id}")

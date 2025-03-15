@@ -28,6 +28,7 @@ export class ResearchService {
   }
 
   updateResearch(id: string, research: any): Observable<any> {
+    console.log('updateResearch', research);
     return this.http.put(`${this.apiUrl}/${id}`, research, {
       headers: new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('authToken')}`,

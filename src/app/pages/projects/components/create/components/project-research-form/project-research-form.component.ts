@@ -44,7 +44,7 @@ export class ProjectResearchFormComponent {
       budget: FormControl<number | null>;
       startDate: FormControl<Date | null>;
       endDate: FormControl<Date | null>;
-      status: FormControl<Filter | null>;
+      status: FormControl<string | null>;
       fundingSource: FormControl<string | null>;
     }>
   >({ alias: 'researchProjectsForm' });
@@ -61,7 +61,21 @@ export class ProjectResearchFormComponent {
     return coParticipantId1.toString() === coParticipantId2.toString();
   };
 
-  compareStatuses = (status1: string, status2: Filter) => {
-    return status1 === status2.value;
+  compareStatuses = (status1: string, status2: Filter | string) => {
+    if (typeof status2 === 'string') {
+      return status1 === status2;
+    } else {
+      console.log(
+        'status1',
+        status1,
+        ' status2',
+        status2,
+        'status1 === status2.value',
+        status1 === status2.value
+      );
+      console.log(typeof status1, typeof status2);
+
+      return status1 === status2.value;
+    }
   };
 }
