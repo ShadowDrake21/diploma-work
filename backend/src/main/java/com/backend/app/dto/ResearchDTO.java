@@ -15,7 +15,7 @@ public class ResearchDTO {
 	 private LocalDate endDate;
 	 private String status;
 	 private String fundingSource;
-	 private List<ResponseUserDTO> participants;
+	 private List<Long> participantIds;
 	 
 	 
 	public ResearchDTO() {
@@ -63,10 +63,10 @@ public class ResearchDTO {
 	public void setFundingSource(String fundingSource) {
 		this.fundingSource = fundingSource;
 	}
-	public List<ResponseUserDTO> getParticipants() {
-		return participants;
+	public List<Long> getParticipantIds() {
+		return participantIds;
 	}
-	public void setParticipants(List<ResponseUserDTO> participants) {
-		this.participants = participants;
+	public void setParticipantIds(List<Long> participantIds) {
+		this.participantIds = participantIds;
 	}
 }

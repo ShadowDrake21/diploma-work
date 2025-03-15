@@ -40,12 +40,10 @@ public class ResearchMapper {
 		researchDTO.setStatus(research.getStatus());
 		researchDTO.setFundingSource(research.getFundingSource());
 
-		List<ResponseUserDTO> participantDTOs = research.getResearchParticipants().stream().map(participant -> new ResponseUserDTO(
-				participant.getUser().getId(),
-				participant.getUser().getUsername()
-				)).collect(Collectors.toList());
+		List<Long> participantIds = research.getResearchParticipants().stream().map(participant -> 
+				participant.getUser().getId()).collect(Collectors.toList());
 		
-		researchDTO.setParticipants(participantDTOs);
+		researchDTO.setParticipantIds(participantIds);
 		return researchDTO;
 	}
 	
@@ -63,9 +61,9 @@ public class ResearchMapper {
       research.setStatus(researchDTO.getStatus());
       research.setFundingSource(researchDTO.getFundingSource());
 		
-      if(researchDTO.getParticipants() != null) {
-    	  for(ResponseUserDTO participantDTO : researchDTO.getParticipants()) {
-    		  User user = userRepository.findById(participantDTO.getId()).orElseThrow(() -> new RuntimeException("User not found with ID: " + participantDTO.getId()));
+      if(researchDTO.getParticipantIds() != null) {
+    	  for(Long participantId : researchDTO.getParticipantIds()) {
+    		  User user = userRepository.findById(participantId).orElseThrow(() -> new RuntimeException("User not found with ID: " + participantId));
     		  ResearchParticipant participant = new ResearchParticipant();
     		  participant.setResearch(research);
     		  participant.setUser(user);

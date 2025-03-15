@@ -118,7 +118,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     budget: new FormControl(0, [Validators.required]),
     startDate: new FormControl(new Date(), [Validators.required]),
     endDate: new FormControl(new Date(), [Validators.required]),
-    status: new FormControl(this.statuses[0], [Validators.required]),
+    status: new FormControl(this.statuses[0].value, [Validators.required]),
     fundingSource: new FormControl('', [Validators.required]),
   });
 
@@ -164,12 +164,10 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           this.projectService
             .getPublicationByProjectId(this.projectId!)
             .subscribe((publication) => {
-              console.log('authors:', publication);
               this.authors = publication.authors.map((author: any) => {
-                console.log('Author:', author);
                 return author.id;
               });
-              console.log('Authors getPublicationByProjectId:', this.authors);
+
               this.publicationsForm.patchValue({
                 authors: publication.authors.map((author: any) =>
                   author.id.toString()
@@ -188,14 +186,9 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           this.projectService
             .getPatentByProjectId(this.projectId!)
             .subscribe((patent) => {
-              console.log('loading patent', patent.coInventors);
               this.authors = patent.coInventors.map((coInventor: any) => {
                 return coInventor.id;
               });
-              console.log(
-                'Authors getPatentByProjectId:',
-                patent.primaryAuthorId
-              );
               this.patentsForm.patchValue({
                 primaryAuthor: patent.primaryAuthorId,
                 coInventors: patent.coInventors,
@@ -210,18 +203,13 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
             .getResearchByProjectId(this.projectId!)
             .subscribe((research) => {
               console.log('Research:', research);
-              this.authors = research.participants.map((participant: any) => {
-                return participant.id;
-              });
               console.log(
                 'budget, fundingSource',
                 research.budget,
                 research.fundingSource
               );
               this.researchProjects.patchValue({
-                participants: research.participants.map(
-                  (participant: any) => participant.id + ''
-                ),
+                participants: research.participantIds,
                 budget: research.budget,
                 startDate: new Date(research.startDate),
                 endDate: new Date(research.endDate),
@@ -323,7 +311,8 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
               endDate: new Date(
                 this.researchProjects.value.endDate!
               ).toISOString(),
-              participants,
+              participantIds: participants,
+              status: this.researchProjects.value.status!,
             })
             .subscribe((response) =>
               console.log('Research created:', response)
@@ -421,6 +410,31 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
               });
 
             this.subscriptions.push(updatePatentSub);
+          } else if (selectedType === 'RESEARCH') {
+            const participants = this.researchProjects.value.participants?.map(
+              (participant: string) => parseInt(participant)
+            );
+            const updateResearchSub = this.researchService
+              .updateResearch(typedProject.id, {
+                projectId: this.projectId,
+                participantIds: participants,
+                budget: this.researchProjects.value.budget,
+                startDate: new Date(
+                  this.researchProjects.value.startDate!
+                ).toISOString(),
+                endDate: new Date(
+                  this.researchProjects.value.endDate!
+                ).toISOString(),
+                status: this.researchProjects.value.status!,
+                fundingSource: this.researchProjects.value.fundingSource,
+              })
+              .subscribe({
+                next: (researchResponse) =>
+                  console.log('Research updated:', researchResponse),
+                error: (error) =>
+                  console.error('Error updating research:', error),
+              });
+            this.subscriptions.push(updateResearchSub);
           }
         });
 
