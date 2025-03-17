@@ -1,4 +1,10 @@
-<input type="file" class="file-input" multiple (change)="onChange($event)" />
+<input
+  type="file"
+  class="file-input"
+  multiple
+  (change)="onChange($event)"
+  accept="application/pdf"
+/>
 
 @if (files.length) {
 <mat-list class="file-section">

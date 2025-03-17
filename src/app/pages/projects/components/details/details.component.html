@@ -33,7 +33,11 @@
       >
         Edit <mat-icon>edit_note</mat-icon>
       </button>
-      <button mat-flat-button class="details-header__btns-item" (click)="onDelete()">
+      <button
+        mat-flat-button
+        class="details-header__btns-item"
+        (click)="onDelete()"
+      >
         Delete <mat-icon>delete</mat-icon>
       </button>
       <button mat-flat-button class="details-header__btns-item">
@@ -73,17 +77,29 @@
   </div>
   <div class="details-attachments">
     <h3 class="details-attachments__title">Attachments Section</h3>
+    @if(errorMessage) {
+    <p class="error-message">{{ errorMessage }}</p>
+    }
     <ul class="details-attachments__list">
-      @for (attachment of [{name: 'Blueprint'}, {name: 'Something'}, {name:
-      'Detailed plan'}]; track attachment) {
+      @if (attachments$ | async; as attachments) { @for (attachment of
+      attachments; track attachment) {
       <li class="details-attachments__list-item">
         <h5 class="details-attachments__list-item__title">
-          {{ attachment.name }}
+          {{ attachment.fileName }}
         </h5>
-        <button mat-flat-button class="details-attachments__list-item__btn">
+        <a
+          mat-flat-button
+          class="details-attachments__list-item__btn"
+          [href]="attachment.fileUrl"
+          target="_blank"
+          (click)="openPdfInNewTab(attachment.fileUrl)"
+          download
+        >
           Download PDF <mat-icon>picture_as_pdf</mat-icon>
-        </button>
+        </a>
       </li>
+      } } @else {
+      <p>No attachments found.</p>
       }
     </ul>
   </div>

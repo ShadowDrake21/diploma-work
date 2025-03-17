@@ -51,6 +51,10 @@ export class ProjectGeneralInformationComponent {
     }>
   >({ alias: 'generalInformationForm' });
 
+  entityTypeSig = input.required<string | null | undefined>({
+    alias: 'entityType',
+  });
+
   tags$!: Observable<any>;
 
   private tagsChangesSubscription!: Subscription;
@@ -63,5 +67,10 @@ export class ProjectGeneralInformationComponent {
     console.log('tagId1', tagId1);
     console.log('tagId2', tagId2);
     return tagId1 === tagId2;
+  }
+
+  onUploadComplete(fileUrls: string[]): void {
+    console.log('Uploaded file URLs: ', fileUrls);
+    this.generalInformationFormSig().controls.attachments.setValue(fileUrls);
   }
 }

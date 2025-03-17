@@ -25,9 +25,10 @@ import { PatentService } from '@core/services/patent.service';
 import { ResearchService } from '@core/services/research.service';
 import { ProjectService } from '@core/services/project.service';
 import { Project } from '@shared/types/project.types';
-import { forkJoin, Observable, Subscription, tap } from 'rxjs';
+import { catchError, forkJoin, Observable, of, Subscription, tap } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
 import { TagService } from '@core/services/tag.service';
+import { AttachmentsService } from '@core/services/attachments.service';
 @Component({
   selector: 'project-details',
   imports: [
@@ -54,9 +55,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private headerService = inject(HeaderService);
   private projectService = inject(ProjectService);
   private tagService = inject(TagService);
-  private publicationService = inject(PublicationService);
-  private patentService = inject(PatentService);
-  private researchService = inject(ResearchService);
+  private attachmentsService = inject(AttachmentsService);
 
   workId: string | null = null;
   work: DashboardRecentProjectItemModal | undefined = undefined;
@@ -68,14 +67,17 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   patent$!: Observable<any>;
   research$!: Observable<any>;
 
+  attachments$!: Observable<any>;
+
   subscriptions: Subscription[] = [];
+
+  errorMessage: string | null = null;
 
   getStatusOnProgess = getStatusOnProgess;
 
   ngOnInit(): void {
     const paramsSub = this.route.params.subscribe((params) => {
       this.workId = params['id'];
-      console.log('params', params);
     });
 
     this.getWorkById();
@@ -94,6 +96,20 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
             project?.tagIds.map((tagId) => this.tagService.getTagById(tagId))
           )
         : new Observable();
+
+      if (project?.type) {
+        this.attachments$ = this.attachmentsService
+          .getFilesByEntity(project?.type, this.workId!)
+          .pipe(
+            catchError((error) => {
+              console.error('Error fetching attachments:', error);
+              this.errorMessage =
+                'Failed to load attachments. Please try again later.';
+              return of([]); // Return an empty array to prevent the template from breaking
+            })
+          );
+      }
+
       if (project?.type === 'PUBLICATION') {
         console.log('publication');
       } else if (project?.type === 'PATENT') {
@@ -138,6 +154,10 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       });
 
     this.subscriptions.push(deleteSub);
+  }
+
+  openPdfInNewTab(fileUrl: string): void {
+    window.open(fileUrl, '_blank');
   }
 
   ngOnDestroy(): void {

@@ -1,6 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
+import { ProjectType } from '@shared/enums/categories.enum';
+import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -10,17 +12,31 @@ export class AttachmentsService {
   private http = inject(HttpClient);
   private apiUrl = BASE_URL + 's3';
 
-  uploadFile(file: File): Observable<string> {
+  getFilesByEntity(entityType: string, entityId: string): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/files/${entityType}/${entityId}`,
+      getAuthHeaders()
+    );
+  }
+
+  uploadFile(file: File, entityType: ProjectType): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('entityType', entityType.toString());
     return this.http.post<string>(`${this.apiUrl}/upload`, formData, {
       responseType: 'text' as 'json',
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
     });
   }
 
   deleteFile(fileName: string): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/delete/${fileName}`, {
       responseType: 'text' as 'json',
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
     });
   }
 }

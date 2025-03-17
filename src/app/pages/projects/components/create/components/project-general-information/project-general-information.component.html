@@ -41,7 +41,9 @@ async;
   </mat-form-field>
 
   <shared-multiple-file-upload
-    [formField]="generalInformationForm.controls.attachments"
+    [formControl]="generalInformationForm.controls.attachments"
+    [entityType]="entityTypeSig()"
+    (uploadComplete)="onUploadComplete($event)"
   />
 
   <div>
