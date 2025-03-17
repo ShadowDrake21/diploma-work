@@ -1,6 +1,5 @@
-export enum Categories {
-  Hotels = 'hotels',
-  Attractions = 'attractions',
-  Restaurants = 'restaurants',
-  Geos = 'geos',
+export enum ProjectType {
+  PUBLICATION = 'PUBLICATION',
+  PATENT = 'PATENT',
+  RESEARCH = 'RESEARCH',
 }

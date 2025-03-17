@@ -73,10 +73,14 @@ public class S3Controller {
     
     @GetMapping("/files/{entityType}/{entityId}")
     public ResponseEntity<List<FileMetadataDTO>> getFilesByEntity(@PathVariable String entityType, @PathVariable UUID entityId) {
+
     	try {
+            System.out.println("Received request for entityType: " + entityType + ", entityId: " + entityId);
 			List<FileMetadataDTO> files = s3Service.getFilesByEntity(entityType, entityId);
 			return ResponseEntity.ok(files);
 		} catch (Exception e) {
+			 System.err.println("Error in getFilesByEntity: " + e.getMessage());
+		        e.printStackTrace();
 			return ResponseEntity.status(500).body(null);
 		}
     }

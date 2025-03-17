@@ -231,12 +231,19 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   // TODO: Project-Tag table, entities don't save
 
   submitForm() {
+    const attachments = this.generalInformationForm.value.attachments;
+
+    if (attachments && attachments.length > 0) {
+      console.log('Attachments uploaded:', attachments);
+    }
+
     if (this.projectId) {
       this.updateProject();
       return;
     } else {
       this.createProject();
     }
+
     const selectedType = this.typeForm.value.type;
     const availableTypes = this.types.map((type) => type.value);
     const tags = this.generalInformationForm.value.tags;

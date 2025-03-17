@@ -37,10 +37,10 @@ public class S3Service {
     private final FileMetadataRepository fileMetadataRepository;
 
 	
-	@Value("${aws.s3.bucket-name")
+	@Value("${aws.s3.bucket}")
 	private String bucketName;
 
-	@Value("${aws.s3.region")
+	@Value("${aws.region}")
 	private String region;
 	
 	public S3Service(S3Client s3Client, FileMetadataRepository fileMetadataRepository) {
@@ -121,7 +121,13 @@ public class S3Service {
 	}
 	
 	public List<FileMetadataDTO> getFilesByEntity(String entityType, UUID entityId) {
-	     return fileMetadataRepository.findByEntityTypeAndEntityId(entityType, entityId)
+        System.out.println("Fetching files for entityType: " + entityType + ", entityId: " + entityId);
+
+        try {
+        	List<FileMetadata> files = fileMetadataRepository.findByEntityTypeAndEntityId(entityType, entityId);
+            System.out.println("Found files: " + files.size());
+     
+	     return files
 	              .stream()
 	              .map(metadata -> new FileMetadataDTO(
 	                        metadata.getId(),
@@ -132,5 +138,9 @@ public class S3Service {
 	                        metadata.getUploadedAt()
 	                ))
 	                .collect(Collectors.toList());
-	    }
+	    }catch (Exception e) {
+	    	 System.err.println("Error fetching files: " + e.getMessage());
+	         e.printStackTrace();
+	         throw e; 
+		}}
 }
