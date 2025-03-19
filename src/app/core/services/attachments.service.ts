@@ -14,15 +14,20 @@ export class AttachmentsService {
 
   getFilesByEntity(entityType: string, entityId: string): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/files/${entityType}/${entityId}`,
+      `${this.apiUrl}/files/${entityType.toLowerCase()}/${entityId}`,
       getAuthHeaders()
     );
   }
 
-  uploadFile(file: File, entityType: ProjectType): Observable<string> {
+  uploadFile(
+    file: File,
+    entityType: ProjectType,
+    uuid: String
+  ): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('entityType', entityType.toString());
+    formData.append('entityId', uuid.toString());
     return this.http.post<string>(`${this.apiUrl}/upload`, formData, {
       responseType: 'text' as 'json',
       headers: new HttpHeaders({

@@ -17,13 +17,12 @@ export class MultipleFileUploadComponent {
   private http = inject(HttpClient);
   private attachmentsService = inject(AttachmentsService);
 
-  formControlSig = input.required<FormControl<string[] | null>>({
+  formControlSig = input.required<FormControl<File[] | null>>({
     alias: 'formControl',
   });
   entityTypeSig = input.required<string | null | undefined>({
     alias: 'entityType',
   });
-  uploadCompleteSig = output<string[]>({ alias: 'uploadComplete' });
 
   status: 'initial' | 'uploading' | 'success' | 'fail' = 'initial';
   files: File[] = [];
@@ -34,40 +33,47 @@ export class MultipleFileUploadComponent {
     if (files.length) {
       this.status = 'initial';
       this.files = Array.from(files);
+      this.formControlSig().setValue(this.files);
     }
   }
 
-  onUpload() {
-    if (this.files.length && this.entityTypeSig()) {
-      this.status = 'uploading';
+  // onUpload() {
+  //   if (this.files.length && this.entityTypeSig()) {
+  //     this.status = 'uploading';
 
-      const entityType = stringToProjectType(this.entityTypeSig() as string);
+  //     const entityType = stringToProjectType(this.entityTypeSig() as string);
 
-      if (!entityType) {
-        console.error('Invalid entity type: ', this.entityTypeSig());
-        return;
-      }
+  //     if (!entityType) {
+  //       console.error('Invalid entity type: ', this.entityTypeSig());
+  //       return;
+  //     }
 
-      const uploadObservables = this.files.map((file) =>
-        this.attachmentsService.uploadFile(file, entityType).pipe(
-          catchError((error) => {
-            console.log('Error uploading file', error);
-            return of(null);
-          })
-        )
-      );
+  //     if (!this.projectIdSig()) {
+  //       console.error('Invalid project id: ', this.projectIdSig());
+  //       return;
+  //     }
 
-      forkJoin(uploadObservables)
-        .pipe(
-          finalize(() => {
-            this.status = 'success';
-          })
-        )
-        .subscribe((responses) => {
-          const fileUrls = responses.filter((url) => url !== null) as string[];
-          this.uploadCompleteSig.emit(fileUrls);
-          this.formControlSig().setValue(fileUrls);
-        });
-    }
-  }
+  //     const uploadObservables = this.files.map((file) =>
+  //       this.attachmentsService
+  //         .uploadFile(file, entityType, this.projectIdSig()!)
+  //         .pipe(
+  //           catchError((error) => {
+  //             console.log('Error uploading file', error);
+  //             return of(null);
+  //           })
+  //         )
+  //     );
+
+  //     forkJoin(uploadObservables)
+  //       .pipe(
+  //         finalize(() => {
+  //           this.status = 'success';
+  //         })
+  //       )
+  //       .subscribe((responses) => {
+  //         this.uploadCompleteSig.emit(this.files);
+  //         this.formControlSig().setValue(this.files);
+  //       });
+  //   }
+  // }
 }

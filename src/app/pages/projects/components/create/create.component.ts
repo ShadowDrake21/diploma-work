@@ -32,6 +32,7 @@ import { TagService } from '@core/services/tag.service';
 import { UserService } from '@core/services/user.service';
 import { Observable, of, Subscription, switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { ProjectType } from '@shared/enums/categories.enum';
 
 @Component({
   selector: 'project-creation',
@@ -94,7 +95,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     description: new FormControl('', [Validators.required]),
     progress: new FormControl(0, [Validators.min(0), Validators.max(100)]),
     tags: new FormControl(['']),
-    attachments: new FormControl(['']),
+    attachments: new FormControl<File[]>([]),
   });
   publicationsForm = new FormGroup({
     authors: new FormControl(['15', '16'], [Validators.required]),
@@ -261,6 +262,19 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
       })
       .subscribe((response) => {
         const projectId = response.id;
+
+        if (attachments && attachments.length > 0) {
+          attachments.forEach((file: File) => {
+            this.attachmentsService
+              .uploadFile(file, selectedType as ProjectType, projectId)
+              .subscribe({
+                next: (response) =>
+                  console.log('Attachment uploaded:', response),
+                error: (error) =>
+                  console.error('Error uploading attachment:', error),
+              });
+          });
+        }
 
         if (selectedType === availableTypes[0]) {
           const authors = this.publicationsForm.value.authors?.map(
