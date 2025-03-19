@@ -27,10 +27,10 @@ public class S3Controller {
 	}
 	
 	@PostMapping("/upload")
-	public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String entityType) {
+	public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String entityType, @RequestParam UUID entityId) {
 		try {
 			ProjectType type = ProjectType.valueOf(entityType);
-			String fileUrl = s3Service.uploadFile(file, type);
+			String fileUrl = s3Service.uploadFile(file, type, entityId);
 			return ResponseEntity.ok("File uploaded successfully: " + fileUrl);
 		} catch(IllegalArgumentException e) {
 			return ResponseEntity.status(400).body("Invalid entity type: " + entityType);

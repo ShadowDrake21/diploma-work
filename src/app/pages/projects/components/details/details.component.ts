@@ -101,6 +101,9 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         this.attachments$ = this.attachmentsService
           .getFilesByEntity(project?.type, this.workId!)
           .pipe(
+            tap((attachments) => {
+              console.log('attachments', attachments);
+            }),
             catchError((error) => {
               console.error('Error fetching attachments:', error);
               this.errorMessage =

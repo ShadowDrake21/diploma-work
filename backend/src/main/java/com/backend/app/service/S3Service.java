@@ -53,8 +53,8 @@ public class S3Service {
 		return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
 	}
 	
-	public String uploadFile(MultipartFile file, ProjectType entityType) {
-		String fileName = file.getOriginalFilename();
+	public String uploadFile(MultipartFile file, ProjectType entityType, UUID projectId) {
+		String fileName = entityType.toString().toLowerCase() + "/" + projectId + "/" + file.getOriginalFilename();
 		String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
 		
 		try {
@@ -63,10 +63,10 @@ public class S3Service {
 			LocalDateTime uploadedAt = new Date().toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
 			
 	        FileMetadata metadata = new FileMetadata();
-	        metadata.setFileName(fileName);
+	        metadata.setFileName(file.getOriginalFilename());
 	        metadata.setFileUrl(fileUrl);
 	        metadata.setEntityType(entityType); // or "patent", "research_project", etc.
-	        metadata.setEntityId(UUID.randomUUID());
+	        metadata.setEntityId(projectId);
 	        metadata.setUploadedAt(uploadedAt);
 	        fileMetadataRepository.save(metadata);
 	        
@@ -124,7 +124,9 @@ public class S3Service {
         System.out.println("Fetching files for entityType: " + entityType + ", entityId: " + entityId);
 
         try {
-        	List<FileMetadata> files = fileMetadataRepository.findByEntityTypeAndEntityId(entityType, entityId);
+        	ProjectType projectType = ProjectType.valueOf(entityType.toUpperCase());
+        	System.out.println("type: " + projectType);
+        	List<FileMetadata> files = fileMetadataRepository.findByEntityTypeAndEntityId(projectType, entityId);
             System.out.println("Found files: " + files.size());
      
 	     return files
@@ -132,7 +134,7 @@ public class S3Service {
 	              .map(metadata -> new FileMetadataDTO(
 	                        metadata.getId(),
 	                        metadata.getFileName(),
-	                        metadata.getFileUrl(),
+	                        String.format("https://%s.s3.%s.amazonaws.com/%s/%s/%s", bucketName, region, entityType.toLowerCase(), entityId, metadata.getFileName()),
 	                        metadata.getEntityType(),
 	                        metadata.getEntityId(),
 	                        metadata.getUploadedAt()

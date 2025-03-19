@@ -47,7 +47,7 @@ export class ProjectGeneralInformationComponent {
       description: FormControl<string | null>;
       progress: FormControl<number | null>;
       tags: FormControl<string[] | null>;
-      attachments: FormControl<string[] | null>;
+      attachments: FormControl<File[] | null>;
     }>
   >({ alias: 'generalInformationForm' });
 
@@ -69,8 +69,8 @@ export class ProjectGeneralInformationComponent {
     return tagId1 === tagId2;
   }
 
-  onUploadComplete(fileUrls: string[]): void {
-    console.log('Uploaded file URLs: ', fileUrls);
-    this.generalInformationFormSig().controls.attachments.setValue(fileUrls);
-  }
+  // onUploadComplete(fileUrls: string[]): void {
+  //   console.log('Uploaded file URLs: ', fileUrls);
+  //   this.generalInformationFormSig().controls.attachments.setValue(fileUrls);
+  // }
 }
