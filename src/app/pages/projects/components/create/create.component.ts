@@ -33,6 +33,7 @@ import { UserService } from '@core/services/user.service';
 import { Observable, of, Subscription, switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectType } from '@shared/enums/categories.enum';
+import { ProjectSharedService } from '@core/services/project-shared.service';
 
 @Component({
   selector: 'project-creation',
@@ -74,6 +75,8 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   private researchService = inject(ResearchService);
   private attachmentsService = inject(AttachmentsService);
 
+  private projectSharedService = inject(ProjectSharedService);
+
   projectId: string | null = null;
   project$!: Observable<any | undefined>;
   typedProject$!: Observable<any | undefined>;
@@ -86,6 +89,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   statuses = statuses;
 
   allUsers$!: Observable<any[]>;
+  updatingAttachments$!: Observable<any[]>;
 
   typeForm = new FormGroup({
     type: new FormControl('', [Validators.required]),
@@ -161,6 +165,19 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           progress: project?.progress,
           tags: project?.tagIds || [],
         });
+
+        // this.updatingAttachments$ = this.attachmentsService.getFilesByEntity(project.type, this.projectId!);
+        this.attachmentsService
+          .getFilesByEntity(project.type, this.projectId!)
+          .subscribe({
+            next: (files) => {
+              console.log('Fetched files:', files);
+              // Handle the files as needed, e.g., display them in the UI
+            },
+            error: (error) => {
+              console.error('Error fetching files:', error);
+            },
+          });
         if (project?.type === 'PUBLICATION') {
           this.projectService
             .getPublicationByProjectId(this.projectId!)
@@ -219,9 +236,12 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
               });
             });
         }
+        this.projectSharedService.isProjectCreation = false;
       });
 
       this.subscriptions.push(sub);
+    } else {
+      this.projectSharedService.isProjectCreation = true;
     }
   }
 
@@ -357,6 +377,13 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     }
 
     const tags = this.generalInformationForm.value.tags;
+    console.log('create update project', {
+      title: this.generalInformationForm.value.title,
+      description: this.generalInformationForm.value.description,
+      progress: this.generalInformationForm.value.progress,
+      tagIds: tags,
+      type: this.typeForm.value.type,
+    });
     const updateProjectSub = this.projectService
       .updateProject(projectId, {
         title: this.generalInformationForm.value.title,

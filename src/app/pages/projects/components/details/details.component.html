@@ -85,7 +85,7 @@
       attachments; track attachment) {
       <li class="details-attachments__list-item">
         <h5 class="details-attachments__list-item__title">
-          {{ attachment.fileName }}
+          {{ attachment.fileName | truncateText : 20 }}
         </h5>
         <a
           mat-flat-button

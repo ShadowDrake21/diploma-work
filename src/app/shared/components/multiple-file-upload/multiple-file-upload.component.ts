@@ -1,21 +1,34 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, input, output } from '@angular/core';
+import { Component, forwardRef, inject, input, output } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { FormControl } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormControl,
+  NG_VALUE_ACCESSOR,
+} from '@angular/forms';
 import { AttachmentsService } from '@core/services/attachments.service';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { stringToProjectType } from '@shared/utils/convert.utils';
+import { ProjectSharedService } from '@core/services/project-shared.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'shared-multiple-file-upload',
-  imports: [MatListModule, MatIconModule],
+  imports: [MatListModule, MatIconModule, MatButtonModule],
   templateUrl: './multiple-file-upload.component.html',
   styleUrl: './multiple-file-upload.component.scss',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => MultipleFileUploadComponent),
+      multi: true,
+    },
+  ],
 })
-export class MultipleFileUploadComponent {
-  private http = inject(HttpClient);
+export class MultipleFileUploadComponent implements ControlValueAccessor {
   private attachmentsService = inject(AttachmentsService);
+  private projectSharedService = inject(ProjectSharedService);
 
   formControlSig = input.required<FormControl<File[] | null>>({
     alias: 'formControl',
@@ -27,14 +40,50 @@ export class MultipleFileUploadComponent {
   status: 'initial' | 'uploading' | 'success' | 'fail' = 'initial';
   files: File[] = [];
 
-  onChange(event: any) {
+  isProjectCreation: boolean = this.projectSharedService.isProjectCreation;
+
+  // ControlValueAccessor methods
+  onChange: any = () => {};
+  onTouched: any = () => {};
+
+  writeValue(obj: File[] | null): void {
+    if (obj) {
+      this.files = obj;
+    }
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    // Handle disabled state if needed
+  }
+
+  // Handle file input changes
+  onFileChange(event: any) {
     const files = event.target.files;
 
     if (files.length) {
       this.status = 'initial';
       this.files = Array.from(files);
       this.formControlSig().setValue(this.files);
+      this.onChange(this.files); // Notify Angular of the change
+      this.onTouched(); // Notify Angular that the component was touched
     }
+  }
+
+  // Reset files
+  onResetFiles() {
+    this.files = [];
+    this.formControlSig().setValue(null);
+    this.isProjectCreation = true;
+    this.onChange(this.files); // Notify Angular of the change
+    this.onTouched(); // Notify Angular that the component was touched
   }
 
   // onUpload() {

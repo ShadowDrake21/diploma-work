@@ -1,8 +1,9 @@
+@if (isProjectCreation) {
 <input
   type="file"
   class="file-input"
   multiple
-  (change)="onChange($event)"
+  (change)="onFileChange($event)"
   accept="application/pdf"
 />
 
@@ -16,11 +17,16 @@
     <div matListItemLine>{{ file.type }}</div>
     <div matListItemLine>{{ file.size }} bytes</div>
   </mat-list-item>
-  }
+  }</mat-list
+>
+} } @else {
+<button mat-raised-button (click)="onResetFiles()">Вибрати нові файли</button>
 
-  <!-- <button (click)="onUpload()" class="upload-button">Upload the file</button> -->
+}
 
-  <!-- @switch (status) { @case ('uploading') {
+<!-- <button (click)="onUpload()" class="upload-button">Upload the file</button> -->
+
+<!-- @switch (status) { @case ('uploading') {
   <p>⏳ Uploading...</p>
   } @case ('success') {
   <p>✅ Done!</p>
@@ -29,5 +35,3 @@
   } @default {
   <p>😶 Waiting to upload...</p>
   } } -->
-</mat-list>
-}

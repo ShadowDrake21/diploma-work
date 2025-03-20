@@ -36,7 +36,6 @@ import { UserService } from '@core/services/user.service';
   styleUrl: './project-patent-form.component.scss',
 })
 export class ProjectPatentFormComponent implements OnInit {
-  private createWorkService = inject(CreateWorkService);
   private userService = inject(UserService);
 
   patentsFormSig = input.required<

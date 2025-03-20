@@ -18,7 +18,7 @@ async;
     <mat-slider min="0" max="100" step="1" showTickMarks discrete>
       <input
         matSliderThumb
-        [(value)]="generalInformationFormSig().controls.progress.value"
+        [formControl]="generalInformationForm.controls.progress"
       />
     </mat-slider>
   </div>
