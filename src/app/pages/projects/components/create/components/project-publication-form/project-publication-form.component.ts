@@ -44,8 +44,6 @@ import { authors } from '@content/createProject.content';
   styleUrl: './project-publication-form.component.scss',
 })
 export class ProjectPublicationFormComponent implements OnChanges {
-  private createWorkService = inject(CreateWorkService);
-
   publicationsFormSig = input.required<
     FormGroup<{
       authors: FormControl<string[] | null>;

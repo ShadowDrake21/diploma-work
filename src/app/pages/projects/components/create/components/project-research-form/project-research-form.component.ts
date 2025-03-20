@@ -36,8 +36,6 @@ import { authors, statuses } from '@content/createProject.content';
   styleUrl: './project-research-form.component.scss',
 })
 export class ProjectResearchFormComponent {
-  private createWorkService = inject(CreateWorkService);
-
   researchProjectsFormSig = input.required<
     FormGroup<{
       participants: FormControl<string[] | null>;

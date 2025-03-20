@@ -3,6 +3,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.mapstruct.ap.shaded.freemarker.core.ReturnInstruction.Return;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +49,22 @@ public class PatentService {
 			existingPatent.setRegistrationDate(newPatent.getRegistrationDate());
 			existingPatent.setIssuingAuthority(newPatent.getIssuingAuthority());
 			
-			existingPatent.getCoInventors().clear();
-			for(PatentCoInventor coInventor : newPatent.getCoInventors()) {
-				coInventor.setPatent(existingPatent);
-				existingPatent.addCoInventor(coInventor);
+			List<PatentCoInventor> existingCoInventors = existingPatent.getCoInventors();
+			List<PatentCoInventor> newCoInventors = newPatent.getCoInventors();
+			List<PatentCoInventor> coInventorsToRemove = existingCoInventors.stream().filter(existingCoInventor -> newCoInventors.stream().noneMatch(newCoInventor -> newCoInventor.getUser().getId().equals(existingCoInventor.getUser().getId()))).collect(Collectors.toList());
+			
+			coInventorsToRemove.forEach(existingPatent::removeCoInventor);
+			
+			
+			for(PatentCoInventor newCoInventor : newCoInventors) {
+				 boolean exists = existingCoInventors.stream()
+			                .anyMatch(existingCoInventor -> existingCoInventor.getUser().getId().equals(newCoInventor.getUser().getId()));	
+				 
+				if(!exists) {
+					newCoInventor.setPatent(existingPatent);
+					existingPatent.addCoInventor(newCoInventor);
+				}
+			
 			}
 			
 			return patentRepository.save(existingPatent);
@@ -69,10 +82,15 @@ public class PatentService {
 				if(userId != null) {
 					Optional<User> userOptional = userRepository.findById(userId);
 					if(userOptional.isPresent()) {
-						PatentCoInventor coInventor = new PatentCoInventor();
-						coInventor.setPatent(patent);
-						coInventor.setUser(userOptional.get());
-						patent.addCoInventor(coInventor);
+						
+						boolean exists = patent.getCoInventors().stream().anyMatch(ci -> ci.getUser().getId().equals(userId));
+						
+						if(!exists) {							
+							PatentCoInventor coInventor = new PatentCoInventor();
+							coInventor.setPatent(patent);
+							coInventor.setUser(userOptional.get());
+							patent.addCoInventor(coInventor);
+						}
 					}
 				}
 				

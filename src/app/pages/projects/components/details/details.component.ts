@@ -29,6 +29,9 @@ import { catchError, forkJoin, Observable, of, Subscription, tap } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
 import { TagService } from '@core/services/tag.service';
 import { AttachmentsService } from '@core/services/attachments.service';
+import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
+import { MatButtonModule } from '@angular/material/button';
+
 @Component({
   selector: 'project-details',
   imports: [
@@ -45,6 +48,8 @@ import { AttachmentsService } from '@core/services/attachments.service';
     TitleCasePipe,
     AsyncPipe,
     DatePipe,
+    TruncateTextPipe,
+    MatButtonModule,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
