@@ -1,5 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, forwardRef, inject, input, output } from '@angular/core';
+import {
+  Component,
+  forwardRef,
+  inject,
+  input,
+  OnChanges,
+  OnInit,
+  output,
+  SimpleChanges,
+} from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -8,14 +17,15 @@ import {
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { AttachmentsService } from '@core/services/attachments.service';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, forkJoin, Observable, of } from 'rxjs';
 import { stringToProjectType } from '@shared/utils/convert.utils';
 import { ProjectSharedService } from '@core/services/project-shared.service';
 import { MatButtonModule } from '@angular/material/button';
+import { AsyncPipe, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'shared-multiple-file-upload',
-  imports: [MatListModule, MatIconModule, MatButtonModule],
+  imports: [MatListModule, MatIconModule, MatButtonModule, AsyncPipe, DatePipe],
   templateUrl: './multiple-file-upload.component.html',
   styleUrl: './multiple-file-upload.component.scss',
   providers: [
@@ -39,6 +49,7 @@ export class MultipleFileUploadComponent implements ControlValueAccessor {
 
   status: 'initial' | 'uploading' | 'success' | 'fail' = 'initial';
   files: File[] = [];
+  existingFiles$!: Observable<any[]>;
 
   isProjectCreation: boolean = this.projectSharedService.isProjectCreation;
 

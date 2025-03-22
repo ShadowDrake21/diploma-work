@@ -10,5 +10,6 @@ import com.backend.app.model.FileMetadata;
 
 public interface FileMetadataRepository extends JpaRepository<FileMetadata, UUID>{
 	List<FileMetadata> findByEntityTypeAndEntityId(ProjectType entityType, UUID entityId);
+	List<FileMetadata> findByEntityId(UUID entityId);
 	void deleteByFileName(String fileName);
 }

@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.ProjectDTO;
 import com.backend.app.mapper.ProjectMapper;
+import com.backend.app.model.FileMetadata;
 import com.backend.app.model.Project;
 import com.backend.app.model.ProjectTag;
 import com.backend.app.model.Tag;
+import com.backend.app.repository.FileMetadataRepository;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.ProjectTagRepository;
 import com.backend.app.repository.TagRepository;
@@ -28,8 +30,12 @@ public class ProjectService {
 	@Autowired
 	private TagRepository tagRepository;
 	
-	 @Autowired
-	    private ProjectTagRepository projectTagRepository; 
+	@Autowired
+	private S3Service s3Service;
+	 
+	@Autowired
+	private FileMetadataRepository fileMetadataRepository;
+	 
 	
 	@Autowired
     private ProjectMapper projectMapper;
@@ -79,6 +85,16 @@ public class ProjectService {
 	    }
 	
 	public void deleteProject(UUID id) {
-		projectRepository.deleteById(id);
+		Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+		
+		List<FileMetadata> files = fileMetadataRepository.findByEntityId(id);
+		
+		for(FileMetadata file: files) {
+			String filePath = file.getEntityType().toString().toLowerCase() + "/" + file.getEntityId() + "/" + file.getFileName();
+ 			s3Service.deleteFile(filePath);
+			fileMetadataRepository.delete(file);
+		}
+		
+		projectRepository.delete(project);
 	}
 }

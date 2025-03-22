@@ -36,6 +36,26 @@ export class AttachmentsService {
     });
   }
 
+  updateFiles(
+    entityType: ProjectType,
+    entityId: string,
+    files: File[]
+  ): Observable<string> {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+    formData.append('entityType', entityType.toString());
+    formData.append('entityId', entityId);
+
+    return this.http.post<string>(`${this.apiUrl}/update-files`, formData, {
+      responseType: 'text' as 'json',
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      }),
+    });
+  }
+
   deleteFile(fileName: string): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/delete/${fileName}`, {
       responseType: 'text' as 'json',

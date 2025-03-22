@@ -39,6 +39,19 @@ public class S3Controller {
 		}
 	}
 	
+	@PostMapping("/update-files")
+	public ResponseEntity<String> updateFiles( @RequestParam String entityType, @RequestParam UUID entityId, @RequestParam("files") List<MultipartFile> newFiles) {
+		try {
+			ProjectType type = ProjectType.valueOf(entityType);
+			s3Service.updateFiles(type, entityId, newFiles);
+			return ResponseEntity.ok("Files updated successfully");
+		} catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body("Invalid entity type: " + entityType);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to update files: " + e.getMessage());
+        }
+	}
+	
 	
     @DeleteMapping("/delete/{fileName}")
 	public ResponseEntity<String> deleteFile(@PathVariable String fileName) {

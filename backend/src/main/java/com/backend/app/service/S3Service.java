@@ -45,12 +45,34 @@ public class S3Service {
 	
 	public S3Service(S3Client s3Client, FileMetadataRepository fileMetadataRepository) {
 		this.s3Client = s3Client;
-//		this.s3Presigner = s3Presigner;
 		this.fileMetadataRepository = fileMetadataRepository;
 	}
 	
 	public String getPublicFileUrl(String fileName) {
 		return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
+	}
+	
+	public void updateFiles(ProjectType entityType, UUID entityId, List<MultipartFile> newFiles) {
+		List<FileMetadata> existingFiles = fileMetadataRepository.findByEntityTypeAndEntityId(entityType, entityId);
+		
+		for(FileMetadata existingFile : existingFiles) {
+			boolean fileExistsInNewFiles = newFiles.stream().anyMatch(newFile -> newFile.getOriginalFilename().equals(existingFile.getFileName()));
+			
+			if(!fileExistsInNewFiles) {
+				String filePath = entityType.toString().toLowerCase() + "/" + entityId + "/" + existingFile.getFileName();
+				deleteFile(filePath);
+				
+				fileMetadataRepository.delete(existingFile);
+			}
+		}
+		
+		for(MultipartFile newFile : newFiles) {
+			boolean fileAlreadyExists = existingFiles.stream().anyMatch(existingFile -> existingFile.getFileName().equals(newFile.getOriginalFilename()));
+			
+			if(!fileAlreadyExists) {
+				uploadFile(newFile, entityType, entityId);
+			}
+		}
 	}
 	
 	public String uploadFile(MultipartFile file, ProjectType entityType, UUID projectId) {
@@ -65,7 +87,7 @@ public class S3Service {
 	        FileMetadata metadata = new FileMetadata();
 	        metadata.setFileName(file.getOriginalFilename());
 	        metadata.setFileUrl(fileUrl);
-	        metadata.setEntityType(entityType); // or "patent", "research_project", etc.
+	        metadata.setEntityType(entityType);
 	        metadata.setEntityId(projectId);
 	        metadata.setUploadedAt(uploadedAt);
 	        fileMetadataRepository.save(metadata);
@@ -90,10 +112,11 @@ public class S3Service {
 		
 	}
 	
-	public String deleteFile(String fileName) {
-		s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(fileName).build());
+	public String deleteFile(String filePath) {
+		System.out.println("delete file deleteFile: " + filePath);
+		s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(filePath).build());
 		
-		return "File deleted: " + fileName;
+		return "File deleted: " + filePath;
 	}
 	
 //	public String generatePresignedUrl(String fileName) {
