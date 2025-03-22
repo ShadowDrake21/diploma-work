@@ -31,7 +31,7 @@ import { AttachmentsService } from '@core/services/attachments.service';
 import { TagService } from '@core/services/tag.service';
 import { UserService } from '@core/services/user.service';
 import { Observable, of, Subscription, switchMap } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ProjectSharedService } from '@core/services/project-shared.service';
 
@@ -66,6 +66,7 @@ import { ProjectSharedService } from '@core/services/project-shared.service';
   host: { style: 'display: block; height: 100%' },
 })
 export class CreateProjectComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
   private userService = inject(UserService);
@@ -166,7 +167,10 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           tags: project?.tagIds || [],
         });
 
-        // this.updatingAttachments$ = this.attachmentsService.getFilesByEntity(project.type, this.projectId!);
+        this.updatingAttachments$ = this.attachmentsService.getFilesByEntity(
+          project.type,
+          this.projectId!
+        );
         this.attachmentsService
           .getFilesByEntity(project.type, this.projectId!)
           .subscribe({
@@ -377,13 +381,8 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     }
 
     const tags = this.generalInformationForm.value.tags;
-    console.log('create update project', {
-      title: this.generalInformationForm.value.title,
-      description: this.generalInformationForm.value.description,
-      progress: this.generalInformationForm.value.progress,
-      tagIds: tags,
-      type: this.typeForm.value.type,
-    });
+    const attachments = this.generalInformationForm.value.attachments || [];
+
     const updateProjectSub = this.projectService
       .updateProject(projectId, {
         title: this.generalInformationForm.value.title,
@@ -396,6 +395,17 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
         console.log('Project updated:', projectResponse);
 
         const selectedType = this.typeForm.value.type;
+
+        if (attachments.length > 0) {
+          const updateAttachmentsSub = this.attachmentsService
+            .updateFiles(selectedType as ProjectType, projectId, attachments)
+            .subscribe({
+              next: (response) => console.log('Files updated:', response),
+              error: (error) => console.error('Error updating files:', error),
+            });
+
+          this.subscriptions.push(updateAttachmentsSub);
+        }
 
         const typedSub = this.typedProject$.subscribe((typedProject) => {
           if (!typedProject) {
@@ -486,6 +496,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           }
         });
 
+        this.router.navigate(['/projects']);
         this.subscriptions.push(typedSub);
       });
 

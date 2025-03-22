@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -18,6 +26,8 @@ import { AVAILABLE_PROJECT_TAGS } from '@content/projects.content';
 import { MatSliderModule } from '@angular/material/slider';
 import { TagService } from '@core/services/tag.service';
 import { Observable, Subscription } from 'rxjs';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'create-project-general-information',
@@ -34,11 +44,13 @@ import { Observable, Subscription } from 'rxjs';
     MatAutocompleteModule,
     MatSliderModule,
     MatDatepickerModule,
+    MatListModule,
+    MatIconModule,
   ],
   templateUrl: './project-general-information.component.html',
   styleUrl: './project-general-information.component.scss',
 })
-export class ProjectGeneralInformationComponent {
+export class ProjectGeneralInformationComponent implements OnInit {
   private tagService = inject(TagService);
 
   generalInformationFormSig = input.required<
@@ -56,11 +68,37 @@ export class ProjectGeneralInformationComponent {
   });
 
   tags$!: Observable<any>;
+  existingFilesSig = input.required<any[] | null | undefined>({
+    alias: 'existingFiles',
+  });
 
-  private tagsChangesSubscription!: Subscription;
+  isFilesReseted: boolean = false;
 
   ngOnInit(): void {
     this.tags$ = this.tagService.getAllTags();
+    console.log(
+      'entityTypeSin in ProjectGeneralInformationComponent',
+      this.entityTypeSig()
+    );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['entityTypeSig']) {
+      console.log(
+        'ngOnChanges in ProjectGeneralInformationComponent',
+        this.entityTypeSig()?.toLowerCase()
+      );
+    }
+    if (changes['existingFilesSig']) {
+      console.log(
+        'existingFilesSig in ProjectGeneralInformationComponent',
+        this.existingFilesSig()
+      );
+    }
+  }
+
+  onResetFiles(): void {
+    this.existingFilesSig;
   }
 
   compareTags(tagId1: string, tagId2: string): boolean {

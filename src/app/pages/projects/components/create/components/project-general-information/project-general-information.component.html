@@ -1,5 +1,5 @@
 @let generalInformationForm = generalInformationFormSig(); @let tags = tags$ |
-async;
+async; @let existingFiles = existingFilesSig();
 
 <form
   [formGroup]="generalInformationForm"
@@ -40,10 +40,33 @@ async;
     </mat-select>
   </mat-form-field>
 
-  <shared-multiple-file-upload
+  @if (existingFiles?.length! > 0 && !isFilesReseted) { @for (file of
+  existingFiles; track file) {
+  <a
+    [href]="file.fileUrl"
+    target="_blank"
+    download
+    style="text-decoration: none"
+  >
+    <mat-list-item style="cursor: pointer">
+      <mat-icon matListItemIcon>note</mat-icon>
+      <div matListItemTitle>
+        {{ file.fileName }}
+      </div>
+      <div matListItemLine>
+        {{ file.uploadedAt | date }}
+      </div>
+    </mat-list-item></a
+  >
+  }
+  <button mat-raised-button (click)="isFilesReseted = true">
+    Вибрати нові файли
+  </button>
+  } @if(existingFiles?.length! === 0 || isFilesReseted)
+  {<shared-multiple-file-upload
     [formControl]="generalInformationForm.controls.attachments"
     [entityType]="entityTypeSig()"
-  />
+  />}
 
   <div>
     <button mat-button matStepperPrevious>Back</button>

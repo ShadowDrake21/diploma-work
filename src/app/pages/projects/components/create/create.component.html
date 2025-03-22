@@ -20,6 +20,7 @@
     <create-project-general-information
       [generalInformationForm]="generalInformationForm"
       [entityType]="typeForm.value.type"
+      [existingFiles]="updatingAttachments$ | async"
     />
   </mat-step>
   <mat-step
