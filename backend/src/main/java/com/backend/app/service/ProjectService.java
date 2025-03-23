@@ -55,6 +55,10 @@ public class ProjectService {
 		projectDTO.getTagIds().forEach(tagId -> System.out.println("Tag ID: " + tagId));
 
 	    return projectRepository.findById(id).map(existingProject -> {
+	    	if(!existingProject.getType().equals(projectDTO.getType())) {
+	    		throw new IllegalArgumentException("Project type cannot be changed.");
+	    	}
+	    	
             Project updatedProject = projectMapper.toEntity(projectDTO);
 
             updatedProject.setId(existingProject.getId());
