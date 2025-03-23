@@ -41,6 +41,7 @@ public class S3Controller {
 	
 	@PostMapping("/update-files")
 	public ResponseEntity<String> updateFiles( @RequestParam String entityType, @RequestParam UUID entityId, @RequestParam("files") List<MultipartFile> newFiles) {
+		System.out.println("@RequestParam String entityType, @RequestParam UUID entityId, @RequestParam(\"files\") List<MultipartFile> newFiles" + entityType + " " + entityId + " " + newFiles.size());
 		try {
 			ProjectType type = ProjectType.valueOf(entityType);
 			s3Service.updateFiles(type, entityId, newFiles);

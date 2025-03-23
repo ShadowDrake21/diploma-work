@@ -62,18 +62,23 @@ async; @let existingFiles = existingFilesSig();
   <button mat-raised-button (click)="isFilesReseted = true">
     Вибрати нові файли
   </button>
-  } @if(existingFiles?.length! === 0 || isFilesReseted)
-  {<shared-multiple-file-upload
+  } @if(!existingFiles?.length! || isFilesReseted) {<shared-multiple-file-upload
     [formControl]="generalInformationForm.controls.attachments"
     [entityType]="entityTypeSig()"
-  />}
+  />
+  @if (generalInformationForm.controls.attachments.invalid &&
+  generalInformationForm.controls.attachments.touched) {
+  <mat-error>Attachments are required.</mat-error>
+  } }
 
   <div>
     <button mat-button matStepperPrevious>Back</button>
     <button
       mat-button
       matStepperNext
-      [disabled]="generalInformationForm.invalid"
+      [disabled]="
+        generalInformationForm.invalid && existingFiles?.length! === 0
+      "
     >
       Next
     </button>

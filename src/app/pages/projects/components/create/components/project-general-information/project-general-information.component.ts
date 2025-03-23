@@ -76,10 +76,8 @@ export class ProjectGeneralInformationComponent implements OnInit {
 
   ngOnInit(): void {
     this.tags$ = this.tagService.getAllTags();
-    console.log(
-      'entityTypeSin in ProjectGeneralInformationComponent',
-      this.entityTypeSig()
-    );
+
+    console.log('existingFilesSig', this.existingFilesSig());
   }
 
   ngOnChanges(changes: SimpleChanges): void {

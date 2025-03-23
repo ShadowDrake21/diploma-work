@@ -41,6 +41,7 @@ export class AttachmentsService {
     entityId: string,
     files: File[]
   ): Observable<string> {
+    console.log('updateFiles', files, entityId, entityType);
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('files', file);

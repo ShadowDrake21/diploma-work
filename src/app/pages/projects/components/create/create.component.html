@@ -59,7 +59,9 @@
     <div>
       <button mat-button matStepperPrevious>Back</button>
       <button mat-button (click)="stepper.reset()">Reset</button>
-      <button mat-button (click)="submitForm()">Submit</button>
+      <button mat-button (click)="submitForm()">
+        {{ loading ? "Saving..." : "Submit" }}
+      </button>
     </div>
   </mat-step>
 </mat-stepper>

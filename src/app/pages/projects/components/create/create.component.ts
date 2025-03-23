@@ -92,6 +92,8 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   allUsers$!: Observable<any[]>;
   updatingAttachments$!: Observable<any[]>;
 
+  loading: boolean = false;
+
   typeForm = new FormGroup({
     type: new FormControl('', [Validators.required]),
   });
@@ -160,6 +162,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
         this.typeForm.patchValue({
           type: project?.type,
         });
+        if (project) this.typeForm.disable();
         this.generalInformationForm.patchValue({
           title: project?.title,
           description: project?.description,
@@ -269,6 +272,8 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
       this.createProject();
     }
 
+    this.loading = true;
+
     const selectedType = this.typeForm.value.type;
     const availableTypes = this.types.map((type) => type.value);
     const tags = this.generalInformationForm.value.tags;
@@ -292,10 +297,16 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
             this.attachmentsService
               .uploadFile(file, selectedType as ProjectType, projectId)
               .subscribe({
-                next: (response) =>
-                  console.log('Attachment uploaded:', response),
-                error: (error) =>
-                  console.error('Error uploading attachment:', error),
+                next: (response) => {
+                  console.log('Attachment uploaded:', response);
+                  this.loading = false;
+                  this.router.navigate(['/projects']);
+                },
+
+                error: (error) => {
+                  this.loading = false;
+                  console.error('Error uploading attachment:', error);
+                },
               });
           });
         }
@@ -382,6 +393,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
 
     const tags = this.generalInformationForm.value.tags;
     const attachments = this.generalInformationForm.value.attachments || [];
+    this.loading = true;
 
     const updateProjectSub = this.projectService
       .updateProject(projectId, {
@@ -400,8 +412,15 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           const updateAttachmentsSub = this.attachmentsService
             .updateFiles(selectedType as ProjectType, projectId, attachments)
             .subscribe({
-              next: (response) => console.log('Files updated:', response),
-              error: (error) => console.error('Error updating files:', error),
+              next: (response) => {
+                console.log('Files updated:', response);
+                this.loading = false;
+                this.router.navigate(['/projects']);
+              },
+              error: (error) => {
+                console.error('Error updating files:', error);
+                this.loading = false;
+              },
             });
 
           this.subscriptions.push(updateAttachmentsSub);
@@ -496,7 +515,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           }
         });
 
-        this.router.navigate(['/projects']);
         this.subscriptions.push(typedSub);
       });
 
