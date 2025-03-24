@@ -30,6 +30,7 @@ public class UserService {
 		User user = new User(username, email, password, role);
 		user.setVerificationCode(verificationCode);
 		user.setVerified(false);
+		user.setAvatarUrl(getDefaultAvatarUrl(email));
 		userRepository.save(user);
 		
 		emailService.sendVerificationCode(email, verificationCode);
@@ -86,12 +87,19 @@ public class UserService {
 		return users.stream().map(this::mapToDTO).collect(Collectors.toList());
 	}
 	
-	private UserDTO mapToDTO(User user) {
+	public User updateAvatar(Long id, String avatarUrl) {
+		User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with ID " + id));
+		user.setAvatarUrl(avatarUrl);
+		return userRepository.save(user);
+	}
+	
+	public UserDTO mapToDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setEmail(user.getEmail());
         userDTO.setRole(user.getRole());
         userDTO.setUsername(user.getUsername());
+        userDTO.setAvatarUrl(user.getAvatarUrl());
         return userDTO;
     }
 	
@@ -99,6 +107,11 @@ public class UserService {
         ResponseUserDTO responseUserDTO = new ResponseUserDTO();
         responseUserDTO.setId(user.getId());
         responseUserDTO.setUsername(user.getUsername());
+        responseUserDTO.setAvatarUrl(user.getAvatarUrl());
         return responseUserDTO;
     }
+	
+	private String getDefaultAvatarUrl(String email) {
+		return "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+	}
 }

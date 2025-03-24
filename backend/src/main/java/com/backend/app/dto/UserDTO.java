@@ -13,12 +13,15 @@ public class UserDTO {
 	
 	private Role role;
 	
-	public UserDTO(Long id, String email, String username, Role role) {
+	private String avatarUrl;
+	
+	public UserDTO(Long id, String email, String username, Role role, String avatarUrl) {
 		super();
 		this.id = id;
 		this.email = email;
 		this.username = username;
 		this.role = role;
+		this.avatarUrl = avatarUrl;
 	}
 	
 	public Long getId() {
@@ -53,4 +56,11 @@ public class UserDTO {
 		this.role = role;
 	}
 
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
+	}
 }

@@ -3,6 +3,7 @@ package com.backend.app.dto;
 public class ResponseUserDTO {
 	private Long id;
 	private String username;
+	private String avatarUrl;
 	
 	public ResponseUserDTO() {}
 
@@ -26,6 +27,14 @@ public class ResponseUserDTO {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
 	}
 
 	

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,6 +62,12 @@ public class UserController {
 	public ResponseEntity<Boolean> userExistsByEmail(@PathVariable String email) {
 		boolean exists = userService.userExistsByEmail(email);
 		return ResponseEntity.ok(exists);
+	}
+	
+	@PatchMapping("/{id}/avatar")
+	public ResponseEntity<UserDTO> updateAvatar(@PathVariable Long id, @RequestBody String avatarUrl) {
+		User updatedUser = userService.updateAvatar(id, avatarUrl);
+		return ResponseEntity.ok(userService.mapToDTO(updatedUser));
 	}
 	
 	@DeleteMapping("/{id}")

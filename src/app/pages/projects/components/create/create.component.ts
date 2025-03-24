@@ -256,8 +256,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     console.log('Draft saved');
   }
 
-  // TODO: Project-Tag table, entities don't save
-
   submitForm() {
     const attachments = this.generalInformationForm.value.attachments;
 
