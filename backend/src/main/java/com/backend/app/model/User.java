@@ -38,6 +38,9 @@ public class User {
     @Column(name = "token_expiration")
     private LocalDateTime tokenExpiration;
     
+    @Column(name="avatar_url")
+    private String avatarUrl;
+    
     
     public User() {}
 
@@ -124,5 +127,13 @@ public class User {
 
 	public void setTokenExpiration(LocalDateTime tokenExpiration) {
 		this.tokenExpiration = tokenExpiration;
+	}
+	
+	public String getAvatarUrl() {
+	     return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+	     this.avatarUrl = avatarUrl;
 	}
 }

@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
+import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -36,6 +37,6 @@ export class PatentService {
   }
 
   deletePatent(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`, getAuthHeaders());
   }
 }
