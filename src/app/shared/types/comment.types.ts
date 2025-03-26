@@ -15,12 +15,12 @@ export interface CommentInterface {
   createdAt: string;
   updatedAt: string;
   likes: number;
-  userId: string;
+  userId: number;
   userName: string;
   userAvatarUrl: string;
   projectId: string;
   parentCommentId?: string;
-  replies?: Comment[];
+  replies?: CommentInterface[];
 }
 
 export interface CreateCommentInterface {

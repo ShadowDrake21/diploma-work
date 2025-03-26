@@ -2,6 +2,8 @@ package com.backend.app.util;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,8 +25,17 @@ public class JwtUtil {
 		return Keys.hmacShaKeyFor(secretKey.getBytes());
 	}
 	
-	public String generateToken(String username) {
-		return Jwts.builder().setSubject(username).setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + expirationTime)).signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+	public String generateToken(String email, Long userId) {
+		 Map<String, Object> claims = new HashMap<>();
+	        claims.put("sub", email);
+	        claims.put("userId", userId);  
+	        
+	        return Jwts.builder()
+	                .setClaims(claims)
+	                .setIssuedAt(new Date(System.currentTimeMillis()))
+	                .setExpiration(new Date(System.currentTimeMillis() + expirationTime * 1000))
+	                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+	                .compact();
 	}
 	
 	public boolean validateToken(String token) {

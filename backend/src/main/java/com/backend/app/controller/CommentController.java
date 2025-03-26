@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.dto.CommentDTO;
 import com.backend.app.dto.CreateCommentDTO;
+import com.backend.app.security.SecurityUtils;
 import com.backend.app.service.CommentService;
 
 @RestController
@@ -26,6 +27,10 @@ public class CommentController {
 	@Autowired
 	private CommentService commentService;
 	
+	@Autowired
+    private SecurityUtils securityUtils;
+
+	
 	@GetMapping("/project/{projectId}")
 	public ResponseEntity<List<CommentDTO>> getCommentsByProjectId(@PathVariable UUID projectId) {
 		List<CommentDTO> comments = commentService.getCommentsByProjectId(projectId);
@@ -33,21 +38,33 @@ public class CommentController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<CommentDTO> createComment(@RequestBody CreateCommentDTO createCommentDTO, @AuthenticationPrincipal Long userId){
+	public ResponseEntity<CommentDTO> createComment(@RequestBody CreateCommentDTO createCommentDTO) {
+		 Long userId = securityUtils.getCurrentUserId();
+	        if (userId == null) {
+	            return ResponseEntity.status(401).build();
+	        }
 		CommentDTO commentDTO = commentService.createComment(createCommentDTO, userId);
-		return ResponseEntity.ok(commentDTO);
+		return  ResponseEntity.ok(commentDTO);
 	}
 	
 	@PutMapping("/{commentId}") 
 	public ResponseEntity<CommentDTO> updateComment(
-			@PathVariable UUID commentId, @RequestBody String content, @AuthenticationPrincipal Long userId) {
+			@PathVariable UUID commentId, @RequestBody String content) {
+		 Long userId = securityUtils.getCurrentUserId();
+	        if (userId == null) {
+	            return ResponseEntity.status(401).build();
+	        }
 		CommentDTO commentDTO = commentService.updateComment(commentId, content, userId);
 		return ResponseEntity.ok(commentDTO);
 	}
 	
 	@DeleteMapping("/{commentId}") 
 	public ResponseEntity<Void> deleteComment(
-			@PathVariable UUID commentId, @AuthenticationPrincipal Long userId) {
+			@PathVariable UUID commentId) {
+		 Long userId = securityUtils.getCurrentUserId();
+	        if (userId == null) {
+	            return ResponseEntity.status(401).build();
+	        }
 		commentService.deleteComment(commentId, userId);
 		return ResponseEntity.noContent().build();
 	}

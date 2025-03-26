@@ -75,7 +75,7 @@ public class AuthController {
 		    		return ResponseEntity.badRequest().body(response);
 		    	}
 		    	
-		    	String token = jwtUtil.generateToken(email);
+		    	String token = jwtUtil.generateToken(email, user.getId());
 		    	response.put("message", "Login successful!");
 		    	response.put("authToken", token);
 		    	return ResponseEntity.ok(response);
@@ -119,7 +119,9 @@ public class AuthController {
 		boolean verified = userService.verifyUser(email, code);
 		
 		if(verified) {
-			String token = jwtUtil.generateToken(email);
+			User user = userService.getUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found after verification"));
+			
+			String token = jwtUtil.generateToken(email, user.getId());
 			
 			Map<String, String> response = new HashMap<>();
 			response.put("message", "User verified successfully!");
