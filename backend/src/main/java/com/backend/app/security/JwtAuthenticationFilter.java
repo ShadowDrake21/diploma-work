@@ -2,6 +2,8 @@ package com.backend.app.security;
 
 import java.io.IOException;
 import java.security.Key;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -37,10 +39,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				Claims claims = jwtParser.parseClaimsJws(jwt).getBody();
 				
 				String username = claims.getSubject();
+				Long userId = claims.get("userId", Long.class);
+				
 				
 				if(username != null) {
 					UsernamePasswordAuthenticationToken authentication = 
 							new UsernamePasswordAuthenticationToken(username, null, null);
+					 // Create a details map with userId
+                    Map<String, Object> details = new HashMap<>();
+                    details.put("userId", userId);
+                    authentication.setDetails(details);
 					
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 				}

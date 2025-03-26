@@ -11,10 +11,10 @@ import com.backend.app.model.Comment;
 import com.backend.app.model.Project;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID>{
-	List<Comment> findByProjectIdAndParentCommentIsNull(UUID protectId);
+	List<Comment> findByProjectIdAndParentCommentIsNull(UUID projectId);
 	
 	@Query("SELECT c FROM Comment c WHERE c.parentComment.id = :parentId ORDER BY c.createdAt ASC")
-	List<Comment> findRepliesByParentId(@Param("parentid") UUID parentId);
+	List<Comment> findRepliesByParentId(@Param("parentId") UUID parentId);
 	
 	List<Comment> findByProject(Project project);
 	

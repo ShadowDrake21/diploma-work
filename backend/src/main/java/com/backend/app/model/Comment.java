@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -58,7 +59,7 @@ public class Comment {
 		updatedAt = LocalDateTime.now();
 	}
 	
-	@PrePersist
+	@PreUpdate
 	protected void onUpdate() {
 		updatedAt = LocalDateTime.now();
 	}

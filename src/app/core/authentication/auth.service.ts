@@ -113,6 +113,19 @@ export class AuthService {
     );
   }
 
+  public getCurrentUserId(): number | null {
+    const token = localStorage.getItem('authToken');
+    if (!token) return null;
+
+    try {
+      const decodedToken = this.decodeToken(token);
+      return decodedToken.userId || null;
+    } catch (error) {
+      console.error('Error decoding token', error);
+      return null;
+    }
+  }
+
   public logout() {
     localStorage.removeItem('authToken');
     this.currentUserSub.next(null);

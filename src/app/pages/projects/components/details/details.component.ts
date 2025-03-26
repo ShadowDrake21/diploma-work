@@ -31,6 +31,12 @@ import { TagService } from '@core/services/tag.service';
 import { AttachmentsService } from '@core/services/attachments.service';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { MatButtonModule } from '@angular/material/button';
+import { CommentService } from '@core/services/comment.service';
+import {
+  CommentInterface,
+  CreateCommentInterface,
+} from '@shared/types/comment.types';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'project-details',
@@ -50,6 +56,7 @@ import { MatButtonModule } from '@angular/material/button';
     DatePipe,
     TruncateTextPipe,
     MatButtonModule,
+    FormsModule,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
@@ -61,6 +68,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private projectService = inject(ProjectService);
   private tagService = inject(TagService);
   private attachmentsService = inject(AttachmentsService);
+  private commentService = inject(CommentService);
 
   workId: string | null = null;
   work: DashboardRecentProjectItemModal | undefined = undefined;
@@ -79,6 +87,11 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   errorMessage: string | null = null;
 
   getStatusOnProgess = getStatusOnProgess;
+
+  comments$!: Observable<CommentInterface[]>;
+  newCommentContent = '';
+  replyingToCommentId: string | null = null;
+  replyContent = '';
 
   ngOnInit(): void {
     const paramsSub = this.route.params.subscribe((params) => {
@@ -166,6 +179,82 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   openPdfInNewTab(fileUrl: string): void {
     window.open(fileUrl, '_blank');
+  }
+
+  loadComments() {
+    if (!this.workId) return;
+    this.comments$ = this.commentService.getCommentsByProjectId(this.workId);
+  }
+
+  postComment() {
+    if (!this.workId || !this.newCommentContent.trim()) return;
+
+    const comment: CreateCommentInterface = {
+      content: this.newCommentContent,
+      projectId: this.workId,
+      parentCommentId: this.replyingToCommentId || undefined,
+    };
+
+    this.commentService.createComment(comment).subscribe({
+      next: () => {
+        this.newCommentContent = '';
+        this.replyingToCommentId = null;
+        this.loadComments();
+      },
+      error: (error) => {
+        console.error('Error posting comment:', error);
+      },
+    });
+  }
+
+  postReply(parentCommentId: string) {
+    if (!this.replyContent.trim()) return;
+
+    const comment: CreateCommentInterface = {
+      content: this.replyContent,
+      projectId: this.workId!,
+      parentCommentId,
+    };
+
+    this.commentService.createComment(comment).subscribe({
+      next: () => {
+        this.replyContent = '';
+        this.loadComments();
+      },
+      error: (err) => console.error('Error posting reply:', err),
+    });
+  }
+
+  onCommentLike(commentId: string) {
+    this.commentService.likeComment(commentId).subscribe({
+      next: () => {
+        this.loadComments();
+      },
+      error: (err) => console.error('Error liking comment:', err),
+    });
+  }
+
+  onCommentEdit(commentId: string, newContent: string) {
+    this.commentService.updateComment(commentId, newContent).subscribe({
+      next: () => this.loadComments(),
+      error: (err) => console.error('Error updating comment:', err),
+    });
+  }
+
+  onCommentDelete(commentId: string) {
+    this.commentService.deleteComment(commentId).subscribe({
+      next: () => this.loadComments(),
+      error: (err) => console.error('Error deleting comment:', err),
+    });
+  }
+
+  startReply(commentId: string) {
+    this.replyingToCommentId = commentId;
+  }
+
+  cancelReply() {
+    this.replyingToCommentId = null;
+    this.replyContent = '';
   }
 
   ngOnDestroy(): void {

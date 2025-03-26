@@ -1,4 +1,4 @@
-@let comment = commentSig();
+<!-- @let comment = commentSig();
 
 <div class="comment">
   <div class="comment-avatar">
@@ -25,5 +25,59 @@
       animi et iure laudantium vitae, praesentium optio, sapiente distinctio
       illo?
     </div>
+  </div>
+</div> -->
+
+<!-- comment.component.html -->
+<div class="comment" [class.reply]="isReply">
+  <div class="comment-header">
+    <img
+      [src]="comment.userAvatarUrl"
+      alt="User avatar"
+      class="comment-avatar"
+    />
+    <div class="comment-user-info">
+      <span class="comment-username">{{ comment.userName }}</span>
+      <span class="comment-date">{{
+        comment.createdAt | date : "medium"
+      }}</span>
+    </div>
+  </div>
+
+  <div class="comment-content">
+    <div *ngIf="!isEditing; else editMode">
+      <p>{{ comment.content }}</p>
+    </div>
+    <ng-template #editMode>
+      <textarea
+        [(ngModel)]="editedContent"
+        class="comment-edit-textarea"
+      ></textarea>
+      <div class="comment-edit-actions">
+        <button (click)="onSave()">Save</button>
+        <button (click)="onCancel()">Cancel</button>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="comment-actions">
+    <button (click)="onReply()" class="comment-action">Reply</button>
+    <button (click)="onLike()" class="comment-action">
+      Like ({{ comment.likes }})
+    </button>
+    <button
+      *ngIf="isCurrentUserComment()"
+      (click)="onEdit()"
+      class="comment-action"
+    >
+      Edit
+    </button>
+    <button
+      *ngIf="isCurrentUserComment()"
+      (click)="onDelete()"
+      class="comment-action"
+    >
+      Delete
+    </button>
   </div>
 </div>

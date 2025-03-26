@@ -118,8 +118,64 @@
 
   <div class="details-comments">
     <h3 class="details-comments__title">Comments Section</h3>
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-bottom: 20px;
+      "
+    >
+      <textarea
+        [(ngModel)]="newCommentContent"
+        style="width: 100%; resize: none; height: 150px; padding: 10px 15px"
+        placeholder="Write a comment..."
+      ></textarea>
+      <button mat-flat-button style="width: 100%" (click)="postComment()">
+        Post Comment
+      </button>
+    </div>
 
-    <div class="details-comments__container">
+    <div class="comments-list">
+      @if(comments$ | async; as comments) { @for (comment of comments; track
+      comment) {
+      <shared-comment
+        [comment]="comment"
+        (like)="onCommentLike($event)"
+        (edit)="onCommentEdit($event.id, $event.content)"
+        (delete)="onCommentDelete($event)"
+        (reply)="startReply($event)"
+      />
+
+      @if(replyingToCommentId === comment.id) {
+      <div class="reply-input">
+        <textarea
+          [(ngModel)]="replyContent"
+          placeholder="Write your reply..."
+        ></textarea>
+        <div class="reply-buttons">
+          <button mat-button (click)="postReply(comment.id)">Post Reply</button>
+          <button mat-button (click)="cancelReply()">Cancel</button>
+        </div>
+      </div>
+      } @if(comment.replies && comment.replies.length > 0) {
+      <div>
+        @for (reply of comment.replies; track reply.id) {
+        <shared-comment
+          [comment]="reply"
+          (like)="onCommentLike($event)"
+          (edit)="onCommentEdit($event.id, $event.content)"
+          (delete)="onCommentDelete($event)"
+          (reply)="startReply($event)"
+          [isReply]="true"
+        />
+        }
+      </div>
+      } } } @else {
+      <p>No comments yet. Be the first to comment!</p>
+      }
+    </div>
+    <!-- <div class="details-comments__container">
       <ul class="details-comments__list">
         <shared-comment [comment]="comment" />
 
@@ -136,7 +192,7 @@
           </ul>
         </li>
       </ul>
-    </div>
+    </div> -->
   </div>
 
   <!-- <div class="details-related-works">
