@@ -1,10 +1,15 @@
 package com.backend.app.util;
 
+
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +26,12 @@ public class JwtUtil {
 	@Value("${jwt.expiration}")
 	private long expirationTime;
 	
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
+
+	
 	private Key getSigningKey() {
-		return Keys.hmacShaKeyFor(secretKey.getBytes());
+		 byte[] decodedKey = Base64.getDecoder().decode(secretKey); 
+		 return Keys.hmacShaKeyFor(decodedKey); 
 	}
 	
 	public String generateToken(String email, Long userId) {
@@ -33,7 +42,7 @@ public class JwtUtil {
 	        return Jwts.builder()
 	                .setClaims(claims)
 	                .setIssuedAt(new Date(System.currentTimeMillis()))
-	                .setExpiration(new Date(System.currentTimeMillis() + expirationTime * 1000))
+	                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
 	                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
 	                .compact();
 	}
@@ -43,6 +52,7 @@ public class JwtUtil {
 			Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
 			return true;
 			} catch (JwtException | IllegalArgumentException e) {
+			logger.error("Invalid JWT token: {}", e.getMessage());
 			return false;
 		}
 	}

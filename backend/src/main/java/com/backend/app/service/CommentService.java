@@ -69,10 +69,13 @@ public class CommentService {
     	comment.setUser(user);
     	
     	if(createCommentDTO.getParentCommentId() != null) {
-    		Comment parentCommntComment = commentRepository.findById(createCommentDTO.getParentCommentId())
+    		Comment parentComment = commentRepository.findById(createCommentDTO.getParentCommentId())
     				.orElseThrow(() -> new EntityNotFoundException("Parent comment not found"));
     		
-    		comment.setParentComment(parentCommntComment);
+    		if (parentComment.getUser().getId().equals(userId)) {
+                throw new IllegalArgumentException("Self-replies are not allowed. Edit your comment instead.");}
+    		
+    		comment.setParentComment(parentComment);
     	}
     	
     	Comment savedComment = commentRepository.save(comment);
@@ -108,8 +111,12 @@ public class CommentService {
     }
     
     @Transactional
-    public CommentDTO likeComment(UUID commentId) {
+    public CommentDTO likeComment(UUID commentId, Long userId) {
     	Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+    	
+    	if(comment.getUser().getId().equals(userId)) {
+    		throw new IllegalArgumentException("You cannot like your own comment");
+    	}
     	
     	comment.setLikes(comment.getLikes() + 1);
     	Comment updatedComment = commentRepository.save(comment);

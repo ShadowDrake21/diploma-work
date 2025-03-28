@@ -1,6 +1,7 @@
 package com.backend.app.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,9 +71,19 @@ public class CommentController {
 	}
 	
 	@PostMapping("/{commentId}/like") 
-	public ResponseEntity<CommentDTO> likeComment(
+	public ResponseEntity<?> likeComment(
 			@PathVariable UUID commentId) {
-		CommentDTO commentDTO = commentService.likeComment(commentId);
-		return ResponseEntity.ok(commentDTO);
+		Long userId = securityUtils.getCurrentUserId();
+		if(userId == null) {
+			return ResponseEntity.status(401).build();
+		}
+		
+		try {
+			CommentDTO commentDTO = commentService.likeComment(commentId, userId);
+			return ResponseEntity.ok(commentDTO);
+		} catch (Exception e) {
+	        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+		}
+	
 	}
 }

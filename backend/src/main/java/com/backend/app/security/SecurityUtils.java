@@ -4,6 +4,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
+
 import java.util.Map;
 
 @Component
@@ -12,7 +14,7 @@ public class SecurityUtils {
     public Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getDetails() instanceof Map) {
-            Map<String, Object> details = (Map<String, Object>) authentication.getDetails();
+            Map<?, ?> details = (Map<?, ?>) authentication.getDetails();
             return (Long) details.get("userId");
         }
         return null;

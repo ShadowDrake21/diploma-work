@@ -17,12 +17,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
 import { CommentInterface } from '@shared/types/comment.types';
+import { CommentDeleteDialogueComponent } from '../comment-delete-dialogue/comment-delete-dialogue.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'shared-comment',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, MatDialogModule, MatButtonModule],
   templateUrl: './comment.component.html',
   styleUrls: ['./comment.component.scss'],
 })
@@ -38,6 +41,7 @@ export class CommentComponent {
 
   isEditing = false;
   editedContent = '';
+  currentUserId = this.authService.getCurrentUserId();
 
   onReply() {
     this.reply.emit(this.comment.id);
@@ -61,15 +65,26 @@ export class CommentComponent {
     this.isEditing = false;
   }
 
-  onDelete() {
-    if (confirm('Are you sure you want to delete this comment?')) {
-      this.delete.emit(this.comment.id);
-    }
-  }
+  // onDelete() {
+
+  //   // this.delete.emit(this.comment.id);
+  // }
 
   isCurrentUserComment(): boolean {
     const currentUserId = this.authService.getCurrentUserId();
     if (!currentUserId) return false;
     return currentUserId === this.comment.userId;
+  }
+
+  readonly dialog = inject(MatDialog);
+
+  onDelete(): void {
+    const dialogRef = this.dialog.open(CommentDeleteDialogueComponent, {
+      width: '300px',
+    });
+
+    dialogRef
+      .afterClosed()
+      .subscribe((result) => result && this.delete.emit(this.comment.id));
   }
 }
