@@ -2,6 +2,7 @@ package com.backend.app.security;
 
 import java.io.IOException;
 import java.security.Key;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +26,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Value("${jwt.secret}")
 	private String jwtSecretKey;
 
+    private Key getSigningKey() {
+        byte[] decodedKey = Base64.getDecoder().decode(jwtSecretKey); 
+        return Keys.hmacShaKeyFor(decodedKey);
+    }
+    
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -32,24 +39,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String jwt = authHeader.substring(7);
 			
 			try {
-				Key key = new SecretKeySpec(jwtSecretKey.getBytes(), "HMACSHA256");
-			
-				JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(key).build();
+				JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(getSigningKey()).build();
 				
 				Claims claims = jwtParser.parseClaimsJws(jwt).getBody();
 				
 				String username = claims.getSubject();
+				
 				Long userId = claims.get("userId", Long.class);
 				
 				
 				if(username != null) {
 					UsernamePasswordAuthenticationToken authentication = 
 							new UsernamePasswordAuthenticationToken(username, null, null);
-					 // Create a details map with userId
-                    Map<String, Object> details = new HashMap<>();
-                    details.put("userId", userId);
-                    authentication.setDetails(details);
 					
+					authentication.setDetails(new HashMap<String, Object>() {
+						private static final long serialVersionUID = 1L;
+
+					{
+					put("userId", userId);
+					}
+					});
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 				}
 			} catch (Exception e) {

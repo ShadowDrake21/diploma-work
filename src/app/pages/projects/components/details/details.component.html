@@ -11,7 +11,8 @@
     }
   }
 } -->
-@if (project$ | async; as project) {
+
+@let comments = comments$ | async; @if (project$ | async; as project) {
 <div class="details">
   <div class="details-header">
     <div class="details-header__status">
@@ -118,6 +119,7 @@
 
   <div class="details-comments">
     <h3 class="details-comments__title">Comments Section</h3>
+
     <div
       style="
         display: flex;
@@ -128,16 +130,19 @@
     >
       <textarea
         [(ngModel)]="newCommentContent"
-        style="width: 100%; resize: none; height: 150px; padding: 10px 15px"
+        style="width: 100%; resize: none; height: 100px; padding: 10px 15px"
         placeholder="Write a comment..."
       ></textarea>
       <button mat-flat-button style="width: 100%" (click)="postComment()">
-        Post Comment
+        Post comment
       </button>
     </div>
+    @if(commentsLoading) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    } @else {
 
     <div class="comments-list">
-      @if(comments$ | async; as comments) { @for (comment of comments; track
+      @if(comments && comments.length > 0) { @for (comment of comments; track
       comment) {
       <shared-comment
         [comment]="comment"
@@ -152,10 +157,25 @@
         <textarea
           [(ngModel)]="replyContent"
           placeholder="Write your reply..."
+          style="width: 100%; resize: none; height: 150px; padding: 10px 15px"
         ></textarea>
-        <div class="reply-buttons">
-          <button mat-button (click)="postReply(comment.id)">Post Reply</button>
-          <button mat-button (click)="cancelReply()">Cancel</button>
+        <div class="reply-buttons" style="display: flex">
+          <button
+            mat-button
+            (click)="postReply(comment.id)"
+            style="flex: 1"
+            mat-stroked-button
+          >
+            Post reply
+          </button>
+          <button
+            mat-button
+            (click)="cancelReply()"
+            style="flex: 1"
+            mat-stroked-button
+          >
+            Cancel
+          </button>
         </div>
       </div>
       } @if(comment.replies && comment.replies.length > 0) {
@@ -175,6 +195,7 @@
       <p>No comments yet. Be the first to comment!</p>
       }
     </div>
+    }
     <!-- <div class="details-comments__container">
       <ul class="details-comments__list">
         <shared-comment [comment]="comment" />

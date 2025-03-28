@@ -57,6 +57,7 @@ import { FormsModule } from '@angular/forms';
     TruncateTextPipe,
     MatButtonModule,
     FormsModule,
+    MatProgressBarModule,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
@@ -93,12 +94,28 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   replyingToCommentId: string | null = null;
   replyContent = '';
 
+  commentsLoading = false;
+  private loadingTimeout: any;
+
+  private setLoadingState(loading: boolean) {
+    clearTimeout(this.loadingTimeout);
+
+    if (loading) {
+      this.commentsLoading = true;
+    } else {
+      this.loadingTimeout = setTimeout(() => {
+        this.commentsLoading = false;
+      }, 2000 + Math.random() * 1000);
+    }
+  }
+
   ngOnInit(): void {
     const paramsSub = this.route.params.subscribe((params) => {
       this.workId = params['id'];
     });
 
     this.getWorkById();
+    this.loadComments();
     this.subscriptions.push(paramsSub);
   }
 
@@ -183,7 +200,18 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   loadComments() {
     if (!this.workId) return;
-    this.comments$ = this.commentService.getCommentsByProjectId(this.workId);
+
+    this.setLoadingState(true);
+    this.comments$ = this.commentService
+      .getCommentsByProjectId(this.workId)
+      .pipe(
+        tap(() => this.setLoadingState(false)),
+        catchError((error) => {
+          console.error('Error fetching comments:', error);
+          this.setLoadingState(false);
+          return of([]);
+        })
+      );
   }
 
   postComment() {
@@ -226,25 +254,44 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   }
 
   onCommentLike(commentId: string) {
+    this.commentsLoading = true;
     this.commentService.likeComment(commentId).subscribe({
       next: () => {
+        this.setLoadingState(true);
         this.loadComments();
       },
-      error: (err) => console.error('Error liking comment:', err),
+      error: (err) => {
+        this.setLoadingState(false);
+        console.error('Error liking comment:', err);
+      },
     });
   }
 
   onCommentEdit(commentId: string, newContent: string) {
+    this.setLoadingState(true);
     this.commentService.updateComment(commentId, newContent).subscribe({
-      next: () => this.loadComments(),
-      error: (err) => console.error('Error updating comment:', err),
+      next: () => {
+        this.setLoadingState(false);
+        this.loadComments();
+      },
+      error: (err) => {
+        this.setLoadingState(false);
+        console.error('Error updating comment:', err);
+      },
     });
   }
 
   onCommentDelete(commentId: string) {
+    this.setLoadingState(true);
     this.commentService.deleteComment(commentId).subscribe({
-      next: () => this.loadComments(),
-      error: (err) => console.error('Error deleting comment:', err),
+      next: () => {
+        this.setLoadingState(false);
+        this.loadComments();
+      },
+      error: (err) => {
+        this.setLoadingState(false);
+        console.error('Error deleting comment:', err);
+      },
     });
   }
 

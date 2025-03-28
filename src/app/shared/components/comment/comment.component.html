@@ -54,14 +54,18 @@
         class="comment-edit-textarea"
       ></textarea>
       <div class="comment-edit-actions">
-        <button (click)="onSave()">Save</button>
-        <button (click)="onCancel()">Cancel</button>
+        <button (click)="onCancel()" mat-raised-button>Cancel</button>
+        <button (click)="onSave()" mat-raised-button>Save</button>
       </div>
     </ng-template>
   </div>
 
+  @if (!isEditing) {
   <div class="comment-actions">
+    @if (currentUserId !== comment.userId) {
+
     <button (click)="onReply()" class="comment-action">Reply</button>
+    }
     <button (click)="onLike()" class="comment-action">
       Like ({{ comment.likes }})
     </button>
@@ -80,4 +84,5 @@
       Delete
     </button>
   </div>
+  }
 </div>

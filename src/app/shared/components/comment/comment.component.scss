@@ -131,10 +131,11 @@
     margin-bottom: 0.5rem;
 
     .comment-avatar {
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       margin-right: 0.5rem;
+      object-fit: cover;
     }
 
     .comment-user-info {
@@ -163,12 +164,15 @@
       border: 1px solid #ddd;
       border-radius: 4px;
       margin-bottom: 0.5rem;
+      resize: none;
     }
   }
 
   .comment-actions {
     display: flex;
     gap: 0.5rem;
+
+    justify-content: flex-end;
 
     .comment-action {
       background: none;
@@ -188,5 +192,10 @@
     display: flex;
     gap: 0.5rem;
     margin-top: 0.5rem;
+
+    button {
+      display: flex;
+      flex: 1;
+    }
   }
 }

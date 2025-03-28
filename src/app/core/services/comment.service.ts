@@ -37,7 +37,7 @@ export class CommentService {
   ): Observable<CommentInterface> {
     return this.http.put<CommentInterface>(
       `${this.apiUrl}/${commentId}`,
-      { content },
+      content,
       getAuthHeaders()
     );
   }
