@@ -1,99 +1,231 @@
 <div class="profile__panel">
-  <div class="profile__panel-left">
-    <div class="profile__panel-groups__wrapper">
-      <div class="column profile__panel-group">
-        <h4 class="profile__panel-group__title">Search</h4>
-        <mat-form-field style="max-width: 400px; width: 100%">
-          <mat-label>Search</mat-label>
-          <input matInput type="text" [(ngModel)]="search" />
-          @if (search) {
-          <button matSuffix mat-icon-button (click)="search = ''">
-            <mat-icon>close</mat-icon>
-          </button>
-          }
-        </mat-form-field>
-      </div>
-      <div class="profile__panel-group column">
-        <h4 class="profile__panel-group__title">Deadline</h4>
-        <mat-form-field class="profile__panel-group__formfield">
-          <mat-label>Enter a date range</mat-label>
-          <mat-date-range-input [rangePicker]="picker">
-            <input matStartDate placeholder="Start date" />
-            <input matEndDate placeholder="End date" />
-          </mat-date-range-input>
-          <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
-          <mat-datepicker-toggle
-            matIconSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
-      </div>
-      <div class="profile__panel-group column">
-        <h4 class="profile__panel-group__title">Project tags</h4>
-        <mat-form-field class="profile__panel-group__formfield">
-          <mat-label>Tags</mat-label>
-          <mat-select [formControl]="tags" multiple>
-            @for (tag of filterTags; track tag) {
-            <mat-option [value]="tag">{{ tag }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-      <div class="profile__panel-group column">
-        <h4 class="profile__panel-group__title">Sorting</h4>
-        <mat-form-field class="profile__panel-group__formfield">
-          <mat-label>Tags</mat-label>
-          <mat-select [formControl]="tags" multiple>
-            @for (option of sorting; track option) {
-            <mat-option [value]="option.value">{{
-              option.viewValue
-            }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </div>
-    <div class="profile__panel-groups__wrapper" style="align-items: flex-end">
-      <div class="profile__panel-group column">
-        <h4 class="profile__panel-group__title">Status</h4>
-        <div class="profile__panel-group__formfield">
-          <mat-checkbox class="profile__panel-group__checkbox"
-            >In Progress</mat-checkbox
-          >
-          <mat-checkbox class="profile__panel-group__checkbox"
-            >Completed</mat-checkbox
-          >
-          <mat-checkbox class="profile__panel-group__checkbox"
-            >Pending</mat-checkbox
-          >
-        </div>
-      </div>
-      <div class="profile__panel-group column">
-        <h4 class="profile__panel-group__title">Quick filters</h4>
-        <mat-button-toggle-group
-          class="profile__panel-group__formfield"
-          name="quick-filters"
-        >
-          @for (filter of quickFilters; track $index) {
-          <mat-button-toggle [value]="filter.value">{{
-            filter.viewValue
-          }}</mat-button-toggle>
-          }
-        </mat-button-toggle-group>
-      </div>
-    </div>
-  </div>
-  <div class="profile__panel-right">
-    <button mat-flat-button>Search</button>
-  </div>
-</div>
-<!-- <div>
-    <mat-button-toggle-group name="filter-layout">
-      @for (layout of filterLayout; track $index) {
-      <mat-button-toggle [value]="layout.value"
-        ><mat-icon>{{ layout.viewValue }}</mat-icon></mat-button-toggle
+  <mat-expansion-panel class="profile__panel-expansion">
+    <mat-expansion-panel-header class="profile__panel-header">
+      <mat-panel-title class="profile__panel-header__title"
+        >Filters</mat-panel-title
       >
-      }
-    </mat-button-toggle-group>
-  </div> -->
+    </mat-expansion-panel-header>
+    <div class="profile__panel-left">
+      <form [formGroup]="searchForm" (ngSubmit)="applyFilters()">
+        <div style="padding-bottom: 50px">
+          <div class="profile__panel-groups__wrapper">
+            <!-- Search Field -->
+            <div class="profile__panel-group__wrapper">
+              <div class="column profile__panel-group">
+                <h4 class="profile__panel-group__title">Search</h4>
+                <mat-form-field>
+                  <mat-label>Search by title, description or author</mat-label>
+                  <input matInput type="text" formControlName="searchQuery" />
+                  @if (formControls['searchQuery'].value) {
+                  <button
+                    matSuffix
+                    mat-icon-button
+                    (click)="formControls['searchQuery'].setValue('')"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  }
+                </mat-form-field>
+              </div>
+
+              <!-- Project Type Filter -->
+              <div class="profile__panel-group column">
+                <h4 class="profile__panel-group__title">Project Type</h4>
+                <mat-form-field class="profile__panel-group__formfield">
+                  <mat-label>Select project types</mat-label>
+                  <mat-select formControlName="projectTypes" multiple>
+                    @for (type of projectTypes; track type) {
+                    <mat-option [value]="type">{{ type }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="profile__panel-group__wrapper">
+              <!-- Date Range Filter -->
+              <div class="profile__panel-group column">
+                <h4 class="profile__panel-group__title">Date Range</h4>
+                <mat-form-field class="profile__panel-group__formfield">
+                  <mat-label>Enter a date range</mat-label>
+                  <mat-date-range-input
+                    [rangePicker]="picker"
+                    formGroupName="dateRange"
+                  >
+                    <input
+                      matStartDate
+                      formControlName="start"
+                      placeholder="Start date"
+                    />
+                    <input
+                      matEndDate
+                      formControlName="end"
+                      placeholder="End date"
+                    />
+                  </mat-date-range-input>
+                  <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+                  <mat-datepicker-toggle
+                    matIconSuffix
+                    [for]="picker"
+                  ></mat-datepicker-toggle>
+                  <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+              </div>
+
+              <!-- Tags Filter -->
+              <div class="profile__panel-group column">
+                <h4 class="profile__panel-group__title">Project tags</h4>
+                <mat-form-field class="profile__panel-group__formfield">
+                  <mat-label>Select tags</mat-label>
+                  <mat-select formControlName="tags" multiple>
+                    @for (tag of availableTags; track tag) {
+                    <mat-option [value]="tag">{{ tag }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile__panel-group__last">
+            <!-- Status Filters -->
+            <div class="profile__panel-group column">
+              <h4 class="profile__panel-group__title">Status</h4>
+              <div
+                class="profile__panel-group__formfield"
+                formGroupName="status"
+              >
+                <mat-checkbox
+                  class="profile__panel-group__checkbox"
+                  formControlName="assigned"
+                >
+                  Assigned
+                </mat-checkbox>
+                <mat-checkbox
+                  class="profile__panel-group__checkbox"
+                  formControlName="inProgress"
+                >
+                  In Progress
+                </mat-checkbox>
+                <mat-checkbox
+                  class="profile__panel-group__checkbox"
+                  formControlName="completed"
+                >
+                  Completed
+                </mat-checkbox>
+              </div>
+            </div>
+
+            <!-- Progress Range -->
+            <div class="profile__panel-group column">
+              <h4 class="profile__panel-group__title">Progress</h4>
+              <div
+                style="display: flex; justify-content: space-between"
+                formGroupName="progressRange"
+              >
+                <label>
+                  From:
+                  <input matSliderThumb formControlName="min" />
+                </label>
+                <label>
+                  To:
+                  <input matSliderThumb formControlName="max" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-expansion-panel
+          class="advanced-filters"
+          style="margin-bottom: 25px"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>Advanced Filters</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div style="display: flex; justify-content: space-between; gap: 20px">
+            <!-- Publication Filters -->
+            <div
+              class="filter-section"
+              formGroupName="publication"
+              style="flex: 1"
+            >
+              <h4>Publication Filters</h4>
+              <div
+                class="filter-row"
+                style="display: flex; flex-direction: column"
+              >
+                <mat-form-field>
+                  <mat-label>Publication Source</mat-label>
+                  <input matInput formControlName="source" />
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>DOI/ISBN</mat-label>
+                  <input matInput formControlName="doiIsbn" />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Research Filters -->
+            <div
+              class="filter-section"
+              formGroupName="research"
+              style="flex: 1"
+            >
+              <h4>Research Filters</h4>
+              <div
+                class="filter-row"
+                style="display: flex; flex-direction: column"
+              >
+                <mat-form-field>
+                  <mat-label>Min Budget</mat-label>
+                  <input matInput type="number" formControlName="minBudget" />
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Max Budget</mat-label>
+                  <input matInput type="number" formControlName="maxBudget" />
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Funding Source</mat-label>
+                  <input matInput formControlName="fundingSource" />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Patent Filters -->
+            <div class="filter-section" formGroupName="patent" style="flex: 1">
+              <h4>Patent Filters</h4>
+              <div
+                class="filter-row"
+                style="display: flex; flex-direction: column"
+              >
+                <mat-form-field>
+                  <mat-label>Registration Number</mat-label>
+                  <input matInput formControlName="registrationNumber" />
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Issuing Authority</mat-label>
+                  <input matInput formControlName="issuingAuthority" />
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Action Buttons -->
+        <div class="profile__panel-right">
+          <button mat-flat-button color="primary" type="submit">
+            Apply Filters
+          </button>
+          <button mat-stroked-button type="button" (click)="resetFilters()">
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </mat-expansion-panel>
+</div>
