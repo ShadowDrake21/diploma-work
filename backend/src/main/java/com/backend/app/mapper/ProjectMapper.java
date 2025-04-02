@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.backend.app.dto.ProjectDTO;
 import com.backend.app.dto.TagDTO;
 import com.backend.app.model.Project;
+import com.backend.app.model.ProjectResponse;
 import com.backend.app.model.ProjectTag;
 import com.backend.app.model.Tag;
 import com.backend.app.repository.TagRepository;
@@ -72,6 +73,33 @@ public class ProjectMapper {
       
 		
       return project;
+	}
+	
+	public ProjectResponse toResponse(Project project) {
+		if(project == null) {
+			return null;
+		}
+		
+		ProjectResponse response = new ProjectResponse();
+	       
+		response.setId(response.getId());
+	    response.setType(response.getType());
+	    response.setTitle(response.getTitle());
+	    response.setProgress(response.getProgress());
+	    response.setDescription(response.getDescription());
+	    response.setCreatedAt(response.getCreatedAt());
+	    response.setUpdatedAt(response.getUpdatedAt());
+	    
+	    if (project.getTags() != null) {
+            Set<TagDTO> tagDTOs = project.getTags().stream()
+                .map(tagMapper::toDTO)
+                .collect(Collectors.toSet());
+            response.setTags(tagDTOs);
+        } else {
+            response.setTags(new HashSet<>());
+        }
+	    
+	    return response;
 	}
 }
 
