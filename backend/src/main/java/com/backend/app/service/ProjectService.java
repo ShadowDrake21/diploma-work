@@ -8,10 +8,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Pageable; 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.ProjectDTO;
+import com.backend.app.dto.ProjectSearchCriteria;
 import com.backend.app.mapper.ProjectMapper;
 import com.backend.app.model.FileMetadata;
 import com.backend.app.model.Project;
@@ -35,7 +39,9 @@ public class ProjectService {
 	 
 	@Autowired
 	private FileMetadataRepository fileMetadataRepository;
-	 
+	
+	@Autowired
+	private ProjectSpecificationService specificationService;
 	
 	@Autowired
     private ProjectMapper projectMapper;
@@ -87,6 +93,11 @@ public class ProjectService {
 
 	        return projectRepository.save(project);
 	    }
+	 
+	 public Page<Project> searchProjects(ProjectSearchCriteria criteria, Pageable pageable){
+		 Specification<Project> spec = specificationService.buildSpecification(criteria);
+		 return projectRepository.findAll(spec, pageable);
+	 }
 	
 	public void deleteProject(UUID id) {
 		Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));

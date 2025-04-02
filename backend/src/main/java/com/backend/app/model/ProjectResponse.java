@@ -1,0 +1,101 @@
+package com.backend.app.model;
+
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
+
+import com.backend.app.dto.TagDTO;
+
+public class ProjectResponse {
+	private UUID id;
+	private String type;
+	private String title;
+	private String description;
+	private int progress;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
+	private Set<TagDTO> tags;
+	
+	public ProjectResponse() {
+		
+	}
+
+	public ProjectResponse(UUID id, String type, String title, String description, int progress,
+			LocalDateTime createdAt, LocalDateTime updatedAt, Set<TagDTO> tags) {
+		super();
+		this.id = id;
+		this.type = type;
+		this.title = title;
+		this.description = description;
+		this.progress = progress;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.tags = tags;
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public int getProgress() {
+		return progress;
+	}
+
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public Set<TagDTO> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<TagDTO> tags) {
+		this.tags = tags;
+	}
+	
+	
+}

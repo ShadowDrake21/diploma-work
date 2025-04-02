@@ -1,11 +1,18 @@
 package com.backend.app.controller;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable; 
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,24 +22,33 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.dto.PatentDTO;
 import com.backend.app.dto.ProjectDTO;
+import com.backend.app.dto.ProjectSearchCriteria;
 import com.backend.app.dto.PublicationDTO;
 import com.backend.app.dto.ResearchDTO;
+import com.backend.app.enums.ProjectType;
 import com.backend.app.mapper.PatentMapper;
 import com.backend.app.mapper.ProjectMapper;
 import com.backend.app.mapper.PublicationMapper;
 import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.Patent;
 import com.backend.app.model.Project;
+import com.backend.app.model.ProjectResponse;
 import com.backend.app.model.Publication;
 import com.backend.app.model.Research;
 import com.backend.app.service.PatentService;
 import com.backend.app.service.ProjectService;
 import com.backend.app.service.PublicationService;
 import com.backend.app.service.ResearchService;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -131,6 +147,39 @@ public class ProjectController {
 		
 		return ResponseEntity.notFound().build();
 	}
+	
+	@GetMapping("/search")
+	public ResponseEntity<Page<ProjectResponse>> searchProject(
+			 @RequestParam(required = false) String search,
+	            @RequestParam(required = false) @Parameter(description = "Comma-separated list of project types") List<ProjectType> types,
+	            @RequestParam(required = false) @Parameter(description = "Comma-separated list of tag IDs") List<UUID> tags,
+	            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+	            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+	            @RequestParam(required = false) @Parameter(description = "Comma-separated status values: assigned,in_progress,completed") List<String> status,
+	            @RequestParam(defaultValue = "0") @Min(0) @Max(100) int progressMin,
+	            @RequestParam(defaultValue = "100") @Min(0) @Max(100) int progressMax,
+	            @RequestParam(required = false) String publicationSource,
+	            @RequestParam(required = false) String doiIsbn,
+	            @RequestParam(required = false) @DecimalMin("0.00") BigDecimal minBudget,
+	            @RequestParam(required = false) @DecimalMin("0.00") BigDecimal maxBudget,
+	            @RequestParam(required = false) String fundingSource,
+	            @RequestParam(required = false) String registrationNumber,
+	            @RequestParam(required = false) String issuingAuthority,
+	            @ParameterObject Pageable pageable
+			){
+		ProjectSearchCriteria criteria =new  ProjectSearchCriteria(
+				search,types,tags,  startDate,
+				endDate, status, progressMin, progressMax,  publicationSource,
+				 doiIsbn,  minBudget,  maxBudget,  fundingSource,  registrationNumber,
+				 issuingAuthority
+				);
+		
+		Page<Project> projects = projectService.searchProjects(criteria, pageable);
+		Page<ProjectResponse> response = projects.map(projectMapper::toResponse);
+				
+		return ResponseEntity.ok(response);
+	}
+	
 	
 	@GetMapping("/{id}/research")
 	public ResponseEntity<ResearchDTO> getResearchByProjectId(@PathVariable UUID id) {
