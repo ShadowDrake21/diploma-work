@@ -78,7 +78,7 @@
                   <mat-label>Select tags</mat-label>
                   <mat-select formControlName="tags" multiple>
                     @for (tag of availableTags; track tag) {
-                    <mat-option [value]="tag">{{ tag }}</mat-option>
+                    <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
@@ -86,51 +86,22 @@
             </div>
           </div>
 
-          <div class="profile__panel-group__last">
-            <!-- Status Filters -->
-            <div class="profile__panel-group column">
-              <h4 class="profile__panel-group__title">Status</h4>
-              <div
-                class="profile__panel-group__formfield"
-                formGroupName="status"
-              >
-                <mat-checkbox
-                  class="profile__panel-group__checkbox"
-                  formControlName="assigned"
-                >
-                  Assigned
-                </mat-checkbox>
-                <mat-checkbox
-                  class="profile__panel-group__checkbox"
-                  formControlName="inProgress"
-                >
-                  In Progress
-                </mat-checkbox>
-                <mat-checkbox
-                  class="profile__panel-group__checkbox"
-                  formControlName="completed"
-                >
-                  Completed
-                </mat-checkbox>
-              </div>
-            </div>
-
-            <!-- Progress Range -->
-            <div class="profile__panel-group column">
-              <h4 class="profile__panel-group__title">Progress</h4>
-              <div
-                style="display: flex; justify-content: space-between"
-                formGroupName="progressRange"
-              >
-                <label>
-                  From:
-                  <input matSliderThumb formControlName="min" />
-                </label>
-                <label>
-                  To:
-                  <input matSliderThumb formControlName="max" />
-                </label>
-              </div>
+          <div class="profile__panel-group column">
+            <h4 class="profile__panel-group__title" style="text-align: center">
+              Progress
+            </h4>
+            <div
+              style="display: flex; justify-content: center; gap: 30px"
+              formGroupName="progressRange"
+            >
+              <label>
+                From:
+                <input matSliderThumb formControlName="min" />
+              </label>
+              <label>
+                To:
+                <input matSliderThumb formControlName="max" />
+              </label>
             </div>
           </div>
         </div>

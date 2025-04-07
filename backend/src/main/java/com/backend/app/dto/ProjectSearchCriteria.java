@@ -13,7 +13,6 @@ public class ProjectSearchCriteria {
 	 private List<UUID> tags;
 	 private LocalDate startDate;
 	 private LocalDate endDate;
-	 private List<String> status;
 	 private int progressMin;
 	 private int progressMax;
 	 private String publicationSource;
@@ -28,7 +27,7 @@ public class ProjectSearchCriteria {
 	 
 	 
 	public ProjectSearchCriteria(String search, List<ProjectType> types, List<UUID> tags, LocalDate startDate,
-			LocalDate endDate, List<String> status, int progressMin, int progressMax, String publicationSource,
+			LocalDate endDate, int progressMin, int progressMax, String publicationSource,
 			String doiIsbn, BigDecimal minBudget, BigDecimal maxBudget, String fundingSource, String registrationNumber,
 			String issuingAuthority) {
 		super();
@@ -37,7 +36,6 @@ public class ProjectSearchCriteria {
 		this.tags = tags;
 		this.startDate = startDate;
 		this.endDate = endDate;
-		this.status = status;
 		this.progressMin = progressMin;
 		this.progressMax = progressMax;
 		this.publicationSource = publicationSource;
@@ -78,12 +76,6 @@ public class ProjectSearchCriteria {
 	}
 	public void setEndDate(LocalDate endDate) {
 		this.endDate = endDate;
-	}
-	public List<String> getStatus() {
-		return status;
-	}
-	public void setStatus(List<String> status) {
-		this.status = status;
 	}
 	public int getProgressMin() {
 		return progressMin;
@@ -148,7 +140,6 @@ public class ProjectSearchCriteria {
                 ", tags=" + tags +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
-                ", status=" + status +
                 ", progressMin=" + progressMin +
                 ", progressMax=" + progressMax +
                 ", publicationSource='" + publicationSource + '\'' +

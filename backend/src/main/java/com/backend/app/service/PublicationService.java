@@ -3,8 +3,10 @@ package com.backend.app.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.CreatePublicationRequest;
@@ -157,4 +159,25 @@ public class PublicationService {
 		Publication publication = publicationRepository.findById(publicationId) .orElseThrow(() -> new RuntimeException("Publication not found with ID: " + publicationId));
 		return publicationAuthorRepository.getAuthorsInfoByPublication(publication);
 	}
+	
+	public List<UUID> findProjectsByFilters(String source, String doiIsbn){
+		Specification<Publication> spec = Specification.where(null);
+		
+		 if (source != null && !source.isEmpty()) {
+		        spec = spec.and((root, query, cb) -> 
+		            cb.like(cb.lower(root.get("publicationSource")), "%" + source.toLowerCase() + "%"));
+		    }
+		    
+		    if (doiIsbn != null && !doiIsbn.isEmpty()) {
+		        spec = spec.and((root, query, cb) -> 
+		            cb.like(cb.lower(root.get("doiIsbn")), "%" + doiIsbn.toLowerCase() + "%"));
+		    }
+		    
+		    return publicationRepository.findAll(spec)
+		            .stream()
+		            .map(p -> p.getProject().getId())
+		            .distinct()
+		            .collect(Collectors.toList());
+		    }
+	
 }

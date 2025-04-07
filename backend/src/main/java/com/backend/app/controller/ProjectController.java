@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +53,7 @@ import jakarta.validation.constraints.Min;
 
 @RestController
 @RequestMapping("/api/projects")
+@Validated
 public class ProjectController {
 	private ProjectService projectService;
 	private ProjectMapper projectMapper;
@@ -155,7 +157,6 @@ public class ProjectController {
 	            @RequestParam(required = false) @Parameter(description = "Comma-separated list of tag IDs") List<UUID> tags,
 	            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 	            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-	            @RequestParam(required = false) @Parameter(description = "Comma-separated status values: assigned,in_progress,completed") List<String> status,
 	            @RequestParam(defaultValue = "0") @Min(0) @Max(100) int progressMin,
 	            @RequestParam(defaultValue = "100") @Min(0) @Max(100) int progressMax,
 	            @RequestParam(required = false) String publicationSource,
@@ -168,8 +169,7 @@ public class ProjectController {
 	            @ParameterObject Pageable pageable
 			){
 		ProjectSearchCriteria criteria =new  ProjectSearchCriteria(
-				search,types,tags,  startDate,
-				endDate, status, progressMin, progressMax,  publicationSource,
+				search,types,tags,  startDate, endDate, progressMin, progressMax,  publicationSource,
 				 doiIsbn,  minBudget,  maxBudget,  fundingSource,  registrationNumber,
 				 issuingAuthority
 				);

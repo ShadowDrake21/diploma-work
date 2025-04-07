@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.mapstruct.ap.shaded.freemarker.core.ReturnInstruction.Return;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.CreatePatentRequest;
@@ -97,6 +98,26 @@ public class PatentService {
 			}
 		}
 		return patentRepository.save(patent);
+	}
+	
+	public List<UUID> findProjectsByFilters(String registrationNumber, String issuingAuthority) {
+	    Specification<Patent> spec = Specification.where(null);
+	    
+	    if (registrationNumber != null && !registrationNumber.isEmpty()) {
+	        spec = spec.and((root, query, cb) -> 
+	            cb.like(cb.lower(root.get("registrationNumber")), "%" + registrationNumber.toLowerCase() + "%"));
+	    }
+	    
+	    if (issuingAuthority != null && !issuingAuthority.isEmpty()) {
+	        spec = spec.and((root, query, cb) -> 
+	            cb.like(cb.lower(root.get("issuingAuthority")), "%" + issuingAuthority.toLowerCase() + "%"));
+	    }
+	    
+	    return patentRepository.findAll(spec)
+	        .stream()
+	        .map(p -> p.getProject().getId())
+	        .distinct()
+	        .collect(Collectors.toList());
 	}
 	
 	public Patent savePatent(Patent patent) {

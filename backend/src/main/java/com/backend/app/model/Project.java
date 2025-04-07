@@ -20,6 +20,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -57,6 +58,7 @@ public class Project {
 	        inverseJoinColumns = @JoinColumn(name = "tag_id") 
 	        )
 	private Set<Tag> tags = new HashSet<>();
+
 	
 	public Project() {
 	}

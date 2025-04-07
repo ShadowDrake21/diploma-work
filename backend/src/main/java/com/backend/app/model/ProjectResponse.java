@@ -5,10 +5,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.backend.app.dto.TagDTO;
+import com.backend.app.enums.ProjectType;
 
 public class ProjectResponse {
 	private UUID id;
-	private String type;
+	private ProjectType type;
 	private String title;
 	private String description;
 	private int progress;
@@ -20,7 +21,7 @@ public class ProjectResponse {
 		
 	}
 
-	public ProjectResponse(UUID id, String type, String title, String description, int progress,
+	public ProjectResponse(UUID id, ProjectType type, String title, String description, int progress,
 			LocalDateTime createdAt, LocalDateTime updatedAt, Set<TagDTO> tags) {
 		super();
 		this.id = id;
@@ -41,11 +42,11 @@ public class ProjectResponse {
 		this.id = id;
 	}
 
-	public String getType() {
+	public ProjectType getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(ProjectType type) {
 		this.type = type;
 	}
 
