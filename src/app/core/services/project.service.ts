@@ -106,10 +106,9 @@ export class ProjectService {
       params = params.set('types', filters.types.join(','));
     if (filters.tags.length)
       params = params.set('tags', filters.tags.join(','));
-    if (filters.dateRange.start)
-      params = params.set('startDate', filters.dateRange.start.toISOString());
-    if (filters.dateRange.end)
-      params = params.set('endDate', filters.dateRange.end.toISOString());
+    if (filters.startDate)
+      params = params.set('startDate', filters.startDate || '');
+    if (filters.endDate) params = params.set('endDate', filters.endDate || '');
 
     const statuses = [];
 

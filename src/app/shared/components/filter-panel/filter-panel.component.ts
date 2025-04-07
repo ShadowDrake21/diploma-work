@@ -26,6 +26,7 @@ import { ProjectService } from '@core/services/project.service';
 import { TagService } from '@core/services/tag.service';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { format, parseISO } from 'date-fns';
 
 @Component({
   selector: 'profile-filter-panel',
@@ -51,7 +52,7 @@ export class FilterPanelComponent implements OnInit {
   private projectService = inject(ProjectService);
   private tagService = inject(TagService);
 
-  availableTags: string[] = [];
+  availableTags: any[] = [];
   projectTypes = Object.values(ProjectType);
   searchForm!: FormGroup;
 
@@ -134,11 +135,15 @@ export class FilterPanelComponent implements OnInit {
 
     const formValue = this.searchForm.value;
 
+    const toDateString = (date: Date) =>
+      date ? date.toISOString().split('T')[0] : null;
+
     const filters = {
       search: formValue.searchQuery,
       types: formValue.projectTypes,
       tags: formValue.tags,
-      dateRange: formValue.dateRange,
+      startDate: toDateString(formValue.dateRange.start),
+      endDate: toDateString(formValue.dateRange.end),
       assigned: formValue.status.assigned,
       inProgress: formValue.status.inProgress,
       completed: formValue.status.completed,

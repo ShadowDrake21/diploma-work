@@ -2,6 +2,7 @@ package com.backend.app.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,16 +18,30 @@ import com.backend.app.model.Tag;
 import com.backend.app.repository.TagRepository;
 
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder.Case;
 
 @Service
 public class ProjectSpecificationService {
+	private final PublicationService publicationService;
+	private final PatentService patentService;
+	private final ResearchService researchService;
+	
+	@Autowired
+	public ProjectSpecificationService(
+			PublicationService publicationService, PatentService patentService, ResearchService researchService) {
+		this.publicationService = publicationService;
+		this.patentService = patentService;
+		this.researchService=researchService;
+	}
+	
+	
 	public Specification<Project> buildSpecification(ProjectSearchCriteria criteria) {
 		return Specification.where(withSearchQuery(criteria.getSearch()))
 				.and(withTypes(criteria.getTypes()))
 				.and(withTags(criteria.getTags()))
 				.and(withDateRange(criteria.getStartDate(), criteria.getEndDate()))
-                .and(withStatus(criteria.getStatus()))
                 .and(withProgressRange(criteria.getProgressMin(), criteria.getProgressMax()))
                 .and(withPublicationFilters(criteria.getPublicationSource(), criteria.getDoiIsbn()))
                 .and(withResearchFilters(criteria.getMinBudget(), criteria.getMaxBudget(), criteria.getFundingSource()))
@@ -58,48 +73,28 @@ public class ProjectSpecificationService {
 	}
 	
 	private Specification<Project> withDateRange(LocalDate startDate, LocalDate endDate) {
-		return (root, query, cb) -> {
-			if(startDate == null && endDate == null) {
-				return cb.conjunction();
-			}
-			
-			List<Predicate> predicates = new ArrayList<>();
-			
-			if (startDate != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), startDate.atStartOfDay()));
-            }
-			
-			if(endDate != null) {
-				predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), endDate.atTime(23, 59, 59)));
-			}
-			
-			return cb.and(predicates.toArray(new Predicate[0]));
-		};
+		 return (root, query, cb) -> {
+			 Path<LocalDateTime> createdAt = root.get("createdAt");
+		        if (startDate != null && endDate != null) {
+		            return cb.between(
+		            	createdAt, 
+		                startDate.atStartOfDay(), 
+		                endDate.atTime(23, 59, 59)
+		            );
+		        } else if (startDate != null) {
+		            return cb.greaterThanOrEqualTo(
+		            	createdAt, 
+		                startDate.atStartOfDay()
+		            );
+		        } else if (endDate != null) {
+		            return cb.lessThanOrEqualTo(
+		            	createdAt, 
+		                endDate.atTime(23, 59, 59)
+		            );
+		        }
+		        return null;
+		    };
 	}
-	
-	 private Specification<Project> withStatus(List<String> statuses) {
-	        return (root, query, cb) -> {
-	            if (statuses == null || statuses.isEmpty()) {
-	                return cb.conjunction();
-	            }
-	            
-	            List<Predicate> statusPredicates = new ArrayList<>();
-	            
-	            if (statuses.contains("assigned")) {
-	                statusPredicates.add(cb.greaterThan(root.get("progress"), 0));
-	            }
-	            if (statuses.contains("in_progress")) {
-	                statusPredicates.add(cb.between(root.get("progress"), 1, 99));
-	            }
-	            if (statuses.contains("completed")) {
-	                statusPredicates.add(cb.equal(root.get("progress"), 100));
-	            }
-	            
-	            return statusPredicates.isEmpty() ? 
-	                   cb.conjunction() : 
-	                   cb.or(statusPredicates.toArray(new Predicate[0]));
-	        };
-	    }
 	 
 	 private Specification<Project> withProgressRange(int min, int max) {
 		 return (root, query, cb) -> cb.between(root.get("progress"), min, max);
@@ -111,18 +106,13 @@ public class ProjectSpecificationService {
 	                return cb.conjunction();
 	            }
 	            
-	            List<Predicate> predicates = new ArrayList<>();
+	            List<UUID> matchingProjectIds = publicationService.findProjectsByFilters(source, doiIsbn);
 	            
-	            if (source != null && !source.isEmpty()) {
-	                String sourcePattern = "%" + source.toLowerCase() + "%";
-	                predicates.add(cb.like(cb.lower(root.get("publication").get("source")), sourcePattern));
-	            }
-	            if (doiIsbn != null && !doiIsbn.isEmpty()) {
-	                String doiIsbnPattern = "%" + doiIsbn.toLowerCase() + "%";
-	                predicates.add(cb.like(cb.lower(root.get("publication").get("doiIsbn")), doiIsbnPattern));
+	            if(matchingProjectIds.isEmpty()) {
+	            	return cb.disjunction();
 	            }
 	            
-	            return cb.and(predicates.toArray(new Predicate[0]));
+	            return root.get("id").in(matchingProjectIds);
 	        };
 	    }
 	 
@@ -132,20 +122,13 @@ public class ProjectSpecificationService {
 	                return cb.conjunction();
 	            }
 	            
-	            List<Predicate> predicates = new ArrayList<>();
+	            List<UUID> matchingProjectIds = researchService.findProjectsByFilters(minBudget, maxBudget, fundingSource);
 	            
-	            if (minBudget != null) {
-	                predicates.add(cb.greaterThanOrEqualTo(root.get("research").get("budget"), minBudget));
-	            }
-	            if (maxBudget != null) {
-	                predicates.add(cb.lessThanOrEqualTo(root.get("research").get("budget"), maxBudget));
-	            }
-	            if (fundingSource != null && !fundingSource.isEmpty()) {
-	                String fundingPattern = "%" + fundingSource.toLowerCase() + "%";
-	                predicates.add(cb.like(cb.lower(root.get("research").get("fundingSource")), fundingPattern));
+	            if(matchingProjectIds.isEmpty()) {
+	            	return cb.disjunction();
 	            }
 	            
-	            return cb.and(predicates.toArray(new Predicate[0]));
+	            return root.get("id").in(matchingProjectIds);
 	        };
 	    }
 	 
@@ -156,18 +139,13 @@ public class ProjectSpecificationService {
 	                return cb.conjunction();
 	            }
 	            
-	            List<Predicate> predicates = new ArrayList<>();
+	            List<UUID> matchingProjectIds = patentService.findProjectsByFilters(registrationNumber, issuingAuthority);
 	            
-	            if (registrationNumber != null && !registrationNumber.isEmpty()) {
-	                String regNumPattern = "%" + registrationNumber.toLowerCase() + "%";
-	                predicates.add(cb.like(cb.lower(root.get("patent").get("registrationNumber")), regNumPattern));
-	            }
-	            if (issuingAuthority != null && !issuingAuthority.isEmpty()) {
-	                String authorityPattern = "%" + issuingAuthority.toLowerCase() + "%";
-	                predicates.add(cb.like(cb.lower(root.get("patent").get("issuingAuthority")), authorityPattern));
+	            if(matchingProjectIds.isEmpty()) {
+	            	return cb.disjunction();
 	            }
 	            
-	            return cb.and(predicates.toArray(new Predicate[0]));
+	            return root.get("id").in(matchingProjectIds);
 	        };
 	    }
 }

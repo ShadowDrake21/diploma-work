@@ -1,11 +1,14 @@
 package com.backend.app.service;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.CreateResearchRequest;
@@ -97,5 +100,30 @@ public class ResearchService {
 	
 	public void deleteResearch(UUID id) {
 		researchRepository.deleteById(id);
+	}
+	
+	public List<UUID> findProjectsByFilters(BigDecimal minBudget, BigDecimal maxBudget, String fundingSource) {
+	    Specification<Research> spec = Specification.where(null);
+	    
+	    if (minBudget != null) {
+	        spec = spec.and((root, query, cb) -> 
+	            cb.greaterThanOrEqualTo(root.get("budget"), minBudget));
+	    }
+	    
+	    if (maxBudget != null) {
+	        spec = spec.and((root, query, cb) -> 
+	            cb.lessThanOrEqualTo(root.get("budget"), maxBudget));
+	    }
+	    
+	    if (fundingSource != null && !fundingSource.isEmpty()) {
+	        spec = spec.and((root, query, cb) -> 
+	            cb.like(cb.lower(root.get("fundingSource")), "%" + fundingSource.toLowerCase() + "%"));
+	    }
+	    
+	    return researchRepository.findAll(spec)
+	        .stream()
+	        .map(r -> r.getProject().getId())
+	        .distinct()
+	        .collect(Collectors.toList());
 	}
 }

@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import com.backend.app.model.Publication;
 
 @Repository
-public interface PublicationRepository extends JpaRepository<Publication, UUID>{
+public interface PublicationRepository extends JpaRepository<Publication, UUID>, JpaSpecificationExecutor<Publication>{
 	List<Publication> findByProjectId(UUID projectId);
 }

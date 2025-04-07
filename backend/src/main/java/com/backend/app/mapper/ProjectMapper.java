@@ -82,13 +82,13 @@ public class ProjectMapper {
 		
 		ProjectResponse response = new ProjectResponse();
 	       
-		response.setId(response.getId());
-	    response.setType(response.getType());
-	    response.setTitle(response.getTitle());
-	    response.setProgress(response.getProgress());
-	    response.setDescription(response.getDescription());
-	    response.setCreatedAt(response.getCreatedAt());
-	    response.setUpdatedAt(response.getUpdatedAt());
+		response.setId(project.getId());
+	    response.setType(project.getType());
+	    response.setTitle(project.getTitle());
+	    response.setProgress(project.getProgress());
+	    response.setDescription(project.getDescription());
+	    response.setCreatedAt(project.getCreatedAt());
+	    response.setUpdatedAt(project.getUpdatedAt());
 	    
 	    if (project.getTags() != null) {
             Set<TagDTO> tagDTOs = project.getTags().stream()
