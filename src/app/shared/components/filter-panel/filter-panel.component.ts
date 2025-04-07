@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { projectTags } from '@content/filterProjectTags.content';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -51,6 +51,9 @@ export class FilterPanelComponent implements OnInit {
   private fb = inject(FormBuilder);
   private projectService = inject(ProjectService);
   private tagService = inject(TagService);
+
+  @Output() filtersApplied = new EventEmitter<any>();
+  @Output() filtersReset = new EventEmitter<void>();
 
   availableTags: any[] = [];
   projectTypes = Object.values(ProjectType);
@@ -158,6 +161,8 @@ export class FilterPanelComponent implements OnInit {
       issuingAuthority: formValue.patent.issuingAuthority,
     };
 
+    this.filtersApplied.emit(filters);
+    console.log('Applied filters:', filters);
     this.projectService.searchProjects(filters).subscribe((projects) => {
       console.log('Filtered projects:', projects);
     });

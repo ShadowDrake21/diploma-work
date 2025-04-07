@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { PaginationService } from '@core/services/pagination.service';
 import { FilterPanelComponent } from '../../../../shared/components/filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '../../../../shared/components/project-card/project-card.component';
@@ -25,11 +25,17 @@ export class ListProjectsComponent implements OnInit {
   pages: number[] = [];
   projects: Project[] = [];
 
+  searchResults: any[] = [];
+  isLoading = false;
+  totalElements = 0;
+  currentPage = 0;
+  pageSize = 10;
+
   ngOnInit(): void {
     this.paginationUsage();
 
     this.projectService.getAllProjects().subscribe((projects) => {
-      this.projects = projects;
+      this.searchResults = projects;
       console.log('projects', projects);
       this.paginationUsage();
     });
@@ -45,6 +51,21 @@ export class ListProjectsComponent implements OnInit {
     // });
   }
 
+  onFiltering(filters: any): void {
+    console.log('filters', filters);
+    this.projectService.searchProjects(filters).subscribe({
+      next: (projects) => {
+        this.searchResults = projects.content;
+        this.totalElements = projects.totalElements;
+        this.pageSize = projects.size;
+      },
+      error: (err) => {
+        console.error('Error searching projects:', err);
+        this.isLoading = false;
+      },
+    });
+  }
+
   paginationUsage() {
     this.paginationService.currentPage = 1;
     this.paginationService.elements = this.projects;
@@ -55,5 +76,10 @@ export class ListProjectsComponent implements OnInit {
       { length: this.paginationService.numPages() },
       (_, i) => i + 1
     );
+  }
+
+  onPageChange(event: any): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
   }
 }

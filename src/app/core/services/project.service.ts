@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { Project } from '@shared/types/project.types';
+import { ProjectSearchResponse } from '@shared/types/search.types';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
 interface ProjectFilters {
@@ -97,7 +98,7 @@ export class ProjectService {
     });
   }
 
-  searchProjects(filters: any): Observable<Project[]> {
+  searchProjects(filters: any): Observable<ProjectSearchResponse> {
     let params = new HttpParams();
 
     if (filters.search) params = params.set('search', filters.search);
@@ -133,7 +134,7 @@ export class ProjectService {
       params = params.set('issuingAuthority', filters.issuingAuthority);
 
     return this.http
-      .get<Project[]>(`${this.apiUrl}/search`, {
+      .get<ProjectSearchResponse>(`${this.apiUrl}/search`, {
         params,
         headers: this.headers,
       })
