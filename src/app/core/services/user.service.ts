@@ -1,7 +1,12 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { IAuthorizedUser, ICreateUser } from '@shared/types/users.types';
+import {
+  IAuthorizedUser,
+  ICreateUser,
+  IUpdateUserProfile,
+  IUser,
+} from '@shared/types/users.types';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { Observable } from 'rxjs';
 
@@ -44,6 +49,26 @@ export class UserService {
   public userExistsByEmail(email: string): Observable<boolean> {
     return this.http.get<boolean>(
       `${this.apiUrl}/exists/${email}`,
+      getAuthHeaders()
+    );
+  }
+
+  public getCurrentUser(): Observable<IUser> {
+    return this.http.get<IUser>(`${this.apiUrl}/me`, getAuthHeaders());
+  }
+
+  public updateUserProfile(profileData: IUpdateUserProfile): Observable<IUser> {
+    return this.http.patch<IUser>(
+      `${this.apiUrl}/me/profile`,
+      { profileData },
+      getAuthHeaders()
+    );
+  }
+
+  public updateUserAvatar(avatarUrl: string): Observable<IUser> {
+    return this.http.patch<IUser>(
+      `${this.apiUrl}/me/avatar`,
+      { avatarUrl },
       getAuthHeaders()
     );
   }

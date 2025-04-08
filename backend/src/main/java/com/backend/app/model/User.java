@@ -1,5 +1,6 @@
 package com.backend.app.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.backend.app.enums.Role;
@@ -41,6 +42,17 @@ public class User {
     @Column(name="avatar_url")
     private String avatarUrl;
     
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+    
+    @Column(name = "user_type")
+    private String userType;
+    
+    @Column(name = "university_group")
+    private String universityGroup;
+    
+    @Column(name = "phone_number")
+    private String phoneNumber;
     
     public User() {}
 
@@ -136,4 +148,39 @@ public class User {
 	public void setAvatarUrl(String avatarUrl) {
 	     this.avatarUrl = avatarUrl;
 	}
+
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	public String getUniversityGroup() {
+		return universityGroup;
+	}
+
+	public void setUniversityGroup(String universityGroup) {
+		this.universityGroup = universityGroup;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+	
+	
+	
 }

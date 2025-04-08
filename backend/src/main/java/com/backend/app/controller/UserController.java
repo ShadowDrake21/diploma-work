@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,9 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.dto.UserDTO;
+import com.backend.app.dto.UserProfileUpdateDTO;
 import com.backend.app.enums.Role;
 import com.backend.app.model.User;
 import com.backend.app.service.UserService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/api/users")
@@ -64,11 +68,32 @@ public class UserController {
 		return ResponseEntity.ok(exists);
 	}
 	
-	@PatchMapping("/{id}/avatar")
-	public ResponseEntity<UserDTO> updateAvatar(@PathVariable Long id, @RequestBody String avatarUrl) {
-		User updatedUser = userService.updateAvatar(id, avatarUrl);
-		return ResponseEntity.ok(userService.mapToDTO(updatedUser));
+	@GetMapping("/me")
+	public ResponseEntity<UserDTO> getCurrentUser(Authentication authentication){
+		String email = authentication.getName();
+		User user = userService.getUserByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
+		return ResponseEntity.ok(userService.mapToDTO(user));
 	}
+	
+	 @PatchMapping("/me/avatar")
+	    public ResponseEntity<UserDTO> updateAvatar(@RequestBody String avatarUrl, Authentication authentication) {
+	        String email = authentication.getName();
+	        User user = userService.getUserByEmail(email)
+	                .orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
+	        
+	        User updatedUser = userService.updateAvatar(user.getId(), avatarUrl);
+	        return ResponseEntity.ok(userService.mapToDTO(updatedUser));
+	    }
+	
+	@PatchMapping("/me/profile")
+	public ResponseEntity<UserDTO> updateUserProfile(@RequestBody UserProfileUpdateDTO updateDTO, Authentication authentication) {
+		System.out.println("update profile: " + updateDTO.getDateOfBirth());
+		String email = authentication.getName();
+		User user = userService.getUserByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
+		
+		UserDTO updatedUser = userService.updateUserProfile(user.getId(), updateDTO);
+		return ResponseEntity.ok(updatedUser);
+ 	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {

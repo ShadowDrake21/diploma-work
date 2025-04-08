@@ -1,11 +1,15 @@
 export interface IUser {
   id: string;
-  fullName: string;
-  profilePicture: string;
+  username: string;
+  avatarUrl: string;
   role: string;
   affiliation: string;
   email: string;
   phone: string;
+  dateOfBirth: string;
+  userType: 'student' | 'teacher' | 'researcher' | 'staff';
+  universityGroup: string;
+  phoneNumber?: string;
   publications: number;
   patents: number;
   ongoingProjects: number;
@@ -24,4 +28,12 @@ export interface IAuthorizedUser {
   id: number;
   email: string;
   role: string;
+}
+
+export interface IUpdateUserProfile {
+  phoneNumber?: string;
+  dateOfBirth?: string;
+  userType?: 'student' | 'teacher' | 'researcher' | 'staff';
+  universityGroup?: string;
+  avatarUrl?: string;
 }

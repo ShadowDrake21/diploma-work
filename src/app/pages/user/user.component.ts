@@ -45,7 +45,7 @@ export class UserComponent implements OnInit {
 
     this.getUserById();
     this.paginationUsage();
-    this.headerService.setTitle('User: ' + this.user?.fullName);
+    this.headerService.setTitle('User: ' + this.user?.username);
   }
 
   getUserById() {

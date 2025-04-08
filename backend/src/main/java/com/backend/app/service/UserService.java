@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.dto.UserDTO;
+import com.backend.app.dto.UserProfileUpdateDTO;
 import com.backend.app.enums.Role;
 import com.backend.app.model.User;
 import com.backend.app.repository.UserRepository;
@@ -93,6 +94,26 @@ public class UserService {
 		return userRepository.save(user);
 	}
 	
+	public UserDTO updateUserProfile(Long id, UserProfileUpdateDTO updateDTO) {
+		User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with ID " + id));
+		
+		if(updateDTO.getDateOfBirth() != null) {
+			user.setDateOfBirth(updateDTO.getDateOfBirth());
+	    }
+	    if (updateDTO.getUserType() != null) {
+	        user.setUserType(updateDTO.getUserType());
+	    }
+	    if (updateDTO.getUniversityGroup() != null) {
+	        user.setUniversityGroup(updateDTO.getUniversityGroup());
+	    }
+	    if(updateDTO.getPhoneNumber() != null) {
+	    	user.setPhoneNumber(updateDTO.getPhoneNumber());
+	    }
+	    
+	    User updatedUser = userRepository.save(user);
+	    return mapToDTO(updatedUser);
+	}
+	
 	public UserDTO mapToDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
@@ -100,6 +121,10 @@ public class UserService {
         userDTO.setRole(user.getRole());
         userDTO.setUsername(user.getUsername());
         userDTO.setAvatarUrl(user.getAvatarUrl());
+        userDTO.setPhoneNumber(user.getPhoneNumber());
+        userDTO.setUniversityGroup(user.getUniversityGroup());
+        userDTO.setUserType(user.getUserType());
+        userDTO.setDateOfBirth(user.getDateOfBirth());
         return userDTO;
     }
 	
