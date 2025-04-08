@@ -1,5 +1,7 @@
 package com.backend.app.security;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,14 +25,28 @@ public class SecurityConfig {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 	
-	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll().requestMatchers("/api/comments/**").authenticated().anyRequest().authenticated()).addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class).cors();
-//		 http.csrf(csrf -> csrf.disable()) // Disable CSRF for testing
-//	        .authorizeRequests(auth -> auth.anyRequest().permitAll()) // Allow all requests without authentication
-//	        .cors();
-		return http.build();
-	}
+	 @Bean
+	    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	        http
+	            .csrf(csrf -> csrf.disable())
+	            .authorizeHttpRequests(auth -> auth
+	                .requestMatchers("/api/auth/**").permitAll()
+	                .requestMatchers("/api/comments/**").authenticated()
+	                .anyRequest().authenticated()
+	            )
+	            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+	            .cors(cors -> cors.configurationSource(request -> {
+	                var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+	                corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
+	                corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+	                corsConfig.setAllowedHeaders(List.of("*"));
+	                corsConfig.setAllowCredentials(true);
+	                corsConfig.setMaxAge(3600L);
+	                return corsConfig;
+	            }));
+	        
+	        return http.build();
+	    }
 	
 	 @Bean
 	 PasswordEncoder passwordEncoder() {

@@ -1,9 +1,10 @@
 package com.backend.app.dto;
 
+import java.time.LocalDate;
+
 import com.backend.app.enums.Role;
 
 public class UserDTO {	
-    public UserDTO() {}
 
 	private Long id;	
 	
@@ -15,13 +16,29 @@ public class UserDTO {
 	
 	private String avatarUrl;
 	
-	public UserDTO(Long id, String email, String username, Role role, String avatarUrl) {
+	private LocalDate dateOfBirth;
+	 
+	private String userType;
+	 
+	private String universityGroup;
+	
+	private String phoneNumber;
+	 
+	public UserDTO() {}
+	
+	public UserDTO(Long id, String email, String username,
+			Role role, String avatarUrl, LocalDate dateOfBirth, String userType,
+			String universityGroup, String phoneNumber) {
 		super();
 		this.id = id;
 		this.email = email;
 		this.username = username;
 		this.role = role;
 		this.avatarUrl = avatarUrl;
+		this.dateOfBirth = dateOfBirth;
+		this.userType = userType;
+		this.universityGroup = universityGroup;
+		this.phoneNumber = phoneNumber;
 	}
 	
 	public Long getId() {
@@ -63,4 +80,38 @@ public class UserDTO {
 	public void setAvatarUrl(String avatarUrl) {
 		this.avatarUrl = avatarUrl;
 	}
+
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	public String getUniversityGroup() {
+		return universityGroup;
+	}
+
+	public void setUniversityGroup(String universityGroup) {
+		this.universityGroup = universityGroup;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+	
+	
 }

@@ -67,7 +67,7 @@ export class UsersComponent implements OnInit {
   search(value: string) {
     this.paginationService.currentPage = 1;
     this.paginationService.elements = this.users.filter((user) =>
-      user.fullName.toLowerCase().includes(value.toLowerCase())
+      user.username.toLowerCase().includes(value.toLowerCase())
     );
     this.paginationService.itemsPerPage = 10;
     this.paginationService.updateVisibleElements();
