@@ -2,10 +2,20 @@ package com.backend.app.dto;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserProfileUpdateDTO {
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private LocalDate dateOfBirth;
+	
+	@JsonProperty("userType")
 	private String userType;
+	
+	@JsonProperty("universityGroup")
 	private String universityGroup;
+	
+	@JsonProperty("phoneNumber")
 	private String phoneNumber;
 	
 	public UserProfileUpdateDTO() {}
@@ -48,6 +58,14 @@ public class UserProfileUpdateDTO {
 
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
+	}
+
+	@Override
+	public String toString() {
+		 return String.format(
+		            "UserProfileUpdateDTO{dateOfBirth=%s, userType='%s', universityGroup='%s', phoneNumber='%s'}",
+		            dateOfBirth, userType, universityGroup, phoneNumber
+		        );
 	}
 	
 	
