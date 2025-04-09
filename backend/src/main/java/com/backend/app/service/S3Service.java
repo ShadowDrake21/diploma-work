@@ -99,6 +99,22 @@ public class S3Service {
 		}
 	}
 	
+	public String uploadIndependentFile(MultipartFile file, String fileName) {
+        try {
+            s3Client.putObject(
+                PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .contentType(file.getContentType())
+                    .build(),
+                RequestBody.fromBytes(file.getBytes())
+            );
+            return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
+        } catch (IOException e) {
+            throw new RuntimeException("Error uploading file: " + e.getMessage());
+        }
+    }
+	
 	public byte[] downloadFile(String fileName) {
 		try(ResponseInputStream<GetObjectResponse> response = s3Client.getObject(GetObjectRequest.builder()
                 .bucket(bucketName)

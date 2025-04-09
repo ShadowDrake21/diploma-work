@@ -3,7 +3,33 @@
 <div class="profile__container">
   <div class="profile__top">
     <div class="profile__image-wrapper">
+      @if (selectedImagePreview) {
+      <img
+        class="profile__image"
+        [src]="selectedImagePreview"
+        [alt]="user?.email"
+      />
+      } @else {
       <img class="profile__image" [src]="user?.avatarUrl" [alt]="user?.email" />
+      }
+      <input
+        class="profile__image-input"
+        type="file"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+      />
+      @if (selectedImagePreview) {
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="uploadAvatar()"
+        [disabled]="!!errorMessage"
+      >
+        Upload Avatar
+      </button>
+      } @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+      }
     </div>
 
     <div class="profile__info">

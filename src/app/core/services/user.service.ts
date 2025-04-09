@@ -60,15 +60,17 @@ export class UserService {
   public updateUserProfile(profileData: IUpdateUserProfile): Observable<IUser> {
     return this.http.patch<IUser>(
       `${this.apiUrl}/me/profile`,
-      { profileData },
+      profileData,
       getAuthHeaders()
     );
   }
 
-  public updateUserAvatar(avatarUrl: string): Observable<IUser> {
-    return this.http.patch<IUser>(
+  public updateUserAvatar(file: File): Observable<IUser> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<IUser>(
       `${this.apiUrl}/me/avatar`,
-      { avatarUrl },
+      formData,
       getAuthHeaders()
     );
   }

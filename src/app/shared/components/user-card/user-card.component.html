@@ -1,11 +1,11 @@
 @let user = userSig();
 
 <div class="user-card">
-  <img [src]="user.profilePicture" class="user-card__image" alt="user-image" />
+  <img [src]="user.avatarUrl" class="user-card__image" alt="user-image" />
 
   <div class="user-card__content">
     <div class="user-card__content-header">
-      <h3 class="user-card__content-header__item">{{ user.fullName }}</h3>
+      <h3 class="user-card__content-header__item">{{ user.username }}</h3>
       <h4 class="user-card__content-header__item">{{ user.email }}</h4>
     </div>
     <div class="user-card__content-body">

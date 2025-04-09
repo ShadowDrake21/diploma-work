@@ -3,7 +3,10 @@ package com.backend.app.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,7 +16,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.dto.UserDTO;
@@ -28,7 +33,8 @@ import jakarta.persistence.EntityNotFoundException;
 @RequestMapping("/api/users")
 public class UserController {
 	private final UserService userService;
-	
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
 	public UserController(UserService userService) {
 		this.userService = userService;
 	}
@@ -75,20 +81,26 @@ public class UserController {
 		return ResponseEntity.ok(userService.mapToDTO(user));
 	}
 	
-	 @PatchMapping("/me/avatar")
-	    public ResponseEntity<UserDTO> updateAvatar(@RequestBody String avatarUrl, Authentication authentication) {
+	@PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	    public ResponseEntity<UserDTO> updateAvatar(@RequestParam("file") MultipartFile file, Authentication authentication) {
 	        String email = authentication.getName();
 	        User user = userService.getUserByEmail(email)
 	                .orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
 	        
-	        User updatedUser = userService.updateAvatar(user.getId(), avatarUrl);
-	        return ResponseEntity.ok(userService.mapToDTO(updatedUser));
+	        UserDTO updatedUser = userService.updateAvatar(user.getId(), file);
+	        return ResponseEntity.ok(updatedUser);
 	    }
 	
 	@PatchMapping("/me/profile")
 	public ResponseEntity<UserDTO> updateUserProfile(@RequestBody UserProfileUpdateDTO updateDTO, Authentication authentication) {
-		System.out.println("update profile: " + updateDTO.getDateOfBirth());
+		logger.debug("Raw request received");
+	    logger.info("Update DTO contents - dateOfBirth: {}, userType: {}, universityGroup: {}, phoneNumber: {}", 
+	        updateDTO.getDateOfBirth(),
+	        updateDTO.getUserType(),
+	        updateDTO.getUniversityGroup(),
+	        updateDTO.getPhoneNumber());
 		String email = authentication.getName();
+		System.out.println("update email: " + email);
 		User user = userService.getUserByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
 		
 		UserDTO updatedUser = userService.updateUserProfile(user.getId(), updateDTO);
