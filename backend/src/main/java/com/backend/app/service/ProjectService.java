@@ -21,10 +21,20 @@ import com.backend.app.model.FileMetadata;
 import com.backend.app.model.Project;
 import com.backend.app.model.ProjectTag;
 import com.backend.app.model.Tag;
+import com.backend.app.model.User;
 import com.backend.app.repository.FileMetadataRepository;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.ProjectTagRepository;
 import com.backend.app.repository.TagRepository;
+import com.backend.app.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProjectService {
@@ -46,6 +56,12 @@ public class ProjectService {
 	@Autowired
     private ProjectMapper projectMapper;
 	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@PersistenceContext
+	private EntityManager entityManager;
+	
 	public List<Project> findAllProjects(){
 		return projectRepository.findAll();
 	}
@@ -55,9 +71,6 @@ public class ProjectService {
 	}
 	
 	public Optional<Project> updateProject(UUID id, ProjectDTO projectDTO) {
-		System.out.println("id, project: " + id + " " + projectDTO.getTitle());
-		System.out.println("update project tags: " + projectDTO.getTagIds().size());
-		
 		projectDTO.getTagIds().forEach(tagId -> System.out.println("Tag ID: " + tagId));
 
 	    return projectRepository.findById(id).map(existingProject -> {
@@ -70,27 +83,38 @@ public class ProjectService {
             updatedProject.setId(existingProject.getId());
 
             Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
-
+            
+            Set<User> newUsers = new HashSet<>(userRepository.findAllById(projectDTO.getUserIds()));
             
             existingProject.getTags().clear();
             existingProject.setTags(newTags);
+            
+            existingProject.getUsers().clear();
+            existingProject.setUsers(newUsers);
 
             existingProject.setType(updatedProject.getType());
             existingProject.setTitle(updatedProject.getTitle());
             existingProject.setDescription(updatedProject.getDescription());
             existingProject.setProgress(updatedProject.getProgress());
 
-            System.out.println("before saving");
             return projectRepository.save(existingProject);
         });
 }
+	
+	@Transactional
 	 public Project createProject(ProjectDTO projectDTO) {
 	        Project project = projectMapper.toEntity(projectDTO);
 	        
 	        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
-	        
 	        project.setTags(tags);
-
+	        
+	        Set<User> users = userRepository.findAllById(projectDTO.getUserIds())
+                    .stream()
+                    .collect(Collectors.toSet());
+	        
+	        
+	        users.forEach(project::addUser);
+	        
 	        return projectRepository.save(project);
 	    }
 	 
@@ -98,6 +122,10 @@ public class ProjectService {
 		 Specification<Project> spec = specificationService.buildSpecification(criteria);
 		 return projectRepository.findAll(spec, pageable);
 	 }
+	 
+	 public List<Project> findProjectsByUserId(Long userId) {
+		 return projectRepository.findByUserId(userId);
+    		}
 	
 	public void deleteProject(UUID id) {
 		Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));

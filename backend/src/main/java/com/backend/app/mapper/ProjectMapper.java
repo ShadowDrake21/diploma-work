@@ -15,7 +15,9 @@ import com.backend.app.model.Project;
 import com.backend.app.model.ProjectResponse;
 import com.backend.app.model.ProjectTag;
 import com.backend.app.model.Tag;
+import com.backend.app.model.User;
 import com.backend.app.repository.TagRepository;
+import com.backend.app.repository.UserRepository;
 
 @Component
 public class ProjectMapper {
@@ -24,6 +26,9 @@ public class ProjectMapper {
 	
 	@Autowired
 	private TagRepository tagRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	public ProjectDTO toDTO(Project project) {
 		if(project == null) {
@@ -47,6 +52,12 @@ public class ProjectMapper {
 			projectDTO.setTagIds(new HashSet<>());
 	      }
 		
+		if(project.getUsers() != null) {
+			Set<Long> userIds = project.getUsers().stream().map(User::getId).collect(Collectors.toSet());
+			projectDTO.setUserIds(userIds);
+		} else {
+			projectDTO.setUserIds(new HashSet<>());
+		}
 		return projectDTO;
 	}
 	
@@ -71,7 +82,13 @@ public class ProjectMapper {
     	  project.setTags(new HashSet<>());
       }
       
-		
+      if (projectDTO.getUserIds() != null && !projectDTO.getUserIds().isEmpty()) {
+      	Set<User> users = new HashSet<User>(userRepository.findAllById(projectDTO.getUserIds()));
+        	project.setUsers(users);
+        } else {
+      	  project.setUsers(new HashSet<>());
+        }
+        
       return project;
 	}
 	

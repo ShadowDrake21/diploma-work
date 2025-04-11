@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
+import { Project } from '@shared/types/project.types';
 import {
   IAuthorizedUser,
   ICreateUser,
@@ -71,6 +72,13 @@ export class UserService {
     return this.http.post<IUser>(
       `${this.apiUrl}/me/avatar`,
       formData,
+      getAuthHeaders()
+    );
+  }
+
+  public getUserProjects(userId: number): Observable<Project[]> {
+    return this.http.get<Project[]>(
+      `${this.apiUrl}/${userId}/projects`,
       getAuthHeaders()
     );
   }

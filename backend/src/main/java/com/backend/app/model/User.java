@@ -2,6 +2,8 @@ package com.backend.app.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.backend.app.enums.Role;
 
@@ -53,6 +55,9 @@ public class User {
     
     @Column(name = "phone_number")
     private String phoneNumber;
+    
+    @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Project> projects = new HashSet<>();
     
     public User() {}
 
@@ -181,6 +186,12 @@ public class User {
 		this.phoneNumber = phoneNumber;
 	}
 	
-	
+	 public Set<Project> getProjects() {
+	        return projects;
+	    }
+
+	    public void setProjects(Set<Project> projects) {
+	        this.projects = projects;
+	    }
 	
 }
