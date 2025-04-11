@@ -58,6 +58,11 @@ public class Project {
 	        inverseJoinColumns = @JoinColumn(name = "tag_id") 
 	        )
 	private Set<Tag> tags = new HashSet<>();
+	 
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JoinTable
+	(name = "user_projects", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> users = new HashSet<>();
 
 	
 	public Project() {
@@ -164,4 +169,22 @@ public class Project {
     	tags.remove(tag);
     	tag.getProjects().remove(this);
     }
+
+	public Set<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<User> users) {
+		this.users = users;
+	}
+	
+	public void addUser(User user) {
+		this.users.add(user);
+		user.getProjects().add(this);
+	}
+	
+	public void removeUser(User user) {
+		this.users.remove(user);
+		user.getProjects().remove(this);
+	}
 }

@@ -20,6 +20,7 @@ public class ProjectDTO {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private Set<UUID> tagIds =  new HashSet<UUID>();
+	private Set<Long> userIds = new HashSet<>();
 	
 	public ProjectDTO() {
 	
@@ -88,4 +89,14 @@ public class ProjectDTO {
 	public void setTagIds(Set<UUID> tagIds) {
 		this.tagIds = tagIds;
 	}
+
+	public Set<Long> getUserIds() {
+		return userIds;
+	}
+
+	public void setUserIds(Set<Long> userIds) {
+		this.userIds = userIds;
+	}
+	
+	
 }

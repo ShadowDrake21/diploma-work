@@ -5,7 +5,7 @@
   <div class="profile-projects__container">
     <profile-filter-panel />
     <div class="profile-projects__list">
-      @for (project of paginationService.visibleElements; track $index) {
+      @for (project of userProjects$ | async; track $index) {
       <shared-project-card [project]="project" />
       }
     </div>

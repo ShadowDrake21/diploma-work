@@ -2,6 +2,8 @@ package com.backend.app.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +22,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.backend.app.dto.ProjectDTO;
 import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.dto.UserDTO;
 import com.backend.app.dto.UserProfileUpdateDTO;
 import com.backend.app.enums.Role;
+import com.backend.app.mapper.ProjectMapper;
+import com.backend.app.model.Project;
 import com.backend.app.model.User;
+import com.backend.app.service.ProjectService;
 import com.backend.app.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -33,10 +39,14 @@ import jakarta.persistence.EntityNotFoundException;
 @RequestMapping("/api/users")
 public class UserController {
 	private final UserService userService;
+	private final ProjectService projectService;
+	private final ProjectMapper projectMapper;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-	public UserController(UserService userService) {
+	public UserController(UserService userService, ProjectService projectService, ProjectMapper projectMapper) {
 		this.userService = userService;
+		this.projectService = projectService;
+		this.projectMapper = projectMapper;
 	}
 	
 	@GetMapping
@@ -106,6 +116,16 @@ public class UserController {
 		UserDTO updatedUser = userService.updateUserProfile(user.getId(), updateDTO);
 		return ResponseEntity.ok(updatedUser);
  	}
+	
+	@GetMapping("/{userId}/projects")
+	public ResponseEntity<List<ProjectDTO>> getUserProjects(@PathVariable Long userId) {
+		System.out.println("getUserProjects: " + userId);
+		List<Project> projects = projectService.findProjectsByUserId(userId);
+		System.out.println("projects: " + projects.size());
+		List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
+		
+		return ResponseEntity.ok(projectDTOs);
+	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {

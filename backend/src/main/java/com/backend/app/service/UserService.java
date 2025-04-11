@@ -144,6 +144,7 @@ public class UserService {
         return userDTO;
     }
 	
+	
 	private ResponseUserDTO mapToResponseDTO(User user) {
         ResponseUserDTO responseUserDTO = new ResponseUserDTO();
         responseUserDTO.setId(user.getId());
