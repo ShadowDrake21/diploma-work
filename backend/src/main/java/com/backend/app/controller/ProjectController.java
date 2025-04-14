@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,12 +42,15 @@ import com.backend.app.model.Project;
 import com.backend.app.model.ProjectResponse;
 import com.backend.app.model.Publication;
 import com.backend.app.model.Research;
+import com.backend.app.model.User;
 import com.backend.app.service.PatentService;
 import com.backend.app.service.ProjectService;
 import com.backend.app.service.PublicationService;
 import com.backend.app.service.ResearchService;
+import com.backend.app.service.UserService;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -66,6 +70,8 @@ public class ProjectController {
     
     private ResearchService researchService;
     private ResearchMapper researchMapper;
+    
+    private UserService userService;
 	
 	public ProjectController(
 			ProjectService projectService,
@@ -75,7 +81,7 @@ public class ProjectController {
 			PatentService patentService, 
 			PatentMapper patentMapper,
 			ResearchService researchService,
-			ResearchMapper researchMapper) {
+			ResearchMapper researchMapper, UserService userService) {
 		this.projectService = projectService;
 		this.projectMapper = projectMapper;
 		this.publicationService = publicationService;
@@ -84,6 +90,7 @@ public class ProjectController {
 		this.patentMapper = patentMapper;
 		this.researchService = researchService;
 		this.researchMapper = researchMapper;
+		this.userService = userService;
 	}
 
 	@GetMapping
@@ -106,8 +113,12 @@ public class ProjectController {
 	}
 	
 	@PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody ProjectDTO projectDTO) {
-        Project createdProject = projectService.createProject(projectDTO);
+    public ResponseEntity<Project> createProject(@RequestBody ProjectDTO projectDTO, Authentication authentication) {
+		String email = authentication.getName();
+		User creator = userService.getUserByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+		
+        Project createdProject = projectService.createProject(projectDTO, creator.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
 	
@@ -124,6 +135,13 @@ public class ProjectController {
 	@DeleteMapping("/{id}")
 	public void deleteProject(@PathVariable UUID id) {
 		projectService.deleteProject(id);
+	}
+	
+	@GetMapping("/creator/{userId}")
+	public ResponseEntity<List<ProjectDTO>> getProjectsByCreator(@PathVariable Long userId) {
+		List<Project> projects = projectService.findProjectsByCreator(userId);
+		List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
+		return ResponseEntity.ok(projectDTOs);
 	}
 	
 	@GetMapping("/{id}/publication")

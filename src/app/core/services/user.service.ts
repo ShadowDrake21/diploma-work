@@ -83,6 +83,13 @@ export class UserService {
     );
   }
 
+  public getCurrentUserProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>(
+      `${this.apiUrl}/me/projects`,
+      getAuthHeaders()
+    );
+  }
+
   // Delete User by ID
   public deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders());

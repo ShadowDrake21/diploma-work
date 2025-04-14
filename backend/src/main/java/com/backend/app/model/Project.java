@@ -14,11 +14,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -59,11 +61,10 @@ public class Project {
 	        )
 	private Set<Tag> tags = new HashSet<>();
 	 
-	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-	@JoinTable
-	(name = "user_projects", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-	private Set<User> users = new HashSet<>();
-
+	 
+	 @ManyToOne(fetch = FetchType.LAZY)
+	 @JoinColumn(name = "created_by", nullable = false)
+	 private User creator;
 	
 	public Project() {
 	}
@@ -95,6 +96,7 @@ public class Project {
 	protected void onUpdate() {
 		updatedAt = LocalDateTime.now();
 	}
+	
 
 	public UUID getId() {
 		return id;
@@ -170,21 +172,11 @@ public class Project {
     	tag.getProjects().remove(this);
     }
 
-	public Set<User> getUsers() {
-		return users;
-	}
+    public User getCreator() {
+        return creator;
+    }
 
-	public void setUsers(Set<User> users) {
-		this.users = users;
-	}
-	
-	public void addUser(User user) {
-		this.users.add(user);
-		user.getProjects().add(this);
-	}
-	
-	public void removeUser(User user) {
-		this.users.remove(user);
-		user.getProjects().remove(this);
-	}
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
 }

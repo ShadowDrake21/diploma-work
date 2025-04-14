@@ -119,13 +119,32 @@ public class UserController {
 	
 	@GetMapping("/{userId}/projects")
 	public ResponseEntity<List<ProjectDTO>> getUserProjects(@PathVariable Long userId) {
-		System.out.println("getUserProjects: " + userId);
-		List<Project> projects = projectService.findProjectsByUserId(userId);
-		System.out.println("projects: " + projects.size());
-		List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
-		
-		return ResponseEntity.ok(projectDTOs);
+		try {
+			List<Project> projects = projectService.findProjectsByUserId(userId);
+			List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
+			return ResponseEntity.ok(projectDTOs);
+		} catch(Exception e) {
+			logger.error("Error fetching projects for user ID: " + userId, e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
+	
+	@GetMapping("/me/projects")
+	public ResponseEntity<List<ProjectDTO>> getCurrentUserProjects(Authentication authentication) {
+		try {
+			String email = authentication.getName();
+			User user = userService.getUserByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
+			List<Project> projects = projectService.findProjectsByUserId(user.getId());
+			List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
+			
+			return ResponseEntity.ok(projectDTOs);
+		} catch (EntityNotFoundException e) {
+	        return ResponseEntity.notFound().build();
+	    } catch (Exception e) {
+	        logger.error("Error fetching current user's projects", e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
+	} 
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
