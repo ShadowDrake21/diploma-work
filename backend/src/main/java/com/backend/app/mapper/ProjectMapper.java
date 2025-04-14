@@ -19,6 +19,8 @@ import com.backend.app.model.User;
 import com.backend.app.repository.TagRepository;
 import com.backend.app.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Component
 public class ProjectMapper {
 	@Autowired
@@ -52,11 +54,8 @@ public class ProjectMapper {
 			projectDTO.setTagIds(new HashSet<>());
 	      }
 		
-		if(project.getUsers() != null) {
-			Set<Long> userIds = project.getUsers().stream().map(User::getId).collect(Collectors.toSet());
-			projectDTO.setUserIds(userIds);
-		} else {
-			projectDTO.setUserIds(new HashSet<>());
+		if(project.getCreator() != null) {
+			projectDTO.setCreatedBy(project.getCreator().getId());
 		}
 		return projectDTO;
 	}
@@ -82,12 +81,10 @@ public class ProjectMapper {
     	  project.setTags(new HashSet<>());
       }
       
-      if (projectDTO.getUserIds() != null && !projectDTO.getUserIds().isEmpty()) {
-      	Set<User> users = new HashSet<User>(userRepository.findAllById(projectDTO.getUserIds()));
-        	project.setUsers(users);
-        } else {
-      	  project.setUsers(new HashSet<>());
-        }
+      if(projectDTO.getCreatedBy() != null) {
+    	  User creator = userRepository.findById(projectDTO.getCreatedBy()).orElseThrow(() -> new EntityNotFoundException("Creator user not found"));
+          project.setCreator(creator);
+      }
         
       return project;
 	}
@@ -115,6 +112,10 @@ public class ProjectMapper {
         } else {
             response.setTags(new HashSet<>());
         }
+	    
+	    if(project.getCreator() != null) {
+	    	response.setCreatedBy(project.getCreator().getId());
+	    }
 	    
 	    return response;
 	}

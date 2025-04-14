@@ -8,12 +8,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Pageable; 
+import org.springframework.data.domain.Pageable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.backend.app.controller.AuthController;
 import com.backend.app.dto.ProjectDTO;
 import com.backend.app.dto.ProjectSearchCriteria;
 import com.backend.app.mapper.ProjectMapper;
@@ -29,6 +32,7 @@ import com.backend.app.repository.TagRepository;
 import com.backend.app.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -59,6 +63,9 @@ public class ProjectService {
 	@Autowired
 	private UserRepository userRepository;
 	
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
+	
 	@PersistenceContext
 	private EntityManager entityManager;
 	
@@ -84,13 +91,9 @@ public class ProjectService {
 
             Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
             
-            Set<User> newUsers = new HashSet<>(userRepository.findAllById(projectDTO.getUserIds()));
-            
             existingProject.getTags().clear();
             existingProject.setTags(newTags);
             
-            existingProject.getUsers().clear();
-            existingProject.setUsers(newUsers);
 
             existingProject.setType(updatedProject.getType());
             existingProject.setTitle(updatedProject.getTitle());
@@ -102,20 +105,21 @@ public class ProjectService {
 }
 	
 	@Transactional
-	 public Project createProject(ProjectDTO projectDTO) {
+	 public Project createProject(ProjectDTO projectDTO, Long creatorId) {
+			User creator = userRepository.findById(creatorId).orElseThrow(() -> new EntityNotFoundException("Creator user not found"));
 	        Project project = projectMapper.toEntity(projectDTO);
+	        project.setCreator(creator);
+	        	        
+	        if (project.getType() == null) {
+	            throw new IllegalStateException("Type is null after mapping!");
+	        }
 	        
 	        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
 	        project.setTags(tags);
-	        
-	        Set<User> users = userRepository.findAllById(projectDTO.getUserIds())
-                    .stream()
-                    .collect(Collectors.toSet());
-	        
-	        
-	        users.forEach(project::addUser);
-	        
-	        return projectRepository.save(project);
+	       
+	       Project savedProject = projectRepository.save(project);
+	       
+	       return savedProject;
 	    }
 	 
 	 public Page<Project> searchProjects(ProjectSearchCriteria criteria, Pageable pageable){
@@ -124,7 +128,7 @@ public class ProjectService {
 	 }
 	 
 	 public List<Project> findProjectsByUserId(Long userId) {
-		 return projectRepository.findByUserId(userId);
+		 return projectRepository.findByCreatorId(userId);
     		}
 	
 	public void deleteProject(UUID id) {
@@ -139,5 +143,9 @@ public class ProjectService {
 		}
 		
 		projectRepository.delete(project);
+	}
+	
+	public List<Project> findProjectsByCreator(Long creatorId) {
+		return projectRepository.findByCreatorId(creatorId);
 	}
 }

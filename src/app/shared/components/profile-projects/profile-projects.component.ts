@@ -38,9 +38,7 @@ export class ProfileProjectsComponent implements OnInit {
 
   ngOnInit(): void {
     this.paginationUsage();
-    this.userProjects$ = this.userService.getUserProjects(
-      this.authService.getCurrentUserId() || 0
-    );
+    this.userProjects$ = this.userService.getCurrentUserProjects();
   }
 
   paginationUsage() {

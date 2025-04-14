@@ -13,6 +13,6 @@ import com.backend.app.model.Project;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpecificationExecutor<Project>{
-	@Query("SELECT p FROM Project p JOIN p.users u WHERE u.id = :userId")
-	List<Project> findByUserId(@Param("userId") Long userId);
+	@Query("SELECT p FROM Project p WHERE p.creator.id = :userId")
+	List<Project> findByCreatorId(@Param("userId") Long userId);
 }

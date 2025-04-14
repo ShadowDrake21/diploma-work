@@ -16,13 +16,14 @@ public class ProjectResponse {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private Set<TagDTO> tags;
-	
+    private Long createdBy;
+
 	public ProjectResponse() {
 		
 	}
 
 	public ProjectResponse(UUID id, ProjectType type, String title, String description, int progress,
-			LocalDateTime createdAt, LocalDateTime updatedAt, Set<TagDTO> tags) {
+			LocalDateTime createdAt, LocalDateTime updatedAt, Set<TagDTO> tags, Long createdBy) {
 		super();
 		this.id = id;
 		this.type = type;
@@ -32,6 +33,7 @@ public class ProjectResponse {
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 		this.tags = tags;
+		this.createdBy = createdBy;
 	}
 
 	public UUID getId() {
@@ -96,6 +98,14 @@ public class ProjectResponse {
 
 	public void setTags(Set<TagDTO> tags) {
 		this.tags = tags;
+	}
+
+	public Long getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(Long createdBy) {
+		this.createdBy = createdBy;
 	}
 	
 	
