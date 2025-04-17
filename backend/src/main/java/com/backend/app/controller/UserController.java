@@ -28,6 +28,7 @@ import com.backend.app.dto.UserDTO;
 import com.backend.app.dto.UserProfileUpdateDTO;
 import com.backend.app.enums.Role;
 import com.backend.app.mapper.ProjectMapper;
+import com.backend.app.mapper.UserMapper;
 import com.backend.app.model.Project;
 import com.backend.app.model.User;
 import com.backend.app.service.ProjectService;
@@ -41,12 +42,14 @@ public class UserController {
 	private final UserService userService;
 	private final ProjectService projectService;
 	private final ProjectMapper projectMapper;
+	private final UserMapper userMapper;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-	public UserController(UserService userService, ProjectService projectService, ProjectMapper projectMapper) {
+	public UserController(UserService userService, ProjectService projectService, ProjectMapper projectMapper, UserMapper userMapper) {
 		this.userService = userService;
 		this.projectService = projectService;
 		this.projectMapper = projectMapper;
+		this.userMapper = userMapper;
 	}
 	
 	@GetMapping
@@ -88,7 +91,7 @@ public class UserController {
 	public ResponseEntity<UserDTO> getCurrentUser(Authentication authentication){
 		String email = authentication.getName();
 		User user = userService.getUserByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
-		return ResponseEntity.ok(userService.mapToDTO(user));
+		return ResponseEntity.ok(userMapper.mapToDTO(user));
 	}
 	
 	@PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

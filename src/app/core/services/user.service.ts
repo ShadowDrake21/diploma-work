@@ -18,8 +18,8 @@ export class UserService {
   private http = inject(HttpClient);
   private apiUrl = BASE_URL + 'users';
 
-  public getAllUsers(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl, getAuthHeaders());
+  public getAllUsers(): Observable<IUser[]> {
+    return this.http.get<IUser[]>(this.apiUrl, getAuthHeaders());
   }
 
   public createUser(user: ICreateUser): Observable<IAuthorizedUser> {

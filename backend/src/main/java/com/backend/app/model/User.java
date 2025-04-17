@@ -57,6 +57,18 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
     
+    @Column(name = "publication_count", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private int publicationCount;
+    
+    @Column(name = "patent_count", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private int patentCount;
+    
+    @Column(name = "research_count", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private int researchCount;
+    
+    @Column(length = 255)
+    private String affiliation = "Національний університет «Чернігівська Політехніка»";
+    
     public User() {}
 
     public User(String username, String email, String password, Role role) {
@@ -183,4 +195,38 @@ public class User {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
+
+	public int getPublicationCount() {
+		return publicationCount;
+	}
+
+	public void setPublicationCount(int publicationCount) {
+		this.publicationCount = publicationCount;
+	}
+
+	public int getPatentCount() {
+		return patentCount;
+	}
+
+	public void setPatentCount(int patentCount) {
+		this.patentCount = patentCount;
+	}
+
+	public int getResearchCount() {
+		return researchCount;
+	}
+
+	public void setResearchCount(int researchCount) {
+		this.researchCount = researchCount;
+	}
+
+	public String getAffiliation() {
+		return affiliation;
+	}
+
+	public void setAffiliation(String affiliation) {
+		this.affiliation = affiliation;
+	}
+	
+	
 }

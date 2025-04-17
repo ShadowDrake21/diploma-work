@@ -10,9 +10,9 @@ export interface IUser {
   userType: 'student' | 'teacher' | 'researcher' | 'staff';
   universityGroup: string;
   phoneNumber?: string;
-  publications: number;
-  patents: number;
-  ongoingProjects: number;
+  publicationCount: number;
+  patentCount: number;
+  researchCount: number;
   lastActive: string;
   status: string;
   tags: string[];
