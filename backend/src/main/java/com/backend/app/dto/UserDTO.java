@@ -23,12 +23,20 @@ public class UserDTO {
 	private String universityGroup;
 	
 	private String phoneNumber;
+	
+	private int publicationCount;
+	
+	private int patentCount;
+	
+	private int researchCount;
+	
+	private String affiliation;
 	 
 	public UserDTO() {}
 	
 	public UserDTO(Long id, String email, String username,
 			Role role, String avatarUrl, LocalDate dateOfBirth, String userType,
-			String universityGroup, String phoneNumber) {
+			String universityGroup, String phoneNumber, int publicationCount, int patentCount, int researchCount, String affiliation) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -39,6 +47,10 @@ public class UserDTO {
 		this.userType = userType;
 		this.universityGroup = universityGroup;
 		this.phoneNumber = phoneNumber;
+		this.publicationCount = publicationCount;
+		this.patentCount = patentCount;
+		this.researchCount = researchCount;
+		this.affiliation = affiliation;
 	}
 	
 	public Long getId() {
@@ -111,6 +123,38 @@ public class UserDTO {
 
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
+	}
+
+	public int getPublicationCount() {
+		return publicationCount;
+	}
+
+	public void setPublicationCount(int publicationCount) {
+		this.publicationCount = publicationCount;
+	}
+
+	public int getPatentCount() {
+		return patentCount;
+	}
+
+	public void setPatentCount(int patentCount) {
+		this.patentCount = patentCount;
+	}
+
+	public int getResearchCount() {
+		return researchCount;
+	}
+
+	public void setResearchCount(int researchCount) {
+		this.researchCount = researchCount;
+	}
+
+	public String getAffiliation() {
+		return affiliation;
+	}
+
+	public void setAffiliation(String affiliation) {
+		this.affiliation = affiliation;
 	}
 	
 	

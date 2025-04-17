@@ -62,19 +62,19 @@ export class UserComponent implements OnInit {
     const metrics: DashboardMetricCardItem[] = [
       {
         title: 'Publications',
-        value: this.user.publications + '',
+        value: this.user.publicationCount + '',
         link: '',
         icon: 'description',
       },
       {
         title: 'Patents',
-        value: this.user?.patents + '',
+        value: this.user?.patentCount + '',
         link: '',
         icon: 'gavel',
       },
       {
         title: 'Research Projects',
-        value: this.user?.ongoingProjects + '',
+        value: this.user?.researchCount + '',
         link: '',
         icon: 'science',
       },

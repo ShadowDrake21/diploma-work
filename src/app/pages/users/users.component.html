@@ -1,3 +1,4 @@
+@let users = users$ | async;
 <div class="users">
   <div class="users__form">
     <mat-form-field>
@@ -20,12 +21,11 @@
       }
     </mat-form-field>
   </div>
-  <p class="users__paragraph">All Users: {{ users.length }}</p>
+  <p class="users__paragraph">All Users: {{ users?.length }}</p>
   <div class="users__list">
-    <shared-users-list
-      [paginationService]="paginationService"
-      [pages]="pages"
-      type="general"
-    />
+    @for (user of users; track user) {
+    <shared-user-card [user]="user" />
+
+    }
   </div>
 </div>

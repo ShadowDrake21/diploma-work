@@ -11,6 +11,7 @@ import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.dto.UserDTO;
 import com.backend.app.dto.UserProfileUpdateDTO;
 import com.backend.app.enums.Role;
+import com.backend.app.mapper.UserMapper;
 import com.backend.app.model.User;
 import com.backend.app.repository.UserRepository;
 
@@ -21,11 +22,13 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final EmailService emailService;
 	private final S3Service s3Service;
+	private final UserMapper userMapper;
 	
-	public UserService(UserRepository userRepository, EmailService emailService, S3Service s3Service) {
+	public UserService(UserRepository userRepository, EmailService emailService, S3Service s3Service, UserMapper userMapper) {
 		this.userRepository = userRepository;
 		this.emailService = emailService;
 		this.s3Service = s3Service;
+		this.userMapper = userMapper;
 	}
 	
 	public void savePendingUser(String username, String email, String password, Role role) {
@@ -55,12 +58,12 @@ public class UserService {
 	
 	public UserDTO saveUser(User user) {
 		User savedUser = userRepository.save(user);
-		return mapToDTO(savedUser);
+		return userMapper.mapToDTO(savedUser);
 	}
 	
 	public ResponseUserDTO getUserById(Long id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with ID " + id));
-		return mapToResponseDTO(user);
+		return userMapper.mapToResponseDTO(user);
 	}
 	
 	public Optional<User> getUserByEmail(String email) {
@@ -69,7 +72,7 @@ public class UserService {
 	
 	public List<UserDTO> getUsersByRole(Role role) {
 		List<User> users =  userRepository.findByRole(role);
-		return users.stream().map(this::mapToDTO).collect(Collectors.toList());
+		return users.stream().map(userMapper::mapToDTO).collect(Collectors.toList());
 	}
 	
 	public boolean userExistsByEmail(String email) {
@@ -88,7 +91,7 @@ public class UserService {
 	
 	public List<UserDTO> getAllUsers(){
 		List<User> users = userRepository.findAll();
-		return users.stream().map(this::mapToDTO).collect(Collectors.toList());
+		return users.stream().map(userMapper::mapToDTO).collect(Collectors.toList());
 	}
 	
 	public UserDTO updateAvatar(Long userId, MultipartFile file) {
@@ -104,7 +107,7 @@ public class UserService {
 		
 		user.setAvatarUrl(fileUrl);
 		User savedUser = userRepository.save(user);
-		return mapToDTO(savedUser);
+		return userMapper.mapToDTO(savedUser);
 	}
 	
 	public UserDTO updateUserProfile(Long id, UserProfileUpdateDTO updateDTO) {
@@ -124,34 +127,12 @@ public class UserService {
 	    }
 	    
 	    User updatedUser = userRepository.save(user);
-	    return mapToDTO(updatedUser);
+	    return userMapper.mapToDTO(updatedUser);
 	}
 	
 	private String extractFileNameFromUrl(String url) {
 		return url.substring(url.lastIndexOf("/") + 1);
 	}
-	public UserDTO mapToDTO(User user) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setRole(user.getRole());
-        userDTO.setUsername(user.getUsername());
-        userDTO.setAvatarUrl(user.getAvatarUrl());
-        userDTO.setPhoneNumber(user.getPhoneNumber());
-        userDTO.setUniversityGroup(user.getUniversityGroup());
-        userDTO.setUserType(user.getUserType());
-        userDTO.setDateOfBirth(user.getDateOfBirth());
-        return userDTO;
-    }
-	
-	
-	private ResponseUserDTO mapToResponseDTO(User user) {
-        ResponseUserDTO responseUserDTO = new ResponseUserDTO();
-        responseUserDTO.setId(user.getId());
-        responseUserDTO.setUsername(user.getUsername());
-        responseUserDTO.setAvatarUrl(user.getAvatarUrl());
-        return responseUserDTO;
-    }
 	
 	private String getDefaultAvatarUrl(String email) {
 		return "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
