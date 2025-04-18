@@ -17,6 +17,7 @@ import { CreateWorkService } from '@core/services/create-work.service';
 import { map, Observable, startWith } from 'rxjs';
 import { Filter } from '@shared/types/filters.types';
 import { authors, statuses } from '@content/createProject.content';
+import { IUser } from '@shared/types/users.types';
 
 @Component({
   selector: 'create-project-research-form',
@@ -46,7 +47,7 @@ export class ProjectResearchFormComponent {
       fundingSource: FormControl<string | null>;
     }>
   >({ alias: 'researchProjectsForm' });
-  allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
+  allUsersSig = input.required<IUser[] | null>({ alias: 'allUsers' });
   authorsSig = input.required<any[] | null>({ alias: 'authors' });
 
   statuses = statuses;

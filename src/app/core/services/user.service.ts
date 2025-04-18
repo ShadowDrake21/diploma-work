@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
+import { PageResponse } from '@shared/types/generics.types';
 import { Project } from '@shared/types/project.types';
 import {
   IAuthorizedUser,
@@ -18,8 +19,19 @@ export class UserService {
   private http = inject(HttpClient);
   private apiUrl = BASE_URL + 'users';
 
+  public getPaginatedUsers(
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'id'
+  ): Observable<PageResponse<IUser>> {
+    return this.http.get<PageResponse<IUser>>(
+      `${this.apiUrl}?page=${page}&size=${size}&sortBy=${sortBy}`,
+      getAuthHeaders()
+    );
+  }
+
   public getAllUsers(): Observable<IUser[]> {
-    return this.http.get<IUser[]>(this.apiUrl, getAuthHeaders());
+    return this.http.get<IUser[]>(`${this.apiUrl}/list`, getAuthHeaders());
   }
 
   public createUser(user: ICreateUser): Observable<IAuthorizedUser> {

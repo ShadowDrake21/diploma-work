@@ -3,6 +3,7 @@ package com.backend.app.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -29,5 +30,5 @@ public interface UserRepository extends JpaRepository<User, Long>{
 	@Query("SELECT u FROM User u WHERE u.resetToken IS NOT NULL AND u.tokenExpiration < CURRENT_TIMESTAMP")
 	List<User> findExpiredResetTokens();
 	
-	List<User> findAll();
+	Page<User> findAll(Pageable pageable);
 	}

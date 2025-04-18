@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +31,11 @@ public class UserService {
 		this.emailService = emailService;
 		this.s3Service = s3Service;
 		this.userMapper = userMapper;
+	}
+	
+	public List<UserDTO> getAllUsersList() {
+		List<User> users = userRepository.findAll();
+		return users.stream().map(userMapper::mapToDTO).collect(Collectors.toList());
 	}
 	
 	public void savePendingUser(String username, String email, String password, Role role) {
@@ -89,9 +96,9 @@ public class UserService {
 		}
 	}
 	
-	public List<UserDTO> getAllUsers(){
-		List<User> users = userRepository.findAll();
-		return users.stream().map(userMapper::mapToDTO).collect(Collectors.toList());
+	public Page<UserDTO> getAllUsers(Pageable pageable){
+		Page<User> usersPage = userRepository.findAll(pageable);
+		return usersPage.map(userMapper::mapToDTO);
 	}
 	
 	public UserDTO updateAvatar(Long userId, MultipartFile file) {
