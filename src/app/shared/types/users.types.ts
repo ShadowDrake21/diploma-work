@@ -14,7 +14,6 @@ export interface IUser {
   patentCount: number;
   researchCount: number;
   lastActive: string;
-  status: string;
   tags: string[];
 }
 

@@ -21,6 +21,7 @@ import { IUser } from '@shared/types/users.types';
 import { debounce, debounceTime, distinctUntilChanged, Observable } from 'rxjs';
 import { UsersListComponent } from '../../shared/components/users-list/users-list.component';
 import { UserService } from '@core/services/user.service';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-users',
@@ -38,36 +39,46 @@ import { UserService } from '@core/services/user.service';
     AsyncPipe,
     UsersListComponent,
     UserCardComponent,
+    MatPaginatorModule,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
   providers: [PaginationService],
 })
 export class UsersComponent implements OnInit {
+  searchControl = new FormControl('');
+
   userService = inject(UserService);
   paginationService = inject(PaginationService);
-  searchControl = new FormControl('');
+
+  currentPage = 0;
+  pageSize = 10;
+  totalElements = 0;
+
+  users: IUser[] = [];
 
   pages: number[] = [];
   elements: IUser[] = [];
-  users$!: Observable<any[]>;
-  // users = usersContent;
 
   ngOnInit(): void {
-    // this.paginationUsage();
-    // this.searchControl.valueChanges
-    //   .pipe(distinctUntilChanged(), debounceTime(500))
-    //   .subscribe((value) => {
-    //     if (!value || value === '') {
-    //       this.paginationService.currentPage = 1;
-    //       this.paginationService.elements = this.users;
-    //       this.paginationService.updateVisibleElements();
-    //       return;
-    //     }
-    //     this.search(value);
-    //   });
+    this.loadUsers();
+  }
 
-    this.users$ = this.userService.getAllUsers();
+  loadUsers(page: number = 0): void {
+    this.userService.getPaginatedUsers(page, this.pageSize).subscribe({
+      next: (response) => {
+        this.users = response.content;
+        this.totalElements = response.totalElements;
+        this.currentPage = response.pageable.pageNumber;
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+      },
+    });
+  }
+
+  onPageChange(page: number): void {
+    this.loadUsers(page);
   }
 
   // search(value: string) {

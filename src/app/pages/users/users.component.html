@@ -1,4 +1,3 @@
-@let users = users$ | async;
 <div class="users">
   <div class="users__form">
     <mat-form-field>
@@ -21,11 +20,22 @@
       }
     </mat-form-field>
   </div>
-  <p class="users__paragraph">All Users: {{ users?.length }}</p>
+  <p class="users__paragraph">All Users: {{ users.length }}</p>
+  @if (users && users.length > 0) {
   <div class="users__list">
     @for (user of users; track user) {
     <shared-user-card [user]="user" />
-
     }
   </div>
+
+  <mat-paginator
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageIndex]="currentPage"
+    (page)="onPageChange($event.pageIndex)"
+    aria-label="Select page"
+  ></mat-paginator>
+  } @else {
+  <p class="users__list__empty">No users found</p>
+  }
 </div>
