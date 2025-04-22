@@ -160,6 +160,13 @@ public class UserController {
 	    }
 	} 
 	
+	@GetMapping("/search")
+	public ResponseEntity<Page<UserDTO>> searchUsers(@RequestParam String query, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "id") String sortBy) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+		Page<UserDTO> usersPage = userService.searchUsers(query, pageable);
+		return ResponseEntity.ok(usersPage);
+	}
+	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 //		Respo user = userService.getUserById(id);
