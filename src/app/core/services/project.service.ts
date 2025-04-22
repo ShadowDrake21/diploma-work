@@ -3,7 +3,18 @@ import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { Project } from '@shared/types/project.types';
 import { ProjectSearchResponse } from '@shared/types/search.types';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import {
+  catchError,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
+import { UserService } from './user.service';
+import { ProjectType } from '@shared/enums/categories.enum';
 
 interface ProjectFilters {
   search?: string;
@@ -32,7 +43,6 @@ interface ProjectFilters {
 })
 export class ProjectService {
   private http = inject(HttpClient);
-
   private apiUrl = BASE_URL + 'projects';
 
   private get headers(): HttpHeaders {

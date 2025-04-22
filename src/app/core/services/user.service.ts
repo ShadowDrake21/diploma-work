@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
+import { ProjectType } from '@shared/enums/categories.enum';
 import { PageResponse } from '@shared/types/generics.types';
 import { Project } from '@shared/types/project.types';
 import {
@@ -10,13 +11,15 @@ import {
   IUser,
 } from '@shared/types/users.types';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
-import { Observable } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { ProjectService } from './project.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private http = inject(HttpClient);
+  private projectService = inject(ProjectService);
   private apiUrl = BASE_URL + 'users';
 
   public getPaginatedUsers(
@@ -43,6 +46,10 @@ export class UserService {
       `${this.apiUrl}/${id}`,
       getAuthHeaders()
     );
+  }
+
+  public getFullUserById(id: number): Observable<IUser> {
+    return this.http.get<IUser>(`${this.apiUrl}/${id}/info`, getAuthHeaders());
   }
 
   public getUserByEmail(email: string): Observable<IAuthorizedUser> {
@@ -88,7 +95,7 @@ export class UserService {
     );
   }
 
-  public getUserProjects(userId: number): Observable<Project[]> {
+  public getUserProjects(userId: string): Observable<Project[]> {
     return this.http.get<Project[]>(
       `${this.apiUrl}/${userId}/projects`,
       getAuthHeaders()
@@ -114,8 +121,40 @@ export class UserService {
     );
   }
 
+  getProjectsWithDetails(userId: string): Observable<Project[]> {
+    return this.getUserProjects(userId).pipe(
+      switchMap((projects) => {
+        return forkJoin(
+          projects.map((project) => {
+            if (project.type === ProjectType.PUBLICATION) {
+              return this.projectService
+                .getPublicationByProjectId(project.id)
+                .pipe(
+                  map((publication) => ({
+                    ...project,
+                    publication,
+                  }))
+                );
+            } else if (project.type === ProjectType.PATENT) {
+              return this.projectService
+                .getPatentByProjectId(project.id)
+                .pipe(map((patent) => ({ ...project, patent })));
+            } else if (project.type === ProjectType.RESEARCH) {
+              return this.projectService
+                .getResearchByProjectId(project.id)
+                .pipe(map((research) => ({ ...project, research })));
+            }
+            return of(project);
+          })
+        );
+      })
+    );
+  }
+
   // Delete User by ID
   public deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders());
   }
 }
+
+// OUTPUT FILTERED PROJECTS ON THE SCREEN

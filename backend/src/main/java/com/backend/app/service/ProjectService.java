@@ -128,7 +128,7 @@ public class ProjectService {
 	 }
 	 
 	 public List<Project> findProjectsByUserId(Long userId) {
-		 return projectRepository.findByCreatorId(userId);
+		 return projectRepository.findByCreatorId2(userId);
     		}
 	
 	public void deleteProject(UUID id) {
