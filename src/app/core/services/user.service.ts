@@ -102,6 +102,18 @@ export class UserService {
     );
   }
 
+  public searchUsers(
+    query: string,
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'id'
+  ): Observable<PageResponse<IUser>> {
+    return this.http.get<PageResponse<IUser>>(
+      `${this.apiUrl}/search?query=${query}&page=${page}&size=${size}&sortBy=${sortBy}`,
+      getAuthHeaders()
+    );
+  }
+
   // Delete User by ID
   public deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders());

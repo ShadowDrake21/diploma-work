@@ -60,21 +60,45 @@ export class UsersComponent implements OnInit {
   pages: number[] = [];
   elements: IUser[] = [];
 
+  searchQuery: string = '';
+
   ngOnInit(): void {
     this.loadUsers();
+
+    this.searchControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((query) => {
+        this.searchQuery = query || '';
+        this.loadUsers();
+      });
   }
 
   loadUsers(page: number = 0): void {
-    this.userService.getPaginatedUsers(page, this.pageSize).subscribe({
-      next: (response) => {
-        this.users = response.content;
-        this.totalElements = response.totalElements;
-        this.currentPage = response.pageable.pageNumber;
-      },
-      error: (error) => {
-        console.error('Error loading users:', error);
-      },
-    });
+    if (this.searchQuery) {
+      this.userService
+        .searchUsers(this.searchQuery, page, this.pageSize)
+        .subscribe({
+          next: (response) => {
+            this.users = response.content;
+            this.totalElements = response.totalElements;
+            this.currentPage = response.pageable.pageNumber;
+          },
+          error: (error) => {
+            console.error('Error searching users:', error);
+          },
+        });
+    } else {
+      this.userService.getPaginatedUsers(page, this.pageSize).subscribe({
+        next: (response) => {
+          this.users = response.content;
+          this.totalElements = response.totalElements;
+          this.currentPage = response.pageable.pageNumber;
+        },
+        error: (error) => {
+          console.error('Error loading users:', error);
+        },
+      });
+    }
   }
 
   onPageChange(page: number): void {

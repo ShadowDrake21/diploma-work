@@ -1,7 +1,7 @@
 <div class="users">
   <div class="users__form">
     <mat-form-field>
-      <mat-label>User search</mat-label>
+      <mat-label>Search users by name or email</mat-label>
       <input
         matInput
         type="text"
@@ -20,8 +20,15 @@
       }
     </mat-form-field>
   </div>
+  @if (searchQuery) {
+
+  <p class="users__paragraph">
+    Search results for: "<strong>{{ searchQuery }}</strong
+    >": {{ users.length }} of {{ totalElements }} users found
+  </p>
+  } @else {
   <p class="users__paragraph">All Users: {{ users.length }}</p>
-  @if (users && users.length > 0) {
+  } @if (users && users.length > 0) {
   <div class="users__list">
     @for (user of users; track user) {
     <shared-user-card [user]="user" />
@@ -36,6 +43,9 @@
     aria-label="Select page"
   ></mat-paginator>
   } @else {
-  <p class="users__list__empty">No users found</p>
+  <p class="users__list__empty">
+    @if (searchQuery) { No users found for: <strong>{{ searchQuery }}</strong
+    >} @else { No users found }
+  </p>
   }
 </div>

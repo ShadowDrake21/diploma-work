@@ -31,4 +31,6 @@ public interface UserRepository extends JpaRepository<User, Long>{
 	List<User> findExpiredResetTokens();
 	
 	Page<User> findAll(Pageable pageable);
+	
+	Page<User> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email, Pageable pageable);
 	}

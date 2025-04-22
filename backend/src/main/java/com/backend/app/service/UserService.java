@@ -141,6 +141,12 @@ public class UserService {
 		return url.substring(url.lastIndexOf("/") + 1);
 	}
 	
+	public Page<UserDTO> searchUsers(String query, Pageable pageable) {
+		Page<User> usersPage =userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query, pageable);
+		
+		return usersPage.map(userMapper::mapToDTO);
+	}
+	
 	private String getDefaultAvatarUrl(String email) {
 		return "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 	}
