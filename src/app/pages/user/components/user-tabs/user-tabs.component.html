@@ -1,20 +1,26 @@
+@let publications = publications$ | async; @let patents = patents$ | async; @let
+researches = researches$ | async;
+
 <mat-tab-group (selectedIndexChange)="tabChanged($event)">
   <mat-tab label="Publications">
     <shared-profile-projects
-      [projects]="userProjects"
+      [projects]="publications"
       [paginationService]="paginationService"
+      (filters)="publicationFiltersApplied($event)"
     />
   </mat-tab>
   <mat-tab label="Patents">
     <shared-profile-projects
-      [projects]="userProjects"
+      [projects]="patents"
       [paginationService]="paginationService"
+      (filters)="patentFiltersApplied($event)"
     />
   </mat-tab>
   <mat-tab label="Research Projects">
     <shared-profile-projects
-      [projects]="userProjects"
+      [projects]="researches"
       [paginationService]="paginationService"
+      (filters)="researchFiltersApplied($event)"
     />
   </mat-tab>
   <mat-tab label="Collaborators">

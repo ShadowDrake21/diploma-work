@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, output } from '@angular/core';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
@@ -26,19 +26,18 @@ export class ProfileProjectsComponent implements OnInit {
   private userService = inject(UserService);
   private authService = inject(AuthService);
 
-  projectsSig = input.required<DashboardRecentProjectItem[]>({
+  projectsSig = input.required<Project[] | null>({
     alias: 'projects',
   });
   paginationServiceSig = input.required<PaginationService>({
     alias: 'paginationService',
   });
+  filters = output<any>();
 
   pages: number[] = [];
-  userProjects$!: Observable<Project[]>;
 
   ngOnInit(): void {
     this.paginationUsage();
-    this.userProjects$ = this.userService.getCurrentUserProjects();
   }
 
   paginationUsage() {

@@ -80,6 +80,11 @@ public class UserController {
 		return userService.getUserById(id);
 	}
 	
+	@GetMapping("/{id}/info")
+	public UserDTO getFullUserById(@PathVariable Long id) {
+		return userService.getFullUserById(id);
+	}
+	
 	@GetMapping("/email/{email}")
 	public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
 		Optional<User> user = userService.getUserByEmail(email);
@@ -134,6 +139,7 @@ public class UserController {
 	@GetMapping("/{userId}/projects")
 	public ResponseEntity<List<ProjectDTO>> getUserProjects(@PathVariable Long userId) {
 		try {
+			System.out.println("getUserProjects: " + userId);
 			List<Project> projects = projectService.findProjectsByUserId(userId);
 			List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
 			return ResponseEntity.ok(projectDTOs);

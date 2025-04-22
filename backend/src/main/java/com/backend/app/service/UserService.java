@@ -73,6 +73,11 @@ public class UserService {
 		return userMapper.mapToResponseDTO(user);
 	}
 	
+	public UserDTO getFullUserById(Long id) {
+		User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with ID " + id));
+		return userMapper.mapToDTO(user);
+	}
+	
 	public Optional<User> getUserByEmail(String email) {
 		return userRepository.findByEmail(email);
 	}
