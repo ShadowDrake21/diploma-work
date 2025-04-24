@@ -22,6 +22,7 @@ import { Project } from '@shared/types/project.types';
 import { AsyncPipe } from '@angular/common';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ProjectFilters } from '@shared/types/filters.types';
+import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 
 @Component({
   selector: 'user-tabs',
@@ -31,6 +32,7 @@ import { ProjectFilters } from '@shared/types/filters.types';
     ProfileProjectsComponent,
     UsersListComponent,
     AsyncPipe,
+    UserCollaboratorsComponent,
   ],
   templateUrl: './user-tabs.component.html',
   styleUrl: './user-tabs.component.scss',
@@ -77,7 +79,7 @@ export class TabsComponent implements OnInit, OnDestroy {
         this.paginationUsage('projects');
         break;
       case 3:
-        this.paginationUsage('users');
+        console.log('Collaborators tab selected');
         break;
       case 4:
         console.log('Contact information tab selected');

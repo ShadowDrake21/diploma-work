@@ -151,10 +151,15 @@ export class UserService {
     );
   }
 
+  public getUserCollaborators(userId: string): Observable<IUser[]> {
+    return this.http.get<IUser[]>(
+      `${this.apiUrl}/${userId}/collaborators`,
+      getAuthHeaders()
+    );
+  }
+
   // Delete User by ID
   public deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders());
   }
 }
-
-// OUTPUT FILTERED PROJECTS ON THE SCREEN

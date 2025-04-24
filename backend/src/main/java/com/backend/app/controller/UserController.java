@@ -2,6 +2,7 @@ package com.backend.app.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -171,6 +172,12 @@ public class UserController {
 		Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 		Page<UserDTO> usersPage = userService.searchUsers(query, pageable);
 		return ResponseEntity.ok(usersPage);
+	}
+	
+	@GetMapping("/{userId}/collaborators")
+	public ResponseEntity<Set<UserDTO>> getUserCollaborators(@PathVariable Long userId){
+		Set<UserDTO> collaborators = userService.getUserCollaborators(userId);
+		return ResponseEntity.ok(collaborators);
 	}
 	
 	@DeleteMapping("/{id}")
