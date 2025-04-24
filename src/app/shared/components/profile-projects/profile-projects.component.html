@@ -1,9 +1,12 @@
 @let paginationService = paginationServiceSig(); @let projects = projectsSig();
+@let isFiltered = isFilteredSig();
 
 <div class="profile-projects">
   <h4 class="profile-projects__title">My projects</h4>
   <div class="profile-projects__container">
+    @if(isFiltered) {
     <profile-filter-panel (filtersApplied)="filters.emit($event)" />
+    }
     <div class="profile-projects__list">
       @for (project of projects; track $index) {
       <shared-project-card [project]="project" />

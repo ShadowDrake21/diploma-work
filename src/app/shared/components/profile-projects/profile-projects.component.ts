@@ -32,6 +32,10 @@ export class ProfileProjectsComponent implements OnInit {
   paginationServiceSig = input.required<PaginationService>({
     alias: 'paginationService',
   });
+  isFilteredSig = input<boolean>(true, {
+    alias: 'isFiltered',
+  });
+
   filters = output<any>();
 
   pages: number[] = [];

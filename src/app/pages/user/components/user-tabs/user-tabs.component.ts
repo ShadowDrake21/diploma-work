@@ -9,6 +9,7 @@ import { IUser } from '@shared/types/users.types';
 import { UserService } from '@core/services/user.service';
 import {
   BehaviorSubject,
+  combineLatest,
   distinctUntilChanged,
   map,
   Observable,
@@ -20,6 +21,7 @@ import {
 import { Project } from '@shared/types/project.types';
 import { AsyncPipe } from '@angular/common';
 import { ProjectType } from '@shared/enums/categories.enum';
+import { ProjectFilters } from '@shared/types/filters.types';
 
 @Component({
   selector: 'user-tabs',
@@ -94,103 +96,6 @@ export class TabsComponent implements OnInit, OnDestroy {
     this.pages = Array.from(
       { length: this.paginationService.numPages() },
       (_, i) => i + 1
-    );
-  }
-
-  filterProjectsByType(type: ProjectType) {
-    return this.projects$$.pipe(
-      map((projects) => {
-        return projects.filter((project) => project.type === type);
-      })
-    );
-  }
-
-  publicationFiltersApplied(filters: any) {
-    this.publications$ = this.projects$$.pipe(
-      map((projects) => {
-        let filtered = projects.filter(
-          (project) => project.type === ProjectType.PUBLICATION
-        );
-
-        if (filters.source) {
-          filtered = filtered.filter((project) =>
-            project.publication?.source
-              ?.toLowerCase()
-              .includes(filters.source.toLowerCase())
-          );
-        }
-
-        if (filters.doiIsbn) {
-          filtered = filtered.filter((project) =>
-            project.publication?.doiIsbn
-              ?.toLowerCase()
-              .includes(filters.doiIsbn.toLowerCase())
-          );
-        }
-
-        return filtered;
-      })
-    );
-  }
-
-  patentFiltersApplied(filters: any) {
-    this.patents$ = this.projects$$.pipe(
-      map((projects) => {
-        let filtered = projects.filter(
-          (project) => project.type === ProjectType.PATENT
-        );
-
-        if (filters.registrationNumber) {
-          filtered = filtered.filter((project) =>
-            project.patent?.registrationNumber
-              ?.toLowerCase()
-              .includes(filters.registrationNumber.toLowerCase())
-          );
-        }
-        if (filters.issuingAuthority) {
-          filtered = filtered.filter((project) =>
-            project.patent?.issuingAuthority
-              ?.toLowerCase()
-              .includes(filters.issuingAuthority.toLowerCase())
-          );
-        }
-
-        return filtered;
-      })
-    );
-  }
-
-  researchFiltersApplied(filters: any) {
-    this.researches$ = this.projects$$.pipe(
-      map((projects) => {
-        let filtered = projects.filter(
-          (project) => project.type === ProjectType.RESEARCH
-        );
-
-        if (filters.minBudget) {
-          filtered = filtered.filter(
-            (project) =>
-              project.research?.budget &&
-              project.research.budget >= filters.minBudget
-          );
-        }
-        if (filters.maxBudget) {
-          filtered = filtered.filter(
-            (project) =>
-              project.research?.budget &&
-              project.research.budget <= filters.maxBudget
-          );
-        }
-        if (filters.fundingSource) {
-          filtered = filtered.filter((project) =>
-            project.research?.fundingSource
-              ?.toLowerCase()
-              .includes(filters.fundingSource.toLowerCase())
-          );
-        }
-
-        return filtered;
-      })
     );
   }
 
