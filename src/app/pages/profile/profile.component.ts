@@ -17,6 +17,10 @@ import { FrequentLinksComponent } from '@shared/components/frequent-links/freque
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
 import { IProfileInfo } from '@shared/types/profile.types';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
+import { UserService } from '@core/services/user.service';
+import { Observable } from 'rxjs';
+import { Project } from '@shared/types/project.types';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-profile',
@@ -35,6 +39,7 @@ import { ProfileProjectsComponent } from '@shared/components/profile-projects/pr
     FrequentLinksComponent,
     ProfileInfoComponent,
     ProfileProjectsComponent,
+    AsyncPipe,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
@@ -42,6 +47,7 @@ import { ProfileProjectsComponent } from '@shared/components/profile-projects/pr
 })
 export class ProfileComponent implements OnInit {
   private headerService = inject(HeaderService);
+  private userService = inject(UserService);
   paginationService = inject(PaginationService);
 
   profile: IProfileInfo = {
@@ -56,9 +62,10 @@ export class ProfileComponent implements OnInit {
     imageUrl: '/recent-users/user-1.jpg',
   };
 
-  myProjects = [...recentProjectContent, ...recentProjectContent];
+  myProjects$!: Observable<Project[] | null>;
 
   ngOnInit(): void {
     this.headerService.setTitle(`User ${this.profile.username}`);
+    this.myProjects$ = this.userService.getCurrentUserProjects();
   }
 }
