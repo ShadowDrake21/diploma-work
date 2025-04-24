@@ -51,9 +51,12 @@ export class UserComponent implements OnInit {
       this.userId = params['id'];
     });
 
-    this.getUserById();
+    this.userService.getFullUserById(+this.userId!).subscribe((user) => {
+      this.user = user;
+      this.headerService.setTitle('User: ' + this.user?.username);
+      this.loadUserProjects();
+    });
     this.paginationUsage();
-    this.headerService.setTitle('User: ' + this.user?.username);
   }
 
   getUserById() {
