@@ -1,7 +1,9 @@
 package com.backend.app.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -14,6 +16,10 @@ import com.backend.app.dto.UserDTO;
 import com.backend.app.dto.UserProfileUpdateDTO;
 import com.backend.app.enums.Role;
 import com.backend.app.mapper.UserMapper;
+import com.backend.app.model.Patent;
+import com.backend.app.model.Project;
+import com.backend.app.model.Publication;
+import com.backend.app.model.Research;
 import com.backend.app.model.User;
 import com.backend.app.repository.UserRepository;
 
@@ -25,12 +31,22 @@ public class UserService {
 	private final EmailService emailService;
 	private final S3Service s3Service;
 	private final UserMapper userMapper;
+	private final ProjectService projectService;
+	private final PublicationService publicationService;
+	private final PatentService patentService;
+	private final ResearchService researchService;
 	
-	public UserService(UserRepository userRepository, EmailService emailService, S3Service s3Service, UserMapper userMapper) {
+	public UserService(UserRepository userRepository, EmailService emailService, 
+			S3Service s3Service, UserMapper userMapper, ProjectService projectService,
+			PublicationService publicationService, PatentService patentService, ResearchService researchService) {
 		this.userRepository = userRepository;
 		this.emailService = emailService;
 		this.s3Service = s3Service;
 		this.userMapper = userMapper;
+		this.projectService = projectService;
+		this.publicationService = publicationService;
+		this.patentService = patentService;
+		this.researchService = researchService;
 	}
 	
 	public List<UserDTO> getAllUsersList() {
@@ -140,6 +156,55 @@ public class UserService {
 	    
 	    User updatedUser = userRepository.save(user);
 	    return userMapper.mapToDTO(updatedUser);
+	}
+	
+	public Set<UserDTO> getUserCollaborators(Long userId) {
+		Set<User> collaborators = new HashSet();
+		
+		List<Project> projects = projectService.findProjectsByUserId(userId);
+		
+		for(Project project : projects) {
+			switch(project.getType()) {
+			case PUBLICATION:
+				List<Publication> publications = publicationService.findPublicationByProjectId(project.getId());
+				publications.forEach(pub -> {
+					pub.getPublicationAuthors().forEach(author -> {
+						if(!author.getUser().getId().equals(userId)) {
+							collaborators.add(author.getUser());
+						}
+					});
+				});
+				break;
+			case PATENT:
+				List<Patent> patents = patentService.findPatentByProjectId(project.getId());
+				patents.forEach(patent -> {
+					patent.getCoInventors().forEach(coInventor -> {
+						if(!coInventor.getUser().getId().equals(userId)) {
+							collaborators.add(coInventor.getUser());
+						}
+					});
+					
+					if(!patent.getPrimaryAuthor().getId().equals(userId)) {
+						collaborators.add(patent.getPrimaryAuthor());
+					}
+				});
+				break;
+				
+			case RESEARCH: 
+				List<Research> researches = researchService.findResearchByProjectId(project.getId());
+				
+				researches.forEach(research -> {
+					research.getResearchParticipants().forEach(participant -> {
+						if(!participant.getUser().getId().equals(userId)) {
+							collaborators.add(participant.getUser());
+						}
+					});
+				});
+				break;
+			}
+		}
+		
+		return collaborators.stream().map(userMapper::mapToDTO).collect(Collectors.toSet());
 	}
 	
 	private String extractFileNameFromUrl(String url) {

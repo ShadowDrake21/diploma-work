@@ -21,11 +21,9 @@
     />
   </mat-tab>
   <mat-tab label="Collaborators">
-    <shared-users-list
-      [paginationService]="paginationService"
-      [pages]="pages"
-      type="general"
-    />
+    @if (userSig()) {
+    <user-collaborators [userId]="this.userSig()?.id || ''" />
+    }
   </mat-tab>
   <mat-tab label="Contact information"
     ><p><span>Email:</span> {{ userSig()?.email }}</p>
