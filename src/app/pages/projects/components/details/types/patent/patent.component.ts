@@ -1,29 +1,46 @@
-import { DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { ProjectService } from '@core/services/project.service';
+import { UserService } from '@core/services/user.service';
+import { forkJoin, Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'details-patent',
-  imports: [DatePipe],
+  imports: [DatePipe, AsyncPipe],
   templateUrl: './patent.component.html',
   styleUrl: './patent.component.scss',
 })
-export class PatentComponent {
-  patents = [
-    {
-      id: 'pat-001',
-      primaryAuthor: 'Dr. Emily Brown',
-      coInventors: ['Prof. Liam Wilson', 'Dr. Mia Davis'],
-      registrationNumber: 'US1234567B2',
-      registrationDate: new Date('2021-05-10'),
-      issuingAuthority: 'United States Patent and Trademark Office',
-    },
-    {
-      id: 'pat-002',
-      primaryAuthor: 'Dr. Oliver Green',
-      coInventors: [],
-      registrationNumber: 'EP9876543A1',
-      registrationDate: new Date('2020-11-01'),
-      issuingAuthority: 'European Patent Office',
-    },
-  ];
+export class PatentComponent implements OnInit, OnDestroy {
+  private projectService = inject(ProjectService);
+  private userService = inject(UserService);
+
+  @Input({ required: true })
+  id!: string;
+
+  patent$!: Observable<any>;
+  coInventors$!: Observable<any>;
+
+  subscriptions: Subscription[] = [];
+
+  ngOnInit(): void {
+    this.patent$ = this.projectService.getPatentByProjectId(this.id!);
+
+    const patentSub = this.patent$.subscribe((patent) => {
+      this.coInventors$ = patent?.coInventors
+        ? forkJoin(
+            patent?.coInventors.map((coInventorId: number) =>
+              this.userService.getUserById(coInventorId)
+            )
+          )
+        : new Observable();
+    });
+
+    this.subscriptions.push(patentSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((subscription) => {
+      subscription.unsubscribe();
+    });
+  }
 }

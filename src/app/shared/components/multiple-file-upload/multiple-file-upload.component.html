@@ -1,4 +1,10 @@
-<input type="file" class="file-input" multiple (change)="onChange($event)" />
+<input
+  type="file"
+  class="file-input"
+  multiple
+  (change)="onFileChange($event)"
+  accept="application/pdf"
+/>
 
 @if (files.length) {
 <mat-list class="file-section">
@@ -10,11 +16,13 @@
     <div matListItemLine>{{ file.type }}</div>
     <div matListItemLine>{{ file.size }} bytes</div>
   </mat-list-item>
-  }
+  }</mat-list
+>
+}
 
-  <button (click)="onUpload()" class="upload-button">Upload the file</button>
+<!-- <button (click)="onUpload()" class="upload-button">Upload the file</button> -->
 
-  @switch (status) { @case ('uploading') {
+<!-- @switch (status) { @case ('uploading') {
   <p>⏳ Uploading...</p>
   } @case ('success') {
   <p>✅ Done!</p>
@@ -22,6 +30,4 @@
   <p>❌ Error!</p>
   } @default {
   <p>😶 Waiting to upload...</p>
-  } }
-</mat-list>
-}
+  } } -->

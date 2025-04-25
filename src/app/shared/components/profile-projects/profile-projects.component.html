@@ -1,15 +1,18 @@
-@let paginationService = paginationServiceSig();
+@let paginationService = paginationServiceSig(); @let projects = projectsSig();
+@let isFiltered = isFilteredSig();
 
 <div class="profile-projects">
   <h4 class="profile-projects__title">My projects</h4>
   <div class="profile-projects__container">
-    <profile-filter-panel />
+    @if(isFiltered) {
+    <profile-filter-panel (filtersApplied)="filters.emit($event)" />
+    }
     <div class="profile-projects__list">
-      @for (project of paginationService.visibleElements; track $index) {
+      @for (project of projects; track $index) {
       <shared-project-card [project]="project" />
       }
     </div>
-    @if(projectsSig().length > paginationService.itemsPerPage) {
+    @if(projects) { @if(projects.length > paginationService.itemsPerPage) {
     <!-- get rid of the service in html (not important) -->
     <shared-pagination
       [pages]="pages"
@@ -18,6 +21,6 @@
       (nextPage)="paginationService.nextPage()"
       (goToPage)="paginationService.goToPage($event)"
     />
-    }
+    } }
   </div>
 </div>

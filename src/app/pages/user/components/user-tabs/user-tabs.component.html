@@ -1,28 +1,29 @@
 <mat-tab-group (selectedIndexChange)="tabChanged($event)">
   <mat-tab label="Publications">
     <shared-profile-projects
-      [projects]="userProjects"
+      [projects]="publications$ | async"
       [paginationService]="paginationService"
+      [isFiltered]="false"
     />
   </mat-tab>
   <mat-tab label="Patents">
     <shared-profile-projects
-      [projects]="userProjects"
+      [projects]="patents$ | async"
       [paginationService]="paginationService"
+      [isFiltered]="false"
     />
   </mat-tab>
   <mat-tab label="Research Projects">
     <shared-profile-projects
-      [projects]="userProjects"
+      [projects]="researches$ | async"
       [paginationService]="paginationService"
+      [isFiltered]="false"
     />
   </mat-tab>
   <mat-tab label="Collaborators">
-    <shared-users-list
-      [paginationService]="paginationService"
-      [pages]="pages"
-      type="general"
-    />
+    @if (userSig()) {
+    <user-collaborators [userId]="this.userSig()?.id || ''" />
+    }
   </mat-tab>
   <mat-tab label="Contact information"
     ><p><span>Email:</span> {{ userSig()?.email }}</p>

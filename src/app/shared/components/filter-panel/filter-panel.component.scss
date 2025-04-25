@@ -1,12 +1,12 @@
 .profile__panel {
-  max-height: 300px;
+  max-height: 800px;
   height: 100%;
   padding: 20px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 20px;
-  background-color: #d9d9d9;
 
   &-left {
     display: flex;
@@ -16,6 +16,9 @@
 
   &-right {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     button {
       width: 100%;
     }
@@ -23,7 +26,9 @@
 
   &-group {
     display: flex;
+    flex-direction: column;
     gap: 10px;
+    flex: 1;
     &__title {
     }
     &__checkbox {
@@ -32,11 +37,36 @@
     }
     &__formfield {
     }
+    &__wrapper {
+      display: flex;
+      gap: 10px;
+    }
   }
 
   &-groups__wrapper {
     display: flex;
+    flex-direction: column;
     gap: 15px;
+  }
+
+  &-group__last {
+    display: flex;
+  }
+
+  &-expansion {
+    width: 100%;
+    background-color: #f5f5f5;
+    overflow-y: scroll;
+  }
+
+  &-header {
+    &__title {
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+    }
   }
 }
 

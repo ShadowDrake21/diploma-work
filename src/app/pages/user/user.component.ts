@@ -13,6 +13,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { TabsComponent } from './components/user-tabs/user-tabs.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { UserService } from '@core/services/user.service';
+import { ProjectService } from '@core/services/project.service';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-user',
@@ -31,21 +34,29 @@ import { MatChipsModule } from '@angular/material/chips';
 export class UserComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
+  private userService = inject(UserService);
+  private projectService = inject(ProjectService);
   paginationService = inject(PaginationService);
 
   userId: string | null = null;
   user: IUser | undefined = undefined;
   users = usersContent;
   pages: number[] = [];
+  userProjects: any[] = [];
+  isLoading = true;
+  error: string | null = null;
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.userId = params['id'];
     });
 
-    this.getUserById();
+    this.userService.getFullUserById(+this.userId!).subscribe((user) => {
+      this.user = user;
+      this.headerService.setTitle('User: ' + this.user?.username);
+      this.loadUserProjects();
+    });
     this.paginationUsage();
-    this.headerService.setTitle('User: ' + this.user?.fullName);
   }
 
   getUserById() {
@@ -54,27 +65,25 @@ export class UserComponent implements OnInit {
     this.user = usersContent.find((user) => user.id === this.userId);
   }
 
-  userProjects = [...recentProjectContent, ...recentProjectContent];
-
   userMetrics() {
     if (!this.user) return [];
 
     const metrics: DashboardMetricCardItem[] = [
       {
         title: 'Publications',
-        value: this.user.publications + '',
+        value: this.user.publicationCount + '',
         link: '',
         icon: 'description',
       },
       {
         title: 'Patents',
-        value: this.user?.patents + '',
+        value: this.user?.patentCount + '',
         link: '',
         icon: 'gavel',
       },
       {
         title: 'Research Projects',
-        value: this.user?.ongoingProjects + '',
+        value: this.user?.researchCount + '',
         link: '',
         icon: 'science',
       },
@@ -84,7 +93,7 @@ export class UserComponent implements OnInit {
 
   paginationUsage() {
     this.paginationService.currentPage = 1;
-    this.paginationService.elements = this.users;
+    this.paginationService.elements = this.userProjects;
     this.paginationService.itemsPerPage = 5;
     this.paginationService.updateVisibleElements();
 
@@ -124,5 +133,43 @@ export class UserComponent implements OnInit {
         break;
     }
     console.log(index);
+  }
+
+  loadUserData(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    this.userService
+      .getFullUserById(+this.userId!)
+      .pipe(
+        catchError((err) => {
+          this.error = 'Failed to load user data';
+          this.isLoading = false;
+          return of(null);
+        })
+      )
+      .subscribe((user) => {
+        if (user) {
+          this.user = user;
+          this.headerService.setTitle('User: ' + this.user?.username);
+          this.loadUserProjects();
+        }
+      });
+  }
+
+  loadUserProjects(): void {
+    this.userService
+      .getUserProjects(this.userId!)
+      .pipe(
+        catchError((err) => {
+          this.error = 'Failed to load user projects';
+          return of([]);
+        })
+      )
+      .subscribe((projects) => {
+        this.userProjects = projects;
+        this.isLoading = false;
+        this.paginationUsage();
+      });
   }
 }

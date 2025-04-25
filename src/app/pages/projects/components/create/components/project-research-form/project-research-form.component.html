@@ -3,19 +3,17 @@
 <form [formGroup]="researchProjects" class="project-research__form">
   <mat-form-field>
     <mat-label>Participants</mat-label>
-    <input
-      type="text"
-      placeholder="Andrzej Duda"
-      matInput
+    <mat-select
       formControlName="participants"
-      [matAutocomplete]="auto"
-    />
-
-    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-      @for (participant of filteredParticipants | async; track participant) {
-      <mat-option [value]="participant">{{ participant }}</mat-option>
+      multiple
+      [compareWith]="compareParticipants"
+    >
+      @for (participant of allUsersSig(); track participant) {
+      <mat-option [value]="participant.id">{{
+        participant.username
+      }}</mat-option>
       }
-    </mat-autocomplete>
+    </mat-select>
   </mat-form-field>
 
   <mat-form-field>
@@ -49,7 +47,7 @@
   </mat-form-field>
   <mat-form-field>
     <mat-label>Status</mat-label>
-    <mat-select formControlName="status">
+    <mat-select formControlName="status" [compareWith]="compareStatuses">
       @for (status of statuses; track status) {
       <mat-option [value]="status.value">{{ status.viewValue }}</mat-option>
       }
@@ -62,6 +60,7 @@
       placeholder="U.S. Small Business Administration (SBA)"
       matInput
       formControlName="fundingSource"
+      [value]="researchProjects.controls.fundingSource.value"
     />
   </mat-form-field>
   <div>

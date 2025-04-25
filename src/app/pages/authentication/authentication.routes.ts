@@ -35,10 +35,10 @@ export const AuthenticationRoutes: Routes = [
           ).then((c) => c.VerificationCodeComponent),
       },
       {
-        path: 'reset-password',
-        loadComponent: () =>
-          import('./components/reset-password/reset-password.component').then(
-            (c) => c.ResetPasswordComponent
+        path: 'recover-password',
+        loadChildren: () =>
+          import('./components/recover-password/recover-password.module').then(
+            (m) => m.RecoverPasswordModule
           ),
       },
     ],

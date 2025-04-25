@@ -1,0 +1,10 @@
+mat-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  height: 100%;
+}
+mat-list-item {
+  width: auto;
+  height: 100% !important;
+}

@@ -1,18 +1,18 @@
 import { Component, input } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { CommonModule } from '@angular/common';
+import { CommonModule, LowerCasePipe, TitleCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DashboardRecentProjectItemModal } from '@shared/types/dashboard.types';
-import { ProjectItem } from '@shared/types/project.types';
+import { Project, ProjectItem } from '@shared/types/project.types';
 
 @Component({
   selector: 'shared-project-card',
-  imports: [MatProgressBarModule, CommonModule, RouterLink],
+  imports: [MatProgressBarModule, CommonModule, RouterLink, TitleCasePipe],
   templateUrl: './project-card.component.html',
   styleUrl: './project-card.component.scss',
 })
 export class ProjectCardComponent {
-  projectSig = input.required<ProjectItem | DashboardRecentProjectItemModal>({
+  projectSig = input.required<Project>({
     alias: 'project',
   });
 }

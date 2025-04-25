@@ -1,21 +1,17 @@
 <div class="user">
   <div class="user-inner">
     <div class="user-img__wrapper">
-      <img [src]="user?.profilePicture" class="user-img" />
+      <img [src]="user?.avatarUrl" class="user-img" />
     </div>
     <div class="user-content">
       <div class="user-content__info">
         <p class="user-content__info-item">
           <span class="user-content__info-item__span">Name:</span>
-          {{ user?.fullName }}
+          {{ user?.username }}
         </p>
         <p class="user-content__info-item">
           <span class="user-content__info-item__span">Role:</span>
           {{ user?.role }}
-        </p>
-        <p class="user-content__info-item">
-          <span class="user-content__info-item__span">Status:</span>
-          {{ user?.status }}
         </p>
         <p class="user-content__info-item">
           <span class="user-content__info-item__span">Affiliation:</span>
@@ -35,21 +31,9 @@
         </li>
         }
       </ul>
-      <div class="user-content__tags">
-        <h3 class="user-content__tags-title">Tags/Skills</h3>
-        <mat-chip-set aria-label="Fish selection">
-          @for (tag of user?.tags; track tag) {
-          <mat-chip class="user-content__tags-item">
-            {{ tag }}
-          </mat-chip>
-          }
-        </mat-chip-set>
-      </div>
     </div>
   </div>
-  <shared-profile-projects
-    [projects]="userProjects"
-    [paginationService]="paginationService"
-  />
+  @if (user) {
   <user-tabs [user]="user" />
+  }
 </div>

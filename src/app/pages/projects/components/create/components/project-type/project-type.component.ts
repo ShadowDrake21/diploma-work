@@ -1,10 +1,12 @@
-import { Component, input } from '@angular/core';
+import { JsonPipe } from '@angular/common';
+import { Component, input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { types } from '@content/createProject.content';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'create-project-type',
@@ -14,6 +16,7 @@ import { types } from '@content/createProject.content';
     MatFormFieldModule,
     MatButtonModule,
     MatSelectModule,
+    JsonPipe,
   ],
   templateUrl: './project-type.component.html',
   styleUrl: './project-type.component.scss',
