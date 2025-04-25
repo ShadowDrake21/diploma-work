@@ -209,4 +209,13 @@ public class ProjectController {
 		
 		return ResponseEntity.notFound().build();
 	}
+	
+	@GetMapping("/newest")
+	public ResponseEntity<List<ProjectDTO>> getNewestProjects (
+			@RequestParam(defaultValue = "10") int limit) {
+		List<Project> projects = projectService.findNewestProjects(limit);
+		List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
+		
+		return ResponseEntity.ok(projectDTOs);
+	}
 }
