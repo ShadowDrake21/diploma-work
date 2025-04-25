@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.ietf.jgss.Oid;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -22,6 +23,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "publications")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Publication {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

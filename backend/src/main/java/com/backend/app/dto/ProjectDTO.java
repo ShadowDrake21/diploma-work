@@ -4,99 +4,66 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.backend.app.enums.ProjectType;
+import com.backend.app.model.Project;
 import com.backend.app.model.Tag;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectDTO {
 	private UUID id;
 	private ProjectType type;
+	
+	@NotBlank(message = "Title cannot be blank")
+	@Size(max = 256, message = "Title cannot exceed 256 characters")
 	private String title;
+	
+    @NotBlank(message = "Description cannot be blank")
 	private String description;
+    
+    @Min(value = 0, message = "Progress cannot be less than 0")
+    @Max(value = 100, message = "Progress cannot exceed 100")
 	private int progress;
+    
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	private Set<UUID> tagIds =  new HashSet<UUID>();
+	
+	@Builder.Default
+	private Set<UUID> tagIds =  Set.of();
+	
     private Long createdBy;
-	
-	public ProjectDTO() {
-	
-	}
 
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public ProjectType getType() {
-		return type;
-	}
-
-	public void setType(ProjectType type) {
-		this.type = type;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public int getProgress() {
-		return progress;
-	}
-
-	public void setProgress(int progress) {
-		this.progress = progress;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public Set<UUID> getTagIds() {
-		return tagIds;
-	}
-
-	public void setTagIds(Set<UUID> tagIds) {
-		this.tagIds = tagIds;
-	}
-
-	 public Long getCreatedBy() {
-	        return createdBy;
-	    }
-
-	    public void setCreatedBy(Long createdBy) {
-	        this.createdBy = createdBy;
-	    }
-	
-	
+	public static ProjectDTO fromEntity(Project project) {
+		if (project == null) {
+            return null;
+        }
+		
+		return ProjectDTO.builder()
+                .id(project.getId())
+                .type(project.getType())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .progress(project.getProgress())
+                .createdAt(project.getCreatedAt())
+                .updatedAt(project.getUpdatedAt())
+                .tagIds(project.getTags().stream()
+                        .map(Tag::getId)
+                        .collect(Collectors.toUnmodifiableSet()))
+                .createdBy(project.getCreator() != null ? project.getCreator().getId() : null)
+                .build();
+    }
 }

@@ -38,10 +38,8 @@ public class PublicationController {
 	}
 	
 	@GetMapping("/{id}")
-	public PublicationDTO getPublicationById(@PathVariable UUID id) {
-		Optional<Publication> publicationOptional = publicationService.findPublicationById(id);
-		return publicationOptional.map(publicationMapper::toDTO)
-	            .orElseThrow(() -> new RuntimeException("Publication not found with id: " + id));
+	public ResponseEntity<PublicationDTO> getPublicationById(@PathVariable UUID id) {
+		return ResponseEntity.ok(publicationService.findPublicationById(id));
 	}
 	
 	@PostMapping

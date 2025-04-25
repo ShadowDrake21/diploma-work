@@ -10,7 +10,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.CreatePublicationRequest;
+import com.backend.app.dto.PublicationDTO;
 import com.backend.app.dto.ResponseUserDTO;
+import com.backend.app.mapper.PublicationMapper;
 import com.backend.app.model.Project;
 import com.backend.app.model.Publication;
 import com.backend.app.model.PublicationAuthor;
@@ -21,6 +23,7 @@ import com.backend.app.repository.PublicationRepository;
 import com.backend.app.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
@@ -38,6 +41,9 @@ public class PublicationService {
 	@Autowired
 	private PublicationAuthorRepository publicationAuthorRepository;
 	
+	@Autowired
+	private PublicationMapper publicationMapper;
+	
     @PersistenceContext
 	private EntityManager entityManager;
 	
@@ -45,8 +51,9 @@ public class PublicationService {
 		return publicationRepository.findAll();
 	}
 	
-	public Optional<Publication> findPublicationById(UUID id) {
-		return publicationRepository.findById(id);
+	public PublicationDTO findPublicationById(UUID id) {
+		Publication publication = publicationRepository.findByIdWithRelations(id).orElseThrow(() -> new EntityNotFoundException("Publication not found"));
+	    return publicationMapper.toDTO(publication);
 	}
 	
 	public List<Publication> findPublicationByProjectId(UUID projectId) {

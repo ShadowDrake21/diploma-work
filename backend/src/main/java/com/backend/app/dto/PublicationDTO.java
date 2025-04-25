@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 public class PublicationDTO {
     private UUID id;
     private UUID projectId; 

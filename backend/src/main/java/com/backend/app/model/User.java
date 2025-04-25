@@ -7,11 +7,13 @@ import java.util.Set;
 
 import com.backend.app.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name="users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
