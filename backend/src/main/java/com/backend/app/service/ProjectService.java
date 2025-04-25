@@ -9,10 +9,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -130,6 +132,11 @@ public class ProjectService {
 	 public List<Project> findProjectsByUserId(Long userId) {
 		 return projectRepository.findByCreatorId2(userId);
     		}
+	 
+	 public List<Project> findNewestProjects(int limit) {
+		 Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+		 return projectRepository.findNewsedtProjects(pageable).getContent();
+	 }
 	
 	public void deleteProject(UUID id) {
 		Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));

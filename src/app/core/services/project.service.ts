@@ -151,6 +151,12 @@ export class ProjectService {
       .pipe(catchError(this.handleError));
   }
 
+  getNewestProjects(limit: number = 10): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl}/newest?limit=${limit}`, {
+      headers: this.headers,
+    });
+  }
+
   private handleError(error: any): Observable<never> {
     console.error('An error occurred:', error);
     return throwError(
