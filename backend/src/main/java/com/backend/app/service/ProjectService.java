@@ -137,6 +137,27 @@ public class ProjectService {
 		 Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
 		 return projectRepository.findNewsedtProjects(pageable).getContent();
 	 }
+	 
+	 @Transactional
+	 public ProjectDTO createProject(ProjectDTO projectDTO) {
+		 Project project = new Project();
+		 project.setType(projectDTO.getType());
+		 project.setTitle(projectDTO.getTitle());
+		 project.setDescription(projectDTO.getDescription());
+		 project.setProgress(projectDTO.getProgress());
+		 
+		 if(projectDTO.getTagIds() != null && !projectDTO.getTagIds().isEmpty()) {
+		        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
+		        project.setTags(tags);
+		 }
+		 
+		 
+		 User creator = userRepository.findById(projectDTO.getCreatedBy()).orElseThrow(()-> new EntityNotFoundException("User not found"));
+		 project.setCreator(creator);
+		    
+		 Project savedProject = projectRepository.save(project);
+		 return projectDTO.fromEntity(savedProject);
+	 }
 	
 	public void deleteProject(UUID id) {
 		Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));

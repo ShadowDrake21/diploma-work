@@ -1,48 +1,49 @@
 package com.backend.app.mapper;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Component;
 
 import com.backend.app.dto.PublicationDTO;
-import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.model.Project;
 import com.backend.app.model.Publication;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.PublicationAuthorRepository;
-import com.backend.app.repository.PublicationRepository;
-import com.backend.app.service.PublicationService;
+
 
 @Component
 public class PublicationMapper {
 	private final ProjectRepository projectRepository;
-	private final PublicationService publicationService;
+	private final PublicationAuthorRepository publicationAuthorRepository;
 
-    public PublicationMapper(ProjectRepository projectRepository, PublicationService publicationService) {
+    public PublicationMapper(ProjectRepository projectRepository, PublicationAuthorRepository publicationAuthorRepository) {
 		this.projectRepository = projectRepository;
-		this.publicationService = publicationService;
+		this.publicationAuthorRepository = publicationAuthorRepository;
 	}
 
-	public PublicationDTO toDTO(Publication publication) {
+    public PublicationDTO toDTO(Publication publication) {
         if(publication == null) {
-        	return null;
+            return null;
         }
-        List<ResponseUserDTO> authorsDTO = publicationService.getPublicationAuthorsInfo(publication.getId());
-        PublicationDTO publicationDTO = new PublicationDTO();
         
-        publicationDTO.setId(publication.getId());
-        publicationDTO.setProjectId(publication.getProject().getId());
-        publicationDTO.setPublicationDate(publication.getPublicationDate());
-        publicationDTO.setPublicationSource(publication.getPublicationSource());
-        publicationDTO.setDoiIsbn(publication.getDoiIsbn());
-        publicationDTO.setStartPage(publication.getStartPage());
-        publicationDTO.setEndPage(publication.getEndPage());
-        publicationDTO.setJournalVolume(publication.getJournalVolume());
-        publicationDTO.setIssueNumber(publication.getIssueNumber());
-        publicationDTO.setAuthors(authorsDTO);
+        Project project = publication.getProject();
+        if (project instanceof HibernateProxy) {
+            project = (Project) ((HibernateProxy) project).getHibernateLazyInitializer().getImplementation();
+        }
         
-        return publicationDTO;
+        return PublicationDTO.builder()
+            .id(publication.getId())
+            .projectId(project != null ? project.getId() : null)  // Only pass ID
+            .publicationDate(publication.getPublicationDate())
+            .publicationSource(publication.getPublicationSource())
+            .doiIsbn(publication.getDoiIsbn())
+            .startPage(publication.getStartPage())
+            .endPage(publication.getEndPage())
+            .journalVolume(publication.getJournalVolume())
+            .issueNumber(publication.getIssueNumber())
+            .authors(publicationAuthorRepository.getAuthorsInfoByPublication(publication))
+            .build();
     }
 
     public Publication toEntity(PublicationDTO publicationDTO) {
