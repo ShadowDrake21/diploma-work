@@ -9,12 +9,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
+import { AuthService } from '@core/authentication/auth.service';
 
 type SignInForm = {
   email: string;
@@ -38,6 +39,9 @@ type SignInForm = {
 })
 export class SignInComponent implements OnInit {
   destroyRef = inject(DestroyRef);
+
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   protected signInForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -68,8 +72,19 @@ export class SignInComponent implements OnInit {
   }
 
   onSignIn() {
-    console.log('sign in');
-    console.log(this.signInForm.value);
+    const { email, password } = this.signInForm.value;
+
+    if (!email || !password) return;
+
+    this.authService.login(email, password).subscribe({
+      next: (token) => {
+        console.log('Logged in', token);
+        this.router.navigate(['/']);
+      },
+      error: (error) => {
+        console.error('Incorrect login or password', error);
+      },
+    });
   }
 
   updateErrorMessage(key: keyof SignInForm) {

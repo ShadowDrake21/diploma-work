@@ -33,3 +33,11 @@ export interface DashboardRecentProjectItemModal {
   };
   files?: string[];
 }
+
+export interface DashboardMetrics {
+  totalProjects: number;
+  totalPublications: number;
+  totalPatents: number;
+  totalResearch: number;
+  totalUsers: number;
+}

@@ -13,10 +13,10 @@ export class NotFoundComponent {
   private router = inject(Router);
 
   onGoBack() {
-    if (this.authService.isAuthenticated) {
-      this.router.navigate(['/']);
-    } else {
-      this.router.navigate(['/authentication']);
-    }
+    // if (this.authService.isAuthenticated) {
+    //   this.router.navigate(['/']);
+    // } else {
+    this.router.navigate(['/authentication']);
+    // }
   }
 }

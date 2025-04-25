@@ -1,0 +1,158 @@
+package com.backend.app.service;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.backend.app.controller.AuthController;
+import com.backend.app.dto.ProjectDTO;
+import com.backend.app.dto.ProjectSearchCriteria;
+import com.backend.app.mapper.ProjectMapper;
+import com.backend.app.model.FileMetadata;
+import com.backend.app.model.Project;
+import com.backend.app.model.ProjectTag;
+import com.backend.app.model.Tag;
+import com.backend.app.model.User;
+import com.backend.app.repository.FileMetadataRepository;
+import com.backend.app.repository.ProjectRepository;
+import com.backend.app.repository.ProjectTagRepository;
+import com.backend.app.repository.TagRepository;
+import com.backend.app.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import jakarta.transaction.Transactional;
+
+@Service
+public class ProjectService {
+	@Autowired
+	private ProjectRepository projectRepository;
+	
+	@Autowired
+	private TagRepository tagRepository;
+	
+	@Autowired
+	private S3Service s3Service;
+	 
+	@Autowired
+	private FileMetadataRepository fileMetadataRepository;
+	
+	@Autowired
+	private ProjectSpecificationService specificationService;
+	
+	@Autowired
+    private ProjectMapper projectMapper;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
+	
+	@PersistenceContext
+	private EntityManager entityManager;
+	
+	public List<Project> findAllProjects(){
+		return projectRepository.findAll();
+	}
+	
+	public Optional<Project> findProjectById(UUID id) {
+		return projectRepository.findById(id);
+	}
+	
+	public Optional<Project> updateProject(UUID id, ProjectDTO projectDTO) {
+		projectDTO.getTagIds().forEach(tagId -> System.out.println("Tag ID: " + tagId));
+
+	    return projectRepository.findById(id).map(existingProject -> {
+	    	if(!existingProject.getType().equals(projectDTO.getType())) {
+	    		throw new IllegalArgumentException("Project type cannot be changed.");
+	    	}
+	    	
+            Project updatedProject = projectMapper.toEntity(projectDTO);
+
+            updatedProject.setId(existingProject.getId());
+
+            Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
+            
+            existingProject.getTags().clear();
+            existingProject.setTags(newTags);
+            
+
+            existingProject.setType(updatedProject.getType());
+            existingProject.setTitle(updatedProject.getTitle());
+            existingProject.setDescription(updatedProject.getDescription());
+            existingProject.setProgress(updatedProject.getProgress());
+
+            return projectRepository.save(existingProject);
+        });
+}
+	
+	@Transactional
+	 public Project createProject(ProjectDTO projectDTO, Long creatorId) {
+			User creator = userRepository.findById(creatorId).orElseThrow(() -> new EntityNotFoundException("Creator user not found"));
+	        Project project = projectMapper.toEntity(projectDTO);
+	        project.setCreator(creator);
+	        	        
+	        if (project.getType() == null) {
+	            throw new IllegalStateException("Type is null after mapping!");
+	        }
+	        
+	        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(projectDTO.getTagIds()));
+	        project.setTags(tags);
+	       
+	       Project savedProject = projectRepository.save(project);
+	       
+	       return savedProject;
+	    }
+	 
+	 public Page<Project> searchProjects(ProjectSearchCriteria criteria, Pageable pageable){
+		 Specification<Project> spec = specificationService.buildSpecification(criteria);
+		 return projectRepository.findAll(spec, pageable);
+	 }
+	 
+	 public List<Project> findProjectsByUserId(Long userId) {
+		 return projectRepository.findByCreatorId2(userId);
+    		}
+	 
+	 public List<Project> findNewestProjects(int limit) {
+		 Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+		 return projectRepository.findNewsedtProjects(pageable).getContent();
+	 }
+	
+	public void deleteProject(UUID id) {
+		Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+		
+		List<FileMetadata> files = fileMetadataRepository.findByEntityId(id);
+		
+		for(FileMetadata file: files) {
+			String filePath = file.getEntityType().toString().toLowerCase() + "/" + file.getEntityId() + "/" + file.getFileName();
+ 			s3Service.deleteFile(filePath);
+			fileMetadataRepository.delete(file);
+		}
+		
+		projectRepository.delete(project);
+	}
+	
+	public List<Project> findProjectsByCreator(Long creatorId) {
+		return projectRepository.findByCreatorId(creatorId);
+	}
+}

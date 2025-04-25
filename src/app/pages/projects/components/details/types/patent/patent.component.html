@@ -1,16 +1,19 @@
-@let patent = patents[0];
+@let coInventors = coInventors$ | async;
 
+@if (patent$ | async; as patent) {
 <div class="patent">
   <div class="patent__section">
     <h4 class="patent__section-title">Primary author</h4>
-    <p class="patent__section-text">{{ patent?.primaryAuthor }}</p>
+    <!-- TODO: Link -->
+    <p class="patent__section-text">{{ patent?.primaryAuthor.username }}</p>
   </div>
 
   <div class="patent__coinventors patent__section">
     <h4 class="patent__section-title">Co-inventors</h4>
     <ul class="patent__coinventors-list">
-      @for (coInventor of patent?.coInventors; track coInventor) {
-      <li class="patent__coinventors-list__item">{{ coInventor }}</li>
+      @for (coInventor of coInventors; track coInventor) {
+      <!-- TODO: Link -->
+      <li class="patent__coinventors-list__item">{{ coInventor.username }}</li>
       }
     </ul>
   </div>
@@ -29,3 +32,4 @@
     <p class="patent__section-text">{{ patent?.issuingAuthority }}</p>
   </div>
 </div>
+}

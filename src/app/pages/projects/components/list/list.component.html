@@ -1,7 +1,7 @@
 <div class="list">
-  <profile-filter-panel />
+  <profile-filter-panel (filtersApplied)="onFiltering($event)" />
   <div class="list__projects">
-    @for (project of paginationService.visibleElements; track $index) {
+    @for (project of searchResults; track $index) {
     <shared-project-card [project]="project" />
     }
   </div>

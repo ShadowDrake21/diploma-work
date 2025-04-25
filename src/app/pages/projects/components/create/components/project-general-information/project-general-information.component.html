@@ -1,4 +1,5 @@
-@let generalInformationForm = generalInformationFormSig();
+@let generalInformationForm = generalInformationFormSig(); @let tags = tags$ |
+async; @let existingFiles = existingFilesSig();
 
 <form
   [formGroup]="generalInformationForm"
@@ -12,6 +13,15 @@
       formControlName="title"
     />
   </mat-form-field>
+  <div style="display: flex; flex-direction: column">
+    <mat-label>Progress</mat-label>
+    <mat-slider min="0" max="100" step="1" showTickMarks discrete>
+      <input
+        matSliderThumb
+        [formControl]="generalInformationForm.controls.progress"
+      />
+    </mat-slider>
+  </div>
   <mat-form-field>
     <mat-label>Description</mat-label>
     <textarea
@@ -22,24 +32,53 @@
   </mat-form-field>
   <mat-form-field>
     <mat-label>Tags</mat-label>
-    <mat-select formControlName="tags" multiple>
+    <mat-select formControlName="tags" multiple [compareWith]="compareTags">
       <input placeholder="Custom tag" />
       @for (tag of tags; track tag) {
-      <mat-option [value]="tag.value">{{ tag.viewValue }}</mat-option>
+      <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
 
-  <shared-multiple-file-upload
-    [formField]="generalInformationForm.controls.attachments"
+  @if (existingFiles?.length! > 0 && !isFilesReseted) { @for (file of
+  existingFiles; track file) {
+  <a
+    [href]="file.fileUrl"
+    target="_blank"
+    download
+    style="text-decoration: none"
+  >
+    <mat-list-item style="cursor: pointer">
+      <mat-icon matListItemIcon>note</mat-icon>
+      <div matListItemTitle>
+        {{ file.fileName }}
+      </div>
+      <div matListItemLine>
+        {{ file.uploadedAt | date }}
+      </div>
+    </mat-list-item></a
+  >
+  }
+  <button mat-raised-button (click)="isFilesReseted = true">
+    Вибрати нові файли
+  </button>
+  } @if(!existingFiles?.length! || isFilesReseted) {<shared-multiple-file-upload
+    [formControl]="generalInformationForm.controls.attachments"
+    [entityType]="entityTypeSig()"
   />
+  @if (generalInformationForm.controls.attachments.invalid &&
+  generalInformationForm.controls.attachments.touched) {
+  <mat-error>Attachments are required.</mat-error>
+  } }
 
   <div>
     <button mat-button matStepperPrevious>Back</button>
     <button
       mat-button
       matStepperNext
-      [disabled]="generalInformationForm.invalid"
+      [disabled]="
+        generalInformationForm.invalid && existingFiles?.length! === 0
+      "
     >
       Next
     </button>

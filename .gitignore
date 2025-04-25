@@ -42,3 +42,5 @@ testem.log
 Thumbs.db
 
 /public/recent-users
+
+backend/src/main/resources/application.properties

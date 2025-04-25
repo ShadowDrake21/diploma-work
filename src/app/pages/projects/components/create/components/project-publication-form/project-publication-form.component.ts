@@ -1,5 +1,13 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, inject, input, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -15,6 +23,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { map, Observable, startWith } from 'rxjs';
 import { CreateWorkService } from '@core/services/create-work.service';
+import { authors } from '@content/createProject.content';
 
 @Component({
   selector: 'create-project-publication-form',
@@ -34,9 +43,7 @@ import { CreateWorkService } from '@core/services/create-work.service';
   templateUrl: './project-publication-form.component.html',
   styleUrl: './project-publication-form.component.scss',
 })
-export class ProjectPublicationFormComponent implements OnInit {
-  private createWorkService = inject(CreateWorkService);
-
+export class ProjectPublicationFormComponent implements OnChanges {
   publicationsFormSig = input.required<
     FormGroup<{
       authors: FormControl<string[] | null>;
@@ -46,19 +53,35 @@ export class ProjectPublicationFormComponent implements OnInit {
       startPage: FormControl<number | null>;
       endPage: FormControl<number | null>;
       journalVolume: FormControl<number | null>;
-      issueNumbers: FormControl<number | null>;
+      issueNumber: FormControl<number | null>;
     }>
   >({ alias: 'publicationForm' });
+  allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
+  authorsSig = input.required<any[] | null>({ alias: 'authors' });
 
+  // authors = authors;
   filteredAuthors!: Observable<string[]>;
 
-  ngOnInit(): void {
-    this.filteredAuthors =
-      this.publicationsFormSig().controls.authors.valueChanges.pipe(
-        startWith(''),
-        map((value) =>
-          this.createWorkService._filter(typeof value === 'string' ? value : '')
-        )
-      );
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['authorSig']) {
+      this.publicationsFormSig().controls.authors.setValue(this.authorsSig());
+    }
+  }
+
+  compareAuthors(authorId1: string, authorId2: string): boolean {
+    console.log('authorId1', authorId1);
+    console.log('authorId2', authorId2);
+    console.log(
+      'authorId1 === authorId2',
+      authorId1.toString() === authorId2.toString()
+    );
+    return authorId1.toString() === authorId2.toString();
+  }
+
+  getAuthorName(authorId: string): string {
+    const author = this.allUsersSig()?.find((user) => {
+      return user.id.toString() === authorId.toString();
+    });
+    return author ? author.username : '';
   }
 }

@@ -1,25 +1,32 @@
 <div style="flex: 1">
-  <ul class="dashboard-metric-card__list">
-    @for (item of metricsData; track $index) {
-    <li class="dashboard-metric-card__list-item">
-      <shared-metric-card-item [data]="item" />
-    </li>
-    }
-  </ul>
-  <ul class="dashboard-recent-project__list">
-    @for (item of recentProjects; track $index) {
-    <li class="dashboard-recent-project__list-item">
-      <dashboard-recent-project [project]="item" />
-    </li>
-    }
-  </ul>
-  <div class="dashboard-content">
+  <div>
+    <h3>Основна статистика</h3>
+    <ul class="dashboard-metric-card__list">
+      @for (item of metricsData; track $index) {
+      <li class="dashboard-metric-card__list-item">
+        <shared-metric-card-item [data]="item" />
+      </li>
+      }
+    </ul>
+  </div>
+  <div>
+    <h3>Останні проєкти</h3>
+
+    <ul class="dashboard-recent-project__list">
+      @for (item of newestProjects; track $index) {
+      <li class="dashboard-recent-project__list-item">
+        <shared-project-card [project]="item" />
+      </li>
+      }
+    </ul>
+  </div>
+  <!-- <div class="dashboard-content">
     <dashboard-filter-sidebar />
     <div class="dashboard-project__list">
       @for (project of recentProjects; track $index) {
       <shared-project-card [project]="project" />
       }
     </div>
-  </div>
+  </div> -->
   <shared-frequent-links />
 </div>

@@ -11,10 +11,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
+import { AuthService } from '@core/authentication/auth.service';
 import { ErrorMatcher } from '@shared/utils/errorMatcher.utils';
 
 @Component({
-  selector: 'auth-reset-password',
+  selector: 'app-forgot-password',
   imports: [
     FormsModule,
     MatButtonModule,
@@ -24,11 +25,12 @@ import { ErrorMatcher } from '@shared/utils/errorMatcher.utils';
     MatIconModule,
     ReactiveFormsModule,
   ],
-  templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss',
+  templateUrl: './forgot-password.component.html',
+  styleUrl: './forgot-password.component.scss',
 })
-export class ResetPasswordComponent {
+export class ForgotPasswordComponent {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   emailFormControl = new FormControl('', [
     Validators.required,
@@ -37,8 +39,20 @@ export class ResetPasswordComponent {
 
   matcher = new ErrorMatcher();
 
-  onResetPassword() {
-    console.log(this.emailFormControl.value);
-    this.router.navigate(['/authentication/verification-code']);
+  onForgotPassword() {
+    if (!this.emailFormControl.value) {
+      return;
+    }
+
+    this.authService
+      .requestPasswordReset(this.emailFormControl.value)
+      .subscribe({
+        next: (response) => {
+          console.log(response);
+        },
+        error: (error) => {
+          console.error('Request password failed', error);
+        },
+      });
   }
 }

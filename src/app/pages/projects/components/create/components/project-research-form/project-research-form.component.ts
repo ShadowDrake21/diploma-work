@@ -16,7 +16,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { CreateWorkService } from '@core/services/create-work.service';
 import { map, Observable, startWith } from 'rxjs';
 import { Filter } from '@shared/types/filters.types';
-import { statuses } from '@content/createProject.content';
+import { authors, statuses } from '@content/createProject.content';
+import { IUser } from '@shared/types/users.types';
 
 @Component({
   selector: 'create-project-research-form',
@@ -35,30 +36,45 @@ import { statuses } from '@content/createProject.content';
   templateUrl: './project-research-form.component.html',
   styleUrl: './project-research-form.component.scss',
 })
-export class ProjectResearchFormComponent implements OnInit {
-  private createWorkService = inject(CreateWorkService);
-
+export class ProjectResearchFormComponent {
   researchProjectsFormSig = input.required<
     FormGroup<{
       participants: FormControl<string[] | null>;
       budget: FormControl<number | null>;
       startDate: FormControl<Date | null>;
       endDate: FormControl<Date | null>;
-      status: FormControl<Filter | null>;
+      status: FormControl<string | null>;
       fundingSource: FormControl<string | null>;
     }>
   >({ alias: 'researchProjectsForm' });
+  allUsersSig = input.required<IUser[] | null>({ alias: 'allUsers' });
+  authorsSig = input.required<any[] | null>({ alias: 'authors' });
 
   statuses = statuses;
-  filteredParticipants!: Observable<string[]>;
+  participants = authors;
 
-  ngOnInit(): void {
-    this.filteredParticipants =
-      this.researchProjectsFormSig().controls.participants.valueChanges.pipe(
-        startWith(''),
-        map((value) =>
-          this.createWorkService._filter(typeof value === 'string' ? value : '')
-        )
+  compareParticipants = (
+    coParticipantId1: string,
+    coParticipantId2: string
+  ) => {
+    return coParticipantId1.toString() === coParticipantId2.toString();
+  };
+
+  compareStatuses = (status1: string, status2: Filter | string) => {
+    if (typeof status2 === 'string') {
+      return status1 === status2;
+    } else {
+      console.log(
+        'status1',
+        status1,
+        ' status2',
+        status2,
+        'status1 === status2.value',
+        status1 === status2.value
       );
-  }
+      console.log(typeof status1, typeof status2);
+
+      return status1 === status2.value;
+    }
+  };
 }

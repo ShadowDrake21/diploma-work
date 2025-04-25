@@ -10,6 +10,7 @@
   text-decoration: solid;
   padding: 10px;
   transition: all 0.3s ease-in-out;
+  position: relative;
 
   &__status {
     opacity: 0;
@@ -31,10 +32,9 @@
     opacity: 0;
     transition: all 0.3s ease-in-out;
     &-members {
-      &__title {
-        padding-bottom: 5px;
-      }
-
+      display: flex;
+      gap: 3px;
+      justify-content: center;
       &__list {
         list-style: none;
         display: flex;
@@ -62,4 +62,8 @@
   .project-card__footer {
     opacity: 1;
   }
+}
+
+.lowercase {
+  text-transform: lowercase;
 }

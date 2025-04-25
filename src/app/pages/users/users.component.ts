@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import {
   FormControl,
@@ -18,8 +18,10 @@ import { UserCardComponent } from '../../shared/components/user-card/user-card.c
 import { PaginationService } from '@core/services/pagination.service';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { IUser } from '@shared/types/users.types';
-import { debounce, debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounce, debounceTime, distinctUntilChanged, Observable } from 'rxjs';
 import { UsersListComponent } from '../../shared/components/users-list/users-list.component';
+import { UserService } from '@core/services/user.service';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-users',
@@ -34,61 +36,100 @@ import { UsersListComponent } from '../../shared/components/users-list/users-lis
     MatButtonToggleModule,
     MatListModule,
     MatChipsModule,
-
+    AsyncPipe,
     UsersListComponent,
+    UserCardComponent,
+    MatPaginatorModule,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
   providers: [PaginationService],
 })
 export class UsersComponent implements OnInit {
-  paginationService = inject(PaginationService);
   searchControl = new FormControl('');
 
+  userService = inject(UserService);
+  paginationService = inject(PaginationService);
+
+  currentPage = 0;
+  pageSize = 10;
+  totalElements = 0;
+
+  users: IUser[] = [];
+
   pages: number[] = [];
-  users = usersContent;
   elements: IUser[] = [];
 
+  searchQuery: string = '';
+
   ngOnInit(): void {
-    this.paginationUsage();
+    this.loadUsers();
+
     this.searchControl.valueChanges
-      .pipe(distinctUntilChanged(), debounceTime(500))
-      .subscribe((value) => {
-        if (!value || value === '') {
-          this.paginationService.currentPage = 1;
-          this.paginationService.elements = this.users;
-          this.paginationService.updateVisibleElements();
-          return;
-        }
-        this.search(value);
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((query) => {
+        this.searchQuery = query || '';
+        this.loadUsers();
       });
   }
 
-  search(value: string) {
-    this.paginationService.currentPage = 1;
-    this.paginationService.elements = this.users.filter((user) =>
-      user.fullName.toLowerCase().includes(value.toLowerCase())
-    );
-    this.paginationService.itemsPerPage = 10;
-    this.paginationService.updateVisibleElements();
-    this.elements = this.paginationService.visibleElements;
-
-    this.pages = Array.from(
-      { length: this.paginationService.numPages() },
-      (_, i) => i + 1
-    );
+  loadUsers(page: number = 0): void {
+    if (this.searchQuery) {
+      this.userService
+        .searchUsers(this.searchQuery, page, this.pageSize)
+        .subscribe({
+          next: (response) => {
+            this.users = response.content;
+            this.totalElements = response.totalElements;
+            this.currentPage = response.pageable.pageNumber;
+          },
+          error: (error) => {
+            console.error('Error searching users:', error);
+          },
+        });
+    } else {
+      this.userService.getPaginatedUsers(page, this.pageSize).subscribe({
+        next: (response) => {
+          this.users = response.content;
+          this.totalElements = response.totalElements;
+          this.currentPage = response.pageable.pageNumber;
+        },
+        error: (error) => {
+          console.error('Error loading users:', error);
+        },
+      });
+    }
   }
 
-  paginationUsage() {
-    this.paginationService.currentPage = 1;
-    this.paginationService.elements = this.users;
-    this.paginationService.itemsPerPage = 10;
-    this.paginationService.updateVisibleElements();
-    this.elements = this.paginationService.visibleElements;
-
-    this.pages = Array.from(
-      { length: this.paginationService.numPages() },
-      (_, i) => i + 1
-    );
+  onPageChange(page: number): void {
+    this.loadUsers(page);
   }
+
+  // search(value: string) {
+  //   this.paginationService.currentPage = 1;
+  //   this.paginationService.elements = this.users.filter((user) =>
+  //     user.username.toLowerCase().includes(value.toLowerCase())
+  //   );
+  //   this.paginationService.itemsPerPage = 10;
+  //   this.paginationService.updateVisibleElements();
+  //   this.elements = this.paginationService.visibleElements;
+
+  //   this.pages = Array.from(
+  //     { length: this.paginationService.numPages() },
+  //     (_, i) => i + 1
+  //   );
+  // }
+
+  // paginationUsage() {
+  //   this.paginationService.currentPage = 1;
+  //   this.paginationService.elements = this.users;
+  //   this.paginationService.itemsPerPage = 10;
+  //   this.paginationService.updateVisibleElements();
+  //   this.elements = this.paginationService.visibleElements;
+
+  //   this.pages = Array.from(
+  //     { length: this.paginationService.numPages() },
+  //     (_, i) => i + 1
+  //   );
+  // }
 }

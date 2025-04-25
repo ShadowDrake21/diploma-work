@@ -20,7 +20,6 @@ export const DashboardMetricsContent: DashboardMetricCardItem[] = [
     icon: 'science',
     link: '/research-projects',
   },
-  { title: 'Pending Tasks', value: '100', icon: 'task', link: '/tasks' },
   {
     title: 'Notifications',
     value: '100',

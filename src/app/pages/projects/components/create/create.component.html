@@ -1,3 +1,6 @@
+@let allUsers = allUsers$ | async; @let project = project$ | async; @let subtext
+= project ? 'Edit your project' : 'Create a new project';
+
 <p class="create-subtext">
   {{ subtext }}
 </p>
@@ -16,25 +19,38 @@
   >
     <create-project-general-information
       [generalInformationForm]="generalInformationForm"
+      [entityType]="typeForm.value.type"
+      [existingFiles]="updatingAttachments$ | async"
     />
   </mat-step>
   <mat-step
     [stepControl]="
-      typeForm.value.type === 'publication'
+      typeForm.value.type === 'PUBLICATION'
         ? publicationsForm
-        : typeForm.value.type === 'patent'
+        : typeForm.value.type === 'PATENT'
         ? patentsForm
         : researchProjects
     "
     errorMessage="Type-specific information is required."
     label="Fill out work information"
   >
-    @if ( typeForm.value.type === 'publication') {
-    <create-project-publication-form [publicationForm]="publicationsForm" />
-    }@else if ( typeForm.value.type === 'patent') {
-    <create-project-patent-form [patentsForm]="patentsForm" />
-    } @if ( typeForm.value.type === 'research') {
-    <create-project-research-form [researchProjectsForm]="researchProjects" />
+    @if ( typeForm.value.type === 'PUBLICATION') {
+    <create-project-publication-form
+      [publicationForm]="publicationsForm"
+      [allUsers]="allUsers"
+      [authors]="authors"
+    />
+    }@else if ( typeForm.value.type === 'PATENT') {
+    <create-project-patent-form
+      [patentsForm]="patentsForm"
+      [authors]="authors"
+    />
+    } @if ( typeForm.value.type === 'RESEARCH') {
+    <create-project-research-form
+      [researchProjectsForm]="researchProjects"
+      [allUsers]="allUsers"
+      [authors]="authors"
+    />
     }
   </mat-step>
   <mat-step>
@@ -43,6 +59,9 @@
     <div>
       <button mat-button matStepperPrevious>Back</button>
       <button mat-button (click)="stepper.reset()">Reset</button>
+      <button mat-button (click)="submitForm()">
+        {{ loading ? "Saving..." : "Submit" }}
+      </button>
     </div>
   </mat-step>
 </mat-stepper>

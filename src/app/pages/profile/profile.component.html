@@ -1,6 +1,8 @@
+@let myProjects = myProjects$ | async;
+
 <div class="profile">
   <div class="profile__inner">
-    <profile-info [profile]="profile" />
+    <profile-info />
     <shared-profile-projects
       [projects]="myProjects"
       [paginationService]="paginationService"

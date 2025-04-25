@@ -1,9 +1,9 @@
 import { Filter } from '@shared/types/filters.types';
 
 export const types: Filter[] = [
-  { value: 'publication', viewValue: 'Publication' },
-  { value: 'patent', viewValue: 'Patent' },
-  { value: 'research', viewValue: 'Research Project' },
+  { value: 'PUBLICATION', viewValue: 'Publication' },
+  { value: 'PATENT', viewValue: 'Patent' },
+  { value: 'RESEARCH', viewValue: 'Research Project' },
 ];
 
 export const authors: string[] = [
