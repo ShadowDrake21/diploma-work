@@ -1,92 +1,84 @@
 package com.backend.app.mapper;
 
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import com.backend.app.dto.ProjectDTO;
 import com.backend.app.dto.TagDTO;
 import com.backend.app.model.Project;
 import com.backend.app.model.ProjectResponse;
-import com.backend.app.model.ProjectTag;
 import com.backend.app.model.Tag;
 import com.backend.app.model.User;
 import com.backend.app.repository.TagRepository;
 import com.backend.app.repository.UserRepository;
 
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Mapper for converting between Project entities and DTOs
+ */
+@Slf4j
 @Component
+@Validated
+@RequiredArgsConstructor
 public class ProjectMapper {
-	@Autowired
-    private TagMapper tagMapper;
-	
-	@Autowired
-	private TagRepository tagRepository;
-	
-	@Autowired
-	private UserRepository userRepository;
+    private final TagMapper tagMapper;
+	private final TagRepository tagRepository;
+	private final UserRepository userRepository;
 	
 	public ProjectDTO toDTO(Project project) {
 		if(project == null) {
 			return null;
 		}
 		
-		ProjectDTO projectDTO = new ProjectDTO();
-		
-		projectDTO.setId(project.getId());
-		projectDTO.setType(project.getType());
-		projectDTO.setTitle(project.getTitle());
-		projectDTO.setProgress(project.getProgress());
-		projectDTO.setDescription(project.getDescription());
-		projectDTO.setCreatedAt(project.getCreatedAt());
-		projectDTO.setUpdatedAt(project.getUpdatedAt());
-		
-		if(project.getTags() != null) {
-			Set<UUID> tagIds = project.getTags().stream().map(Tag::getId).collect(Collectors.toSet());
-			projectDTO.setTagIds(tagIds);
-		} else {
-			projectDTO.setTagIds(new HashSet<>());
-	      }
-		
-		if(project.getCreator() != null) {
-			projectDTO.setCreatedBy(project.getCreator().getId());
+		try {
+			return ProjectDTO.builder()
+					 .id(project.getId())
+	                    .type(project.getType())
+	                    .title(project.getTitle())
+	                    .progress(project.getProgress())
+	                    .description(project.getDescription())
+	                    .createdAt(project.getCreatedAt())
+	                    .updatedAt(project.getUpdatedAt())
+	                    .tagIds(getTagIds(project))
+	                    .createdBy(getCreatorId(project))
+	                    .build();
+		} catch (Exception e) {
+			log.error("Error mapping Project to DTO", e);
+			throw new ValidationException("Error mapping project data");
 		}
-		return projectDTO;
 	}
 	
 	public Project toEntity(ProjectDTO projectDTO) {
       if (projectDTO == null) {
-      return null;
-  }
-      Project project = new Project();
-       
-      project.setId(projectDTO.getId());
-      project.setType(projectDTO.getType());
-      project.setTitle(projectDTO.getTitle());
-      project.setProgress(projectDTO.getProgress());
-      project.setDescription(projectDTO.getDescription());
-      project.setCreatedAt(projectDTO.getCreatedAt());
-      project.setUpdatedAt(projectDTO.getUpdatedAt());
-      
-      if (projectDTO.getTagIds() != null && !projectDTO.getTagIds().isEmpty()) {
-    	Set<Tag> tags = new HashSet<Tag>(tagRepository.findAllById(projectDTO.getTagIds()));
-      	project.setTags(tags);
-      } else {
-    	  project.setTags(new HashSet<>());
+    	  return null;
       }
       
-      if(projectDTO.getCreatedBy() != null) {
-    	  User creator = userRepository.findById(projectDTO.getCreatedBy()).orElseThrow(() -> new EntityNotFoundException("Creator user not found"));
-          project.setCreator(creator);
-      }
-        
-      return project;
+      try {
+		return Project.builder()
+				.id(projectDTO.getId())
+				.type(projectDTO.getType())
+				 .title(projectDTO.getTitle())
+                 .progress(projectDTO.getProgress())
+                 .description(projectDTO.getDescription())
+                 .createdAt(projectDTO.getCreatedAt())
+                 .updatedAt(projectDTO.getUpdatedAt())
+                 .tags(getTags(projectDTO))
+                 .creator(getCreator(projectDTO))
+                 .build();
+	} catch (Exception e) {
+		log.error("Error mapping DTO to Project", e);
+        throw new ValidationException("Error creating project: " + e.getMessage());
+	}     
 	}
 	
 	public ProjectResponse toResponse(Project project) {
@@ -94,30 +86,60 @@ public class ProjectMapper {
 			return null;
 		}
 		
-		ProjectResponse response = new ProjectResponse();
-	       
-		response.setId(project.getId());
-	    response.setType(project.getType());
-	    response.setTitle(project.getTitle());
-	    response.setProgress(project.getProgress());
-	    response.setDescription(project.getDescription());
-	    response.setCreatedAt(project.getCreatedAt());
-	    response.setUpdatedAt(project.getUpdatedAt());
-	    
-	    if (project.getTags() != null) {
-            Set<TagDTO> tagDTOs = project.getTags().stream()
-                .map(tagMapper::toDTO)
-                .collect(Collectors.toSet());
-            response.setTags(tagDTOs);
-        } else {
-            response.setTags(new HashSet<>());
-        }
-	    
-	    if(project.getCreator() != null) {
-	    	response.setCreatedBy(project.getCreator().getId());
-	    }
-	    
-	    return response;
+		try {
+			return ProjectResponse.builder()
+					.id(project.getId())
+					.id(project.getId())
+                    .type(project.getType())
+                    .title(project.getTitle())
+                    .progress(project.getProgress())
+                    .description(project.getDescription())
+                    .createdAt(project.getCreatedAt())
+                    .updatedAt(project.getUpdatedAt())
+                    .tags(getTagDTOs(project))
+                    .createdBy(getCreatorId(project))
+                    .build();
+		} catch (Exception e) {
+            log.error("Error mapping Project to Response", e);
+            throw new ValidationException("Error mapping project response");
+		}
+	}
+	
+	private Set<UUID> getTagIds(Project project) {
+		return Optional.ofNullable(project.getTags())
+				.map(tags -> tags.stream()
+						.map(Tag::getId)
+						.collect(Collectors.toSet())).orElse(Collections.emptySet());
+	}
+	
+	private Set<Tag> getTags(ProjectDTO projectDTO) {
+		return Optional.ofNullable(projectDTO.getTagIds())
+				.filter(ids -> !ids.isEmpty())
+				.map(tagRepository::findAllById)
+				.map(HashSet::new)
+				.orElse(new HashSet<>());
+	}
+	
+	private Set<TagDTO> getTagDTOs(Project project) {
+		return Optional.ofNullable(project.getTags())
+				.map(tags -> tags.stream()
+                        .map(tagMapper::toDTO)
+                        .collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
+	}
+	
+	private User getCreator(ProjectDTO projectDTO) {
+		return Optional.ofNullable(projectDTO.getCreatedBy())
+				.map(userId -> userRepository.findById(userId)
+						.orElseThrow(() -> {
+                            String message = "Creator user not found with ID: " + userId;
+                            log.error(message);
+                            return new ValidationException(message);})).orElse(null);
+	}
+	
+	private Long getCreatorId(Project project) {
+		return Optional.ofNullable(project.getCreator()).map(User::getId)
+				.orElse(null);
 	}
 }
 
