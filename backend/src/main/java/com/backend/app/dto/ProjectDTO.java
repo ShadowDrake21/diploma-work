@@ -13,6 +13,8 @@ import com.backend.app.model.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,15 +41,19 @@ public class ProjectDTO {
     @Max(value = 100, message = "Progress cannot exceed 100")
 	private int progress;
     
+    @Null(message = "Creation timestamp should not be provided")
 	private LocalDateTime createdAt;
+    
+    @Null(message = "Update timestamp should not be provided")
 	private LocalDateTime updatedAt;
 	
 	@Builder.Default
 	private Set<UUID> tagIds =  Set.of();
 	
+	@NotNull(message = "Creator ID is required")
     private Long createdBy;
 
-	public static ProjectDTO fromEntity(Project project) {
+	public ProjectDTO fromEntity(Project project) {
 		if (project == null) {
             return null;
         }

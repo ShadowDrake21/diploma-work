@@ -15,21 +15,23 @@ import org.springframework.stereotype.Repository;
 import com.backend.app.model.Project;
 
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpecificationExecutor<Project>{
-	@Query("SELECT p FROM Project p LEFT JOIN FETCH p.creator WHERE p.id = :userId")
-	List<Project> findByCreatorId(@Param("userId") Long userId);
-	
+public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpecificationExecutor<Project> {
+	@Query("SELECT p FROM Project p JOIN FETCH p.creator WHERE p.creator.id = :userId")
+	List<Project> findProjectsWithCreatorByUserId(@Param("userId") Long userId);
+
 	@Query("SELECT p FROM Project p WHERE p.creator.id = :userId")
-    List<Project> findByCreatorId2(@Param("userId") Long userId);
-	
+	List<Project> findByCreatorId(@Param("userId") Long userId);
+
 	@Query("SELECT p FROM Project p ORDER BY p.createdAt DESC")
-	Page<Project> findNewsedtProjects(Pageable pageable);
-	
-	@Query("SELECT " +
-	"COUNT(p) as totalProjects, " +
-	"SUM(CASE WHEN p.type = 'PUBLICATION' THEN 1 ELSE 0 END) as totalPublications, " +
-	"SUM(CASE WHEN p.type = 'PATENT' THEN 1 ELSE 0 END) as totalPatents, " +
-	"SUM(CASE WHEN p.type = 'RESEARCH' THEN 1 ELSE 0 END) as totalResearch " +
-	"FROM Project p")
+	Page<Project> findNewsestProjects(Pageable pageable);
+
+	@Query("""
+		SELECT new map(
+			COUNT(p) as totalProjects,
+			SUM(CASE WHEN p.type = 'PUBLICATION' THEN 1 ELSE 0 END) as totalPublications,
+			SUM(CASE WHEN p.type = 'PATENT' THEN 1 ELSE 0 END) as totalPatents,
+			SUM(CASE WHEN p.type = 'RESEARCH' THEN 1 ELSE 0 END) as totalResearch)
+			FROM Project p
+		""")
 	Map<String, Long> countProjectsByType();
 }

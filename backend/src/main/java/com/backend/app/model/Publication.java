@@ -5,14 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.ietf.jgss.Oid;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,26 +19,42 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "publications")
+@Getter
+@Setter
+@ToString(exclude = {"project", "publicationAuthors"})
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Publication {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(updatable = false, nullable = false)
 	private UUID id;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "project_id", nullable = false)
 	private Project project;
 	
 	@Column(nullable = false, name = "publication_date")
+	@Temporal(TemporalType.DATE)
 	private LocalDate publicationDate;
 	
-	@Column(nullable = false, name = "publication_source")
+	@Column(nullable = false, name = "publication_source", length = 255)
 	private String publicationSource;
 	
-	@Column(nullable = false, name = "doi_isbn")
+	@Column(nullable = false, name = "doi_isbn", length = 255)
 	private String doiIsbn;
 	
 	@Column(nullable = false, name = "start_page")
@@ -54,123 +69,10 @@ public class Publication {
 	@Column(nullable = false, name = "issue_number")
 	private int issueNumber;
 	
-	@OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonManagedReference
+	@Builder.Default
 	private List<PublicationAuthor> publicationAuthors = new ArrayList<>();
-	
-	// ERROR: duplicate key value violates unique constraint "unique_publication_user"
-	
-	public Publication() {
-		super();
-	}
-	
-	public Publication(Project project, LocalDate publicationDate, String publicationSource, String doiIsbn, int startPage, int endPage,
-			int journalVolume, int issueNumber) {
-		super();
-		this.project = project;
-		this.publicationDate = publicationDate;
-		this.publicationSource = publicationSource;
-		this.doiIsbn = doiIsbn;
-		this.startPage = startPage;
-		this.endPage = endPage;
-		this.journalVolume = journalVolume;
-		this.issueNumber = issueNumber;
-	}
-
-
-	public Publication(UUID projectId, LocalDate publicationDate, String publicationSource, String doiIsbn, int startPage, int endPage,
-			int journalVolume, int issueNumber) {
-		super();
-		this.project = new Project();
-		this.project.setId(projectId);
-		this.publicationDate = publicationDate;
-		this.publicationSource = publicationSource;
-		this.doiIsbn = doiIsbn;
-		this.startPage = startPage;
-		this.endPage = endPage;
-		this.journalVolume = journalVolume;
-		this.issueNumber = issueNumber;
-	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public Project getProject() {
-		return project;
-	}
-
-	public void setProject(Project project) {
-		this.project = project;
-	}
-
-	public LocalDate getPublicationDate() {
-		return publicationDate;
-	}
-
-	public void setPublicationDate(LocalDate publicationDate) {
-		this.publicationDate = publicationDate;
-	}
-
-	public String getPublicationSource() {
-		return publicationSource;
-	}
-
-	public void setPublicationSource(String publicationSource) {
-		this.publicationSource = publicationSource;
-	}
-
-	public String getDoiIsbn() {
-		return doiIsbn;
-	}
-
-	public void setDoiIsbn(String doiIsbn) {
-		this.doiIsbn = doiIsbn;
-	}
-
-	public int getStartPage() {
-		return startPage;
-	}
-
-	public void setStartPage(int startPage) {
-		this.startPage = startPage;
-	}
-
-	public int getEndPage() {
-		return endPage;
-	}
-
-	public void setEndPage(int endPage) {
-		this.endPage = endPage;
-	}
-
-	public int getJournalVolume() {
-		return journalVolume;
-	}
-
-	public void setJournalVolume(int journalVolume) {
-		this.journalVolume = journalVolume;
-	}
-
-	public int getIssueNumber() {
-		return issueNumber;
-	}
-
-	public void setIssueNumber(int issueNumber) {
-		this.issueNumber = issueNumber;
-	}
-
-	public List<PublicationAuthor> getPublicationAuthors() {
-		return publicationAuthors;
-	}
-
-	public void setPublicationAuthors(List<PublicationAuthor> publicationAuthors) {
-		this.publicationAuthors = publicationAuthors;
-	}
 	
 	public void addPublicationAuthor(PublicationAuthor publicationAuthor) {
 		publicationAuthors.add(publicationAuthor);
@@ -180,6 +82,25 @@ public class Publication {
 	public void removePublicationAuthor(PublicationAuthor publicationAuthor) {
 		publicationAuthors.remove(publicationAuthor);
 		publicationAuthor.setPublication(null);
+	}
+	
+	@Builder
+	public Publication(UUID projectId, 
+	        LocalDate publicationDate, 
+	        String publicationSource, 
+	        String doiIsbn, 
+	        int startPage, 
+	        int endPage,
+	        int journalVolume, 
+	        int issueNumber) {
+		this.project = Project.builder().id(projectId).build();
+		this.publicationDate = publicationDate;
+		this.publicationSource = publicationSource;
+		this.doiIsbn = doiIsbn;
+		this.startPage = startPage;
+		this.endPage = endPage;
+		this.journalVolume = journalVolume;
+		this.issueNumber = issueNumber;
 	}
 	
 }
