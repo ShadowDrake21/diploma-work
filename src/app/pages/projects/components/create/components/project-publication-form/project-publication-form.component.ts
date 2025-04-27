@@ -1,13 +1,5 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, input, OnChanges, SimpleChanges } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -21,9 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { map, Observable, startWith } from 'rxjs';
-import { CreateWorkService } from '@core/services/create-work.service';
-import { authors } from '@content/createProject.content';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'create-project-publication-form',
@@ -36,7 +26,6 @@ import { authors } from '@content/createProject.content';
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
-    AsyncPipe,
     MatAutocompleteModule,
     MatDatepickerModule,
   ],

@@ -1,11 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { recentProjectContent } from '@content/recentProjects.content';
 import { usersContent } from '@content/users.content';
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { IUser } from '@shared/types/users.types';
-import { ProfileProjectsComponent } from '../../shared/components/profile-projects/profile-projects.component';
 import { HeaderService } from '@core/services/header.service';
 import { PaginationService } from '@core/services/pagination.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -21,7 +19,6 @@ import { catchError, of } from 'rxjs';
   selector: 'app-user',
   imports: [
     MetricCardItemComponent,
-    ProfileProjectsComponent,
     MatTabsModule,
     TabsComponent,
     MatButtonModule,

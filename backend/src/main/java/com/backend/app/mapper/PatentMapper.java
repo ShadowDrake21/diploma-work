@@ -1,17 +1,14 @@
 package com.backend.app.mapper;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
-import com.backend.app.dto.PatentCoInventorDTO;
 import com.backend.app.dto.PatentDTO;
-import com.backend.app.dto.ProjectDTO;
-import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.dto.UserDTO;
 import com.backend.app.model.Patent;
 import com.backend.app.model.PatentCoInventor;
@@ -20,85 +17,146 @@ import com.backend.app.model.User;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.UserRepository;
 
+import jakarta.validation.ValidationException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Mapper for converting between Patent entities and DTOs
+ * */
+@Slf4j
 @Component
+@Validated
+@RequiredArgsConstructor
 public class PatentMapper {	
-
 	private final ProjectRepository projectRepository;
-	private final UserRepository userRepository;
-
-    public PatentMapper(ProjectRepository projectRepository, UserRepository userRepository) {
-		this.projectRepository = projectRepository;
-		this.userRepository = userRepository;
-	}	
+	private final UserRepository userRepository;	
     
+	 /**
+     * Converts Patent entity to PatentDTO
+     * @param patent the patent entity to convert
+     * @return PatentDTO or null if input is null
+     */
 	public PatentDTO toDTO(Patent patent) {
 		if(patent == null) {
 			return null;
 		}
 		
-		PatentDTO patentDTO = new PatentDTO();
-		
-		patentDTO.setId(patent.getId());
-		patentDTO.setProjectId(patent.getProject().getId());
-		patentDTO.setPrimaryAuthorId(patent.getPrimaryAuthor().getId());
-		
-		UserDTO userDTO = new UserDTO();
-		userDTO.setId(patent.getPrimaryAuthor().getId());
-		userDTO.setEmail(patent.getPrimaryAuthor().getEmail());
-		userDTO.setUsername(patent.getPrimaryAuthor().getUsername());
-		userDTO.setRole(patent.getPrimaryAuthor().getRole());
-		
-		patentDTO.setPrimaryAuthor(userDTO);
-		patentDTO.setRegistrationNumber(patent.getRegistrationNumber());
-		patentDTO.setRegistrationDate(patent.getRegistrationDate());
-		patentDTO.setIssuingAuthority(patent.getIssuingAuthority());
-		
-		List<Long> coInventorIds = patent.getCoInventors().stream().map(coInventor -> 
-				 coInventor.getUser().getId()).collect(Collectors.toList());
-		 
-		patentDTO.setCoInventors(coInventorIds);
-		
- 		return patentDTO;
+		try {
+			return PatentDTO.builder()
+					.id(patent.getId())
+					.projectId(patent.getProject().getId())
+					.primaryAuthorId(patent.getPrimaryAuthor().getId())
+					.primaryAuthor(mapToUserDTO(patent.getPrimaryAuthor()))
+					.registrationNumber(patent.getRegistrationNumber())
+					.registrationDate(patent.getRegistrationDate())
+		            .issuingAuthority(patent.getIssuingAuthority())
+		            .coInventors(mapCoInventorIds(patent))
+		            .build();
+		} catch (Exception e) {
+			log.error("Error mapping Patent to DTO", e);
+			throw new ValidationException("Error mapping patent data");
+		}
 	}
 	
+	 /**
+     * Converts PatentDTO to Patent entity
+     * @param patentDTO the DTO to convert
+     * @return Patent entity or null if input is null
+     * @throws ValidationException if required fields are missing
+     */
 	public Patent toEntity(PatentDTO patentDTO) {
       if (patentDTO == null) {
-      return null;
-  }
-      Patent patent = new Patent();
-      
-      System.out.println("patentDTO: " + patentDTO.getId());
-      patent.setId(patentDTO.getId());
-      patent.setProject(getProjectById(patentDTO.getProjectId()));
-      if(patentDTO.getPrimaryAuthorId() != null) {
-    	  User fetchedUser = userRepository.findById(patentDTO.getPrimaryAuthorId()).orElseThrow(() -> new RuntimeException("User not found with ID: " + patentDTO.getPrimaryAuthorId()));    	  
-    	  patent.setPrimaryAuthor(fetchedUser);
+    	  return null;
       }
-//      patent.setPrimaryAuthor(getAuthorById(patentDTO.getPrimaryAuthorId()));
-      patent.setRegistrationNumber(patentDTO.getRegistrationNumber());
-	patent.setRegistrationDate(patentDTO.getRegistrationDate());
-		patent.setIssuingAuthority(patentDTO.getIssuingAuthority());
-		
-		if(patentDTO.getCoInventors() != null) {
-			for(Long userId : patentDTO.getCoInventors()) {
-				User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-				PatentCoInventor coInventor = new PatentCoInventor();
-				coInventor.setPatent(patent);
-				coInventor.setUser(user);
-				patent.addCoInventor(coInventor);
-			}
+      
+      try {
+          Patent patent = new Patent();
+          patent.setId(patentDTO.getId());
+          patent.setProject(getProjectById(patentDTO.getProjectId()));
+          
+          if (patentDTO.getPrimaryAuthorId() != null) {
+        	  patent.setPrimaryAuthor(getUserById(patentDTO.getPrimaryAuthorId()));
+          } else {
+        	  throw new ValidationException("Primary author ID is required");
+          }
+          
+          patent.setRegistrationNumber(patentDTO.getRegistrationNumber());
+          patent.setRegistrationDate(patentDTO.getRegistrationDate());
+          patent.setIssuingAuthority(patentDTO.getIssuingAuthority());
+          
+          addCoInventorsToPatent(patent, patentDTO.getCoInventors());
+          
+          return patent;
+	} catch (Exception e) {
+		log.error("Error mapping DTO to Patent", e);
+        throw new ValidationException("Error creating patent: " + e.getMessage());
+	}
+}
+	
+	 /**
+     * Maps User entity to UserDTO
+     */
+	private UserDTO mapToUserDTO(User user) {
+		if(user == null) {
+			return null;
 		}
 		
-      return patent;
+		return UserDTO.builder().id(user.getId()).email(user.getEmail()).username(user.getUsername()).role(user.getRole()).build();
 	}
 	
-
+	/**
+     * Extracts co-inventor IDs from Patent entity
+     */
+	private List<Long> mapCoInventorIds(Patent patent) {
+		return patent.getCoInventors().stream()
+				.map(coInventor -> coInventor.getUser().getId())
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+	}
 	
-	 private Project getProjectById(UUID projectId) {
-	    	return projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
-	    }
-	 
-	 private User getAuthorById(Long authorId) {
-	    	return userRepository.findById(authorId).orElseThrow(() -> new RuntimeException("User not found"));
+	/**
+     * Adds co-inventors to patent entity
+     */
+	private void addCoInventorsToPatent(Patent patent, List<Long> coInventorIds) {
+		if(coInventorIds == null || coInventorIds.isEmpty()) {
+			return;
+		}
+		
+		coInventorIds.stream()
+		.filter(Objects::nonNull)
+		.map(this::getUserById)
+		.filter(Objects::nonNull)
+		.forEach(user -> {
+			PatentCoInventor coInventor = new PatentCoInventor();
+            coInventor.setPatent(patent);
+            coInventor.setUser(user);
+            patent.addCoInventor(coInventor);
+		});
+	}
+
+	 /**
+     * Fetches project by ID with validation
+     */
+	private Project getProjectById(UUID projectId) {
+		return projectRepository.findById(projectId)
+				.orElseThrow(() -> {
+					String message = "Project not found with ID: " + projectId;
+					log.error(message);
+					return new ValidationException(message);
+				});
+	}
+	
+	
+	/**
+     * Fetches user by ID with validation
+     */
+	 private User getUserById(Long userId) {
+	     return userRepository.findById(userId)
+	                .orElseThrow(() -> {
+	                    String message = "User not found with ID: " + userId;
+	                    log.error(message);
+	                    return new ValidationException(message);
+	                });
 	    }
 }

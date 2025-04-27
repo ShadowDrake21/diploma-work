@@ -58,19 +58,10 @@ export class ProjectPatentFormComponent implements OnInit {
   }
 
   comparePrimaryAuthors = (authorId1: number, authorId2: number) => {
-    console.log('compatePrimaryAuthors', authorId1, authorId2);
     return authorId1 === authorId2;
   };
 
   compareCoInventors = (coInventorId1: number, coInventorId2: number) => {
-    console.log(
-      'compareCoInventors',
-      coInventorId1,
-      coInventorId2,
-      typeof coInventorId1,
-      typeof coInventorId2,
-      this.patentsFormSig().value.coInventors
-    );
     return coInventorId1 === coInventorId2;
   };
 }

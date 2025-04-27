@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { MatList, MatListItem } from '@angular/material/list';
-import { CommentComponent } from '../../../../../../shared/components/comment/comment.component';
 
 @Component({
   selector: 'admin-dashboard-pending-actions',
-  imports: [MatList, MatListItem, CommentComponent],
+  imports: [MatList, MatListItem],
   templateUrl: './pending-actions.component.html',
   styleUrl: './pending-actions.component.scss',
 })

@@ -12,15 +12,27 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
 @Entity
 @Table(name = "files")
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class FileMetadata {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
     private UUID id;
 
     @Column(name = "file_name", nullable = false)
@@ -29,8 +41,8 @@ public class FileMetadata {
     @Column(name = "file_url", nullable = false)
     private String fileUrl;
 
-    @Column(name = "entity_type", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "entity_type", nullable = false)
     private ProjectType entityType;
 
     @Column(name = "entity_id", nullable = false)
@@ -39,52 +51,11 @@ public class FileMetadata {
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public String getFileUrl() {
-		return fileUrl;
-	}
-
-	public void setFileUrl(String fileUrl) {
-		this.fileUrl = fileUrl;
-	}
-
-	public ProjectType getEntityType() {
-		return entityType;
-	}
-
-	public void setEntityType(ProjectType entityType) {
-		this.entityType = entityType;
-	}
-
-	public UUID getEntityId() {
-		return entityId;
-	}
-
-	public void setEntityId(UUID entityId) {
-		this.entityId = entityId;
-	}
-
-	public LocalDateTime getUploadedAt() {
-		return uploadedAt;
-	}
-
-	public void setUploadedAt(LocalDateTime uploadedAt) {
-		this.uploadedAt = uploadedAt;
+	@PrePersist
+	protected void onCreate() {
+		if(uploadedAt == null) {
+			uploadedAt = LocalDateTime.now();
+		}
 	}
     
     

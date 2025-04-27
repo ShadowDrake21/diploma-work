@@ -4,21 +4,13 @@ import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { PaginationService } from '@core/services/pagination.service';
 import { recentProjectContent } from '@content/recentProjects.content';
-import { DashboardRecentProjectItem } from '@shared/types/dashboard.types';
 import { UserService } from '@core/services/user.service';
 import { AuthService } from '@core/authentication/auth.service';
-import { Observable } from 'rxjs';
 import { Project } from '@shared/types/project.types';
-import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'shared-profile-projects',
-  imports: [
-    PaginationComponent,
-    FilterPanelComponent,
-    ProjectCardComponent,
-    AsyncPipe,
-  ],
+  imports: [PaginationComponent, FilterPanelComponent, ProjectCardComponent],
   templateUrl: './profile-projects.component.html',
   styleUrl: './profile-projects.component.scss',
 })
