@@ -9,7 +9,6 @@ import { statuses } from '@content/createProject.content';
 import { recentProjectContent } from '@content/recentProjects.content';
 import { PaginationService } from '@core/services/pagination.service';
 import { Filter } from '@shared/types/filters.types';
-import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 
 @Component({
   selector: 'admin-dashboard-search-content',
@@ -20,7 +19,6 @@ import { ProfileProjectsComponent } from '@shared/components/profile-projects/pr
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    ProfileProjectsComponent,
   ],
   templateUrl: './search-content.component.html',
   styleUrl: './search-content.component.scss',

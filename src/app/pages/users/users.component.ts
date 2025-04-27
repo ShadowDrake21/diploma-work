@@ -1,11 +1,6 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatChipsModule } from '@angular/material/chips';
@@ -13,13 +8,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
-import { usersContent } from '@content/users.content';
 import { UserCardComponent } from '../../shared/components/user-card/user-card.component';
 import { PaginationService } from '@core/services/pagination.service';
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { IUser } from '@shared/types/users.types';
-import { debounce, debounceTime, distinctUntilChanged, Observable } from 'rxjs';
-import { UsersListComponent } from '../../shared/components/users-list/users-list.component';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { UserService } from '@core/services/user.service';
 import { MatPaginatorModule } from '@angular/material/paginator';
 
@@ -36,8 +28,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     MatButtonToggleModule,
     MatListModule,
     MatChipsModule,
-    AsyncPipe,
-    UsersListComponent,
+
     UserCardComponent,
     MatPaginatorModule,
   ],

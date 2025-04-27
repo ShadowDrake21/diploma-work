@@ -3,21 +3,14 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { DashboardMetricsContent } from '@content/dashboardMetrics.content';
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
-import { recentProjectContent } from '@content/recentProjects.content';
-import { RecentProjectComponent } from './components/recent-project/recent-project.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
-import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
 import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
 import { Project } from '@shared/types/project.types';
 import { ProjectService } from '@core/services/project.service';
 import { Subscription } from 'rxjs';
 import { DashboardService } from '@core/services/dashboard.service';
-import {
-  DashboardMetricCardItem,
-  DashboardMetrics,
-} from '@shared/types/dashboard.types';
+import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,9 +20,7 @@ import {
     CommonModule,
     MatIconModule,
     MetricCardItemComponent,
-    RecentProjectComponent,
     ProjectCardComponent,
-    FilterSidebarComponent,
     FrequentLinksComponent,
   ],
   templateUrl: './dashboard.component.html',

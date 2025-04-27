@@ -1,12 +1,10 @@
 package com.backend.app.service;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.mapstruct.ap.shaded.freemarker.core.ReturnInstruction.Return;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -19,16 +17,16 @@ import com.backend.app.repository.PatentRepository;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class PatentService {
-	@Autowired
-	private PatentRepository patentRepository;
-	
-	@Autowired
-	private ProjectRepository projectRepository;
-	
-	@Autowired
-	private UserRepository userRepository;
+	private final PatentRepository patentRepository;
+	private final ProjectRepository projectRepository;
+	private final UserRepository userRepository;
 	
 	public List<Patent> findAllPatents(){
 		return patentRepository.findAll();
@@ -42,61 +40,30 @@ public class PatentService {
 		return patentRepository.findByProjectId(projectId);
 	}
 	
+	@Transactional
 	public Optional<Patent> updatePatent(UUID id, Patent newPatent) {
 		return patentRepository.findById(id).map(existingPatent -> {
-			existingPatent.setProject(newPatent.getProject());
-			existingPatent.setPrimaryAuthor(newPatent.getPrimaryAuthor());
-			existingPatent.setRegistrationNumber(newPatent.getRegistrationNumber());
-			existingPatent.setRegistrationDate(newPatent.getRegistrationDate());
-			existingPatent.setIssuingAuthority(newPatent.getIssuingAuthority());
-			
-			List<PatentCoInventor> existingCoInventors = existingPatent.getCoInventors();
-			List<PatentCoInventor> newCoInventors = newPatent.getCoInventors();
-			List<PatentCoInventor> coInventorsToRemove = existingCoInventors.stream().filter(existingCoInventor -> newCoInventors.stream().noneMatch(newCoInventor -> newCoInventor.getUser().getId().equals(existingCoInventor.getUser().getId()))).collect(Collectors.toList());
-			
-			coInventorsToRemove.forEach(existingPatent::removeCoInventor);
-			
-			
-			for(PatentCoInventor newCoInventor : newCoInventors) {
-				 boolean exists = existingCoInventors.stream()
-			                .anyMatch(existingCoInventor -> existingCoInventor.getUser().getId().equals(newCoInventor.getUser().getId()));	
-				 
-				if(!exists) {
-					newCoInventor.setPatent(existingPatent);
-					existingPatent.addCoInventor(newCoInventor);
-				}
-			
-			}
-			
+            updatePatentFields(existingPatent, newPatent);
+            updateCoInventors(existingPatent, newPatent);
 			return patentRepository.save(existingPatent);
 		});
 	}
 	
+	@Transactional
 	public Patent createPatent(CreatePatentRequest request) {
-		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new RuntimeException("Project not found with ID: " + request.getProjectId()));
-		User user = userRepository.findById(request.getPrimaryAuthorId()).orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getPrimaryAuthorId()));;
-		Patent patent = new Patent(
-				project, user, request.getRegistrationNumber(), request.getRegistrationDate(), request.getIssuingAuthority());
-		
-		if(request.getCoInventors() != null && !request.getCoInventors().isEmpty()) {
-			for(Long userId : request.getCoInventors()) {
-				if(userId != null) {
-					Optional<User> userOptional = userRepository.findById(userId);
-					if(userOptional.isPresent()) {
-						
-						boolean exists = patent.getCoInventors().stream().anyMatch(ci -> ci.getUser().getId().equals(userId));
-						
-						if(!exists) {							
-							PatentCoInventor coInventor = new PatentCoInventor();
-							coInventor.setPatent(patent);
-							coInventor.setUser(userOptional.get());
-							patent.addCoInventor(coInventor);
-						}
-					}
-				}
-				
-			}
-		}
+		Project project = projectRepository.findById(request.getProjectId())
+				.orElseThrow(() -> new RuntimeException
+						("Project not found with ID: " + request.getProjectId()));
+		User primaryAuthor = userRepository.findById(request.getPrimaryAuthorId())
+				.orElseThrow(() -> new RuntimeException
+						("Primary author not found with ID: " + request.getPrimaryAuthorId()));;
+		Patent patent = Patent.builder().project(project)
+				.primaryAuthor(primaryAuthor)
+				.registrationNumber(request.getRegistrationNumber())
+				.registrationDate(request.getRegistrationDate())
+				.issuingAuthority(request.getIssuingAuthority())
+				.build();
+		addCoInventors(patent, request.getCoInventorIds());
 		return patentRepository.save(patent);
 	}
 	
@@ -123,6 +90,53 @@ public class PatentService {
 	public Patent savePatent(Patent patent) {
 		return patentRepository.save(patent);
 	}
+	
+	public void updatePatentFields(Patent existing, Patent newPatent) {
+		existing.setProject(newPatent.getProject());
+		existing.setPrimaryAuthor(newPatent.getPrimaryAuthor());
+		existing.setRegistrationNumber(newPatent.getRegistrationNumber());
+		existing.setRegistrationDate(newPatent.getRegistrationDate());
+		existing.setIssuingAuthority(newPatent.getIssuingAuthority());
+	}
+	
+	private void updateCoInventors(Patent existingPatent, Patent newPatent) {
+        List<PatentCoInventor> existingCoInventors = existingPatent.getCoInventors();
+        List<PatentCoInventor> newCoInventors = newPatent.getCoInventors();
+
+        existingCoInventors.stream()
+                .filter(existingCoInventor -> newCoInventors.stream()
+                        .noneMatch(newCoInventor -> newCoInventor.getUser().getId().equals(existingCoInventor.getUser().getId())))
+                .collect(Collectors.toList())
+                .forEach(existingPatent::removeCoInventor);
+
+        newCoInventors.stream()
+                .filter(newCoInventor -> existingCoInventors.stream()
+                        .noneMatch(existingCoInventor -> existingCoInventor.getUser().getId().equals(newCoInventor.getUser().getId())))
+                .forEach(newCoInventor -> {
+                    newCoInventor.setPatent(existingPatent);
+                    existingPatent.addCoInventor(newCoInventor);
+                });
+    }
+	
+	 private void addCoInventors(Patent patent, List<Long> coInventorIds) {
+	        if (coInventorIds == null || coInventorIds.isEmpty()) {
+	            return;
+	        }
+
+	        coInventorIds.stream()
+	                .filter(Objects::nonNull)
+	                .map(userRepository::findById)
+	                .filter(Optional::isPresent)
+	                .map(Optional::get)
+	                .filter(user -> patent.getCoInventors().stream()
+	                        .noneMatch(ci -> ci.getUser().getId().equals(user.getId())))
+	                .forEach(user -> {
+	                    PatentCoInventor coInventor = new PatentCoInventor();
+	                    coInventor.setPatent(patent);
+	                    coInventor.setUser(user);
+	                    patent.addCoInventor(coInventor);
+	                });
+	    }
 	
 	public void deletePatent(UUID id) {
 		patentRepository.deleteById(id);

@@ -1,11 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import {
-  ActivatedRoute,
-  Router,
-  RouterModule,
-  RouterOutlet,
-} from '@angular/router';
-import { recentProjectModalContent } from '@content/recentProjects.content';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DashboardRecentProjectItemModal } from '@shared/types/dashboard.types';
 import { PublicationComponent } from './types/publication/publication.component';
 import { ResearchProjectComponent } from './types/research-project/research-project.component';
@@ -16,13 +10,9 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChip, MatChipSet } from '@angular/material/chips';
-import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { CommentComponent } from '@shared/components/comment/comment.component';
 import { AsyncPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { userComments } from '@content/userComments.content';
-import { PublicationService } from '@core/services/publication.service';
-import { PatentService } from '@core/services/patent.service';
-import { ResearchService } from '@core/services/research.service';
 import { ProjectService } from '@core/services/project.service';
 import { Project } from '@shared/types/project.types';
 import { catchError, forkJoin, Observable, of, Subscription, tap } from 'rxjs';
@@ -49,7 +39,6 @@ import { FormsModule } from '@angular/forms';
     MatIcon,
     MatChipSet,
     MatChip,
-    ProjectCardComponent,
     CommentComponent,
     TitleCasePipe,
     AsyncPipe,

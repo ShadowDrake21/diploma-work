@@ -6,63 +6,50 @@ import java.util.UUID;
 
 import com.backend.app.util.DateFormat;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * DTO for creating new patent records
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreatePatentRequest {
+	  @NotNull(message = "Project ID is required")
 	  private UUID projectId;
-	    private Long primaryAuthorId;
-	    private String registrationNumber;
-	    private LocalDate registrationDate;
-	    private String issuingAuthority;
-	    private List<Long> coInventorsId;
+	  
+	  @NotNull(message = "Primary author ID is required")
+	  @Positive(message = "Author ID must be positive")
+	  private Long primaryAuthorId;
+	  
+	  @NotBlank(message = "Registration number cannot be blank")
+	  @Size(max = 100, message = "Registration number cannot exceed 100 characters")
+	  private String registrationNumber;
+	  
+	  @NotNull(message = "Registration date is required")
+	  private LocalDate registrationDate;
+	  
+	  @NotBlank(message = "Issuing authority cannot be blank")
+	  @Size(max = 255, message = "Issuing authority cannot exceed 255 characters")
+	  private String issuingAuthority;
+	  
+	  @NotNull(message = "Co-inventors list cannot be null")
+	  private List<@Positive(message = "Co-inventor ID must be positive") Long> coInventorIds;
 
-	    public UUID getProjectId() {
-	        return projectId;
-	    }
-
-	    public void setProjectId(UUID projectId) {
-	        this.projectId = projectId;
-	    }
-
-	    public Long getPrimaryAuthorId() {
-	        return primaryAuthorId;
-	    }
-
-	    public void setPrimaryAuthorId(Long primaryAuthorId) {
-	        this.primaryAuthorId = primaryAuthorId;
-	    }
-
-	    public String getRegistrationNumber() {
-	        return registrationNumber;
-	    }
-
-	    public void setRegistrationNumber(String registrationNumber) {
-	        this.registrationNumber = registrationNumber;
-	    }
-
-	    public LocalDate getRegistrationDate() {
-	        return registrationDate;
-	    }
-
-	    public void setRegistrationDate(String registrationDate) {
-	        this.registrationDate = DateFormat.parseIncomeDate(registrationDate);
-	    }
-
-	    public String getIssuingAuthority() {
-	        return issuingAuthority;
-	    }
-
-	    public void setIssuingAuthority(String issuingAuthority) {
-	        this.issuingAuthority = issuingAuthority;
-	    }
-
-		public List<Long> getCoInventors() {
-			return coInventorsId;
-		}
-
-		public void setCoInventors(List<Long> coInventorsId) {
-			this.coInventorsId = coInventorsId;
-		}
-
-		public void setRegistrationDate(LocalDate registrationDate) {
-			this.registrationDate = registrationDate;
-		}
+	  /**
+	   * Sets registration date from string format
+	   * @param dateString Date string in expected format
+	   * @throws IllegalArgumentException if date string is invalid
+	   */
+	  public void setRegistrationDateFromString(String dateString) {
+		  this.registrationDate = DateFormat.parseIncomeDate(dateString);
+	  }
 }

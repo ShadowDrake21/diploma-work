@@ -1,9 +1,7 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { projectTags } from '@content/filterProjectTags.content';
 import { MatIconModule } from '@angular/material/icon';
 import {
   FormBuilder,
-  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
@@ -15,18 +13,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import {
-  filterLayout,
-  filters,
-  quickFilters,
-  sorting,
-} from '@content/filterPanel.content';
-import { MatSlider } from '@angular/material/slider';
 import { ProjectService } from '@core/services/project.service';
 import { TagService } from '@core/services/tag.service';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { format, parseISO } from 'date-fns';
 
 @Component({
   selector: 'profile-filter-panel',
@@ -41,7 +31,6 @@ import { format, parseISO } from 'date-fns';
     ReactiveFormsModule,
     MatSelectModule,
     MatButtonToggleModule,
-    MatSlider,
     MatExpansionModule,
   ],
   templateUrl: './filter-panel.component.html',

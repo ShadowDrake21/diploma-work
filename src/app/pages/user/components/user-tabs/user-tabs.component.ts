@@ -4,24 +4,19 @@ import { ProfileProjectsComponent } from '../../../../shared/components/profile-
 import { PaginationService } from '@core/services/pagination.service';
 import { recentProjectContent } from '@content/recentProjects.content';
 import { usersContent } from '@content/users.content';
-import { UsersListComponent } from '../../../../shared/components/users-list/users-list.component';
 import { IUser } from '@shared/types/users.types';
 import { UserService } from '@core/services/user.service';
 import {
   BehaviorSubject,
-  combineLatest,
   distinctUntilChanged,
   map,
   Observable,
-  of,
   shareReplay,
   Subscription,
-  tap,
 } from 'rxjs';
 import { Project } from '@shared/types/project.types';
 import { AsyncPipe } from '@angular/common';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { ProjectFilters } from '@shared/types/filters.types';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 
 @Component({
@@ -30,7 +25,6 @@ import { UserCollaboratorsComponent } from './components/user-collaborators/user
     MatTabGroup,
     MatTab,
     ProfileProjectsComponent,
-    UsersListComponent,
     AsyncPipe,
     UserCollaboratorsComponent,
   ],

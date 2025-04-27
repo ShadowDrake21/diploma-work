@@ -18,20 +18,33 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 
 @Entity
 @Table(name="patents")
+@Getter
+@Setter
+@ToString(exclude = {"project", "primaryAuthor", "coInventors"})
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Patent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(updatable = false, nullable = false)
 	private UUID id;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "project_id", nullable = false)
 	private Project project;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "primary_author", nullable = false)
 	private User primaryAuthor;
 	
@@ -46,81 +59,12 @@ public class Patent {
 	private String issuingAuthority;
 	
 	@OneToMany(mappedBy = "patent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@Builder.Default
 	private List<PatentCoInventor> coInventors = new ArrayList<>();
-
-	public Patent() {
-		super();
-	}
-
-	public Patent(Project project, User primaryAuthor, String registrationNumber, LocalDate registrationDate,
-			String issuingAuthority) {
-		super();
-		this.project = project;
-		this.primaryAuthor = primaryAuthor;
-		this.registrationNumber = registrationNumber;
-		this.registrationDate = registrationDate;
-		this.issuingAuthority = issuingAuthority;
-	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public Project getProject() {
-		return project;
-	}
-
-	public void setProject(Project project) {
-		this.project = project;
-	}
-
-	public User getPrimaryAuthor() {
-		return primaryAuthor;
-	}
-
-	public void setPrimaryAuthor(User primaryAuthor) {
-		this.primaryAuthor = primaryAuthor;
-	}
-
-	public String getRegistrationNumber() {
-		return registrationNumber;
-	}
-
-	public void setRegistrationNumber(String registrationNumber) {
-		this.registrationNumber = registrationNumber;
-	}
-
-	public LocalDate getRegistrationDate() {
-		return registrationDate;
-	}
-
-	public void setRegistrationDate(LocalDate registrationDate) {
-		this.registrationDate = registrationDate;
-	}
-
-	public String getIssuingAuthority() {
-		return issuingAuthority;
-	}
-
-	public void setIssuingAuthority(String issuingAuthority) {
-		this.issuingAuthority = issuingAuthority;
-	}
-
-	public List<PatentCoInventor> getCoInventors() {
-		return coInventors;
-	}
-
-	public void setCoInventors(List<PatentCoInventor> coInventors) {
-		this.coInventors = coInventors;
-	}
 	
 	public void addCoInventor(PatentCoInventor coInventor) {
 		coInventors.add(coInventor);
-		coInventor.setPatent(this); // the back-reference to this Patent
+		coInventor.setPatent(this);
 	}
 	
 	public void removeCoInventor(PatentCoInventor coInventor) {

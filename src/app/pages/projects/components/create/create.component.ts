@@ -34,6 +34,7 @@ import { Observable, of, Subscription, switchMap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ProjectSharedService } from '@core/services/project-shared.service';
+import { CreatePatentRequest, UpdatePatentRequest } from '@models/patent.model';
 
 @Component({
   selector: 'project-creation',
@@ -115,11 +116,11 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     issueNumber: new FormControl(1, [Validators.required]),
   });
   patentsForm = new FormGroup({
-    primaryAuthor: new FormControl('', [Validators.required]),
-    coInventors: new FormControl<number[] | null>([16]),
-    registrationNumber: new FormControl(''),
-    registrationDate: new FormControl(new Date()),
-    issuingAuthority: new FormControl(''),
+    primaryAuthor: new FormControl<string | null>(null, [Validators.required]),
+    coInventors: new FormControl<number[]>([]),
+    registrationNumber: new FormControl<string>(''),
+    registrationDate: new FormControl<Date | null>(new Date()),
+    issuingAuthority: new FormControl<string>(''),
   });
   researchProjects = new FormGroup({
     participants: new FormControl(['15', '16'], [Validators.required]),
@@ -215,7 +216,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
                 return coInventor.id;
               });
               this.patentsForm.patchValue({
-                primaryAuthor: patent.primaryAuthorId,
+                primaryAuthor: patent.primaryAuthorId?.toString(),
                 coInventors: patent.coInventors,
                 registrationNumber: patent.registrationNumber,
                 registrationDate: new Date(patent.registrationDate),
@@ -331,23 +332,22 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
         }
 
         if (selectedType === availableTypes[1]) {
-          const coInventors = this.patentsForm.value.coInventors?.map(
-            (coInventor) => coInventor
-          );
+          const coInventors = this.patentsForm.value.coInventors ?? [];
+          const primaryAuthorId = this.patentsForm.value.primaryAuthor;
 
-          console.log('Co-inventors:', coInventors);
+          if (!primaryAuthorId) {
+            console.error('Primary author is required');
+            return;
+          }
 
-          this.patentService
-            .createPatent({
-              projectId,
-              ...this.patentsForm.value,
-              primaryAuthorId: 15,
-              registrationDate: new Date(
-                this.patentsForm.value.registrationDate!
-              ).toISOString(),
-              coInventors: coInventors?.length ? coInventors : null,
-            })
+          const patentData = this.getPatentFormValues(
+            projectId
+          ) as CreatePatentRequest;
+          const patentSub = this.patentService
+            .createPatent(patentData)
             .subscribe((response) => console.log('Patent created:', response));
+          this.subscriptions.push(patentSub);
+          this.loading = false;
         }
         if (selectedType === availableTypes[2]) {
           const participants = this.researchProjects.value.participants?.map(
@@ -462,29 +462,29 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
 
             this.subscriptions.push(updatePublicationSub);
           } else if (selectedType === 'PATENT') {
-            const coInventors = this.patentsForm.value.coInventors?.map(
-              (coInventor) => coInventor
-            );
+            try {
+              if (!this.projectId) {
+                throw new Error('Project ID is required');
+              }
 
-            const updatePatentSub = this.patentService
-              .updatePatent(typedProject.id, {
-                projectId: this.projectId,
-                primaryAuthorId: this.patentsForm.value.primaryAuthor,
-                registrationNumber: this.patentsForm.value.registrationNumber,
-                registrationDate: new Date(
-                  this.patentsForm.value.registrationDate!
-                ).toISOString(),
-                issuingAuthority: this.patentsForm.value.issuingAuthority,
-                coInventors: coInventors?.length ? coInventors : null,
-              })
-              .subscribe({
-                next: (patentResponse) =>
-                  console.log('Patent updated:', patentResponse),
-                error: (error) =>
-                  console.error('Error updating patent:', error),
-              });
+              const patentData = {
+                ...this.getPatentFormValues(this.projectId),
+                id: typedProject.id,
+              } as UpdatePatentRequest;
+              const updatePatentSub = this.patentService
+                .updatePatent(typedProject.id, patentData)
+                .subscribe({
+                  next: (patentResponse) =>
+                    console.log('Patent updated:', patentResponse),
+                  error: (error) =>
+                    console.error('Error updating patent:', error),
+                });
 
-            this.subscriptions.push(updatePatentSub);
+              this.subscriptions.push(updatePatentSub);
+            } catch (error) {
+              console.error('Error updating patent:', error);
+              this.loading = false;
+            }
           } else if (selectedType === 'RESEARCH') {
             const participants = this.researchProjects.value.participants?.map(
               (participant: string) => parseInt(participant)
@@ -517,6 +517,31 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
       });
 
     this.subscriptions.push(updateProjectSub);
+  }
+
+  private getPatentFormValues(
+    projectId: string
+  ): CreatePatentRequest | UpdatePatentRequest {
+    const formValue = this.patentsForm.value;
+    const primaryAuthorId = formValue.primaryAuthor;
+
+    if (!primaryAuthorId) {
+      throw new Error('Primary author is required');
+    }
+
+    const primaryAuthorIdNumber = +primaryAuthorId;
+
+    const baseValues = {
+      projectId,
+      primaryAuthorId: primaryAuthorIdNumber,
+      registrationNumber: formValue.registrationNumber ?? '',
+      registrationDate:
+        formValue.registrationDate?.toISOString() ?? new Date().toISOString(),
+      issuingAuthority: formValue.issuingAuthority ?? '',
+      coInventors: formValue.coInventors ?? [],
+    };
+
+    return baseValues;
   }
 
   ngOnDestroy(): void {
