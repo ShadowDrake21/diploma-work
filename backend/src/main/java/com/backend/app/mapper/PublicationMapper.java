@@ -27,10 +27,7 @@ public class PublicationMapper {
             return null;
         }
         
-        Project project = publication.getProject();
-        if (project instanceof HibernateProxy) {
-            project = (Project) ((HibernateProxy) project).getHibernateLazyInitializer().getImplementation();
-        }
+        Project project = resolveProxy(publication.getProject());
         
         return PublicationDTO.builder()
             .id(publication.getId())
@@ -63,7 +60,31 @@ public class PublicationMapper {
         return publication;
     }
     
+    /**
+     * Updates an existing Publication entity from DTO
+     * @param dto the source DTO with updated values
+     * @param entity the target entity to update
+     */
+    public void updatePublicationFromDto(PublicationDTO dto, Publication entity) {
+        if (dto == null || entity == null) {
+            return;
+        }
+
+        entity.setProject(getProjectById(dto.getProjectId()));
+        entity.setPublicationDate(dto.getPublicationDate());
+        entity.setPublicationSource(dto.getPublicationSource());
+        entity.setDoiIsbn(dto.getDoiIsbn());
+        entity.setStartPage(dto.getStartPage());
+        entity.setEndPage(dto.getEndPage());
+        entity.setJournalVolume(dto.getJournalVolume());
+        entity.setIssueNumber(dto.getIssueNumber());
+    }
+    
     private Project getProjectById(UUID projectId) {
     	return projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+    }
+    
+    private Project resolveProxy(Project project) {
+    	return project instanceof HibernateProxy ? (Project) ((HibernateProxy) project).getHibernateLazyInitializer().getImplementation() : project;
     }
 }

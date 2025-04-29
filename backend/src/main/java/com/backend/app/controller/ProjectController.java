@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.dto.PatentDTO;
@@ -48,174 +49,182 @@ import com.backend.app.service.PublicationService;
 import com.backend.app.service.ResearchService;
 import com.backend.app.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
+@Tag(name = "Project Management", description = "Endpoints for managing projects and related entities")
 @RestController
 @RequestMapping("/api/projects")
 @Validated
+@RequiredArgsConstructor
 public class ProjectController {
-	private ProjectService projectService;
-	private ProjectMapper projectMapper;
-	
-    private PublicationService publicationService; 
-    private PublicationMapper publicationMapper;
-    
-    private PatentService patentService;
-    private PatentMapper patentMapper;
-    
-    private ResearchService researchService;
-    private ResearchMapper researchMapper;
-    
-    private UserService userService;
-	
-	public ProjectController(
-			ProjectService projectService,
-			ProjectMapper projectMapper, 
-			PublicationService publicationService,
-			PublicationMapper publicationMapper,
-			PatentService patentService, 
-			PatentMapper patentMapper,
-			ResearchService researchService,
-			ResearchMapper researchMapper, UserService userService) {
-		this.projectService = projectService;
-		this.projectMapper = projectMapper;
-		this.publicationService = publicationService;
-		this.publicationMapper = publicationMapper;
-		this.patentService = patentService;
-		this.patentMapper = patentMapper;
-		this.researchService = researchService;
-		this.researchMapper = researchMapper;
-		this.userService = userService;
-	}
+	private final ProjectService projectService;
+	private final ProjectMapper projectMapper;
+    private final PublicationService publicationService; 
+    private final PublicationMapper publicationMapper;
+    private final PatentService patentService;
+    private final PatentMapper patentMapper;
+    private final ResearchService researchService;
+    private final ResearchMapper researchMapper;
+    private final UserService userService;
 
+    @Operation(summary = "Get all projects")
 	@GetMapping
-	public List<ProjectDTO> getAllProjects(){
-		return projectService.findAllProjects().stream().map(projectMapper::toDTO).collect(Collectors.toList());
+	public ResponseEntity<List<ProjectDTO>> getAllProjects(){
+    	log.debug("Fetching al projects");
+    	List<ProjectDTO> projects = projectService.findAllProjects().stream().map(projectMapper::toDTO).toList();
+		return ResponseEntity.ok(projects);
 	}
 	
+    @Operation(summary = "Get project by ID")
 	@GetMapping("/{id}")
-	public ProjectDTO getProjectById(@PathVariable UUID id) {
-	    System.out.println("id getProjectid " + id);
-	    Optional<Project> projectOptional = projectService.findProjectById(id);
-	    if (projectOptional.isPresent()) {
-	        System.out.println("project present");
-	        Project project = projectOptional.get();
-	        System.out.println("Project data: " + project); // Log the project data
-	        return projectMapper.toDTO(project);
-	    } else {
-	        throw new RuntimeException("Project not found with id: " + id);
-	    }
+	public ResponseEntity<ProjectDTO> getProjectById(@Parameter(description = "ID of the project to retrieve") @PathVariable UUID id) {
+    	log.debug("Fetching project with ID: {}", id);
+	    ProjectDTO project = projectService.findProjectById(id).map(projectMapper::toDTO).orElseThrow(() -> {
+            log.error("Project not found with ID: {}", id);
+            return new EntityNotFoundException("Project not found with id: " + id);
+        });
+	    return ResponseEntity.ok(project);
 	}
 	
+    @Operation(summary = "Create a new project")
 	@PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody ProjectDTO projectDTO, Authentication authentication) {
-		String email = authentication.getName();
-		User creator = userService.getUserByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found"));
+	@ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO, Authentication authentication) {
+    	log.debug("Creating new project: {}", projectDTO.getTitle());
+		User creator = userService.getUserByEmail(authentication.getName()).orElseThrow(() -> {
+			log.error("User not found with email: {}", authentication.getName());
+			return new EntityNotFoundException("User not found");});
 
 		
         Project createdProject = projectService.createProject(projectDTO, creator.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
+        log.info("Created project with ID: {}", createdProject.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectMapper.toDTO(createdProject));
     }
 	
+    @Operation(summary = "Update an existing project")
 	@PutMapping("/{id}")
-	public ProjectDTO updateProject(@PathVariable UUID id, @RequestBody ProjectDTO projectDTO) {
-		System.out.println("Received update request for project ID: " + id);
-	    System.out.println("Project update data: " + projectDTO.getTagIds());
-	    projectDTO.getTagIds().forEach(tagId -> System.out.println("update Tag ID: " + tagId));
-
-		Optional<Project> updatedProject =projectService.updateProject(id, projectDTO);
-		return updatedProject.map(projectMapper::toDTO).orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+	public ResponseEntity<ProjectDTO> updateProject(@Parameter(description = "ID of the project to update") @PathVariable UUID id, @Valid @RequestBody ProjectDTO projectDTO) {
+    	log.debug("Updating project with ID: {}", id);
+		ProjectDTO updatedProject =projectService.updateProject(id, projectDTO).map(projectMapper::toDTO).orElseThrow(() -> {
+			log.error("Failed to update project with ID: {}", id);
+			return new EntityNotFoundException("Project not found with id: " + id);
+		});
+		log.info("Successfully updated project with ID: {}", id);
+		return ResponseEntity.ok(updatedProject);
 	}
 	
+    @Operation(summary = "Delete a project")
 	@DeleteMapping("/{id}")
-	public void deleteProject(@PathVariable UUID id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteProject(@Parameter(description = "ID of the project to delete") @PathVariable UUID id) {
+    	log.debug("Deleting project with ID: {}", id);
 		projectService.deleteProject(id);
+		log.info("Successfully deleted project with ID: {}", id);
 	}
 	
+    @Operation(summary = "Get projects by creator")
 	@GetMapping("/creator/{userId}")
-	public ResponseEntity<List<ProjectDTO>> getProjectsByCreator(@PathVariable Long userId) {
-		List<Project> projects = projectService.findProjectsByCreator(userId);
-		List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
-		return ResponseEntity.ok(projectDTOs);
+	public ResponseEntity<List<ProjectDTO>> getProjectsByCreator(@Parameter(description = "ID of the creator user") @PathVariable Long userId) {
+    	log.debug("Fetching projects for creator with ID: {}", userId);
+		List<ProjectDTO> projects = projectService.findProjectsByCreator(userId).stream()
+				.map(projectMapper::toDTO).toList();
+		return ResponseEntity.ok(projects);
 	}
 	
+	@Operation(summary = "Get publication by project ID")
 	@GetMapping("/{id}/publication")
-	public ResponseEntity<PublicationDTO> getPublicationByProjectId(@PathVariable UUID id) {
-		List<Publication> publications = publicationService.findPublicationByProjectId(id);
-		System.out.println("publication ");
-		if(!publications.isEmpty()) {
-			Publication publication = publications.get(0);
-			return ResponseEntity.ok(publicationMapper.toDTO(publication));
-		}
-		
-		return ResponseEntity.notFound().build();
+	public ResponseEntity<PublicationDTO> getPublicationByProjectId(@Parameter(description = "ID of the project") @PathVariable UUID id) {
+		log.debug("Fetching publication for project ID: {}", id);
+		return publicationService.findPublicationByProjectId(id).stream()
+                .findFirst()
+                .map(pub -> {
+                    log.debug("Found publication for project ID: {}", id);
+                    return publicationMapper.toDTO(pub);
+                })
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> {
+                    log.warn("No publication found for project ID: {}", id);
+                    return ResponseEntity.notFound().build();
+                });
 	}
 	
-	@GetMapping("/{id}/patent")
-	public ResponseEntity<PatentDTO> getPatentByProjectId(@PathVariable UUID id) {
-		List<Patent> patents = patentService.findPatentByProjectId(id);
-		
-		if(!patents.isEmpty()) {
-			Patent patent = patents.get(0);
-			return ResponseEntity.ok(patentMapper.toDTO(patent));
-		}
-		
-		return ResponseEntity.notFound().build();
-	}
-	
+	@Operation(summary = "Search projects with filters")
 	@GetMapping("/search")
 	public ResponseEntity<Page<ProjectResponse>> searchProject(
-			 @RequestParam(required = false) String search,
-	            @RequestParam(required = false) @Parameter(description = "Comma-separated list of project types") List<ProjectType> types,
-	            @RequestParam(required = false) @Parameter(description = "Comma-separated list of tag IDs") List<UUID> tags,
-	            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-	            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-	            @RequestParam(defaultValue = "0") @Min(0) @Max(100) int progressMin,
-	            @RequestParam(defaultValue = "100") @Min(0) @Max(100) int progressMax,
-	            @RequestParam(required = false) String publicationSource,
-	            @RequestParam(required = false) String doiIsbn,
-	            @RequestParam(required = false) @DecimalMin("0.00") BigDecimal minBudget,
-	            @RequestParam(required = false) @DecimalMin("0.00") BigDecimal maxBudget,
-	            @RequestParam(required = false) String fundingSource,
-	            @RequestParam(required = false) String registrationNumber,
-	            @RequestParam(required = false) String issuingAuthority,
+			    @Parameter(description = "Search term") @RequestParam(required = false) String search,
+			    @Parameter(description = "Comma-separated list of project types") @RequestParam(required = false)  List<ProjectType> types,
+			    @Parameter(description = "Comma-separated list of tag IDs") @RequestParam(required = false)  List<UUID> tags,
+			    @Parameter(description = "Start date filter") @RequestParam(required = false) 
+			    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			    @Parameter(description = "End date filter") @RequestParam(required = false) 
+			    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			    @Parameter(description = "Minimum progress (0-100)") @RequestParam(defaultValue = "0") @Min(0) @Max(100) int progressMin,
+			    @Parameter(description = "Maximum progress (0-100)") @RequestParam(defaultValue = "100") @Min(0) @Max(100) int progressMax,
+			    @Parameter(description = "Publication source filter") @RequestParam(required = false) String publicationSource,
+			    @Parameter(description = "DOI/ISBN filter") @RequestParam(required = false) String doiIsbn,
+			    @Parameter(description = "Minimum budget") @RequestParam(required = false) @DecimalMin("0.00") BigDecimal minBudget,
+			    @Parameter(description = "Maximum budget") @RequestParam(required = false) @DecimalMin("0.00") BigDecimal maxBudget,
+	            @Parameter(description = "Funding source filter") @RequestParam(required = false) String fundingSource,
+	            @Parameter(description = "Patent registration number") @RequestParam(required = false) String registrationNumber,
+	            @Parameter(description = "Patent issuing authority") @RequestParam(required = false) String issuingAuthority,
 	            @ParameterObject Pageable pageable
 			){
+		log.debug("Searching projects with criteria - search: {}, types: {}, tags: {}", search, types, tags);
 		ProjectSearchCriteria criteria =new  ProjectSearchCriteria(
 				search,types,tags,  startDate, endDate, progressMin, progressMax,  publicationSource,
 				 doiIsbn,  minBudget,  maxBudget,  fundingSource,  registrationNumber,
 				 issuingAuthority
 				);
-		
-		Page<Project> projects = projectService.searchProjects(criteria, pageable);
-		Page<ProjectResponse> response = projects.map(projectMapper::toResponse);
-				
+		Page<ProjectResponse> response = projectService.searchProjects(criteria, pageable).map(projectMapper::toResponse);
+		log.info("Found {} projects matching search criteria", response.getTotalElements());
 		return ResponseEntity.ok(response);
 	}
 	
-	
-	@GetMapping("/{id}/research")
-	public ResponseEntity<ResearchDTO> getResearchByProjectId(@PathVariable UUID id) {
-		List<Research> researches = researchService.findResearchByProjectId(id);
-		
-		if(!researches.isEmpty()) {
-			Research research = researches.get(0);
-			return ResponseEntity.ok(researchMapper.toDTO(research));
-		}
-		
-		return ResponseEntity.notFound().build();
+	@Operation(summary = "Get patent by project ID")
+	@GetMapping("/{id}/patent")
+	public ResponseEntity<PatentDTO> getPatentByProjectId(@Parameter(description = "ID of the project") @PathVariable UUID id) {
+		log.debug("Fetching patent for project ID: {}", id);
+		return patentService.findPatentByProjectId(id).stream().findFirst().map(patent -> {
+			log.debug("Found patent for project ID: {}", id);
+			return patentMapper.toDTO(patent);
+		}).map(ResponseEntity::ok).orElseGet(() -> {
+            log.warn("No patent found for project ID: {}", id);
+            return ResponseEntity.notFound().build();
+        });
 	}
 	
+	@Operation(summary = "Get research by project ID")
+	@GetMapping("/{id}/research")
+	public ResponseEntity<ResearchDTO> getResearchByProjectId(@Parameter(description = "ID of the project") @PathVariable UUID id) {
+		log.debug("Fetching research for project ID: {}", id);
+		
+		return researchService.findResearchByProjectId(id).stream().findFirst().map(patent -> {
+			log.debug("Found research for project ID: {}", id);
+			return researchMapper.toDTO(patent);
+		}).map(ResponseEntity::ok).orElseGet(() -> {
+            log.warn("No research found for project ID: {}", id);
+            return ResponseEntity.notFound().build();
+        });
+	}
+	
+	@Operation(summary = "Get newest projects")
 	@GetMapping("/newest")
 	public ResponseEntity<List<ProjectDTO>> getNewestProjects (
-			@RequestParam(defaultValue = "10") int limit) {
-		List<Project> projects = projectService.findNewestProjects(limit);
-		List<ProjectDTO> projectDTOs = projects.stream().map(projectMapper::toDTO).collect(Collectors.toList());
-		
-		return ResponseEntity.ok(projectDTOs);
+			@Parameter(description = "Number of projects to return")
+			@RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit) {
+		log.debug("Fetching {} newest projects", limit);
+		List<ProjectDTO> projects = projectService.findNewestProjects(limit)
+				.stream().map(projectMapper::toDTO).toList();
+		return ResponseEntity.ok(projects);
 	}
 }

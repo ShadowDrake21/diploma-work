@@ -5,55 +5,30 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Data
 public class CreateResearchRequest {
+	 @NotNull(message = "Project ID is required")
 	private UUID projectId;
+	 @NotEmpty(message = "At least one participant is required")
 	private List<Long> participantsId;
+	 @NotNull(message = "Budget is required")
+	 @DecimalMin(value = "0.0", inclusive = false,message = "Budget must be greater than 0")
 	private BigDecimal budget;
+	 @NotNull(message = "Start date is required")
 	private LocalDate startDate;
+	 @NotNull(message = "End date is required")
 	private LocalDate endDate;
+	 @NotBlank(message = "Status is required")
+	@Size(max = 150, message = "Status cannot exceed 150 characters")
 	private String status;
+	 @NotBlank(message = "Funding source is required")
+	 @Size(max = 255,message = "Funding source cannot exceed 255 characters")
 	private String fundingSource;
-	
-	public UUID getProjectId() {
-		return projectId;
-	}
-	public void setProjectId(UUID projectId) {
-		this.projectId = projectId;
-	}
-	public List<Long> getParticipants() {
-		return participantsId;
-	}
-	public void setParticipants(List<Long> participantsId) {
-		this.participantsId = participantsId;
-	}
-	public BigDecimal getBudget() {
-		return budget;
-	}
-	public void setBudget(BigDecimal budget) {
-		this.budget = budget;
-	}
-	public LocalDate getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(LocalDate startDate) {
-		this.startDate = startDate;
-	}
-	public LocalDate getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(LocalDate endDate) {
-		this.endDate = endDate;
-	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	public String getFundingSource() {
-		return fundingSource;
-	}
-	public void setFundingSource(String fundingSource) {
-		this.fundingSource = fundingSource;
-	}
 }
