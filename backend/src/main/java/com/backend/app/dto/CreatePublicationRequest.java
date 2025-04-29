@@ -7,6 +7,13 @@ import java.util.UUID;
 
 import com.backend.app.util.DateFormat;
 
+import lombok.Data;
+
+
+/**
+ * Request DTO for creating a new publication
+ * */
+@Data
 public class CreatePublicationRequest {
     private UUID projectId;
     private LocalDate publicationDate;
@@ -18,76 +25,11 @@ public class CreatePublicationRequest {
     private int issueNumber;
     private List<Long> authors;
 
-    public UUID getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(UUID projectId) {
-        this.projectId = projectId;
-    }
-
-    public LocalDate getPublicationDate() {
-		return publicationDate;
-	}
-
+    /**
+     * Sets the publication date by parsing from string format
+     * @param publicationDate String date to parse
+     * */
 	public void setPublicationDate(String publicationDate) {
-		LocalDate formattedDate = DateFormat.parseIncomeDate(publicationDate);
-		this.publicationDate = formattedDate;
-	}
-
-	public String getPublicationSource() {
-        return publicationSource;
-    }
-
-    public void setPublicationSource(String publicationSource) {
-        this.publicationSource = publicationSource;
-    }
-
-    public String getDoiIsbn() {
-        return doiIsbn;
-    }
-
-    public void setDoiIsbn(String doiIsbn) {
-        this.doiIsbn = doiIsbn;
-    }
-
-    public int getStartPage() {
-        return startPage;
-    }
-
-    public void setStartPage(int startPage) {
-        this.startPage = startPage;
-    }
-
-    public int getEndPage() {
-        return endPage;
-    }
-
-    public void setEndPage(int endPage) {
-        this.endPage = endPage;
-    }
-
-    public int getJournalVolume() {
-        return journalVolume;
-    }
-
-    public void setJournalVolume(int journalVolume) {
-        this.journalVolume = journalVolume;
-    }
-
-    public int getIssueNumber() {
-        return issueNumber;
-    }
-
-    public void setIssueNumber(int issueNumber) {
-        this.issueNumber = issueNumber;
-    }
-
-	public List<Long> getAuthors() {
-		return authors;
-	}
-
-	public void setAuthors(List<Long> authors) {
-		this.authors = authors;
+		this.publicationDate = DateFormat.parseIncomeDate(publicationDate); 
 	}
 }

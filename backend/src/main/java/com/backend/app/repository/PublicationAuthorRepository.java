@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.model.Publication;
 import com.backend.app.model.PublicationAuthor;
-import com.backend.app.model.PublicationAuthorId;
 import com.backend.app.model.User;
 
 public interface PublicationAuthorRepository extends JpaRepository<PublicationAuthor, Long> {
