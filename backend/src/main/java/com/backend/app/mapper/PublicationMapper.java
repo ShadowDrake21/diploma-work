@@ -6,22 +6,28 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Component;
 
 import com.backend.app.dto.PublicationDTO;
+import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.model.Project;
 import com.backend.app.model.Publication;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.PublicationAuthorRepository;
 
+import lombok.RequiredArgsConstructor;
 
+/**
+ * Mapper for converting between Publication entities and DTOs
+ * */
 @Component
+@RequiredArgsConstructor
 public class PublicationMapper {
 	private final ProjectRepository projectRepository;
 	private final PublicationAuthorRepository publicationAuthorRepository;
 
-    public PublicationMapper(ProjectRepository projectRepository, PublicationAuthorRepository publicationAuthorRepository) {
-		this.projectRepository = projectRepository;
-		this.publicationAuthorRepository = publicationAuthorRepository;
-	}
-
+	 /**
+     * Converts Publication entity to PublicationDTO
+     * @param publication the entity to convert
+     * @return the DTO or null if input is null
+     */
     public PublicationDTO toDTO(Publication publication) {
         if(publication == null) {
             return null;
@@ -31,7 +37,7 @@ public class PublicationMapper {
         
         return PublicationDTO.builder()
             .id(publication.getId())
-            .projectId(project != null ? project.getId() : null)  // Only pass ID
+            .projectId(project != null ? project.getId() : null)
             .publicationDate(publication.getPublicationDate())
             .publicationSource(publication.getPublicationSource())
             .doiIsbn(publication.getDoiIsbn())
@@ -43,21 +49,27 @@ public class PublicationMapper {
             .build();
     }
 
+    /**
+     * Converts PublicationDTO to Publication entity
+     * @param publicationDTO the DTO to convert
+     * @return the entity or null if input is null
+     */
     public Publication toEntity(PublicationDTO publicationDTO) {
         if (publicationDTO == null) {
             return null;
         }
-        Publication publication = new Publication();
-        publication.setId(publicationDTO.getId());
-        publication.setProject(getProjectById(publicationDTO.getProjectId()));
-        publication.setPublicationDate(publicationDTO.getPublicationDate());
-        publication.setPublicationSource(publicationDTO.getPublicationSource());
-        publication.setDoiIsbn(publicationDTO.getDoiIsbn());
-        publication.setStartPage(publicationDTO.getStartPage());
-        publication.setEndPage(publicationDTO.getEndPage());
-        publication.setJournalVolume(publicationDTO.getJournalVolume());
-        publication.setIssueNumber(publicationDTO.getIssueNumber());
-        return publication;
+        
+        return Publication.builder()
+        		.id(publicationDTO.getId())
+        		.project(getProjectById(publicationDTO.getProjectId()))
+        		.publicationDate(publicationDTO.getPublicationDate())
+                .publicationSource(publicationDTO.getPublicationSource())
+                .doiIsbn(publicationDTO.getDoiIsbn())
+                .startPage(publicationDTO.getStartPage())
+                .endPage(publicationDTO.getEndPage())
+                .journalVolume(publicationDTO.getJournalVolume())
+                .issueNumber(publicationDTO.getIssueNumber())
+                .build();
     }
     
     /**
@@ -81,10 +93,11 @@ public class PublicationMapper {
     }
     
     private Project getProjectById(UUID projectId) {
-    	return projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+    	return projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
     }
     
     private Project resolveProxy(Project project) {
-    	return project instanceof HibernateProxy ? (Project) ((HibernateProxy) project).getHibernateLazyInitializer().getImplementation() : project;
+    	return project instanceof HibernateProxy ? (Project) 
+    			((HibernateProxy) project).getHibernateLazyInitializer().getImplementation() : project;
     }
 }
