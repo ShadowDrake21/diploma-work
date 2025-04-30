@@ -1,11 +1,8 @@
 package com.backend.app.controller;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.dto.CreatePublicationRequest;
@@ -23,42 +21,54 @@ import com.backend.app.mapper.PublicationMapper;
 import com.backend.app.model.Publication;
 import com.backend.app.service.PublicationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@Tag(name = "Publication Management", description = "Endpoints for managin publications")
 @RestController
 @RequestMapping("/api/publications")
+@RequiredArgsConstructor
 public class PublicationController {
-	@Autowired
-	private PublicationService publicationService;
+	private final PublicationService publicationService;
+	private final PublicationMapper publicationMapper;
 	
-	@Autowired
-	private PublicationMapper publicationMapper;
-	
+	@Operation(summary = "Get all publications")
 	@GetMapping
-	public List<PublicationDTO> getAllPublications(){
-		return publicationService.findAllPublications().stream().map(publicationMapper::toDTO).collect(Collectors.toList());
+	public ResponseEntity<List<PublicationDTO>> getAllPublications(){
+		List<PublicationDTO> publications = publicationService.findAllPublications().stream().map(publicationMapper::toDTO).toList();
+		return ResponseEntity.ok(publications);
 	}
 	
+	@Operation(summary = "Get publication by ID")
 	@GetMapping("/{id}")
-	public ResponseEntity<PublicationDTO> getPublicationById(@PathVariable UUID id) {
-		return ResponseEntity.ok(publicationService.findPublicationById(id));
+	public ResponseEntity<PublicationDTO> getPublicationById(@Parameter(description = "ID of the publication to retrieve")  @PathVariable UUID id) {
+		PublicationDTO publication = publicationService.findPublicationById(id);
+		return ResponseEntity.ok(publication);
 	}
 	
+	@Operation(summary = "Create a new publication")
 	@PostMapping
-	public ResponseEntity<Publication> createPublication(@RequestBody CreatePublicationRequest request) {
-		System.out.println("authors " + request.getAuthors());
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<PublicationDTO> createPublication(@Valid @RequestBody CreatePublicationRequest request) {
 		Publication publication = publicationService.createPublication(request);
-		return ResponseEntity.status(HttpStatus.CREATED).body(publication);
+		return ResponseEntity.status(HttpStatus.CREATED).body(publicationMapper.toDTO(publication));
 	}
 	
+	@Operation(summary = "Update as existing publication")
 	@PutMapping("/{id}")
-	public PublicationDTO updatePublication(@PathVariable UUID id, @RequestBody Publication publication) {
-		System.out.println("update publication");
-		System.out.println("Author updatePublication: " + publication.getPublicationAuthors().size() );
-		Optional<Publication> publicationOptional = publicationService.updatePublication(id, publication);
-		return publicationOptional.map(publicationMapper::toDTO).orElseThrow(() -> new RuntimeException("Publication not found with id: " + id));
+	public ResponseEntity<PublicationDTO> updatePublication(@Parameter(description = "ID of the publication to update") @PathVariable UUID id, @Valid @RequestBody PublicationDTO publicationDTO) {
+		
+		PublicationDTO updatedPublication = publicationService.updatePublication(id, publicationDTO);
+		return ResponseEntity.ok(updatedPublication);
 	}
 	
+	@Operation(summary = "Delete a publication")
 	@DeleteMapping("/{id}")
-	public void deletePublication(@PathVariable UUID id) {
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deletePublication( @Parameter(description = "ID of the publication to delete") @PathVariable UUID id) {
 		publicationService.deleteProject(id);
 	}
 }

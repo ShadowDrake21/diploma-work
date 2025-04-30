@@ -13,7 +13,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.CreateResearchRequest;
+import com.backend.app.dto.ResearchDTO;
 import com.backend.app.exception.ResourceNotFoundException;
+import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.Project;
 import com.backend.app.model.Research;
 import com.backend.app.model.ResearchParticipant;
@@ -35,6 +37,7 @@ public class ResearchService {
 	private final ResearchRepository researchRepository;
 	private final ProjectRepository projectRepository;
 	private final UserRepository userRepository;
+	private final ResearchMapper researchMapper;
 	
 	 @PersistenceContext
 		private final EntityManager entityManager;
@@ -65,17 +68,20 @@ public class ResearchService {
                 .fundingSource(request.getFundingSource())
                 .build();
 		
-		addParticipantsToResearch(research, research.getResearchParticipants());
+		addParticipantsToResearch(research, request.getParticipantsId());
 		return researchRepository.save(research);
 	}
 	
 	@Transactional 
-	public Optional<Research> updateResearch(UUID id, Research researchUpdate) {
+	public ResearchDTO updateResearch(UUID id, ResearchDTO researchDTO) {
 		 return researchRepository.findById(id).map(existingResearch -> {
+			 	Research researchUpdate = researchMapper.toEntity(researchDTO);
 	            updateResearchDetails(existingResearch, researchUpdate);
 	            updateResearchParticipants(existingResearch, researchUpdate.getResearchParticipants());
-	            return researchRepository.save(existingResearch);
-	        });
+	            
+	            Research updateResearch = researchRepository.save(existingResearch);
+	            return researchMapper.toDTO(updateResearch);
+	        }).orElseThrow(() -> new ResourceNotFoundException("Research not found with id: " + id));
 	}
 	
 	public Research saveResearch(Research research) {
@@ -101,14 +107,25 @@ public class ResearchService {
 	}
 	
 	 private Specification<Research> buildSearchSpecification(BigDecimal minBudget, BigDecimal maxBudget, String fundingSource) {
-	        return Specification.where(
-	            minBudget != null ? 
-	                (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("budget"), minBudget) : null)
-	            .and(maxBudget != null ? 
-	                (root, query, cb) -> cb.lessThanOrEqualTo(root.get("budget"), maxBudget) : null)
-	            .and(fundingSource != null && !fundingSource.isEmpty() ? 
-	                (root, query, cb) -> cb.like(cb.lower(root.get("fundingSource")), 
-	                    "%" + fundingSource.toLowerCase() + "%") : null);
+		 Specification<Research> spec = Specification.where(null);
+		 
+		 if (minBudget != null) {
+		        spec = spec.and((root, query, cb) -> 
+		            cb.greaterThanOrEqualTo(root.get("budget"), minBudget));
+		    }
+		    
+		    if (maxBudget != null) {
+		        spec = spec.and((root, query, cb) -> 
+		            cb.lessThanOrEqualTo(root.get("budget"), maxBudget));
+		    }
+		    
+		    if (fundingSource != null && !fundingSource.isEmpty()) {
+		        spec = spec.and((root, query, cb) -> 
+		            cb.like(cb.lower(root.get("fundingSource")), 
+		                "%" + fundingSource.toLowerCase() + "%"));
+		    }
+		    
+		    return spec;
 	    }
 	
 	private void addParticipantsToResearch(Research research, List<Long> participantIds) {
