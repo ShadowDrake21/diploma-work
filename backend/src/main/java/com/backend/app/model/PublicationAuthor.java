@@ -2,6 +2,7 @@ package com.backend.app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +34,11 @@ public class PublicationAuthor {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+	@Version
+	@Column (nullable = false)
+    @Builder.Default
+	private Integer version = 0;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "publication_id", referencedColumnName = "id", nullable = false)

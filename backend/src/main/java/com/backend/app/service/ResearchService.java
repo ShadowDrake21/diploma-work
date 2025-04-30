@@ -68,7 +68,7 @@ public class ResearchService {
                 .fundingSource(request.getFundingSource())
                 .build();
 		
-		addParticipantsToResearch(research, request.getParticipantsId());
+		addParticipantsToResearch(research, request.getParticipantIds());
 		return researchRepository.save(research);
 	}
 	
@@ -77,7 +77,8 @@ public class ResearchService {
 		 return researchRepository.findById(id).map(existingResearch -> {
 			 	Research researchUpdate = researchMapper.toEntity(researchDTO);
 	            updateResearchDetails(existingResearch, researchUpdate);
-	            updateResearchParticipants(existingResearch, researchUpdate.getResearchParticipants());
+	            
+	            updateResearchParticipantsByIds(existingResearch, researchDTO.getParticipantIds());
 	            
 	            Research updateResearch = researchRepository.save(existingResearch);
 	            return researchMapper.toDTO(updateResearch);
@@ -150,4 +151,18 @@ public class ResearchService {
             research.addParticipant(participant);
         });
 		}
+	
+	private void updateResearchParticipantsByIds(Research research, List<Long> participantIds) {
+		research.getResearchParticipants().clear();
+		
+		if(participantIds != null) {
+			participantIds.forEach(id -> {
+				User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+				
+				research.addParticipant(new ResearchParticipant(research, user));
+			});
+		}
+		
+		entityManager.flush();
+	}
 }

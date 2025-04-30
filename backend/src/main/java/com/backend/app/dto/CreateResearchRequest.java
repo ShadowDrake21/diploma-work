@@ -17,7 +17,7 @@ public class CreateResearchRequest {
 	 @NotNull(message = "Project ID is required")
 	private UUID projectId;
 	 @NotEmpty(message = "At least one participant is required")
-	private List<Long> participantsId;
+	private List<Long> participantIds;
 	 @NotNull(message = "Budget is required")
 	 @DecimalMin(value = "0.0", inclusive = false,message = "Budget must be greater than 0")
 	private BigDecimal budget;

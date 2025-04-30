@@ -81,11 +81,20 @@ public class PublicationMapper {
         if (dto == null || entity == null) {
             return;
         }
-
-        entity.setProject(getProjectById(dto.getProjectId()));
-        entity.setPublicationDate(dto.getPublicationDate());
-        entity.setPublicationSource(dto.getPublicationSource());
-        entity.setDoiIsbn(dto.getDoiIsbn());
+        
+        if (dto.getProjectId() != null) {
+            entity.setProject(getProjectById(dto.getProjectId()));
+        }
+        if (dto.getPublicationDate() != null) {
+            entity.setPublicationDate(dto.getPublicationDate());
+        }
+        if (dto.getPublicationSource() != null) {
+            entity.setPublicationSource(dto.getPublicationSource());
+        }
+        if (dto.getDoiIsbn() != null) {
+            entity.setDoiIsbn(dto.getDoiIsbn());
+        }
+        
         entity.setStartPage(dto.getStartPage());
         entity.setEndPage(dto.getEndPage());
         entity.setJournalVolume(dto.getJournalVolume());
