@@ -83,24 +83,4 @@ public class Publication {
 		publicationAuthors.remove(publicationAuthor);
 		publicationAuthor.setPublication(null);
 	}
-	
-	@Builder
-	public Publication(UUID projectId, 
-	        LocalDate publicationDate, 
-	        String publicationSource, 
-	        String doiIsbn, 
-	        int startPage, 
-	        int endPage,
-	        int journalVolume, 
-	        int issueNumber) {
-		this.project = Project.builder().id(projectId).build();
-		this.publicationDate = publicationDate;
-		this.publicationSource = publicationSource;
-		this.doiIsbn = doiIsbn;
-		this.startPage = startPage;
-		this.endPage = endPage;
-		this.journalVolume = journalVolume;
-		this.issueNumber = issueNumber;
-	}
-	
 }

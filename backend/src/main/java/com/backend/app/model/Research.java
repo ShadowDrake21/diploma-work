@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -60,7 +61,7 @@ public class Research {
 	private String fundingSource;
 	
 	@OneToMany(mappedBy = "research", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-	@Builder.Default
+	@Singular
 	private List<ResearchParticipant> researchParticipants = new ArrayList<>();
 	
 	
@@ -86,8 +87,6 @@ public class Research {
 		this.endDate = endDate;
 		this.status = status;
 		this.fundingSource = fundingSource;
-		if(participants != null) {
-			this.researchParticipants = new ArrayList<>(participants);
-		}
+		this.researchParticipants = participants != null ? new ArrayList<>(participants) : new ArrayList<>();
 	}
 }

@@ -1,5 +1,7 @@
 package com.backend.app.mapper;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -66,9 +68,9 @@ public class ResearchMapper {
               .endDate(researchDTO.getEndDate())
               .status(researchDTO.getStatus())
               .fundingSource(researchDTO.getFundingSource())
+              .researchParticipants(new ArrayList<>())
               .build();
 		
-      addParticipant(research, researchDTO.getParticipantIds());
       return research;
 	}
 	
@@ -95,15 +97,6 @@ public class ResearchMapper {
 	private List<Long> getParticipantIds(Research research) {
 		return research.getResearchParticipants().stream().map(participant -> participant.getUser().getId()).collect(Collectors.toList());
 	}
-	
-	private void addParticipant(Research research, List<Long> participantIds) {
-		Optional.ofNullable(participantIds).ifPresent(ids -> 
-		ids.forEach(participantId -> {
-			User user = userRepository.findById(participantId).orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + participantId));
-			research.addParticipant(new ResearchParticipant(research, user));
-		}));
-	}
-
 	
 	 private Project getProjectById(UUID projectId) {
 	    	return projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
