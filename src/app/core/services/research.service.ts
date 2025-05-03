@@ -1,6 +1,13 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
+import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import {
+  CreateResearchRequest,
+  ResearchDTO,
+  UpdateResearchRequest,
+} from '@models/research.model';
+import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -11,32 +18,59 @@ export class ResearchService {
 
   private apiUrl = BASE_URL + 'researches';
 
-  getAllResearches(): Observable<any> {
-    return this.http.get(`${this.apiUrl}`);
-  }
+  getAll(): Observable<ApiResponse<ResearchDTO[]>>;
+  getAll(
+    page: number,
+    size: number
+  ): Observable<PaginatedResponse<ResearchDTO[]>>;
 
-  getResearchById(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${id}`);
-  }
+  getAll(
+    page?: number,
+    size?: number
+  ): Observable<ApiResponse<ResearchDTO[]> | PaginatedResponse<ResearchDTO[]>> {
+    let params = new HttpParams();
+    if (page !== undefined && size !== undefined) {
+      params = params
+        .set('page', page.toString())
+        .set('pageSize', size.toString());
+    }
 
-  createResearch(research: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, research, {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      }),
+    return this.http.get<
+      ApiResponse<ResearchDTO[]> | PaginatedResponse<ResearchDTO[]>
+    >(this.apiUrl, {
+      ...getAuthHeaders(),
+      params,
     });
   }
 
-  updateResearch(id: string, research: any): Observable<any> {
+  getById(id: string): Observable<ResearchDTO> {
+    return this.http.get<ResearchDTO>(`${this.apiUrl}/${id}`);
+  }
+
+  create(request: CreateResearchRequest): Observable<ApiResponse<ResearchDTO>> {
+    return this.http.post<ApiResponse<ResearchDTO>>(
+      this.apiUrl,
+      request,
+      getAuthHeaders()
+    );
+  }
+
+  update(
+    id: string,
+    research: UpdateResearchRequest
+  ): Observable<ApiResponse<ResearchDTO>> {
     console.log('updateResearch', research);
-    return this.http.put(`${this.apiUrl}/${id}`, research, {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      }),
-    });
+    return this.http.put<ApiResponse<ResearchDTO>>(
+      `${this.apiUrl}/${id}`,
+      research,
+      getAuthHeaders()
+    );
   }
 
-  deleteResearch(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  delete(id: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${this.apiUrl}/${id}`,
+      getAuthHeaders()
+    );
   }
 }

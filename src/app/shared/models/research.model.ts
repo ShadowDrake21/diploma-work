@@ -1,16 +1,5 @@
 import { ResponseUserDTO, User } from './user.model';
 
-export interface ResearchDTO {
-  id: string;
-  projectId: string;
-  budget: number;
-  startDate: string;
-  endDate: string;
-  status: string;
-  fundingSource: string;
-  participantIds: number[];
-}
-
 export interface CreateResearchRequest {
   projectId: string;
   budget: number;
@@ -18,13 +7,13 @@ export interface CreateResearchRequest {
   endDate: string;
   status: string;
   fundingSource: string;
-  participantIds: number[];
+  participantIds: string[];
 }
 
 export interface UpdateResearchRequest extends CreateResearchRequest {
   id: string;
 }
-export interface ResearchResponse
+export interface ResearchDTO
   extends Omit<UpdateResearchRequest, 'participantIds'> {
   participants: ResponseUserDTO[];
 }
