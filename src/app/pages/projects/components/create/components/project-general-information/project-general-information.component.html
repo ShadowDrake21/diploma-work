@@ -1,8 +1,7 @@
-@let generalInformationForm = generalInformationFormSig(); @let tags = tags$ |
-async; @let existingFiles = existingFilesSig();
+@let tags = tags$ | async;
 
 <form
-  [formGroup]="generalInformationForm"
+  [formGroup]="generalInformationForm()"
   class="project-general-information__form"
 >
   <mat-form-field>
@@ -18,7 +17,7 @@ async; @let existingFiles = existingFilesSig();
     <mat-slider min="0" max="100" step="1" showTickMarks discrete>
       <input
         matSliderThumb
-        [formControl]="generalInformationForm.controls.progress"
+        [formControl]="generalInformationForm().controls.progress"
       />
     </mat-slider>
   </div>
@@ -40,8 +39,8 @@ async; @let existingFiles = existingFilesSig();
     </mat-select>
   </mat-form-field>
 
-  @if (existingFiles?.length! > 0 && !isFilesReseted) { @for (file of
-  existingFiles; track file) {
+  @if (existingFiles.length! > 0 && !isFilesReseted) { @for (file of
+  existingFiles(); track file) {
   <a
     [href]="file.fileUrl"
     target="_blank"
@@ -63,11 +62,11 @@ async; @let existingFiles = existingFilesSig();
     Вибрати нові файли
   </button>
   } @if(!existingFiles?.length! || isFilesReseted) {<shared-multiple-file-upload
-    [formControl]="generalInformationForm.controls.attachments"
-    [entityType]="entityTypeSig()"
+    [formControl]="generalInformationForm().controls.attachments"
+    [entityType]="entityType()"
   />
-  @if (generalInformationForm.controls.attachments.invalid &&
-  generalInformationForm.controls.attachments.touched) {
+  @if (generalInformationForm().controls.attachments.invalid &&
+  generalInformationForm().controls.attachments.touched) {
   <mat-error>Attachments are required.</mat-error>
   } }
 
@@ -77,7 +76,7 @@ async; @let existingFiles = existingFilesSig();
       mat-button
       matStepperNext
       [disabled]="
-        generalInformationForm.invalid && existingFiles?.length! === 0
+        generalInformationForm().invalid && existingFiles.length! === 0
       "
     >
       Next

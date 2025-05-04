@@ -1,6 +1,5 @@
-@let coInventors = coInventors$ | async;
-
-@if (patent$ | async; as patent) {
+@let coInventors = coInventors$ | async; @let patent = (patent$ | async).data;
+@if ( patent) {
 <div class="patent">
   <div class="patent__section">
     <h4 class="patent__section-title">Primary author</h4>

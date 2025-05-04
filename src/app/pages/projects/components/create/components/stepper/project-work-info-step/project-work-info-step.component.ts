@@ -17,41 +17,38 @@ import {
     ProjectResearchFormComponent,
   ],
   styleUrl: './project-work-info-step.component.scss',
-  template: ` @let typeForm = typeFormSig(); @let publicationsForm =
-    publicationsFormSig(); @let patentsForm = patentsFormSig(); @let
-    researchesForm = researchesFormSig(); @let allUsers = allUsersSig(); @let
-    authors = authorsSig(); @if(typeForm?.value.type === 'PUBLICATION' &&
-    publicationsForm) {
+  template: ` @if(typeForm().value.type === 'PUBLICATION' && publicationsForm())
+    {
     <create-project-publication-form
-      [publicationsForm]="publicationsForm"
-      [allUsers]="allUsers"
-      [authors]="authors"
+      [publicationsForm]="publicationsForm()!"
+      [allUsers]="allUsers()"
+      [authors]="authors()"
     />
-    } @else if(typeForm?.value.type === 'PATENT' && patentsForm) {
+    } @else if(typeForm().value.type === 'PATENT' && patentsForm()) {
     <create-project-patent-form
-      [patentsForm]="patentsForm"
-      [authors]="authors"
-      [allUsers]="allUsers"
+      [patentsForm]="patentsForm()!"
+      [authors]="authors()"
+      [allUsers]="allUsers()"
     />
-    } @else if (typeForm?.value.type === 'RESEARCH' && researchesForm) {
+    } @else if (typeForm().value.type === 'RESEARCH' && researchesForm()) {
     <create-project-research-form
-      [researchesForm]="researchesForm"
-      [allUsers]="allUsers"
-      [authors]="authors"
+      [researchesForm]="researchesForm()!"
+      [allUsers]="allUsers()"
+      [authors]="authors()"
     />
     }`,
 })
 export class ProjectWorkInfoStepComponent {
-  typeFormSig = input<FormGroup | null>(null, { alias: 'typeForm' });
-  publicationsFormSig = input<PublicationFormGroup | null>(null, {
+  typeForm = input.required<FormGroup>();
+  publicationsForm = input<PublicationFormGroup | null>(null, {
     alias: 'publicationsForm',
   });
-  patentsFormSig = input<PatentFormGroup | null>(null, {
+  patentsForm = input<PatentFormGroup | null>(null, {
     alias: 'patentsForm',
   });
-  researchesFormSig = input<ResearchFormGroup | null>(null, {
+  researchesForm = input<ResearchFormGroup | null>(null, {
     alias: 'researchesForm',
   });
-  allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
-  authorsSig = input.required<any[] | null>({ alias: 'authors' });
+  allUsers = input.required<any[] | null>({ alias: 'allUsers' });
+  authors = input.required<any[] | null>({ alias: 'authors' });
 }

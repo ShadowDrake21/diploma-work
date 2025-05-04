@@ -20,7 +20,11 @@ public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpec
 	List<Project> findProjectsWithCreatorByUserId(@Param("userId") Long userId);
 
 	@Query("SELECT p FROM Project p WHERE p.creator.id = :userId")
-	List<Project> findByCreatorId(@Param("userId") Long userId);
+    Page<Project> findByCreatorId(@Param("userId") Long userId, Pageable pageable);
+	
+	@Query("SELECT p FROM Project p WHERE p.creator.id = :userId")
+    List<Project> findByCreatorId(@Param("userId") Long userId);
+
 
 	@Query("SELECT p FROM Project p ORDER BY p.createdAt DESC")
 	Page<Project> findNewsestProjects(Pageable pageable);
