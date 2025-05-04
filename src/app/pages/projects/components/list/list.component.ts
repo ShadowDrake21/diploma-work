@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { ProjectService } from '@core/services/project.service';
 import { DashboardRecentProjectItem } from '@shared/types/dashboard.types';
-import { Project } from '@shared/types/project.types';
+import { ProjectDTO } from '@models/project.model';
 
 @Component({
   selector: 'projects-list',
@@ -23,7 +23,7 @@ export class ListProjectsComponent implements OnInit {
   projectService = inject(ProjectService);
 
   pages: number[] = [];
-  projects: Project[] = [];
+  projects: ProjectDTO[] = [];
 
   searchResults: any[] = [];
   isLoading = false;
@@ -35,7 +35,7 @@ export class ListProjectsComponent implements OnInit {
     this.paginationUsage();
 
     this.projectService.getAllProjects().subscribe((projects) => {
-      this.searchResults = projects;
+      this.searchResults = projects.data;
       console.log('projects', projects);
       this.paginationUsage();
     });
@@ -55,9 +55,9 @@ export class ListProjectsComponent implements OnInit {
     console.log('filters', filters);
     this.projectService.searchProjects(filters).subscribe({
       next: (projects) => {
-        this.searchResults = projects.content;
-        this.totalElements = projects.totalElements;
-        this.pageSize = projects.size;
+        this.searchResults = projects.data.content;
+        this.totalElements = projects.data.totalElements;
+        this.pageSize = projects.data.size;
       },
       error: (err) => {
         console.error('Error searching projects:', err);

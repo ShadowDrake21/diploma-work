@@ -1,12 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HeaderService } from '@core/services/header.service';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,54 +11,20 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { ProjectTypeComponent } from './components/project-type/project-type.component';
-import { ProjectGeneralInformationComponent } from './components/project-general-information/project-general-information.component';
-import { ProjectPublicationFormComponent } from './components/project-publication-form/project-publication-form.component';
-import { ProjectPatentFormComponent } from './components/project-patent-form/project-patent-form.component';
-import { ProjectResearchFormComponent } from './components/project-research-form/project-research-form.component';
-import { statuses, types } from '@content/createProject.content';
-import { ProjectService } from '@core/services/project.service';
-import { PatentService } from '@core/services/patent.service';
-import { PublicationService } from '@core/services/publication.service';
-import { ResearchService } from '@core/services/research.service';
-import { AttachmentsService } from '@core/services/attachments.service';
+import { types } from '@content/createProject.content';
 import { UserService } from '@core/services/user.service';
-import {
-  catchError,
-  forkJoin,
-  map,
-  Observable,
-  of,
-  Subscription,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
+import { of, Subscription, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ProjectSharedService } from '@core/services/project-shared.service';
 import {
-  CreatePatentRequest,
-  PatentDTO,
-  UpdatePatentRequest,
-} from '@models/patent.model';
-import {
-  CreatePublicationRequest,
-  PublicationDTO,
-  UpdatePublicationRequest,
-} from '@models/publication.model';
-import {
   CreateProjectRequest,
-  ProjectDTO,
   UpdateProjectRequest,
 } from '@models/project.model';
 import { IUser } from '@shared/types/users.types';
-import {
-  CreateResearchRequest,
-  ResearchDTO,
-  UpdateResearchRequest,
-} from '@models/research.model';
-import { ResponseUserDTO } from '@models/user.model';
+import { ProjectFormService } from '@core/services/project-form.service';
+import { ProjectDataService } from '@core/services/project-data.service';
+import { ProjectStepperComponent } from './components/stepper/project-stepper/project-stepper.component';
 
 @Component({
   selector: 'project-creation',
@@ -79,11 +39,7 @@ import { ResponseUserDTO } from '@models/user.model';
     MatSelectModule,
     MatAutocompleteModule,
     MatDatepickerModule,
-    ProjectTypeComponent,
-    ProjectGeneralInformationComponent,
-    ProjectPublicationFormComponent,
-    ProjectPatentFormComponent,
-    ProjectResearchFormComponent,
+    ProjectStepperComponent,
   ],
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss',
@@ -96,93 +52,28 @@ import { ResponseUserDTO } from '@models/user.model';
   ],
   host: { style: 'display: block; height: 100%' },
 })
+// TODO: move to different files + html
 export class CreateProjectComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
   private userService = inject(UserService);
-  private projectService = inject(ProjectService);
-  private publicationService = inject(PublicationService);
-  private patentService = inject(PatentService);
-  private researchService = inject(ResearchService);
-  private attachmentsService = inject(AttachmentsService);
-
+  private projectFormService = inject(ProjectFormService);
+  private projectDataService = inject(ProjectDataService);
   private projectSharedService = inject(ProjectSharedService);
 
   creatorId: number | null = null;
   projectId: string | null = null;
-
-  authors: any[] = [];
   types = types;
-  statuses = statuses;
-
+  loading: boolean = false;
   subtext: string =
     'Choose the type of record you want to create and provide the required details.';
 
-  project$!: Observable<any | undefined>;
-  typedProject$!: Observable<any | undefined>;
-  allUsers$!: Observable<any[]>;
-  updatingAttachments$!: Observable<any[]>;
-
-  loading: boolean = false;
-
-  typeForm = new FormGroup({
-    type: new FormControl('', [Validators.required]),
-  });
-  generalInformationForm = new FormGroup({
-    title: new FormControl<string>('', [Validators.required]),
-    description: new FormControl<string>('', [Validators.required]),
-    progress: new FormControl<number>(0, [
-      Validators.min(0),
-      Validators.max(100),
-    ]),
-    tags: new FormControl<string[]>([]),
-    attachments: new FormControl<File[]>([]),
-  });
-  publicationsForm = new FormGroup({
-    authors: new FormControl<string[]>(['15', '16'], [Validators.required]),
-    publicationDate: new FormControl<Date | null>(new Date(), [
-      Validators.required,
-    ]),
-    publicationSource: new FormControl<string>('', [Validators.required]),
-    doiIsbn: new FormControl<string>('', [Validators.required]),
-    startPage: new FormControl<number>(1, [
-      Validators.required,
-      Validators.min(1),
-    ]),
-    endPage: new FormControl<number>(10, [
-      Validators.required,
-      Validators.min(1),
-    ]),
-    journalVolume: new FormControl<number>(1, [
-      Validators.required,
-      Validators.min(1),
-    ]),
-    issueNumber: new FormControl<number>(1, [
-      Validators.required,
-      Validators.min(1),
-    ]),
-  });
-  patentsForm = new FormGroup({
-    primaryAuthor: new FormControl<string | null>(null, [Validators.required]),
-    coInventors: new FormControl<number[]>([]),
-    registrationNumber: new FormControl<string>(''),
-    registrationDate: new FormControl<Date | null>(new Date()),
-    issuingAuthority: new FormControl<string>(''),
-  });
-  researchForm = new FormGroup({
-    participants: new FormControl<string[] | null>([], [Validators.required]),
-    budget: new FormControl<number | null>(0, [
-      Validators.required,
-      Validators.min(0),
-    ]),
-    startDate: new FormControl<Date | null>(new Date(), [Validators.required]),
-    endDate: new FormControl<Date | null>(new Date(), [Validators.required]),
-    status: new FormControl<string | null>(this.statuses[0].value, [
-      Validators.required,
-    ]),
-    fundingSource: new FormControl<string>('', [Validators.required]),
-  });
+  typeForm = this.projectFormService.createTypeForm();
+  generalInformationForm = this.projectFormService.createGeneralInfoForm();
+  publicationsForm = this.projectFormService.createPublicationForm();
+  patentsForm = this.projectFormService.createPatentForm();
+  researchesForm = this.projectFormService.createResearchForm();
 
   subscriptions: Subscription[] = [];
 
@@ -192,7 +83,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
 
   private initializeComponent(): void {
     this.headerService.setTitle('Create New Entry');
-    this.allUsers$ = this.userService.getAllUsers();
     this.projectId = this.route.snapshot.queryParamMap.get('id');
 
     this.subscriptions.push(
@@ -209,272 +99,131 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   }
 
   private loadExistingProject(): void {
-    this.project$ = this.projectService.getProjectById(this.projectId!);
+    if (!this.projectId) return;
 
-    this.typedProject$ = this.project$.pipe(
-      switchMap((project) => {
-        if (!project) return of(undefined);
-        return this.loadTypedProject(project);
-      })
-    );
+    this.loading = true;
 
     this.subscriptions.push(
-      this.project$.subscribe((project) => {
-        if (!project) return;
+      this.projectDataService
+        .getProjectById(this.projectId)
+        .pipe(
+          switchMap((project) => {
+            if (!project) return of(null);
 
-        this.patchTypeForm(project.type);
-        this.typeForm.disable();
-        this.patchGeneralInformationForm(project);
-        this.loadAttachments(project.type);
-
-        switch (project.type) {
-          case ProjectType.PUBLICATION:
-            this.loadPublicationData();
-            break;
-          case ProjectType.PATENT:
-            this.loadPatentData();
-            break;
-          case ProjectType.RESEARCH:
-            this.loadResearchData();
-            break;
-        }
-        this.projectSharedService.isProjectCreation = false;
-      })
-    );
-  }
-
-  private loadTypedProject(project: any): Observable<any> {
-    switch (project.type) {
-      case ProjectType.PUBLICATION:
-        return this.projectService.getPublicationByProjectId(this.projectId!);
-      case ProjectType.PATENT:
-        return this.projectService.getPatentByProjectId(this.projectId!);
-      case ProjectType.RESEARCH:
-        return this.projectService.getResearchByProjectId(this.projectId!);
-      default:
-        return of(undefined);
-    }
-  }
-
-  private loadAttachments(projectType: ProjectType): void {
-    this.updatingAttachments$ = this.attachmentsService.getFilesByEntity(
-      projectType,
-      this.projectId!
-    );
-    this.subscriptions.push(
-      this.updatingAttachments$.subscribe({
-        next: (files) => {
-          console.log('Fetched files:', files);
-        },
-        error: (error) => {
-          console.error('Error fetching files:', error);
-        },
-      })
-    );
-  }
-
-  private loadPublicationData(): void {
-    this.subscriptions.push(
-      this.projectService
-        .getPublicationByProjectId(this.projectId!)
-        .pipe(take(1))
-        .subscribe({
-          next: (publication) => {
-            this.authors = publication.authors.map(
-              (a: ResponseUserDTO) => a.id
+            this.projectFormService.patchTypeForm(
+              this.typeForm,
+              project.data.type
             );
-            this.patchPublicationForm(publication);
-          },
-          error: (error) => {
-            console.error('Error loading publication:', error);
-          },
-        })
-    );
-  }
+            this.typeForm.disable();
+            this.projectFormService.patchGeneralInformationForm(
+              this.generalInformationForm,
+              project
+            );
 
-  private loadPatentData(): void {
-    this.subscriptions.push(
-      this.projectService
-        .getPatentByProjectId(this.projectId!)
-        .pipe(take(1))
+            switch (project.data.type) {
+              case ProjectType.PUBLICATION:
+                return this.projectDataService
+                  .getPublicationByProjectId(this.projectId!)
+                  .pipe(
+                    tap((publication) => {
+                      this.projectFormService.patchPublicationForm(
+                        this.publicationsForm,
+                        publication
+                      );
+                    })
+                  );
+              case ProjectType.PATENT:
+                return this.projectDataService
+                  .getPatentByProjectId(this.projectId!)
+                  .pipe(
+                    tap((patent) => {
+                      this.projectFormService.patchPatentForm(
+                        this.patentsForm,
+                        patent
+                      );
+                    })
+                  );
+              case ProjectType.RESEARCH:
+                return this.projectDataService
+                  .getResearchByProjectId(this.projectId!)
+                  .pipe(
+                    tap((research) => {
+                      this.projectFormService.patchResearchForm(
+                        this.researchesForm,
+                        research
+                      );
+                    })
+                  );
+              default:
+                return of(null);
+            }
+          }),
+          switchMap(() => {
+            return this.projectDataService
+              .getAttachments(
+                this.typeForm.value.type as ProjectType,
+                this.projectId!
+              )
+              .pipe(
+                tap((attachments) => {
+                  this.generalInformationForm.patchValue({ attachments });
+                })
+              );
+          })
+        )
         .subscribe({
-          next: (patent) => {
-            this.authors = patent.coInventors.map((coInventor: any) => {
-              return coInventor.id;
-            });
-            this.patchPatentForm(patent);
+          next: () => {
+            this.loading = false;
+            this.projectSharedService.isProjectCreation = false;
           },
           error: (error) => {
-            console.error('Error loading patent:', error);
+            console.error('Error loading project:', error);
+            this.loading = false;
           },
         })
     );
   }
 
-  private loadResearchData(): void {
-    this.subscriptions.push(
-      this.projectService
-        .getResearchByProjectId(this.projectId!)
-        .pipe(take(1))
-        .subscribe({
-          next: (research) => {
-            this.patchResearchForm(research);
-          },
-          error: (error) => {
-            console.error('Error loading research:', error);
-          },
-        })
-    );
-  }
-
-  // Form patching methods
-  private patchTypeForm(type: ProjectType): void {
-    this.typeForm.patchValue({
-      type,
-    });
-  }
-
-  private patchGeneralInformationForm(project: ProjectDTO): void {
-    const { title, description, progress, tagIds } = project;
-
-    this.generalInformationForm.patchValue({
-      title,
-      description,
-      progress,
-      tags: tagIds,
-    });
-  }
-
-  private patchPublicationForm(publication: PublicationDTO): void {
-    const {
-      publicationDate,
-      publicationSource,
-      doiIsbn,
-      startPage,
-      endPage,
-      journalVolume,
-      issueNumber,
-    } = publication;
-
-    this.publicationsForm.patchValue({
-      authors: this.authors,
-      publicationDate: new Date(publicationDate),
-      publicationSource,
-      doiIsbn,
-      startPage,
-      endPage,
-      journalVolume,
-      issueNumber,
-    });
-  }
-
-  private patchPatentForm(patent: PatentDTO): void {
-    const {
-      primaryAuthorId,
-      coInventors,
-      registrationNumber,
-      registrationDate,
-      issuingAuthority,
-    } = patent;
-
-    this.patentsForm.patchValue({
-      primaryAuthor: primaryAuthorId?.toString(),
-      coInventors: coInventors,
-      registrationNumber: registrationNumber,
-      registrationDate: new Date(registrationDate),
-      issuingAuthority: issuingAuthority,
-    });
-  }
-
-  private patchResearchForm(research: ResearchDTO): void {
-    const { participants, budget, startDate, endDate, status, fundingSource } =
-      research;
-
-    this.researchForm.patchValue({
-      participants: participants.map((p) => p.id + ''),
-      budget: budget,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      status: status,
-      fundingSource: fundingSource,
-    });
-  }
-
-  // Main form submission
   submitForm(): void {
     if (!this.validateForms()) return;
 
     this.loading = true;
-
-    this.projectId ? this.updateProject() : this.createProject();
-  }
-
-  createProject() {
-    const projectData = this.buildProjectRequest() as CreateProjectRequest;
+    const formValues = this.prepareFormValues();
     const attachments = this.generalInformationForm.value.attachments ?? [];
 
-    this.projectService
-      .createProject(projectData)
-      .pipe(
-        switchMap((projectResponse) => {
-          const projectId = projectResponse.data.id;
-          const operations = [
-            this.handleTypedProjectCreation(projectId, projectData.type),
-          ];
+    const operation = this.projectId
+      ? this.projectDataService.updateProject(
+          this.projectId,
+          this.buildProjectRequest() as UpdateProjectRequest,
+          attachments,
+          formValues
+        )
+      : this.projectDataService.createProject(
+          this.buildProjectRequest() as CreateProjectRequest,
+          attachments,
+          formValues
+        );
 
-          if (attachments.length > 0) {
-            operations.push(
-              this.handleAttachments(attachments, projectData.type, projectId)
-            );
-          }
-          return forkJoin(operations);
-        })
-      )
-      .subscribe({
+    this.subscriptions.push(
+      operation.subscribe({
         next: () => this.handleSuccess(),
         error: (error) => this.handleError(error),
-      });
+      })
+    );
   }
 
-  private updateProject(): void {
-    if (!this.projectId) {
-      console.error('Project ID is not defined');
-      this.loading = false;
-      return;
+  private prepareFormValues(): any {
+    const projectType = this.typeForm.value.type as ProjectType;
+    switch (projectType) {
+      case ProjectType.PUBLICATION:
+        return { publication: this.publicationsForm.value };
+      case ProjectType.PATENT:
+        return { patent: this.patentsForm.value };
+      case ProjectType.RESEARCH:
+        return { research: this.researchesForm.value };
+      default:
+        return {};
     }
-
-    const projectData = this.buildProjectRequest() as UpdateProjectRequest;
-    const attachments = this.generalInformationForm.value.attachments ?? [];
-
-    this.projectService
-      .updateProject(this.projectId, projectData)
-      .pipe(
-        switchMap((projectResponse) => {
-          const operations = [
-            this.handleTypedProjectUpdate(
-              this.projectId!,
-              this.projectId!,
-              projectData.type!
-            ),
-          ];
-
-          if (attachments.length > 0) {
-            operations.push(
-              this.attachmentsService.updateFiles(
-                projectResponse.data.type as ProjectType,
-                this.projectId!,
-                attachments
-              )
-            );
-          }
-
-          return forkJoin(operations);
-        })
-      )
-      .subscribe({
-        next: () => this.handleSuccess(),
-        error: (error) => this.handleError(error),
-      });
   }
 
   private handleSuccess(): void {
@@ -487,7 +236,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     this.loading = false;
   }
 
-  // Helper methods
   private validateForms(): boolean {
     if (!this.typeForm.valid || !this.generalInformationForm.valid) {
       this.typeForm.markAllAsTouched();
@@ -496,213 +244,41 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     }
 
     const projectType = this.typeForm.value.type as ProjectType;
+    let specificFormValid = true;
 
     switch (projectType) {
       case ProjectType.PUBLICATION:
-        if (!this.publicationsForm.valid) {
-          this.publicationsForm.markAllAsTouched();
-          return false;
-        }
+        specificFormValid = this.publicationsForm.valid;
+        if (!specificFormValid) this.publicationsForm.markAllAsTouched();
+
         break;
       case ProjectType.PATENT:
-        if (!this.patentsForm.valid) {
-          this.patentsForm.markAllAsTouched();
-          return false;
-        }
+        specificFormValid = this.patentsForm.valid;
+        if (!specificFormValid) this.patentsForm.markAllAsTouched();
         break;
       case ProjectType.RESEARCH:
-        if (!this.researchForm.valid) {
-          this.researchForm.markAllAsTouched();
-          return false;
-        }
+        specificFormValid = this.researchesForm.valid;
+        if (!specificFormValid) this.researchesForm.markAllAsTouched();
         break;
       default:
         console.error('Invalid project type');
         return false;
     }
 
-    return true;
+    return specificFormValid;
   }
 
-  private buildProjectRequest(): CreateProjectRequest | UpdateProjectRequest {
-    const baseRequest = {
+  private buildProjectRequest(): any {
+    return {
       title: this.generalInformationForm.value.title ?? '',
       description: this.generalInformationForm.value.description ?? '',
       type: this.typeForm.value.type ?? ProjectType.PUBLICATION,
       progress: this.generalInformationForm.value.progress ?? 0,
       tagIds: this.generalInformationForm.value.tags ?? [],
-      createdBy: this.creatorId ?? 0,
-    };
-
-    if (this.projectId) {
-      return { ...baseRequest } as UpdateProjectRequest;
-    }
-
-    return {
-      ...baseRequest,
-      createdBy: this.creatorId || 0,
-    } as CreateProjectRequest;
-  }
-
-  // Typed project handlers
-  private handleTypedProjectCreation(
-    projectId: string,
-    projectType: ProjectType
-  ): Observable<any> {
-    switch (projectType) {
-      case ProjectType.PUBLICATION:
-        const publicationData = this.getPublicationFormValues(
-          projectId
-        ) as CreatePublicationRequest;
-        return this.publicationService.createPublication(publicationData);
-      case ProjectType.PATENT:
-        const patentData = this.getPatentFormValues(
-          projectId
-        ) as CreatePatentRequest;
-        return this.patentService.createPatent(patentData);
-      case ProjectType.RESEARCH:
-        const researchData = this.getResearchFormValues(
-          projectId
-        ) as CreateResearchRequest;
-        return this.researchService.create(researchData);
-      default:
-        console.error('Invalid project type');
-        return of(null);
-    }
-  }
-
-  private handleTypedProjectUpdate(
-    typedProjectId: string,
-    projectId: string,
-    projectType: ProjectType
-  ): Observable<any> {
-    switch (projectType) {
-      case ProjectType.PUBLICATION:
-        const publicationData = {
-          ...this.getPublicationFormValues(projectId),
-          id: typedProjectId,
-        } as UpdatePublicationRequest;
-        return this.publicationService.updatePublication(
-          typedProjectId,
-          publicationData
-        );
-      case ProjectType.PATENT:
-        const patentData = {
-          ...this.getPatentFormValues(projectId),
-          id: typedProjectId,
-        } as UpdatePatentRequest;
-        return this.patentService.updatePatent(typedProjectId, patentData);
-      case ProjectType.RESEARCH:
-        const researchData = {
-          ...(this.getResearchFormValues(projectId) as UpdateResearchRequest),
-          id: typedProjectId,
-        };
-        return this.researchService.update(typedProjectId, researchData);
-      default:
-        console.error('Invalid project type');
-        return of(null);
-    }
-  }
-
-  // Form value getters
-  private getPublicationFormValues(
-    projectId: string
-  ): CreatePublicationRequest | UpdatePublicationRequest {
-    const formValue = this.publicationsForm.value;
-
-    if (!formValue.publicationDate) {
-      throw new Error('Publication date is required');
-    }
-    const authors =
-      formValue.authors?.map((author: string) => parseInt(author)) || [];
-    const baseValues = {
-      projectId,
-      publicationDate: new Date(formValue.publicationDate!).toISOString(),
-      publicationSource: formValue.publicationSource ?? '',
-      doiIsbn: formValue.doiIsbn ?? '',
-      startPage: formValue.startPage ?? 1,
-      endPage: formValue.endPage ?? 1,
-      journalVolume: formValue.journalVolume ?? 1,
-      issueNumber: formValue.issueNumber ?? 1,
-      authors,
-    };
-    return baseValues;
-  }
-
-  private getPatentFormValues(
-    projectId: string
-  ): CreatePatentRequest | UpdatePatentRequest {
-    const formValue = this.patentsForm.value;
-    const {
-      primaryAuthor,
-      coInventors,
-      registrationNumber,
-      registrationDate,
-      issuingAuthority,
-    } = formValue;
-
-    if (!primaryAuthor) {
-      throw new Error('Primary author is required');
-    }
-
-    const primaryAuthorIdNumber = +primaryAuthor;
-    const coInventorsNums = coInventors?.map((inventor) => +inventor) || [];
-
-    const baseValues = {
-      projectId,
-      primaryAuthorId: primaryAuthorIdNumber,
-      registrationNumber: registrationNumber ?? '',
-      registrationDate:
-        registrationDate?.toISOString() ?? new Date().toISOString(),
-      issuingAuthority: issuingAuthority ?? '',
-      coInventors: coInventorsNums,
-    };
-
-    return baseValues;
-  }
-  private getResearchFormValues(projectId: string): CreateResearchRequest {
-    const formValue = this.researchForm.value;
-
-    return {
-      projectId,
-      participantIds: formValue.participants || [],
-      budget: formValue.budget || 0,
-      startDate: formValue.startDate?.toISOString() || new Date().toISOString(),
-      endDate: formValue.endDate?.toISOString() || new Date().toISOString(),
-      status: formValue.status || this.statuses[0].value,
-      fundingSource: formValue.fundingSource || '',
+      ...(this.projectId ? {} : { createdBy: this.creatorId ?? 0 }),
     };
   }
 
-  // Attachments handling
-
-  private handleAttachments(
-    files: File[],
-    type: ProjectType,
-    entityId: string
-  ): Observable<any> {
-    if (!files || files.length === 0) {
-      console.error('No files to upload');
-      return of(null);
-    }
-    const uploadObservables = files.map((file: File) =>
-      this.attachmentsService.uploadFile(file, type, entityId).pipe(
-        catchError((error) => {
-          console.error('Error uploading attachment:', error);
-          return of(null); // Handle the error and return an observable
-        })
-      )
-    );
-
-    return forkJoin(uploadObservables).pipe(
-      tap((results) => {
-        const successfulUploads = results.filter((result) => result !== null);
-        console.log(`Successfully uploaded ${successfulUploads.length} files`);
-      })
-    );
-  }
-
-  // Cleanup
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
   }

@@ -127,27 +127,34 @@ export class FilterPanelComponent implements OnInit {
 
     const formValue = this.searchForm.value;
 
-    const toDateString = (date: Date) =>
-      date ? date.toISOString().split('T')[0] : null;
+    const toDateString = (date: Date | null): string | undefined =>
+      date ? date.toISOString().split('T')[0] : undefined;
 
     const filters = {
-      search: formValue.searchQuery,
-      types: formValue.projectTypes,
-      tags: formValue.tags,
+      search: formValue.searchQuery || undefined,
+      types:
+        formValue.projectTypes.length > 0 ? formValue.projectTypes : undefined,
+      tags: formValue.tags.length > 0 ? formValue.tags : undefined,
       startDate: toDateString(formValue.dateRange.start),
       endDate: toDateString(formValue.dateRange.end),
-      assigned: formValue.status.assigned,
-      inProgress: formValue.status.inProgress,
-      completed: formValue.status.completed,
-      progressMin: formValue.progressRange.min,
-      progressMax: formValue.progressRange.max,
-      publicationSource: formValue.publication.source,
-      doiIsbn: formValue.publication.doiIsbn,
-      minBudget: formValue.research.minBudget,
-      maxBudget: formValue.research.maxBudget,
-      fundingSource: formValue.research.fundingSource,
-      registrationNumber: formValue.patent.registrationNumber,
-      issuingAuthority: formValue.patent.issuingAuthority,
+      assigned: formValue.status.assigned || undefined,
+      inProgress: formValue.status.inProgress || undefined,
+      completed: formValue.status.completed || undefined,
+      progressMin:
+        formValue.progressRange.min !== 0
+          ? formValue.progressRange.min
+          : undefined,
+      progressMax:
+        formValue.progressRange.max !== 100
+          ? formValue.progressRange.max
+          : undefined,
+      publicationSource: formValue.publication.source || undefined,
+      doiIsbn: formValue.publication.doiIsbn || undefined,
+      minBudget: formValue.research.minBudget || undefined,
+      maxBudget: formValue.research.maxBudget || undefined,
+      fundingSource: formValue.research.fundingSource || undefined,
+      registrationNumber: formValue.patent.registrationNumber || undefined,
+      issuingAuthority: formValue.patent.issuingAuthority || undefined,
     };
 
     this.filtersApplied.emit(filters);

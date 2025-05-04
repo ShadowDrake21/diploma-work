@@ -6,7 +6,7 @@ import { PaginationService } from '@core/services/pagination.service';
 import { recentProjectContent } from '@content/recentProjects.content';
 import { UserService } from '@core/services/user.service';
 import { AuthService } from '@core/authentication/auth.service';
-import { Project } from '@shared/types/project.types';
+import { ProjectDTO } from '@models/project.model';
 
 @Component({
   selector: 'shared-profile-projects',
@@ -18,7 +18,7 @@ export class ProfileProjectsComponent implements OnInit {
   private userService = inject(UserService);
   private authService = inject(AuthService);
 
-  projectsSig = input.required<Project[] | null>({
+  projectsSig = input.required<ProjectDTO[] | null>({
     alias: 'projects',
   });
   paginationServiceSig = input.required<PaginationService>({

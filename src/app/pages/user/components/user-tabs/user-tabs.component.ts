@@ -14,10 +14,10 @@ import {
   shareReplay,
   Subscription,
 } from 'rxjs';
-import { Project } from '@shared/types/project.types';
 import { AsyncPipe } from '@angular/common';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
+import { ProjectDTO } from '@models/project.model';
 
 @Component({
   selector: 'user-tabs',
@@ -41,10 +41,10 @@ export class TabsComponent implements OnInit, OnDestroy {
   users = usersContent;
   pages: number[] = [];
 
-  private projects$$ = new BehaviorSubject<Project[]>([]);
-  publications$!: Observable<Project[]>;
-  patents$!: Observable<Project[]>;
-  researches$!: Observable<Project[]>;
+  private projects$$ = new BehaviorSubject<ProjectDTO[]>([]);
+  publications$!: Observable<ProjectDTO[]>;
+  patents$!: Observable<ProjectDTO[]>;
+  researches$!: Observable<ProjectDTO[]>;
 
   subscriptions: Subscription[] = [];
 
@@ -101,7 +101,9 @@ export class TabsComponent implements OnInit, OnDestroy {
     this.researches$ = this.createFilteredObservable(ProjectType.RESEARCH);
   }
 
-  private createFilteredObservable(type: ProjectType): Observable<Project[]> {
+  private createFilteredObservable(
+    type: ProjectType
+  ): Observable<ProjectDTO[]> {
     return this.projects$$.pipe(
       map((projects) => projects.filter((p) => p.type === type)),
       distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),

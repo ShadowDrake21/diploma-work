@@ -77,10 +77,6 @@ export class ProjectService {
   }
 
   getPublicationByProjectId(projectId: string): Observable<any> {
-    console.log(
-      'getPublicationByProjectId',
-      `${this.apiUrl}/${projectId}/publication`
-    );
     return this.http.get(`${this.apiUrl}/${projectId}/publication`, {
       headers: this.headers,
     });

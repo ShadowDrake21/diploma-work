@@ -19,8 +19,8 @@ import { IProfileInfo } from '@shared/types/profile.types';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/user.service';
 import { Observable } from 'rxjs';
-import { Project } from '@shared/types/project.types';
 import { AsyncPipe } from '@angular/common';
+import { ProjectDTO } from '@models/project.model';
 
 @Component({
   selector: 'app-profile',
@@ -62,7 +62,7 @@ export class ProfileComponent implements OnInit {
     imageUrl: '/recent-users/user-1.jpg',
   };
 
-  myProjects$!: Observable<Project[] | null>;
+  myProjects$!: Observable<ProjectDTO[] | null>;
 
   ngOnInit(): void {
     this.headerService.setTitle(`User ${this.profile.username}`);

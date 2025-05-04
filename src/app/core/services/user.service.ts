@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { PageResponse } from '@shared/types/generics.types';
-import { Project } from '@shared/types/project.types';
 import {
   IAuthorizedUser,
   ICreateUser,
@@ -13,6 +12,7 @@ import {
 import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ProjectService } from './project.service';
+import { ProjectDTO } from '@models/project.model';
 
 @Injectable({
   providedIn: 'root',
@@ -95,15 +95,15 @@ export class UserService {
     );
   }
 
-  public getUserProjects(userId: string): Observable<Project[]> {
-    return this.http.get<Project[]>(
+  public getUserProjects(userId: string): Observable<ProjectDTO[]> {
+    return this.http.get<ProjectDTO[]>(
       `${this.apiUrl}/${userId}/projects`,
       getAuthHeaders()
     );
   }
 
-  public getCurrentUserProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>(
+  public getCurrentUserProjects(): Observable<ProjectDTO[]> {
+    return this.http.get<ProjectDTO[]>(
       `${this.apiUrl}/me/projects`,
       getAuthHeaders()
     );
@@ -121,7 +121,7 @@ export class UserService {
     );
   }
 
-  getProjectsWithDetails(userId: string): Observable<Project[]> {
+  getProjectsWithDetails(userId: string): Observable<ProjectDTO[]> {
     return this.getUserProjects(userId).pipe(
       switchMap((projects) => {
         return forkJoin(
