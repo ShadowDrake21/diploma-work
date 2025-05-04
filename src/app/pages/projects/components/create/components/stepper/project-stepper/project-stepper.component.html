@@ -1,0 +1,72 @@
+@let loading = formService.loading; @let subtext = formService.isEditing ? 'Edit
+your project' : 'Create a new project'; @let allUsers = formService.allUsers$ |
+async; @let authors = formService.authors;
+
+<p class="create-subtext">
+  {{ subtext }}
+</p>
+
+<mat-stepper #stepper orientation="vertical" linear>
+  <!-- Step 1: Project Type -->
+  <mat-step
+    [stepControl]="typeForm"
+    label="Select a project type"
+    errorMessage="Type is required."
+  >
+    <create-project-type-step [typeForm]="typeForm" />
+  </mat-step>
+
+  <!-- Step 2: General Information -->
+  <mat-step
+    [stepControl]="generalInfoForm"
+    label="Fill out general information"
+    errorMessage="General information is required."
+  >
+    <create-project-general-info-step
+      [generalInfoForm]="generalInfoForm"
+      [typeForm]="typeForm"
+      [existingFiles]="formService.existingFiles$ | async"
+    />
+  </mat-step>
+
+  <!-- Step 3: Work Information (Dynamic based on type) -->
+  @if (typeForm.value.type) {
+  <mat-step
+    [stepControl]="getCurrentWorkForm()"
+    errorMessage="Type-specific information is required."
+    label="Fill out work information"
+  >
+    @if (typeForm.value.type === 'PUBLICATION') {
+    <create-project-work-info-step
+      [publicationsForm]="publicationForm"
+      [allUsers]="allUsers"
+      [authors]="authors"
+    />
+    } @else if (typeForm.value.type === 'PATENT') {
+    <create-project-work-info-step
+      [patentsForm]="patentForm"
+      [authors]="authors"
+      [allUsers]="allUsers"
+    />
+    } @else if (typeForm.value.type === 'RESEARCH') {
+    <create-project-work-info-step
+      [researchesForm]="researchForm"
+      [allUsers]="allUsers"
+      [authors]="authors"
+    />
+    } </mat-step
+  >}
+
+  <!-- Final Step: Submission -->
+  <mat-step>
+    <ng-template matStepLabel>Done</ng-template>
+    <p>You are now done.</p>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button (click)="stepper.reset()">Reset</button>
+      <button mat-button (click)="submitForm()" [disabled]="loading">
+        {{ loading ? "Saving..." : "Submit" }}
+      </button>
+    </div>
+  </mat-step>
+</mat-stepper>

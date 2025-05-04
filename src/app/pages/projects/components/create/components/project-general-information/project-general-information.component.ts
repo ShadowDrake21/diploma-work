@@ -66,11 +66,11 @@ export class ProjectGeneralInformationComponent implements OnInit {
   entityTypeSig = input.required<string | null | undefined>({
     alias: 'entityType',
   });
-
-  tags$!: Observable<any>;
   existingFilesSig = input.required<any[] | null | undefined>({
     alias: 'existingFiles',
   });
+
+  tags$!: Observable<any>;
 
   isFilesReseted: boolean = false;
 

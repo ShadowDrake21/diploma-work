@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +22,7 @@ export class AttachmentsService {
   uploadFile(
     file: File,
     entityType: ProjectType,
-    uuid: String
+    uuid: string
   ): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
@@ -30,10 +30,20 @@ export class AttachmentsService {
     formData.append('entityId', uuid.toString());
     return this.http.post<string>(`${this.apiUrl}/upload`, formData, {
       responseType: 'text' as 'json',
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      }),
+      ...getAuthHeaders(),
     });
+  }
+
+  uploadFiles(
+    entityType: ProjectType,
+    entityId: string,
+    files: File[]
+  ): Observable<string[]> {
+    const uploadObservables = files.map((file) =>
+      this.uploadFile(file, entityType, entityId)
+    );
+
+    return forkJoin(uploadObservables);
   }
 
   updateFiles(

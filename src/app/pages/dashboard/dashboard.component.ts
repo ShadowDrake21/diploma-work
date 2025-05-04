@@ -6,11 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
-import { Project } from '@shared/types/project.types';
 import { ProjectService } from '@core/services/project.service';
 import { Subscription } from 'rxjs';
 import { DashboardService } from '@core/services/dashboard.service';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
+import { ProjectDTO } from '@models/project.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   isLoading = true;
 
-  newestProjects: Project[] = [];
+  newestProjects: ProjectDTO[] = [];
   metricsData: DashboardMetricCardItem[] = [];
   ngOnInit(): void {
     this.loadNewsestProjects();
@@ -52,7 +52,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadNewsestProjects() {
     const subscription = this.projectService.getNewestProjects(6).subscribe({
       next: (projects) => {
-        this.newestProjects = projects;
+        this.newestProjects = projects.data;
       },
       error: (error) => {
         console.error('Error fetching newest projects:', error);

@@ -18,6 +18,8 @@ import { map, Observable, startWith } from 'rxjs';
 import { Filter } from '@shared/types/filters.types';
 import { authors, statuses } from '@content/createProject.content';
 import { IUser } from '@shared/types/users.types';
+import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
+import { ResearchFormGroup } from '@shared/types/project-form.types';
 
 @Component({
   selector: 'create-project-research-form',
@@ -36,45 +38,19 @@ import { IUser } from '@shared/types/users.types';
   templateUrl: './project-research-form.component.html',
   styleUrl: './project-research-form.component.scss',
 })
-export class ProjectResearchFormComponent {
-  researchProjectsFormSig = input.required<
-    FormGroup<{
-      participants: FormControl<string[] | null>;
-      budget: FormControl<number | null>;
-      startDate: FormControl<Date | null>;
-      endDate: FormControl<Date | null>;
-      status: FormControl<string | null>;
-      fundingSource: FormControl<string | null>;
-    }>
-  >({ alias: 'researchProjectsForm' });
-  allUsersSig = input.required<IUser[] | null>({ alias: 'allUsers' });
-  authorsSig = input.required<any[] | null>({ alias: 'authors' });
+export class ProjectResearchFormComponent extends BaseFormComponent {
+  researchProjectsFormSig = input.required<ResearchFormGroup>({
+    alias: 'researchesForm',
+  });
 
   statuses = statuses;
-  participants = authors;
 
-  compareParticipants = (
-    coParticipantId1: string,
-    coParticipantId2: string
-  ) => {
-    return coParticipantId1.toString() === coParticipantId2.toString();
-  };
+  compareParticipants = (id1: string, id2: string) => this.compareIds(id1, id2);
 
   compareStatuses = (status1: string, status2: Filter | string) => {
     if (typeof status2 === 'string') {
       return status1 === status2;
-    } else {
-      console.log(
-        'status1',
-        status1,
-        ' status2',
-        status2,
-        'status1 === status2.value',
-        status1 === status2.value
-      );
-      console.log(typeof status1, typeof status2);
-
-      return status1 === status2.value;
     }
+    return status1 === status2.value;
   };
 }

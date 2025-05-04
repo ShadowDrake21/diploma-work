@@ -3,7 +3,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CommonModule, LowerCasePipe, TitleCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DashboardRecentProjectItemModal } from '@shared/types/dashboard.types';
-import { Project, ProjectItem } from '@shared/types/project.types';
+import { ProjectDTO } from '@models/project.model';
 
 @Component({
   selector: 'shared-project-card',
@@ -12,7 +12,7 @@ import { Project, ProjectItem } from '@shared/types/project.types';
   styleUrl: './project-card.component.scss',
 })
 export class ProjectCardComponent {
-  projectSig = input.required<Project>({
+  projectSig = input.required<ProjectDTO>({
     alias: 'project',
   });
 }

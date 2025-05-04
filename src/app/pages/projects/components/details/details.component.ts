@@ -14,8 +14,15 @@ import { CommentComponent } from '@shared/components/comment/comment.component';
 import { AsyncPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { userComments } from '@content/userComments.content';
 import { ProjectService } from '@core/services/project.service';
-import { Project } from '@shared/types/project.types';
-import { catchError, forkJoin, Observable, of, Subscription, tap } from 'rxjs';
+import {
+  catchError,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  Subscription,
+  tap,
+} from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
 import { TagService } from '@core/services/tag.service';
 import { AttachmentsService } from '@core/services/attachments.service';
@@ -27,6 +34,7 @@ import {
   CreateCommentInterface,
 } from '@shared/types/comment.types';
 import { FormsModule } from '@angular/forms';
+import { ProjectDTO } from '@models/project.model';
 
 @Component({
   selector: 'project-details',
@@ -64,7 +72,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   work: DashboardRecentProjectItemModal | undefined = undefined;
   comment = userComments[0];
 
-  project$!: Observable<Project | undefined>;
+  project$!: Observable<ProjectDTO | undefined>;
   tags$!: Observable<any>;
   publication$!: Observable<any>;
   patent$!: Observable<any>;
@@ -111,7 +119,9 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   getWorkById() {
     if (!this.workId) return;
 
-    this.project$ = this.projectService.getProjectById(this.workId);
+    this.project$ = this.projectService
+      .getProjectById(this.workId)
+      .pipe(map((res) => res.data));
 
     const projectSub = this.project$.subscribe((project) => {
       console.log('project', project);

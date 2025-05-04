@@ -17,6 +17,11 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { authors } from '@content/createProject.content';
 import { UserService } from '@core/services/user.service';
+import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
+import {
+  BaseFormInputs,
+  PatentFormGroup,
+} from '@shared/types/project-form.types';
 
 @Component({
   selector: 'create-project-patent-form',
@@ -35,33 +40,21 @@ import { UserService } from '@core/services/user.service';
   templateUrl: './project-patent-form.component.html',
   styleUrl: './project-patent-form.component.scss',
 })
-export class ProjectPatentFormComponent implements OnInit {
+export class ProjectPatentFormComponent
+  extends BaseFormComponent
+  implements OnInit
+{
   private userService = inject(UserService);
 
-  patentsFormSig = input.required<
-    FormGroup<{
-      primaryAuthor: FormControl<string | null>;
-      coInventors: FormControl<number[] | null>;
-      registrationNumber: FormControl<string | null>;
-      registrationDate: FormControl<Date | null>;
-      issuingAuthority: FormControl<string | null>;
-    }>
-  >({ alias: 'patentsForm' });
-  allUsers$!: Observable<any[]>;
-  authorsSig = input.required<any[] | null>({ alias: 'authors' });
-
-  authors = authors;
+  patentsFormSig = input.required<PatentFormGroup>({ alias: 'patentsForm' });
+  allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   ngOnInit(): void {
-    console.log('ngOnInit', this.patentsFormSig().value.coInventors);
     this.allUsers$ = this.userService.getAllUsers();
   }
 
-  comparePrimaryAuthors = (authorId1: number, authorId2: number) => {
-    return authorId1 === authorId2;
-  };
+  comparePrimaryAuthors = (id1: number, id2: number) =>
+    this.compareIds(id1, id2);
 
-  compareCoInventors = (coInventorId1: number, coInventorId2: number) => {
-    return coInventorId1 === coInventorId2;
-  };
+  compareCoInventors = (id1: number, id2: number) => this.compareIds(id1, id2);
 }
