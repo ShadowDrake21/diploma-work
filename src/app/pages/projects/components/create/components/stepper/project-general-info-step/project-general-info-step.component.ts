@@ -7,21 +7,19 @@ import { FormGroup } from '@angular/forms';
   imports: [ProjectGeneralInformationComponent],
   styleUrl: './project-general-info-step.component.scss',
   template: `
-    @let generalInfoForm = generalInfoFormSig(); @let typeForm = typeFormSig();
-    @let existingFiles = existingFilesSig(); @if (generalInfoForm && typeForm) {
+    @let existingFiles = existingFilesSig(); @if (generalInfoForm() &&
+    typeForm()) {
     <create-project-general-information
-      [generalInformationForm]="generalInfoForm"
-      [entityType]="typeForm.value.type"
+      [generalInformationForm]="generalInfoForm()"
+      [entityType]="typeForm().value.type"
       [existingFiles]="existingFiles"
     />
     }
   `,
 })
 export class ProjectGeneralInfoStepComponent {
-  generalInfoFormSig = input<FormGroup | null>(null, {
-    alias: 'generalInfoForm',
-  });
-  typeFormSig = input<FormGroup | null>(null, { alias: 'typeForm' });
+  generalInfoForm = input.required<FormGroup>();
+  typeForm = input.required<FormGroup>();
   existingFilesSig = input<File[] | null | undefined>(null, {
     alias: 'existingFiles',
   });

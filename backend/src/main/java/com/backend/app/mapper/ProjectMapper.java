@@ -129,12 +129,11 @@ public class ProjectMapper {
 	}
 	
 	private User getCreator(ProjectDTO projectDTO) {
-		return Optional.ofNullable(projectDTO.getCreatedBy())
-				.map(userId -> userRepository.findById(userId)
-						.orElseThrow(() -> {
-                            String message = "Creator user not found with ID: " + userId;
-                            log.error(message);
-                            return new ValidationException(message);})).orElse(null);
+		if(projectDTO.getCreatedBy() == null || projectDTO.getCreatedBy() <= 0) {
+			throw new ValidationException("Creator ID is required and must be positive");
+		}
+		  return userRepository.findById(projectDTO.getCreatedBy())
+		            .orElseThrow(() -> new ValidationException("Creator user not found with ID: " + projectDTO.getCreatedBy()));
 	}
 	
 	private Long getCreatorId(Project project) {

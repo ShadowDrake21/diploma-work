@@ -59,9 +59,13 @@ public class ProjectService {
 	 * 
 	 * @return List of all projects ordered by creation date (newest first)
 	 */
-	public List<Project> findAllProjects() {
-		return projectRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+	public Page<Project> findAllProjects(Pageable pageable) {
+		return projectRepository.findAll(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by(Sort.Direction.DESC, "createdAt")));
 	}
+	
+	public List<Project> findAllProjects() {
+        return projectRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
 
 	/**
 	 * Finds a project by its unique identifier.
@@ -94,10 +98,18 @@ public class ProjectService {
 	 * @return List of projects created by the specified user
 	 * @throws IllegalArgumentException if userId is null
 	 */
+	public Page<Project> findProjectsByUserId(Long userId, Pageable pageable) {
+		Assert.notNull(userId, "User ID must not be null");
+		return projectRepository.findByCreatorId(userId, PageRequest.of(pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")));
+	}
+	
 	public List<Project> findProjectsByUserId(Long userId) {
 		Assert.notNull(userId, "User ID must not be null");
 		return projectRepository.findByCreatorId(userId);
 	}
+
 
 	/**
 	 * Retrieves the most recently created projects.
@@ -106,14 +118,22 @@ public class ProjectService {
 	 * @return List of newest projects ordered by creation date
 	 * @throws IllegalArgumentException if limit is not positive
 	 */
-	public List<Project> findNewestProjects(int limit) {
+	public Page<Project> findNewestProjects(int limit, Pageable pageable) {
 		Assert.isTrue(limit > 0, "Limit must be positive");
-		Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-		return projectRepository.findNewsestProjects(pageable).getContent();
+		 return projectRepository.findAll(
+			        PageRequest.of(pageable.getPageNumber(), limit, Sort.by(Sort.Direction.DESC, "createdAt")));
 	}
 
-	public List<Project> findProjectsByCreator(Long creatorId) {
-		return projectRepository.findProjectsWithCreatorByUserId(creatorId);
+	public Page<Project> findProjectsByCreator(Long creatorId, Pageable pageable) {
+		Assert.notNull(creatorId, "Creator ID must not be null");
+        return projectRepository.findByCreatorId(
+            creatorId,
+            PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+            )
+        );
 	}
 
 	// ========== CREATE OPERATIONS ========== //

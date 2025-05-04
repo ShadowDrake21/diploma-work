@@ -39,16 +39,6 @@ export class ListProjectsComponent implements OnInit {
       console.log('projects', projects);
       this.paginationUsage();
     });
-
-    // this.route.queryParams.subscribe((params) => {
-    //   console.log('params', params);
-    //   if (params['mode'] === 'mine') {
-    //     console.log('mine');
-    //     const newProjects = this.projects.filter((project) => project.id < 6);
-    //     this.projects = newProjects;
-    //     this.paginationUsage();
-    //   }
-    // });
   }
 
   onFiltering(filters: any): void {

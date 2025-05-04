@@ -27,12 +27,22 @@ export class ProjectFormService implements OnInit {
 
   subscriptions: Subscription[] = [];
 
-  ngOnInit(): void {
-    const sub = this.userService.getCurrentUser().subscribe((user) => {
-      this.creatorId = +user.id;
-    });
+  ngOnInit(): void {}
 
-    this.subscriptions.push(sub);
+  constructor() {
+    this.subscriptions.push(
+      this.userService.getCurrentUser().subscribe({
+        next: (user) => {
+          if (user.id) {
+            this.creatorId = +user.id;
+            console.log('Creator ID set to:', this.creatorId);
+          }
+        },
+        error: (err) => {
+          console.error('Failed to get current user', err);
+        },
+      })
+    );
   }
 
   createTypeForm(): FormGroup {
@@ -117,10 +127,11 @@ export class ProjectFormService implements OnInit {
     creatorId: number | null,
     isUpdate: boolean = false
   ): CreateProjectRequest | UpdateProjectRequest {
+    console.log('buildProjectRequest', creatorId, generalInfoForm.value);
     const baseValues = {
       title: generalInfoForm.value.title ?? '',
       description: generalInfoForm.value.description ?? '',
-      type: generalInfoForm.value.type ?? ProjectType.PUBLICATION,
+      type: typeForm.value.type ?? ProjectType.PUBLICATION,
       progress: generalInfoForm.value.progress ?? 0,
       tagsIds: generalInfoForm.value.tags ?? [],
       ...(!isUpdate && { createdBy: creatorId ?? 0 }),
@@ -183,10 +194,19 @@ export class ProjectFormService implements OnInit {
   }
 
   patchTypeForm(form: FormGroup, type: ProjectType) {
-    form.patchValue({ type });
+    if (!form) return;
+
+    form.patchValue({ type }, { emitEvent: false });
+
+    form.disable({ emitEvent: false });
+    form.markAsPristine();
+    form.markAsUntouched();
+
+    form.updateValueAndValidity();
   }
   patchGeneralInformationForm(form: FormGroup, project: any): void {
     const { title, description, progress, tagIds } = project;
+    console.log('patchGeneralInformationForm', project);
     form.patchValue({
       title,
       description,

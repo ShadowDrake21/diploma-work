@@ -3,14 +3,11 @@ package com.backend.app.controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Pageable; 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.app.dto.ApiResponse;
+import com.backend.app.dto.PaginatedResponse;
 import com.backend.app.dto.PatentDTO;
 import com.backend.app.dto.ProjectDTO;
 import com.backend.app.dto.ProjectSearchCriteria;
@@ -37,11 +36,8 @@ import com.backend.app.mapper.PatentMapper;
 import com.backend.app.mapper.ProjectMapper;
 import com.backend.app.mapper.PublicationMapper;
 import com.backend.app.mapper.ResearchMapper;
-import com.backend.app.model.Patent;
 import com.backend.app.model.Project;
 import com.backend.app.model.ProjectResponse;
-import com.backend.app.model.Publication;
-import com.backend.app.model.Research;
 import com.backend.app.model.User;
 import com.backend.app.service.PatentService;
 import com.backend.app.service.ProjectService;
@@ -69,162 +65,248 @@ import lombok.extern.slf4j.Slf4j;
 public class ProjectController {
 	private final ProjectService projectService;
 	private final ProjectMapper projectMapper;
-    private final PublicationService publicationService; 
-    private final PublicationMapper publicationMapper;
-    private final PatentService patentService;
-    private final PatentMapper patentMapper;
-    private final ResearchService researchService;
-    private final ResearchMapper researchMapper;
-    private final UserService userService;
+	private final PublicationService publicationService;
+	private final PublicationMapper publicationMapper;
+	private final PatentService patentService;
+	private final PatentMapper patentMapper;
+	private final ResearchService researchService;
+	private final ResearchMapper researchMapper;
+	private final UserService userService;
 
-    @Operation(summary = "Get all projects")
+
+	@Operation(summary = "Get all projects with pagination")
 	@GetMapping
-	public ResponseEntity<List<ProjectDTO>> getAllProjects(){
-    	log.debug("Fetching al projects");
-    	List<ProjectDTO> projects = projectService.findAllProjects().stream().map(projectMapper::toDTO).toList();
-		return ResponseEntity.ok(projects);
+	public ResponseEntity<PaginatedResponse<ProjectDTO>> getAllProjects(@ParameterObject Pageable pageable) {
+		log.debug("Fetching al projects");
+		 try {
+		        Page<ProjectDTO> projects = projectService.findAllProjects(pageable)
+		                .map(projectMapper::toDTO);
+		        return ResponseEntity.ok(PaginatedResponse.success(projects));
+		    } catch (Exception e) {
+		        log.error("Error fetching projects: {}", e.getMessage());
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                .body(PaginatedResponse.error("Failed to fetch projects"));
+		    }
 	}
 	
-    @Operation(summary = "Get project by ID")
+	
+	@Operation(summary = "Get project by ID")
 	@GetMapping("/{id}")
-	public ResponseEntity<ProjectDTO> getProjectById(@Parameter(description = "ID of the project to retrieve") @PathVariable UUID id) {
-    	log.debug("Fetching project with ID: {}", id);
-	    ProjectDTO project = projectService.findProjectById(id).map(projectMapper::toDTO).orElseThrow(() -> {
-            log.error("Project not found with ID: {}", id);
-            return new EntityNotFoundException("Project not found with id: " + id);
-        });
-	    return ResponseEntity.ok(project);
+	public ResponseEntity<ApiResponse<ProjectDTO>> getProjectById(
+			@Parameter(description = "ID of the project to retrieve") @PathVariable UUID id) {
+		log.debug("Fetching project with ID: {}", id);
+		return projectService.findProjectById(id).map(projectMapper::toDTO)
+				.map(dto -> ResponseEntity.ok(ApiResponse.success(dto))).orElseGet(() -> {
+					log.error("Project not found with ID: {}", id);
+					return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("Project not found"));
+				});
 	}
-	
-    @Operation(summary = "Create a new project")
+
+	@Operation(summary = "Create a new project")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO, Authentication authentication) {
-    	log.debug("Creating new project: {}", projectDTO.getTitle());
-		User creator = userService.getUserByEmail(authentication.getName()).orElseThrow(() -> {
-			log.error("User not found with email: {}", authentication.getName());
-			return new EntityNotFoundException("User not found");});
+	public ResponseEntity<ApiResponse<ProjectDTO>> createProject(@Valid @RequestBody ProjectDTO projectDTO,
+			Authentication authentication) {
+		log.debug("Creating new project: {}", projectDTO.getTitle());
 
-		
-        Project createdProject = projectService.createProject(projectDTO, creator.getId());
-        log.info("Created project with ID: {}", createdProject.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectMapper.toDTO(createdProject));
-    }
-	
-    @Operation(summary = "Update an existing project")
+		try {
+			User creator = userService.getUserByEmail(authentication.getName()).orElseThrow(() -> {
+				log.error("User not found with email: {}", authentication.getName());
+				return new EntityNotFoundException("User not found");
+			});
+
+			Project createdProject = projectService.createProject(projectDTO, creator.getId());
+			log.info("Created project with ID: {}", createdProject.getId());
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(ApiResponse.success(projectMapper.toDTO(createdProject)));
+
+		} catch (EntityNotFoundException e) {
+			log.error("Error creating project: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
+		} catch (Exception e) {
+			log.error("Error creating project: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Failed to create project"));
+		}
+	}
+
+	@Operation(summary = "Update an existing project")
 	@PutMapping("/{id}")
-	public ResponseEntity<ProjectDTO> updateProject(@Parameter(description = "ID of the project to update") @PathVariable UUID id, @Valid @RequestBody ProjectDTO projectDTO) {
-    	log.debug("Updating project with ID: {}", id);
-		ProjectDTO updatedProject =projectService.updateProject(id, projectDTO).map(projectMapper::toDTO).orElseThrow(() -> {
-			log.error("Failed to update project with ID: {}", id);
-			return new EntityNotFoundException("Project not found with id: " + id);
-		});
-		log.info("Successfully updated project with ID: {}", id);
-		return ResponseEntity.ok(updatedProject);
+	public ResponseEntity<ApiResponse<ProjectDTO>> updateProject(
+			@Parameter(description = "ID of the project to update") @PathVariable UUID id,
+			@Valid @RequestBody ProjectDTO projectDTO) {
+		log.debug("Updating project with ID: {}", id);
+		try {
+			ProjectDTO updatedProject = projectService.updateProject(id, projectDTO).map(projectMapper::toDTO)
+					.orElseThrow(() -> {
+						log.error("Failed to update project with ID: {}", id);
+						return new EntityNotFoundException("Project not found with id: " + id);
+					});
+			log.info("Successfully updated project with ID: {}", id);
+			return ResponseEntity.ok(ApiResponse.success(updatedProject));
+		} catch (EntityNotFoundException e) {
+			log.error("Error updating project: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
+		} catch (Exception e) {
+			log.error("Error updating project: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Failed to update project"));
+		}
+
 	}
-	
-    @Operation(summary = "Delete a project")
+
+	@Operation(summary = "Delete a project")
 	@DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteProject(@Parameter(description = "ID of the project to delete") @PathVariable UUID id) {
-    	log.debug("Deleting project with ID: {}", id);
-		projectService.deleteProject(id);
-		log.info("Successfully deleted project with ID: {}", id);
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public ResponseEntity<ApiResponse<Void>> deleteProject(
+			@Parameter(description = "ID of the project to delete") @PathVariable UUID id) {
+		log.debug("Deleting project with ID: {}", id);
+		try {
+			projectService.deleteProject(id);
+			log.info("Successfully deleted project with ID: {}", id);
+			return ResponseEntity.noContent().build();
+		} catch (EntityNotFoundException e) {
+			log.error("Error deleting project: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
+		} catch (Exception e) {
+			log.error("Error deleting project: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Failed to delete project"));
+		}
+
 	}
 	
-    @Operation(summary = "Get projects by creator")
+	@Operation(summary = "Get projects by creator with pagination")
 	@GetMapping("/creator/{userId}")
-	public ResponseEntity<List<ProjectDTO>> getProjectsByCreator(@Parameter(description = "ID of the creator user") @PathVariable Long userId) {
-    	log.debug("Fetching projects for creator with ID: {}", userId);
-		List<ProjectDTO> projects = projectService.findProjectsByCreator(userId).stream()
-				.map(projectMapper::toDTO).toList();
-		return ResponseEntity.ok(projects);
+	public ResponseEntity<PaginatedResponse<ProjectDTO>> getProjectsByCreator(
+			@Parameter(description = "ID of the creator user") @PathVariable Long userId, @ParameterObject Pageable pageable) {
+		log.debug("Fetching projects for creator with ID: {}", userId);
+		try {
+			Page<ProjectDTO> projects = projectService.findProjectsByCreator(userId, pageable).map(projectMapper::toDTO);
+			return ResponseEntity.ok(PaginatedResponse.success(projects));
+		}  catch (Exception e) {
+	        log.error("Error fetching projects by creator: {}", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(PaginatedResponse.error("Failed to fetch projects by creator"));
+	    }
+
 	}
-	
+
+
 	@Operation(summary = "Get publication by project ID")
 	@GetMapping("/{id}/publication")
-	public ResponseEntity<PublicationDTO> getPublicationByProjectId(@Parameter(description = "ID of the project") @PathVariable UUID id) {
+	public ResponseEntity<ApiResponse<PublicationDTO>> getPublicationByProjectId(
+			@Parameter(description = "ID of the project") @PathVariable UUID id) {
 		log.debug("Fetching publication for project ID: {}", id);
-		return publicationService.findPublicationByProjectId(id).stream()
-                .findFirst()
-                .map(pub -> {
-                    log.debug("Found publication for project ID: {}", id);
-                    return publicationMapper.toDTO(pub);
-                })
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> {
-                    log.warn("No publication found for project ID: {}", id);
-                    return ResponseEntity.notFound().build();
-                });
+		try {
+			PublicationDTO publication = publicationService.findPublicationByProjectId(id).stream().findFirst()
+					.map(publicationMapper::toDTO)
+					.orElseThrow(() -> new EntityNotFoundException("Publication not found"));
+			return ResponseEntity.ok(ApiResponse.success(publication));
+		} catch (EntityNotFoundException e) {
+			log.warn("No publication found for project ID: {}", id);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
+		} catch (Exception e) {
+			log.error("Error fetching publication: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Failed to fetch publication"));
+		}
+
 	}
-	
+
 	@Operation(summary = "Search projects with filters")
 	@GetMapping("/search")
-	public ResponseEntity<Page<ProjectResponse>> searchProject(
-			    @Parameter(description = "Search term") @RequestParam(required = false) String search,
-			    @Parameter(description = "Comma-separated list of project types") @RequestParam(required = false)  List<ProjectType> types,
-			    @Parameter(description = "Comma-separated list of tag IDs") @RequestParam(required = false)  List<UUID> tags,
-			    @Parameter(description = "Start date filter") @RequestParam(required = false) 
-			    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-			    @Parameter(description = "End date filter") @RequestParam(required = false) 
-			    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-			    @Parameter(description = "Minimum progress (0-100)") @RequestParam(defaultValue = "0") @Min(0) @Max(100) int progressMin,
-			    @Parameter(description = "Maximum progress (0-100)") @RequestParam(defaultValue = "100") @Min(0) @Max(100) int progressMax,
-			    @Parameter(description = "Publication source filter") @RequestParam(required = false) String publicationSource,
-			    @Parameter(description = "DOI/ISBN filter") @RequestParam(required = false) String doiIsbn,
-			    @Parameter(description = "Minimum budget") @RequestParam(required = false) @DecimalMin("0.00") BigDecimal minBudget,
-			    @Parameter(description = "Maximum budget") @RequestParam(required = false) @DecimalMin("0.00") BigDecimal maxBudget,
-	            @Parameter(description = "Funding source filter") @RequestParam(required = false) String fundingSource,
-	            @Parameter(description = "Patent registration number") @RequestParam(required = false) String registrationNumber,
-	            @Parameter(description = "Patent issuing authority") @RequestParam(required = false) String issuingAuthority,
-	            @ParameterObject Pageable pageable
-			){
+	public ResponseEntity<ApiResponse<Page<ProjectResponse>>> searchProject(
+			@Parameter(description = "Search term") @RequestParam(required = false) String search,
+			@Parameter(description = "Comma-separated list of project types") @RequestParam(required = false) List<ProjectType> types,
+			@Parameter(description = "Comma-separated list of tag IDs") @RequestParam(required = false) List<UUID> tags,
+			@Parameter(description = "Start date filter") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@Parameter(description = "End date filter") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@Parameter(description = "Minimum progress (0-100)") @RequestParam(defaultValue = "0") @Min(0) @Max(100) int progressMin,
+			@Parameter(description = "Maximum progress (0-100)") @RequestParam(defaultValue = "100") @Min(0) @Max(100) int progressMax,
+			@Parameter(description = "Publication source filter") @RequestParam(required = false) String publicationSource,
+			@Parameter(description = "DOI/ISBN filter") @RequestParam(required = false) String doiIsbn,
+			@Parameter(description = "Minimum budget") @RequestParam(required = false) @DecimalMin("0.00") BigDecimal minBudget,
+			@Parameter(description = "Maximum budget") @RequestParam(required = false) @DecimalMin("0.00") BigDecimal maxBudget,
+			@Parameter(description = "Funding source filter") @RequestParam(required = false) String fundingSource,
+			@Parameter(description = "Patent registration number") @RequestParam(required = false) String registrationNumber,
+			@Parameter(description = "Patent issuing authority") @RequestParam(required = false) String issuingAuthority,
+			@ParameterObject Pageable pageable) {
 		log.debug("Searching projects with criteria - search: {}, types: {}, tags: {}", search, types, tags);
-		ProjectSearchCriteria criteria =new  ProjectSearchCriteria(
-				search,types,tags,  startDate, endDate, progressMin, progressMax,  publicationSource,
-				 doiIsbn,  minBudget,  maxBudget,  fundingSource,  registrationNumber,
-				 issuingAuthority
-				);
-		Page<ProjectResponse> response = projectService.searchProjects(criteria, pageable).map(projectMapper::toResponse);
-		log.info("Found {} projects matching search criteria", response.getTotalElements());
-		return ResponseEntity.ok(response);
+
+		try {
+			ProjectSearchCriteria criteria = new ProjectSearchCriteria(search, types, tags, startDate, endDate,
+					progressMin, progressMax, publicationSource, doiIsbn, minBudget, maxBudget, fundingSource,
+					registrationNumber, issuingAuthority);
+			Page<ProjectResponse> response = projectService.searchProjects(criteria, pageable)
+					.map(projectMapper::toResponse);
+			log.info("Found {} projects matching search criteria", response.getTotalElements());
+			return ResponseEntity.ok(ApiResponse.success(response));
+		} catch (Exception e) {
+			log.error("Error searching projects: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Failed to search projects"));
+		}
+
 	}
-	
+
 	@Operation(summary = "Get patent by project ID")
 	@GetMapping("/{id}/patent")
-	public ResponseEntity<PatentDTO> getPatentByProjectId(@Parameter(description = "ID of the project") @PathVariable UUID id) {
+	public ResponseEntity<ApiResponse<PatentDTO>> getPatentByProjectId(
+			@Parameter(description = "ID of the project") @PathVariable UUID id) {
 		log.debug("Fetching patent for project ID: {}", id);
-		return patentService.findPatentByProjectId(id).stream().findFirst().map(patent -> {
-			log.debug("Found patent for project ID: {}", id);
-			return patentMapper.toDTO(patent);
-		}).map(ResponseEntity::ok).orElseGet(() -> {
-            log.warn("No patent found for project ID: {}", id);
-            return ResponseEntity.notFound().build();
-        });
+		try {
+			PatentDTO patent = patentService.findPatentByProjectId(id).stream().findFirst().map(patentMapper::toDTO)
+					.orElseThrow(() -> new EntityNotFoundException("Patent not found"));
+
+			return ResponseEntity.ok(ApiResponse.success(patent));
+		} catch (EntityNotFoundException e) {
+			log.warn("No patent found for project ID: {}", id);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
+		} catch (Exception e) {
+			log.error("Error fetching patent: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Failed to fetch patent"));
+		}
 	}
-	
+
 	@Operation(summary = "Get research by project ID")
 	@GetMapping("/{id}/research")
-	public ResponseEntity<ResearchDTO> getResearchByProjectId(@Parameter(description = "ID of the project") @PathVariable UUID id) {
+	public ResponseEntity<ApiResponse<ResearchDTO>> getResearchByProjectId(
+			@Parameter(description = "ID of the project") @PathVariable UUID id) {
 		log.debug("Fetching research for project ID: {}", id);
-		
-		return researchService.findResearchByProjectId(id).stream().findFirst().map(patent -> {
-			log.debug("Found research for project ID: {}", id);
-			return researchMapper.toDTO(patent);
-		}).map(ResponseEntity::ok).orElseGet(() -> {
-            log.warn("No research found for project ID: {}", id);
-            return ResponseEntity.notFound().build();
-        });
+
+		try {
+			ResearchDTO research = researchService.findResearchByProjectId(id).stream().findFirst()
+					.map(researchMapper::toDTO).orElseThrow(() -> new EntityNotFoundException("Research not found"));
+
+			return ResponseEntity.ok(ApiResponse.success(research));
+		} catch (EntityNotFoundException e) {
+			log.warn("No research found for project ID: {}", id);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
+		} catch (Exception e) {
+			log.error("Error fetching research: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.error("Failed to fetch research"));
+		}
 	}
 	
 	@Operation(summary = "Get newest projects")
 	@GetMapping("/newest")
-	public ResponseEntity<List<ProjectDTO>> getNewestProjects (
-			@Parameter(description = "Number of projects to return")
-			@RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit) {
+	public ResponseEntity<PaginatedResponse<ProjectDTO>> getNewestProjects(
+			@Parameter(description = "Number of projects to return") @RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit, @ParameterObject Pageable pageable) {
 		log.debug("Fetching {} newest projects", limit);
-		List<ProjectDTO> projects = projectService.findNewestProjects(limit)
-				.stream().map(projectMapper::toDTO).toList();
-		return ResponseEntity.ok(projects);
+
+		try {
+			Page<ProjectDTO> projects = projectService.findNewestProjects(limit, pageable).map(projectMapper::toDTO);
+					
+
+			return ResponseEntity.ok(PaginatedResponse.success(projects));
+		} catch (Exception e) {
+	        log.error("Error fetching newest projects: {}", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(PaginatedResponse.error("Failed to fetch newest projects"));
+	    }
+
 	}
 }

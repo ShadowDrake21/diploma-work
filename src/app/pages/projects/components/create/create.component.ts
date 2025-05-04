@@ -1,4 +1,10 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HeaderService } from '@core/services/header.service';
@@ -61,6 +67,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   private projectFormService = inject(ProjectFormService);
   private projectDataService = inject(ProjectDataService);
   private projectSharedService = inject(ProjectSharedService);
+  private cdr = inject(ChangeDetectorRef);
 
   creatorId: number | null = null;
   projectId: string | null = null;
@@ -84,6 +91,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   private initializeComponent(): void {
     this.headerService.setTitle('Create New Entry');
     this.projectId = this.route.snapshot.queryParamMap.get('id');
+    console.log('Project ID:', this.projectId);
 
     this.subscriptions.push(
       this.userService.getCurrentUser().subscribe((user: IUser) => {
@@ -99,25 +107,46 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   }
 
   private loadExistingProject(): void {
+    console.log('Before patching - typeForm:', this.typeForm); // Add this
+
     if (!this.projectId) return;
 
     this.loading = true;
+    this.headerService.setTitle('Edit Project: ' + this.projectId);
+
+    this.typeForm = this.projectFormService.createTypeForm();
 
     this.subscriptions.push(
       this.projectDataService
         .getProjectById(this.projectId)
         .pipe(
+          tap((project) => {
+            if (!project) return;
+
+            // Use setTimeout to ensure change detection runs
+            setTimeout(() => {
+              console.log('before patching - project:', project.data);
+              this.projectFormService.patchTypeForm(
+                this.typeForm,
+                project.data.type
+              );
+              this.typeForm.disable();
+              this.cdr.detectChanges(); // Add this line
+              console.log('After patching - typeForm:', this.typeForm.value);
+              console.log('Form disabled status:', this.typeForm.disabled);
+            });
+          }),
           switchMap((project) => {
             if (!project) return of(null);
 
-            this.projectFormService.patchTypeForm(
-              this.typeForm,
-              project.data.type
-            );
-            this.typeForm.disable();
+            // this.projectFormService.patchTypeForm(
+            //   this.typeForm,
+            //   project.data.type
+            // );
+            // this.typeForm.disable();
             this.projectFormService.patchGeneralInformationForm(
               this.generalInformationForm,
-              project
+              project.data
             );
 
             switch (project.data.type) {
@@ -137,6 +166,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
                   .getPatentByProjectId(this.projectId!)
                   .pipe(
                     tap((patent) => {
+                      console.log('Patent:', patent);
                       this.projectFormService.patchPatentForm(
                         this.patentsForm,
                         patent
@@ -182,101 +212,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           },
         })
     );
-  }
-
-  submitForm(): void {
-    if (!this.validateForms()) return;
-
-    this.loading = true;
-    const formValues = this.prepareFormValues();
-    const attachments = this.generalInformationForm.value.attachments ?? [];
-
-    const operation = this.projectId
-      ? this.projectDataService.updateProject(
-          this.projectId,
-          this.buildProjectRequest() as UpdateProjectRequest,
-          attachments,
-          formValues
-        )
-      : this.projectDataService.createProject(
-          this.buildProjectRequest() as CreateProjectRequest,
-          attachments,
-          formValues
-        );
-
-    this.subscriptions.push(
-      operation.subscribe({
-        next: () => this.handleSuccess(),
-        error: (error) => this.handleError(error),
-      })
-    );
-  }
-
-  private prepareFormValues(): any {
-    const projectType = this.typeForm.value.type as ProjectType;
-    switch (projectType) {
-      case ProjectType.PUBLICATION:
-        return { publication: this.publicationsForm.value };
-      case ProjectType.PATENT:
-        return { patent: this.patentsForm.value };
-      case ProjectType.RESEARCH:
-        return { research: this.researchesForm.value };
-      default:
-        return {};
-    }
-  }
-
-  private handleSuccess(): void {
-    this.loading = false;
-    this.router.navigate(['/projects', this.projectId]);
-  }
-
-  private handleError(error: any): void {
-    console.error('Error:', error);
-    this.loading = false;
-  }
-
-  private validateForms(): boolean {
-    if (!this.typeForm.valid || !this.generalInformationForm.valid) {
-      this.typeForm.markAllAsTouched();
-      this.generalInformationForm.markAllAsTouched();
-      return false;
-    }
-
-    const projectType = this.typeForm.value.type as ProjectType;
-    let specificFormValid = true;
-
-    switch (projectType) {
-      case ProjectType.PUBLICATION:
-        specificFormValid = this.publicationsForm.valid;
-        if (!specificFormValid) this.publicationsForm.markAllAsTouched();
-
-        break;
-      case ProjectType.PATENT:
-        specificFormValid = this.patentsForm.valid;
-        if (!specificFormValid) this.patentsForm.markAllAsTouched();
-        break;
-      case ProjectType.RESEARCH:
-        specificFormValid = this.researchesForm.valid;
-        if (!specificFormValid) this.researchesForm.markAllAsTouched();
-        break;
-      default:
-        console.error('Invalid project type');
-        return false;
-    }
-
-    return specificFormValid;
-  }
-
-  private buildProjectRequest(): any {
-    return {
-      title: this.generalInformationForm.value.title ?? '',
-      description: this.generalInformationForm.value.description ?? '',
-      type: this.typeForm.value.type ?? ProjectType.PUBLICATION,
-      progress: this.generalInformationForm.value.progress ?? 0,
-      tagIds: this.generalInformationForm.value.tags ?? [],
-      ...(this.projectId ? {} : { createdBy: this.creatorId ?? 0 }),
-    };
   }
 
   ngOnDestroy(): void {

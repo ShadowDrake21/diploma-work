@@ -53,7 +53,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class ProjectGeneralInformationComponent implements OnInit {
   private tagService = inject(TagService);
 
-  generalInformationFormSig = input.required<
+  generalInformationForm = input.required<
     FormGroup<{
       title: FormControl<string | null>;
       description: FormControl<string | null>;
@@ -61,14 +61,10 @@ export class ProjectGeneralInformationComponent implements OnInit {
       tags: FormControl<string[] | null>;
       attachments: FormControl<File[] | null>;
     }>
-  >({ alias: 'generalInformationForm' });
+  >();
 
-  entityTypeSig = input.required<string | null | undefined>({
-    alias: 'entityType',
-  });
-  existingFilesSig = input.required<any[] | null | undefined>({
-    alias: 'existingFiles',
-  });
+  entityType = input.required<string | null | undefined>();
+  existingFiles = input.required<any[] | null | undefined>();
 
   tags$!: Observable<any>;
 
@@ -76,32 +72,28 @@ export class ProjectGeneralInformationComponent implements OnInit {
 
   ngOnInit(): void {
     this.tags$ = this.tagService.getAllTags();
-
-    console.log('existingFilesSig', this.existingFilesSig());
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['entityTypeSig']) {
       console.log(
         'ngOnChanges in ProjectGeneralInformationComponent',
-        this.entityTypeSig()?.toLowerCase()
+        this.entityType()?.toLowerCase()
       );
     }
     if (changes['existingFilesSig']) {
       console.log(
         'existingFilesSig in ProjectGeneralInformationComponent',
-        this.existingFilesSig()
+        this.existingFiles()
       );
     }
   }
 
   onResetFiles(): void {
-    this.existingFilesSig;
+    // this.existingFiles;
   }
 
   compareTags(tagId1: string, tagId2: string): boolean {
-    console.log('tagId1', tagId1);
-    console.log('tagId2', tagId2);
     return tagId1 === tagId2;
   }
 

@@ -1,6 +1,6 @@
-@let loading = formService.loading; @let subtext = formService.isEditing ? 'Edit
-your project' : 'Create a new project'; @let allUsers = formService.allUsers$ |
-async; @let authors = formService.authors;
+@let loading = formService.loading | async; @let subtext = formService.isEditing
+? 'Edit your project' : 'Create a new project'; @let allUsers =
+formService.allUsers$ | async; @let authors = formService.authors;
 
 <p class="create-subtext">
   {{ subtext }}
@@ -9,48 +9,51 @@ async; @let authors = formService.authors;
 <mat-stepper #stepper orientation="vertical" linear>
   <!-- Step 1: Project Type -->
   <mat-step
-    [stepControl]="typeForm"
+    [stepControl]="typeForm()!"
     label="Select a project type"
     errorMessage="Type is required."
   >
-    <create-project-type-step [typeForm]="typeForm" />
+    <create-project-type-step [typeForm]="typeForm()!" />
   </mat-step>
 
   <!-- Step 2: General Information -->
   <mat-step
-    [stepControl]="generalInfoForm"
+    [stepControl]="generalInfoForm()!"
     label="Fill out general information"
     errorMessage="General information is required."
   >
     <create-project-general-info-step
-      [generalInfoForm]="generalInfoForm"
-      [typeForm]="typeForm"
+      [generalInfoForm]="generalInfoForm()!"
+      [typeForm]="typeForm()!"
       [existingFiles]="formService.existingFiles$ | async"
     />
   </mat-step>
 
   <!-- Step 3: Work Information (Dynamic based on type) -->
-  @if (typeForm.value.type) {
+  @if (typeForm().value.type) {
   <mat-step
-    [stepControl]="getCurrentWorkForm()"
+    [stepControl]="getCurrentWorkForm()!"
     errorMessage="Type-specific information is required."
     label="Fill out work information"
   >
-    @if (typeForm.value.type === 'PUBLICATION') {
+    @if (typeForm().value.type === 'PUBLICATION') {
     <create-project-work-info-step
-      [publicationsForm]="publicationForm"
+      [typeForm]="typeForm()!"
+      [publicationsForm]="publicationForm()!"
       [allUsers]="allUsers"
       [authors]="authors"
     />
-    } @else if (typeForm.value.type === 'PATENT') {
+    } @else if (typeForm().value.type === 'PATENT') {
     <create-project-work-info-step
-      [patentsForm]="patentForm"
+      [typeForm]="typeForm()!"
+      [patentsForm]="patentForm()!"
       [authors]="authors"
       [allUsers]="allUsers"
     />
-    } @else if (typeForm.value.type === 'RESEARCH') {
+    } @else if (typeForm().value.type === 'RESEARCH') {
     <create-project-work-info-step
-      [researchesForm]="researchForm"
+      [typeForm]="typeForm()!"
+      [researchesForm]="researchForm()!"
       [allUsers]="allUsers"
       [authors]="authors"
     />
@@ -68,5 +71,11 @@ async; @let authors = formService.authors;
         {{ loading ? "Saving..." : "Submit" }}
       </button>
     </div>
+    @if (loading) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+    <!-- @if (errorMessage) {
+      <mat-error>{{ errorMessage }}</mat-error>
+    } -->
   </mat-step>
 </mat-stepper>

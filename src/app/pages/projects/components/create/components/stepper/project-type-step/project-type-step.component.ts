@@ -7,11 +7,11 @@ import { FormGroup } from '@angular/forms';
   imports: [ProjectTypeComponent],
   styleUrl: './project-type-step.component.scss',
   template: `
-    @let typeForm = typeFormSig(); @if (typeForm) {
-    <create-project-type [typeForm]="typeForm" />
+    @if (typeForm()) {
+    <create-project-type [typeForm]="typeForm()" />
     }
   `,
 })
 export class ProjectTypeStepComponent {
-  typeFormSig = input<FormGroup | null>(null, { alias: 'typeForm' });
+  typeForm = input.required<FormGroup>();
 }

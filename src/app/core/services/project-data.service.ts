@@ -115,6 +115,7 @@ export class ProjectDataService {
       research?: any;
     }
   ): Observable<any> {
+    console.log('handleTypedProjectCreation', projectType);
     switch (projectType) {
       case ProjectType.PUBLICATION:
         const publicationData = this.getPublicationFormValues(

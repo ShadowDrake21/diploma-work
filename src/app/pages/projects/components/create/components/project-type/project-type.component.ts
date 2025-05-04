@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,12 +18,18 @@ import { types } from '@content/createProject.content';
   templateUrl: './project-type.component.html',
   styleUrl: './project-type.component.scss',
 })
-export class ProjectTypeComponent {
-  typeFormSig = input.required<
+export class ProjectTypeComponent implements OnInit {
+  typeForm = input.required<
     FormGroup<{
       type: FormControl<string | null>;
     }>
-  >({ alias: 'typeForm' });
+  >();
+
+  ngOnInit() {
+    this.typeForm().valueChanges.subscribe((values) => {
+      console.log('Form values changed:', values);
+    });
+  }
 
   types = types;
 }
