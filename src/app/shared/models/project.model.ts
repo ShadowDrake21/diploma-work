@@ -2,6 +2,7 @@ import { ProjectType } from '@shared/enums/categories.enum';
 import { PublicationDTO } from './publication.model';
 import { PatentDTO } from './patent.model';
 import { User } from './user.model';
+import { ResearchDTO } from './research.model';
 
 export type ProjectDTO = {
   id: string;
@@ -15,7 +16,7 @@ export type ProjectDTO = {
   creator: User;
   publication?: PublicationDTO;
   patent?: PatentDTO;
-  // research?: ResearchDTO;
+  research?: ResearchDTO;
 };
 
 interface Publication {

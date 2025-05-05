@@ -96,8 +96,8 @@ export class ProjectService {
 
   createProject(
     request: CreateProjectRequest
-  ): Observable<ApiResponse<ProjectDTO>> {
-    return this.http.post<ApiResponse<ProjectDTO>>(
+  ): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(
       this.apiUrl,
       request,
       getAuthHeaders()
@@ -107,8 +107,8 @@ export class ProjectService {
   updateProject(
     id: string,
     request: UpdateProjectRequest
-  ): Observable<ApiResponse<ProjectDTO>> {
-    return this.http.put<ApiResponse<ProjectDTO>>(
+  ): Observable<ApiResponse<string>> {
+    return this.http.put<ApiResponse<string>>(
       `${this.apiUrl}/${id}`,
       request,
       getAuthHeaders()

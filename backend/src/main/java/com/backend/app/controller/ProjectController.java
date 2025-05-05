@@ -105,7 +105,7 @@ public class ProjectController {
 	@Operation(summary = "Create a new project")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<ApiResponse<ProjectDTO>> createProject(@Valid @RequestBody ProjectDTO projectDTO,
+	public ResponseEntity<ApiResponse<UUID>> createProject(@Valid @RequestBody ProjectDTO projectDTO,
 			Authentication authentication) {
 		log.debug("Creating new project: {}", projectDTO.getTitle());
 
@@ -118,7 +118,7 @@ public class ProjectController {
 			Project createdProject = projectService.createProject(projectDTO, creator.getId());
 			log.info("Created project with ID: {}", createdProject.getId());
 			return ResponseEntity.status(HttpStatus.CREATED)
-					.body(ApiResponse.success(projectMapper.toDTO(createdProject)));
+					.body(ApiResponse.success(createdProject.getId()));
 
 		} catch (EntityNotFoundException e) {
 			log.error("Error creating project: {}", e.getMessage());
@@ -132,18 +132,18 @@ public class ProjectController {
 
 	@Operation(summary = "Update an existing project")
 	@PutMapping("/{id}")
-	public ResponseEntity<ApiResponse<ProjectDTO>> updateProject(
+	public ResponseEntity<ApiResponse<UUID>> updateProject(
 			@Parameter(description = "ID of the project to update") @PathVariable UUID id,
 			@Valid @RequestBody ProjectDTO projectDTO) {
 		log.debug("Updating project with ID: {}", id);
 		try {
-			ProjectDTO updatedProject = projectService.updateProject(id, projectDTO).map(projectMapper::toDTO)
+			Project updatedProject = projectService.updateProject(id, projectDTO)
 					.orElseThrow(() -> {
 						log.error("Failed to update project with ID: {}", id);
 						return new EntityNotFoundException("Project not found with id: " + id);
 					});
 			log.info("Successfully updated project with ID: {}", id);
-			return ResponseEntity.ok(ApiResponse.success(updatedProject));
+			return ResponseEntity.ok(ApiResponse.success(updatedProject.getId()));
 		} catch (EntityNotFoundException e) {
 			log.error("Error updating project: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));

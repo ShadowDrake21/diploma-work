@@ -8,6 +8,7 @@ import { AsyncPipe } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'create-project-stepper',
@@ -25,6 +26,7 @@ import { MatProgressBar } from '@angular/material/progress-bar';
 })
 export class ProjectStepperComponent {
   formService = inject(ProjectFormService);
+  private router = inject(Router);
 
   typeForm = input.required<FormGroup>();
   generalInfoForm = input.required<FormGroup>();
@@ -50,8 +52,7 @@ export class ProjectStepperComponent {
   submitForm() {
     if (this.formService.loading.value) return;
 
-    if (!this.typeForm().valid || !this.generalInfoForm().valid) {
-      console.warn('Required forms are invalid');
+    if (!this.typeForm().valid && !this.typeForm().disabled) {
       return;
     }
 
@@ -83,6 +84,7 @@ export class ProjectStepperComponent {
         next: (response) => {
           console.log('Form submitted successfully', response);
           this.formService.loading.next(false);
+          this.router.navigate(['/projects', response[0].projectId]);
         },
         error: (error) => {
           console.error('Error submitting form', error);

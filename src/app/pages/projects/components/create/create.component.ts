@@ -31,6 +31,8 @@ import { IUser } from '@shared/types/users.types';
 import { ProjectFormService } from '@core/services/project-form.service';
 import { ProjectDataService } from '@core/services/project-data.service';
 import { ProjectStepperComponent } from './components/stepper/project-stepper/project-stepper.component';
+import { ApiResponse } from '@models/api-response.model';
+import { PublicationDTO } from '@models/publication.model';
 
 @Component({
   selector: 'project-creation',
@@ -138,12 +140,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           }),
           switchMap((project) => {
             if (!project) return of(null);
-
-            // this.projectFormService.patchTypeForm(
-            //   this.typeForm,
-            //   project.data.type
-            // );
-            // this.typeForm.disable();
             this.projectFormService.patchGeneralInformationForm(
               this.generalInformationForm,
               project.data
@@ -154,10 +150,10 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
                 return this.projectDataService
                   .getPublicationByProjectId(this.projectId!)
                   .pipe(
-                    tap((publication) => {
+                    tap((publication: ApiResponse<PublicationDTO>) => {
                       this.projectFormService.patchPublicationForm(
                         this.publicationsForm,
-                        publication
+                        publication.data
                       );
                     })
                   );
