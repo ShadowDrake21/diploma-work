@@ -19,7 +19,11 @@ import { Filter } from '@shared/types/filters.types';
 import { authors, statuses } from '@content/createProject.content';
 import { IUser } from '@shared/types/users.types';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
-import { ResearchFormGroup } from '@shared/types/project-form.types';
+import {
+  BaseFormInputs,
+  ResearchFormGroup,
+} from '@shared/types/project-form.types';
+import { UserService } from '@core/services/user.service';
 
 @Component({
   selector: 'create-project-research-form',
@@ -38,7 +42,12 @@ import { ResearchFormGroup } from '@shared/types/project-form.types';
   templateUrl: './project-research-form.component.html',
   styleUrl: './project-research-form.component.scss',
 })
-export class ProjectResearchFormComponent extends BaseFormComponent {
+export class ProjectResearchFormComponent
+  extends BaseFormComponent
+  implements OnInit
+{
+  private userService = inject(UserService);
+
   researchProjectsFormSig = input.required<ResearchFormGroup>({
     alias: 'researchesForm',
   });
@@ -46,6 +55,12 @@ export class ProjectResearchFormComponent extends BaseFormComponent {
   statuses = statuses;
 
   compareParticipants = (id1: string, id2: string) => this.compareIds(id1, id2);
+
+  allUsers$!: Observable<BaseFormInputs['allUsers']>;
+
+  ngOnInit(): void {
+    this.allUsers$ = this.userService.getAllUsers();
+  }
 
   compareStatuses = (status1: string, status2: Filter | string) => {
     if (typeof status2 === 'string') {
