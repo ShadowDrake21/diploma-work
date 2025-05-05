@@ -31,9 +31,9 @@ export class ResearchProjectComponent implements OnInit, OnDestroy {
     this.research$ = this.projectService.getResearchByProjectId(this.id!);
 
     const researchSub = this.research$.subscribe((research) => {
-      this.participants$ = research?.participantIds
+      this.participants$ = research?.data.participantIds
         ? forkJoin(
-            research?.participantIds.map((participantId: number) =>
+            research?.data.participantIds.map((participantId: number) =>
               this.userService.getUserById(participantId)
             )
           )
