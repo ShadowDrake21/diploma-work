@@ -46,7 +46,8 @@ export class ProjectDataService {
   ): Observable<any> {
     return this.projectService.createProject(projectData).pipe(
       switchMap((projectResponse) => {
-        const projectId = projectResponse.data.id;
+        console.log('Project created:', projectResponse);
+        const projectId = projectResponse.data;
         const operations = [
           this.handleTypedProjectCreation(
             projectId,
@@ -81,7 +82,7 @@ export class ProjectDataService {
   ): Observable<any> {
     return this.projectService.updateProject(projectId, projectData).pipe(
       switchMap((projectResponse) => {
-        const projectId = projectResponse.data.id;
+        const projectId = projectResponse.data;
         const operations = [
           this.handleTypedProjectUpdate(
             projectId,
@@ -94,7 +95,7 @@ export class ProjectDataService {
         if (attachments.length > 0) {
           operations.push(
             this.attachmentsService.updateFiles(
-              projectResponse.data.type as ProjectType,
+              projectData.type as ProjectType,
               projectId,
               attachments
             )
@@ -115,7 +116,10 @@ export class ProjectDataService {
       research?: any;
     }
   ): Observable<any> {
-    console.log('handleTypedProjectCreation', projectType);
+    console.log(
+      'handleTypedProjectCreation',
+      projectType === ProjectType.PUBLICATION
+    );
     switch (projectType) {
       case ProjectType.PUBLICATION:
         const publicationData = this.getPublicationFormValues(

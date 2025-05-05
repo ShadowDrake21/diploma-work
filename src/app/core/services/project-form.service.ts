@@ -3,12 +3,15 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { statuses } from '@content/createProject.content';
 import {
   CreateProjectRequest,
+  ProjectDTO,
   UpdateProjectRequest,
 } from '@models/project.model';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { BehaviorSubject, finalize, Observable, of, Subscription } from 'rxjs';
 import { ProjectDataService } from './project-data.service';
 import { UserService } from './user.service';
+import { PublicationDTO } from '@models/publication.model';
+import { PatentDTO } from '@models/patent.model';
 
 @Injectable({
   providedIn: 'root',
@@ -133,7 +136,7 @@ export class ProjectFormService implements OnInit {
       description: generalInfoForm.value.description ?? '',
       type: typeForm.value.type ?? ProjectType.PUBLICATION,
       progress: generalInfoForm.value.progress ?? 0,
-      tagsIds: generalInfoForm.value.tags ?? [],
+      tagIds: generalInfoForm.value.tags ?? [],
       ...(!isUpdate && { createdBy: creatorId ?? 0 }),
     };
 
@@ -147,7 +150,7 @@ export class ProjectFormService implements OnInit {
     projectId: string | null,
     creatorId: number | null,
     attachments: File[] = []
-  ): Observable<{ projectId: string; type: ProjectType }> {
+  ): Observable<PublicationDTO[] | PatentDTO[] | PatentDTO[]> {
     this.loading.next(true);
 
     const formValues = this.prepareFormValues(
@@ -214,7 +217,7 @@ export class ProjectFormService implements OnInit {
       tags: tagIds,
     });
   }
-  patchPublicationForm(form: FormGroup, publication: any): void {
+  patchPublicationForm(form: FormGroup, publication: PublicationDTO): void {
     const {
       publicationDate,
       publicationSource,
@@ -225,6 +228,8 @@ export class ProjectFormService implements OnInit {
       issueNumber,
       authors,
     } = publication;
+
+    console.log('patchPublicationForm', publication);
 
     form.patchValue({
       authors: authors.map((a: any) => a.id.toString()),

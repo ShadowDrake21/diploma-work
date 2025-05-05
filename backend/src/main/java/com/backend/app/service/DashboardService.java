@@ -26,12 +26,20 @@ public class DashboardService {
     	DashboardMetricsDTO metrics = new DashboardMetricsDTO();
     	Map<String, Long> projectCounts = projectRepository.countProjectsByType();
     	
-    	metrics.setTotalProjects(projectCounts.get("totalProjects"));
-    	metrics.setTotalPublications(projectCounts.get("totalPublications"));
-    	metrics.setTotalPatents(projectCounts.get("totalPatents"));
-    	metrics.setTotalResearch(projectCounts.get("totalResearch"));
-    	metrics.setTotalUsers(userRepository.count());
+    	metrics.setTotalProjects(getSafeLongValue(projectCounts, "totalProjects"));
+        metrics.setTotalPublications(getSafeLongValue(projectCounts, "totalPublications"));
+        metrics.setTotalPatents(getSafeLongValue(projectCounts, "totalPatents"));
+        metrics.setTotalResearch(getSafeLongValue(projectCounts, "totalResearch"));
+        metrics.setTotalUsers(userRepository.count());
     	    
     	return metrics;
+    }
+    
+    private Long getSafeLongValue(Map<String, Long> map, String key) {
+        if (map == null || !map.containsKey(key)) {
+            return 0L;
+        }
+        Long value = map.get(key);
+        return value != null ? value : 0L;
     }
 }
