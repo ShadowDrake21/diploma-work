@@ -262,7 +262,7 @@ export class ProjectFormService implements OnInit {
     form.patchValue({
       id,
       primaryAuthor: primaryAuthorId?.toString(),
-      coInventors: coInventors.map((c: any) => c.id),
+      coInventors,
       registrationNumber,
       registrationDate: new Date(registrationDate),
       issuingAuthority,

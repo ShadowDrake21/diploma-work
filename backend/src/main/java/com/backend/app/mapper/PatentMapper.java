@@ -82,17 +82,22 @@ public class PatentMapper {
         	  throw new ValidationException("Primary author ID is required");
           }
           
-          if (patentDTO.getRegistrationNumber() != null) {
-              patent.setRegistrationNumber(patentDTO.getRegistrationNumber());
-          }
-          if (patentDTO.getRegistrationDate() != null) {
-              patent.setRegistrationDate(patentDTO.getRegistrationDate());
-          }
-          if (patentDTO.getIssuingAuthority() != null) {
-              patent.setIssuingAuthority(patentDTO.getIssuingAuthority());
-          }
+          patent.setRegistrationNumber(patentDTO.getRegistrationNumber());
+          patent.setRegistrationDate(patentDTO.getRegistrationDate());
+          patent.setIssuingAuthority(patentDTO.getIssuingAuthority());
           
-          patent.setCoInventors(new ArrayList<PatentCoInventor>());
+          // Create temporary PatentCoInventor objects for the co-inventors
+          List<PatentCoInventor> tempCoInventors = new ArrayList<>();
+          if (patentDTO.getCoInventors() != null) {
+              for (Long userId : patentDTO.getCoInventors()) {
+                  User user = getUserById(userId);
+                  PatentCoInventor coInventor = new PatentCoInventor();
+                  coInventor.setUser(user);
+                  coInventor.setPatent(patent); // This is temporary until saved
+                  tempCoInventors.add(coInventor);
+              }
+          }
+          patent.setCoInventors(tempCoInventors);
           
           return patent;
 	} catch (Exception e) {
