@@ -175,12 +175,20 @@ public class PatentService {
 	    log.debug("Starting co-inventor update for patent {}", existingPatent.getId());
 
 		
-       Set<Long> newCoInventorIds = newPatent.getCoInventors().stream().map(coInventor -> coInventor.getUser().getId()).collect(Collectors.toSet());
+       Set<Long> newCoInventorIds = newPatent.getCoInventors().stream()
+    		   .map(coInventor -> coInventor.getUser().getId()).collect(Collectors.toSet());
        
        log.debug("New co-inventor IDs: {}", newCoInventorIds);
 
        
-       List<PatentCoInventor> toRemove = existingPatent.getCoInventors().stream().filter(ci -> !newCoInventorIds.contains(ci.getUser().getId())).collect(Collectors.toList());
+       log.debug("Existing co-inventor IDs before update: {}", 
+    		    existingPatent.getCoInventors().stream()
+    		        .map(ci -> ci.getUser().getId())
+    		        .collect(Collectors.toList()));
+       
+       
+       List<PatentCoInventor> toRemove = existingPatent.getCoInventors().stream().
+    		   filter(ci -> !newCoInventorIds.contains(ci.getUser().getId())).collect(Collectors.toList());
        log.debug("Removing {} co-inventors", toRemove.size());
 
        toRemove.forEach(existingPatent::removeCoInventor);
