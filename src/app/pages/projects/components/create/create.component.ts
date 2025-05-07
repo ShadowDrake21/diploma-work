@@ -162,10 +162,10 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
                   .getPatentByProjectId(this.projectId!)
                   .pipe(
                     tap((patent) => {
-                      console.log('Patent:', patent);
+                      console.log('Patent in creation:', patent);
                       this.projectFormService.patchPatentForm(
                         this.patentsForm,
-                        patent
+                        patent.data
                       );
                     })
                   );

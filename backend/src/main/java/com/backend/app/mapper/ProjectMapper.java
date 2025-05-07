@@ -64,17 +64,21 @@ public class ProjectMapper {
       }
       
       try {
-		return Project.builder()
-				.id(projectDTO.getId())
-				.type(projectDTO.getType())
-				 .title(projectDTO.getTitle())
-                 .progress(projectDTO.getProgress())
-                 .description(projectDTO.getDescription())
-                 .createdAt(projectDTO.getCreatedAt())
-                 .updatedAt(projectDTO.getUpdatedAt())
-                 .tags(getTags(projectDTO))
-                 .creator(getCreator(projectDTO))
-                 .build();
+    	  Project.ProjectBuilder builder = Project.builder()
+    	            .id(projectDTO.getId())
+    	            .type(projectDTO.getType())
+    	            .title(projectDTO.getTitle())
+    	            .progress(projectDTO.getProgress())
+    	            .description(projectDTO.getDescription())
+    	            .createdAt(projectDTO.getCreatedAt())
+    	            .updatedAt(projectDTO.getUpdatedAt())
+    	            .tags(getTags(projectDTO));
+    	  
+    	  if(projectDTO.getId() == null && projectDTO.getCreatedBy() != null) {
+    		  builder.creator(getCreator(projectDTO));
+    	  }
+    	  
+    	  return builder.build();
 	} catch (Exception e) {
 		log.error("Error mapping DTO to Project", e);
         throw new ValidationException("Error creating project: " + e.getMessage());
@@ -129,9 +133,6 @@ public class ProjectMapper {
 	}
 	
 	private User getCreator(ProjectDTO projectDTO) {
-		if(projectDTO.getCreatedBy() == null || projectDTO.getCreatedBy() <= 0) {
-			throw new ValidationException("Creator ID is required and must be positive");
-		}
 		  return userRepository.findById(projectDTO.getCreatedBy())
 		            .orElseThrow(() -> new ValidationException("Creator user not found with ID: " + projectDTO.getCreatedBy()));
 	}

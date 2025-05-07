@@ -180,11 +180,11 @@ public class ProjectService {
 		return projectRepository.findById(id).map(existingProject -> {
 			validateProjectTypeChange(existingProject, projectDTO);
 
-			Project updatedProject = projectMapper.toEntity(projectDTO);
-			updatedProject.setId(existingProject.getId());
+			existingProject.setTitle(projectDTO.getTitle());
+			existingProject.setDescription(projectDTO.getDescription());
+			existingProject.setProgress(projectDTO.getProgress());
 
 			updateProjectTags(existingProject, projectDTO.getTagIds());
-			copyProjectDetails(existingProject, updatedProject);
 
 			return projectRepository.save(existingProject);
 		});

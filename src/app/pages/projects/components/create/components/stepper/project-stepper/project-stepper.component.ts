@@ -8,7 +8,8 @@ import { AsyncPipe } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { WorkFormPipe } from '@pipes/work-form.pipe';
 
 @Component({
   selector: 'create-project-stepper',
@@ -20,6 +21,7 @@ import { Router } from '@angular/router';
     AsyncPipe,
     MatButton,
     MatProgressBar,
+    WorkFormPipe,
   ],
   templateUrl: './project-stepper.component.html',
   styleUrl: './project-stepper.component.scss',
@@ -27,6 +29,7 @@ import { Router } from '@angular/router';
 export class ProjectStepperComponent {
   formService = inject(ProjectFormService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   typeForm = input.required<FormGroup>();
   generalInfoForm = input.required<FormGroup>();
@@ -36,17 +39,15 @@ export class ProjectStepperComponent {
 
   errorMessage = '';
 
-  getCurrentWorkForm() {
-    switch (this.typeForm()?.value.type) {
-      case 'PUBLICATION':
-        return this.publicationForm();
-      case 'PATENT':
-        return this.patentForm();
-      case 'RESEARCH':
-        return this.researchForm();
-      default:
-        return this.publicationForm();
-    }
+  private getCurrentWorkForm() {
+    const type = this.typeForm()?.value.type;
+
+    return this.transformWorkForm(
+      type,
+      this.publicationForm(),
+      this.patentForm(),
+      this.researchForm()
+    );
   }
 
   submitForm() {
@@ -71,12 +72,14 @@ export class ProjectStepperComponent {
 
     this.formService.loading.next(true);
 
+    const projectId = this.route.snapshot.queryParamMap.get('id');
+
     this.formService
       .submitForm(
         this.typeForm()!,
         this.generalInfoForm()!,
         workForm,
-        null,
+        projectId,
         this.formService.creatorId,
         attachments
       )
@@ -91,5 +94,15 @@ export class ProjectStepperComponent {
           this.formService.loading.next(false);
         },
       });
+  }
+
+  private transformWorkForm(
+    type: string,
+    publicationForm: FormGroup,
+    patentForm: FormGroup,
+    researchForm: FormGroup
+  ): FormGroup {
+    const pipe = new WorkFormPipe();
+    return pipe.transform(type, publicationForm, patentForm, researchForm);
   }
 }

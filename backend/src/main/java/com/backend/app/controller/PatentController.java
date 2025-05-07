@@ -89,6 +89,23 @@ public class PatentController {
 	@PutMapping("/{id}")
 	public ResponseEntity<PatentDTO> updatePatent(@PathVariable UUID id, @Valid @RequestBody PatentDTO patentDTO) {
 		log.info("Updating patent with id: {}", id);
+		
+		if(!id.equals(patentDTO.getId())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID in path does not match ID in body");
+		}
+		
+		Patent existing = patentService.findPatentById(id).orElseThrow(() -> new ResponseStatusException(
+	            HttpStatus.NOT_FOUND,
+	            "Patent not found with id: " + id));
+		
+		if(!existing.getProject().getId().equals(patentDTO.getProjectId())) {
+			throw new ResponseStatusException(
+					 HttpStatus.BAD_REQUEST, 
+			            "Changing project association is not allowed through this endpoint"
+					);
+			
+		}
+ 		
 		Patent patent = patentMapper.toEntity(patentDTO);
         return patentService.updatePatent(id, patent)
                 .map(patentMapper::toDTO)

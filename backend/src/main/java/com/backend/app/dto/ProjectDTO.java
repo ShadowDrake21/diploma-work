@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.model.Project;
 import com.backend.app.model.Tag;
+import com.backend.app.validation.CreateValidation;
+import com.backend.app.validation.UpdateValidation;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -21,36 +23,37 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectDTO {
 	private UUID id;
+	
+	 @NotNull(message = "Project type is required", groups = {CreateValidation.class, UpdateValidation.class})
 	private ProjectType type;
 	
-	@NotBlank(message = "Title cannot be blank")
+	@NotBlank(message = "Title cannot be blank", groups = {CreateValidation.class, UpdateValidation.class})
 	@Size(max = 256, message = "Title cannot exceed 256 characters")
 	private String title;
 	
-    @NotBlank(message = "Description cannot be blank")
+    @NotBlank(message = "Description cannot be blank", groups = {CreateValidation.class, UpdateValidation.class})
 	private String description;
     
-    @Min(value = 0, message = "Progress cannot be less than 0")
-    @Max(value = 100, message = "Progress cannot exceed 100")
+    @Min(value = 0, message = "Progress cannot be less than 0", groups = {CreateValidation.class, UpdateValidation.class})
+    @Max(value = 100, message = "Progress cannot exceed 100", groups = {CreateValidation.class, UpdateValidation.class})
 	private int progress;
     
-    @Null(message = "Creation timestamp should not be provided")
+    @Null(message = "Creation timestamp should not be provided", groups = {CreateValidation.class, UpdateValidation.class})
 	private LocalDateTime createdAt;
     
-    @Null(message = "Update timestamp should not be provided")
+    @Null(message = "Update timestamp should not be provided", groups = {CreateValidation.class, UpdateValidation.class})
 	private LocalDateTime updatedAt;
 	
 	@Builder.Default
 	private Set<UUID> tagIds =  Set.of();
 	
-	@NotNull(message = "Creator ID is required")
+	@NotNull(message = "Creator ID is required", groups = CreateValidation.class)
     private Long createdBy;
 
 	public ProjectDTO fromEntity(Project project) {

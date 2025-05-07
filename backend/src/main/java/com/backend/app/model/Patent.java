@@ -15,6 +15,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -58,9 +60,22 @@ public class Patent {
 	@Column(name = "issuing_authority", length = 255)
 	private String issuingAuthority;
 	
-	@OneToMany(mappedBy = "patent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "patent", cascade = {
+			CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE
+	}, orphanRemoval = true, fetch = FetchType.LAZY)
 	@Builder.Default
 	private List<PatentCoInventor> coInventors = new ArrayList<>();
+	
+	@PrePersist
+	@PreUpdate
+	private void validate() {
+		if(this.project == null) {
+			throw new IllegalStateException("Patent must be associated with a project");
+		}
+		if(this.project == null) {
+			throw new IllegalStateException("Patent must have a primary author");
+		}
+	}
 	
 	public void addCoInventor(PatentCoInventor coInventor) {
 		coInventors.add(coInventor);
