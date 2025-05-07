@@ -69,6 +69,7 @@ export class ProjectFormService implements OnInit {
 
   createPublicationForm(): FormGroup {
     return new FormGroup({
+      id: new FormControl<string | null>(null),
       authors: new FormControl<string[]>(['15', '16'], [Validators.required]),
       publicationDate: new FormControl<Date | null>(new Date(), [
         Validators.required,
@@ -96,6 +97,7 @@ export class ProjectFormService implements OnInit {
 
   createPatentForm(): FormGroup {
     return new FormGroup({
+      id: new FormControl<string | null>(null),
       primaryAuthor: new FormControl<string | null>(null, [
         Validators.required,
       ]),
@@ -108,6 +110,7 @@ export class ProjectFormService implements OnInit {
 
   createResearchForm(): FormGroup {
     return new FormGroup({
+      id: new FormControl<string | null>(null),
       participants: new FormControl<string[] | null>([], [Validators.required]),
       budget: new FormControl<number | null>(0, [
         Validators.required,
@@ -219,6 +222,7 @@ export class ProjectFormService implements OnInit {
   }
   patchPublicationForm(form: FormGroup, publication: PublicationDTO): void {
     const {
+      id,
       publicationDate,
       publicationSource,
       doiIsbn,
@@ -232,6 +236,7 @@ export class ProjectFormService implements OnInit {
     console.log('patchPublicationForm', publication);
 
     form.patchValue({
+      id,
       authors: authors.map((a: any) => a.id.toString()),
       publicationDate: new Date(publicationDate),
       publicationSource,
@@ -244,7 +249,9 @@ export class ProjectFormService implements OnInit {
   }
 
   patchPatentForm(form: FormGroup, patent: any): void {
+    console.log('patchPatentForm', patent);
     const {
+      id,
       primaryAuthorId,
       coInventors,
       registrationNumber,
@@ -253,6 +260,7 @@ export class ProjectFormService implements OnInit {
     } = patent;
 
     form.patchValue({
+      id,
       primaryAuthor: primaryAuthorId?.toString(),
       coInventors: coInventors.map((c: any) => c.id),
       registrationNumber,
@@ -262,10 +270,18 @@ export class ProjectFormService implements OnInit {
   }
 
   patchResearchForm(form: FormGroup, research: any): void {
-    const { participants, budget, startDate, endDate, status, fundingSource } =
-      research;
+    const {
+      id,
+      participants,
+      budget,
+      startDate,
+      endDate,
+      status,
+      fundingSource,
+    } = research;
 
     form.patchValue({
+      id,
       participants: participants.map((p: any) => p.id.toString()),
       budget,
       startDate: new Date(startDate),

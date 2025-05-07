@@ -82,10 +82,19 @@ export class ProjectDataService {
   ): Observable<any> {
     return this.projectService.updateProject(projectId, projectData).pipe(
       switchMap((projectResponse) => {
+        console.log('Project updated:', projectData);
         const projectId = projectResponse.data;
+        const typedProjectId =
+          projectData.type === ProjectType.PUBLICATION
+            ? formValues.publication?.id
+            : projectData.type === ProjectType.PATENT
+            ? formValues.patent?.id
+            : projectData.type === ProjectType.RESEARCH
+            ? formValues.research?.id
+            : undefined;
         const operations = [
           this.handleTypedProjectUpdate(
-            projectId,
+            typedProjectId,
             projectId,
             projectData.type!,
             formValues
@@ -155,6 +164,8 @@ export class ProjectDataService {
       research?: any;
     }
   ): Observable<any> {
+    console.log('projectId', projectId);
+    console.log('typedProjectId', typedProjectId);
     switch (projectType) {
       case ProjectType.PUBLICATION:
         const publicationData = {
@@ -170,7 +181,8 @@ export class ProjectDataService {
           ...this.getPatentFormValues(projectId, formValues.patent),
           id: typedProjectId,
         } as UpdatePatentRequest;
-        return this.patentService.updatePatent(typedProjectId, patentData);
+        console.log('patentData', patentData);
+        return this.patentService.updatePatent(patentData.id, patentData);
       case ProjectType.RESEARCH:
         const researchData = {
           ...(this.getResearchFormValues(

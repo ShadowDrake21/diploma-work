@@ -1,5 +1,6 @@
 package com.backend.app.mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -81,11 +82,17 @@ public class PatentMapper {
         	  throw new ValidationException("Primary author ID is required");
           }
           
-          patent.setRegistrationNumber(patentDTO.getRegistrationNumber());
-          patent.setRegistrationDate(patentDTO.getRegistrationDate());
-          patent.setIssuingAuthority(patentDTO.getIssuingAuthority());
+          if (patentDTO.getRegistrationNumber() != null) {
+              patent.setRegistrationNumber(patentDTO.getRegistrationNumber());
+          }
+          if (patentDTO.getRegistrationDate() != null) {
+              patent.setRegistrationDate(patentDTO.getRegistrationDate());
+          }
+          if (patentDTO.getIssuingAuthority() != null) {
+              patent.setIssuingAuthority(patentDTO.getIssuingAuthority());
+          }
           
-          addCoInventorsToPatent(patent, patentDTO.getCoInventors());
+          patent.setCoInventors(new ArrayList<PatentCoInventor>());
           
           return patent;
 	} catch (Exception e) {

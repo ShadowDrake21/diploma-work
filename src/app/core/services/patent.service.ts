@@ -95,6 +95,7 @@ export class PatentService {
     id: string,
     patentData: UpdatePatentRequest
   ): Observable<ApiResponse<PatentDTO>> {
+    console.log('Updating patent with ID:', id);
     return this.http.put<ApiResponse<PatentDTO>>(
       `${this.apiUrl}/${id}`,
       patentData,

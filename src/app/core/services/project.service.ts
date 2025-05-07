@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ProjectSearchResponse } from '@shared/types/search.types';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, of, throwError } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import {
   CreateProjectRequest,
@@ -83,9 +83,18 @@ export class ProjectService {
   }
 
   getPatentByProjectId(projectId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${projectId}/patent`, {
-      headers: this.headers,
-    });
+    return this.http
+      .get(`${this.apiUrl}/${projectId}/patent`, getAuthHeaders())
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching patent:', error);
+          return of({
+            success: false,
+            message: 'Failed to fetch patent',
+            data: null,
+          });
+        })
+      );
   }
 
   getResearchByProjectId(projectId: string): Observable<any> {
@@ -97,6 +106,7 @@ export class ProjectService {
   createProject(
     request: CreateProjectRequest
   ): Observable<ApiResponse<string>> {
+    console.log('Creating project with request:', request);
     return this.http.post<ApiResponse<string>>(
       this.apiUrl,
       request,

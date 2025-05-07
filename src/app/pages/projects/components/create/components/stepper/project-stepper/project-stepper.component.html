@@ -30,9 +30,11 @@ formService.allUsers$ | async; @let authors = formService.authors;
   </mat-step>
 
   <!-- Step 3: Work Information (Dynamic based on type) -->
-  @if (typeForm().value.type) {
+  @if (typeForm().value.type; as projectType) {
   <mat-step
-    [stepControl]="getCurrentWorkForm()!"
+    [stepControl]="
+      projectType | workForm : publicationForm() : patentForm() : researchForm()
+    "
     errorMessage="Type-specific information is required."
     label="Fill out work information"
   >

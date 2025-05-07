@@ -114,9 +114,12 @@ public class ProjectController {
 				log.error("User not found with email: {}", authentication.getName());
 				return new EntityNotFoundException("User not found");
 			});
-
+			
+			projectDTO.setCreatedBy(creator.getId());
+			
 			Project createdProject = projectService.createProject(projectDTO, creator.getId());
 			log.info("Created project with ID: {}", createdProject.getId());
+			
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.body(ApiResponse.success(createdProject.getId()));
 

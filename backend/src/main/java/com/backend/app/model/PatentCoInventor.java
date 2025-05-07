@@ -1,6 +1,8 @@
 package com.backend.app.model;
 
 
+import java.util.Objects;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -50,5 +52,18 @@ public class PatentCoInventor {
 		this.user = user;
 	}
 	
+	 @Override
+	    public boolean equals(Object o) {
+	        if (this == o) return true;
+	        if (!(o instanceof PatentCoInventor)) return false;
+	        PatentCoInventor that = (PatentCoInventor) o;
+	        return Objects.equals(patent, that.patent) &&
+	               Objects.equals(user, that.user);
+	    }
+
+	    @Override
+	    public int hashCode() {
+	        return Objects.hash(patent, user);
+	    }
 	
 }

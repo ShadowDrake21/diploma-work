@@ -12,7 +12,8 @@
   }
 } -->
 
-@let comments = comments$ | async; @if (project$ | async; as project) {
+@let comments = comments$ | async; @let project = project$ | async; @if
+(project) {
 <div class="details">
   <div class="details-header">
     <div class="details-header__status">
