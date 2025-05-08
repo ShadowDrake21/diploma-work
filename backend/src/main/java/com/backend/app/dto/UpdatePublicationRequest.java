@@ -11,7 +11,7 @@ import lombok.Data;
 public class UpdatePublicationRequest {
 	@NotNull(message = "Project is required")
 	private Project project;
-	private List<PublicationAuthorRequest> publicationAuthors;
+	private List<Long> authors;
 	private LocalDate publicationDate;
     private String publicationSource;
     private String doiIsbn;

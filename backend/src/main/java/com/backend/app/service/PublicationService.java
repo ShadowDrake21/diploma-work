@@ -98,55 +98,59 @@ public class PublicationService {
 	    Publication publication = publicationRepository.findById(id)
 	        .orElseThrow(() -> new ResourceNotFoundException("Publication not found"));
 	    
+	    List<ResponseUserDTO> originalAuthors = publicationAuthorRepository.getAuthorsInfoByPublication(publication);
+	    
 	    publicationMapper.updatePublicationFromDto(publicationDTO, publication);
 	    publicationRepository.save(publication);
 	    
 	    // 2. Handle authors update in a separate atomic operation
 	    if (publicationDTO.getAuthors() != null) {
-	        updateAuthorsAtomic(publication.getId(), 
+	    	updateAuthorsInNewTransaction(id, 
 	            publicationDTO.getAuthors().stream()
 	                .map(ResponseUserDTO::getId)
-	                .collect(Collectors.toList()));
+	                .collect(Collectors.toList()), originalAuthors.stream().map(ResponseUserDTO::getId).collect(Collectors.toList()));
 	    }
 	    
-	    // 3. Return fresh data with all relations
 	    return findPublicationById(id);
 	}
 
-	@Transactional
-	public void updateAuthorsAtomic(UUID publicationId, List<Long> newAuthorIds) {
-	    // 1. Get current authors (for comparison)
-	    Set<Long> currentAuthorIds = publicationAuthorRepository
-	        .findByPublicationId(publicationId).stream()
-	        .map(pa -> pa.getUser().getId())
-	        .collect(Collectors.toSet());
-	    
-	    // 2. Determine authors to add and remove
-	    Set<Long> newAuthorIdSet = new HashSet<>(newAuthorIds);
-	    
-	    List<Long> authorsToRemove = currentAuthorIds.stream()
-	        .filter(id -> !newAuthorIdSet.contains(id))
-	        .collect(Collectors.toList());
-	    
-	    List<Long> authorsToAdd = newAuthorIdSet.stream()
-	        .filter(id -> !currentAuthorIds.contains(id))
-	        .collect(Collectors.toList());
-	    
-	    // 3. Execute updates in proper order
-	    if (!authorsToRemove.isEmpty()) {
-	        publicationAuthorRepository.deleteByPublicationIdAndUserIds(
-	            publicationId, authorsToRemove);
-	    }
-	    
-	    if (!authorsToAdd.isEmpty()) {
-	        List<PublicationAuthor> newAuthors = authorsToAdd.stream()
-	            .map(userId -> new PublicationAuthor(
-	                publicationRepository.getReferenceById(publicationId),
-	                userRepository.getReferenceById(userId)
-	            ))
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void updateAuthorsInNewTransaction(UUID publicationId, List<Long> newAuthorIds, List<Long> originalAuthorIds) {
+	    try {
+	        // 1. Get fresh references
+	        Publication publication = publicationRepository.getReferenceById(publicationId);
+	        
+	        log.debug("newAuthorIds: " + newAuthorIds.size());
+	        
+	        // 2. Determine authors to remove (present in original but not in new)
+	        List<Long> authorsToRemove = originalAuthorIds.stream()
+	            .filter(id -> !newAuthorIds.contains(id))
 	            .collect(Collectors.toList());
 	        
-	        publicationAuthorRepository.saveAll(newAuthors);
+	        // 3. Determine authors to add (present in new but not in original)
+	        List<Long> authorsToAdd = newAuthorIds.stream()
+	            .filter(id -> !originalAuthorIds.contains(id))
+	            .collect(Collectors.toList());
+	        
+	        // 4. Remove authors
+	        if (!authorsToRemove.isEmpty()) {
+	            publicationAuthorRepository.deleteByPublicationIdAndUserIds(publicationId, authorsToRemove);
+	        }
+	        
+	        // 5. Add new authors
+	        if (!authorsToAdd.isEmpty()) {
+	            List<PublicationAuthor> newAuthors = authorsToAdd.stream()
+	                .map(userId -> {
+	                    User user = userRepository.getReferenceById(userId);
+	                    return new PublicationAuthor(publication, user);
+	                })
+	                .collect(Collectors.toList());
+	            
+	            publicationAuthorRepository.saveAll(newAuthors);
+	        }
+	    } catch (Exception e) {
+	        log.error("Failed to update authors for publication {}", publicationId, e);
+	        throw e;
 	    }
 	}
 

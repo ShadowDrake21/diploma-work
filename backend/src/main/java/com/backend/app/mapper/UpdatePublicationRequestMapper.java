@@ -52,13 +52,16 @@ public class UpdatePublicationRequestMapper {
 
 		dto.setIssueNumber(request.getIssueNumber() != 0 ? request.getIssueNumber() : existing.getIssueNumber());
 
-		if (request.getPublicationAuthors() != null) {
-			List<ResponseUserDTO> authors = request.getPublicationAuthors().stream()
-					.map(a -> new ResponseUserDTO(a.getUser().getId(), null)).collect(Collectors.toList());
-			dto.setAuthors(authors);
-		} else {
-			  dto.setAuthors(mapAuthors(existing.getPublicationAuthors()));
-		}
+		if (request.getAuthors() != null) {
+            dto.setAuthors(request.getAuthors().stream()
+                    .map(a -> new ResponseUserDTO(a, null))
+                    .collect(Collectors.toList()));
+        } else {
+            // Only use existing authors if request didn't specify any
+            dto.setAuthors(existing.getPublicationAuthors().stream()
+                    .map(a -> new ResponseUserDTO(a.getUser().getId(), a.getUser().getUsername()))
+                    .collect(Collectors.toList()));
+        }
 
 		return dto;
 	}

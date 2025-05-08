@@ -26,7 +26,7 @@ public interface PublicationAuthorRepository extends JpaRepository<PublicationAu
 	void deleteByPublication(@Param("publication") Publication publication);
 	
 	@Modifying
-	@Query("DELETE FROM PublicationAuthor pa WHERE pa.publication.id = :publicationId")
+    @Query("DELETE FROM PublicationAuthor pa WHERE pa.publication.id = :publicationId")
 	void deleteByPublicationId(@Param("publicationId") UUID publicationId);
 	
 	@Query("SELECT pa FROM PublicationAuthor pa WHERE pa.publication.id = :publicationId")
