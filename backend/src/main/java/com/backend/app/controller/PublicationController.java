@@ -28,7 +28,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Tag(name = "Publication Management", description = "Endpoints for managin publications")
 @RestController
 @RequestMapping("/api/publications")
@@ -69,6 +71,7 @@ public class PublicationController {
 			@Parameter(description = "ID of the publication to update") @PathVariable UUID id,
 			@Valid @RequestBody UpdatePublicationRequest request) {
 	    try {
+	    	log.info("updatePublication request: " + request.getAuthors().size());
 	        PublicationDTO dto = requestMapper.toPublicationDTO(request, id);
 	        PublicationDTO updated = publicationService.updatePublication(id, dto);
 	        return ResponseEntity.ok(updated);
