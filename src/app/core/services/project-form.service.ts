@@ -70,7 +70,7 @@ export class ProjectFormService implements OnInit {
   createPublicationForm(): FormGroup {
     return new FormGroup({
       id: new FormControl<string | null>(null),
-      authors: new FormControl<string[]>(['15', '16'], [Validators.required]),
+      authors: new FormControl<string[]>([], [Validators.required]),
       publicationDate: new FormControl<Date | null>(new Date(), [
         Validators.required,
       ]),

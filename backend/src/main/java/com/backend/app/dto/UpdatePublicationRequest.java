@@ -4,10 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class UpdatePublicationRequest {
+	@NotNull(message = "Project is required")
 	private Project project;
 	private List<PublicationAuthorRequest> publicationAuthors;
 	private LocalDate publicationDate;

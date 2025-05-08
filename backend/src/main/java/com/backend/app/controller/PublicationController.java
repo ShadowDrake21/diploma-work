@@ -68,10 +68,13 @@ public class PublicationController {
 	public ResponseEntity<PublicationDTO> updatePublication(
 			@Parameter(description = "ID of the publication to update") @PathVariable UUID id,
 			@Valid @RequestBody UpdatePublicationRequest request) {
-
-		PublicationDTO dto = requestMapper.toPublicationDTO(request, id);
-		PublicationDTO updated = publicationService.updatePublication(id, dto);
-		return ResponseEntity.ok(updated);
+	    try {
+	        PublicationDTO dto = requestMapper.toPublicationDTO(request, id);
+	        PublicationDTO updated = publicationService.updatePublication(id, dto);
+	        return ResponseEntity.ok(updated);
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.badRequest().build();
+	    }
 	}
 
 	@Operation(summary = "Delete a publication")

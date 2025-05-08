@@ -1,6 +1,9 @@
 package com.backend.app.service;
 
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.app.dto.CreatePublicationRequest;
 import com.backend.app.dto.PublicationDTO;
@@ -28,7 +33,6 @@ import com.backend.app.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,7 +67,7 @@ public class PublicationService {
 		try {
 			Project project = projectRepository.findById(request.getProjectId()).orElseThrow(
 					() -> new ResourceNotFoundException("Project not found with ID: " + request.getProjectId()));
-			
+
 			Publication publication = new Publication();
 			publication.setProject(project);
 			publication.setPublicationDate(request.getPublicationDate());
@@ -73,13 +77,13 @@ public class PublicationService {
 			publication.setEndPage(request.getEndPage());
 			publication.setJournalVolume(request.getJournalVolume());
 			publication.setIssueNumber(request.getIssueNumber());
-			
+
 			Publication savedPublication = publicationRepository.save(publication);
-			
-			if(request.getAuthors() != null && !request.getAuthors().isEmpty()) {
+
+			if (request.getAuthors() != null && !request.getAuthors().isEmpty()) {
 				addAuthorsToPublication(savedPublication, request.getAuthors());
 			}
-			
+
 			return savedPublication;
 
 		} catch (Exception e) {
@@ -90,27 +94,60 @@ public class PublicationService {
 
 	@Transactional
 	public PublicationDTO updatePublication(UUID id, PublicationDTO publicationDTO) {
-		try {
-			Publication existingPublication = publicationRepository.findByIdWithRelations(id)
-					.orElseThrow(() -> new ResourceNotFoundException("Publication not found with ID: " + id));
-			
-			if(publicationDTO.getProjectId() == null) {
-				publicationDTO.setProjectId(existingPublication.getProject().getId());
-			}
-			
-			publicationMapper.updatePublicationFromDto(publicationDTO, existingPublication);
-			
-			if(publicationDTO.getAuthors() != null) {
-			updateAuthors(existingPublication,
-					publicationDTO.getAuthors().stream().map(ResponseUserDTO::getId).collect(Collectors.toList()));
-			}
-			
-			Publication updatedPublication = publicationRepository.save(existingPublication);
-			return publicationMapper.toDTO(updatedPublication);
-		} catch (ObjectOptimisticLockingFailureException e) {
-			throw new ConcurrentModificationException("The publication was modified by another transaction. Please refresh and try again.");
-		}
-		
+	    // 1. Update the publication fields
+	    Publication publication = publicationRepository.findById(id)
+	        .orElseThrow(() -> new ResourceNotFoundException("Publication not found"));
+	    
+	    publicationMapper.updatePublicationFromDto(publicationDTO, publication);
+	    publicationRepository.save(publication);
+	    
+	    // 2. Handle authors update in a separate atomic operation
+	    if (publicationDTO.getAuthors() != null) {
+	        updateAuthorsAtomic(publication.getId(), 
+	            publicationDTO.getAuthors().stream()
+	                .map(ResponseUserDTO::getId)
+	                .collect(Collectors.toList()));
+	    }
+	    
+	    // 3. Return fresh data with all relations
+	    return findPublicationById(id);
+	}
+
+	@Transactional
+	public void updateAuthorsAtomic(UUID publicationId, List<Long> newAuthorIds) {
+	    // 1. Get current authors (for comparison)
+	    Set<Long> currentAuthorIds = publicationAuthorRepository
+	        .findByPublicationId(publicationId).stream()
+	        .map(pa -> pa.getUser().getId())
+	        .collect(Collectors.toSet());
+	    
+	    // 2. Determine authors to add and remove
+	    Set<Long> newAuthorIdSet = new HashSet<>(newAuthorIds);
+	    
+	    List<Long> authorsToRemove = currentAuthorIds.stream()
+	        .filter(id -> !newAuthorIdSet.contains(id))
+	        .collect(Collectors.toList());
+	    
+	    List<Long> authorsToAdd = newAuthorIdSet.stream()
+	        .filter(id -> !currentAuthorIds.contains(id))
+	        .collect(Collectors.toList());
+	    
+	    // 3. Execute updates in proper order
+	    if (!authorsToRemove.isEmpty()) {
+	        publicationAuthorRepository.deleteByPublicationIdAndUserIds(
+	            publicationId, authorsToRemove);
+	    }
+	    
+	    if (!authorsToAdd.isEmpty()) {
+	        List<PublicationAuthor> newAuthors = authorsToAdd.stream()
+	            .map(userId -> new PublicationAuthor(
+	                publicationRepository.getReferenceById(publicationId),
+	                userRepository.getReferenceById(userId)
+	            ))
+	            .collect(Collectors.toList());
+	        
+	        publicationAuthorRepository.saveAll(newAuthors);
+	    }
 	}
 
 	@Transactional
@@ -141,20 +178,20 @@ public class PublicationService {
 	public void updatePublicationAuthors(UUID publicationId, List<Long> newAuthorIds) {
 		Publication publication = publicationRepository.findById(publicationId)
 				.orElseThrow(() -> new RuntimeException("Publication not found with ID: " + publicationId));
-		
+
 		List<PublicationAuthor> currentAuthors = publicationAuthorRepository.findByPublication(publication);
-		
+
 		try {
 			currentAuthors.forEach(author -> {
 				publicationAuthorRepository.delete(author);
 			});
-		}  catch (ObjectOptimisticLockingFailureException e) {
-	        throw new ConcurrentModificationException(
-	                "Authors were modified by another transaction. Please refresh and try again.");
-	        }
+		} catch (ObjectOptimisticLockingFailureException e) {
+			throw new ConcurrentModificationException(
+					"Authors were modified by another transaction. Please refresh and try again.");
+		}
 		publication.getPublicationAuthors().clear();
-		
-		if(newAuthorIds != null) {
+
+		if (newAuthorIds != null) {
 			newAuthorIds.forEach(userId -> {
 				User user = getUserById(userId);
 				PublicationAuthor author = new PublicationAuthor(publication, user);
@@ -207,36 +244,32 @@ public class PublicationService {
 		});
 	}
 
+	@Transactional
 	private void updateAuthors(Publication publication, List<Long> newAuthorIds) {
-//		 if (newAuthorIds == null) {
-//        return; 
-//    }
-//		publicationAuthorRepository.deleteByPublication(publication);
-//		
-//		publication.getPublicationAuthors().clear();
-//		
-//		if(newAuthorIds != null) {
-//			newAuthorIds.forEach(userId -> {
-//				User user = getUserById(userId);
-//				PublicationAuthor author = new PublicationAuthor(publication, user);
-//				publicationAuthorRepository.save(author);
-//				publication.addPublicationAuthor(author);
-//			});
-//		}
-		 if (newAuthorIds == null) {
-		        return; 
-		    }
-		 
-		 Set<Long> currentAuthorIds = publication.getPublicationAuthors().stream().map(pa -> pa.getUser().getId()).collect(Collectors.toSet());
-		 
-		publication.getPublicationAuthors().removeIf(pa -> !newAuthorIds.contains(pa.getUser().getId()));
+		if (newAuthorIds == null) {
+			return;
+		}
 
-		newAuthorIds.stream().filter(userId -> !currentAuthorIds.contains(userId)).forEach(userId -> {
-			User user = getUserById(userId);
-			PublicationAuthor author = new PublicationAuthor(publication, user);
-			publicationAuthorRepository.save(author);
-			publication.addPublicationAuthor(author);
-		});
+		List<PublicationAuthor> currentAuthors = new ArrayList<PublicationAuthor>(publication.getPublicationAuthors());
+
+		for (PublicationAuthor author : currentAuthors) {
+			if (!newAuthorIds.contains(author.getUser().getId())) {
+				publicationAuthorRepository.delete(author);
+				publication.getPublicationAuthors().remove(author);
+			}
+		}
+
+		Set<Long> currentAuthorIds = publication.getPublicationAuthors().stream().map(pa -> pa.getUser().getId())
+				.collect(Collectors.toSet());
+
+		for (Long userId : newAuthorIds) {
+			if (!currentAuthorIds.contains(userId)) {
+				User user = getUserById(userId);
+				PublicationAuthor author = new PublicationAuthor(publication, user);
+				publicationAuthorRepository.save(author);
+				publication.addPublicationAuthor(author);
+			}
+		}
 	}
 
 	private Publication getPublicationById(UUID id) {
