@@ -47,7 +47,10 @@ export class PublicationService {
   }
 
   getPublicationById(id: string): Observable<ApiResponse<PublicationDTO>> {
-    return this.http.get<ApiResponse<PublicationDTO>>(`${this.apiUrl}/${id}`);
+    return this.http.get<ApiResponse<PublicationDTO>>(
+      `${this.apiUrl}/${id}`,
+      getAuthHeaders()
+    );
   }
 
   createPublication(
@@ -59,6 +62,8 @@ export class PublicationService {
       getAuthHeaders()
     );
   }
+
+  // TODO: finish authors publication
 
   updatePublication(
     id: string,

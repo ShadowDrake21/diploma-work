@@ -17,6 +17,10 @@ import com.backend.app.dto.FileMetadataDTO;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.service.S3Service;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 @RestController
 @RequestMapping("/api/s3")
 public class S3Controller {
@@ -40,16 +44,15 @@ public class S3Controller {
 	}
 	
 	@PostMapping("/update-files")
-	public ResponseEntity<String> updateFiles( @RequestParam String entityType, @RequestParam UUID entityId, @RequestParam("files") List<MultipartFile> newFiles) {
-		System.out.println("@RequestParam String entityType, @RequestParam UUID entityId, @RequestParam(\"files\") List<MultipartFile> newFiles" + entityType + " " + entityId + " " + newFiles.size());
+	public ResponseEntity<String> updateFiles( @RequestParam @NotBlank String entityType, @RequestParam @NotNull UUID entityId, @RequestParam("files") @NotEmpty MultipartFile[] files) {
 		try {
 			ProjectType type = ProjectType.valueOf(entityType);
-			s3Service.updateFiles(type, entityId, newFiles);
+			s3Service.updateFiles(type, entityId, List.of(files));
 			return ResponseEntity.ok("Files updated successfully");
 		} catch (IllegalArgumentException e) {
-            return ResponseEntity.status(400).body("Invalid entity type: " + entityType);
+            return ResponseEntity.badRequest().body("Invalid entity type");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Failed to update files: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Failed to update files");
         }
 	}
 	

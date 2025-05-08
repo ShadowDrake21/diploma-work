@@ -53,17 +53,15 @@ export class AttachmentsService {
   ): Observable<string> {
     console.log('updateFiles', files, entityId, entityType);
     const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('files', file);
+    files.forEach((file, index) => {
+      formData.append('files', file, file.name);
     });
     formData.append('entityType', entityType.toString());
     formData.append('entityId', entityId);
 
     return this.http.post<string>(`${this.apiUrl}/update-files`, formData, {
       responseType: 'text' as 'json',
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      }),
+      headers: getAuthHeaders().headers,
     });
   }
 
