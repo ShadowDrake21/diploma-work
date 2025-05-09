@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.backend.app.dto.ApiResponse;
 import com.backend.app.dto.FileMetadataDTO;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.service.S3Service;
@@ -33,28 +34,32 @@ public class S3Controller {
 	}
 	
 	@PostMapping("/upload")
-	public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String entityType, @RequestParam UUID entityId) {
+	public ResponseEntity<ApiResponse<String>> uploadFile(@RequestParam MultipartFile file, @RequestParam String entityType, @RequestParam UUID entityId) {
 		try {
 			ProjectType type = ProjectType.valueOf(entityType);
 			String fileUrl = s3Service.uploadFile(file, type, entityId);
-			return ResponseEntity.ok("File uploaded successfully: " + fileUrl);
+			return ResponseEntity.ok(ApiResponse.success("File uploaded successfully: " + fileUrl));
 		} catch(IllegalArgumentException e) {
-			return ResponseEntity.status(400).body("Invalid entity type: " + entityType);
-		}catch (Exception e) {
-			return ResponseEntity.status(500).body("Failed to upload file: " + e.getMessage());
-		}
+            return ResponseEntity.status(400)
+                    .body(ApiResponse.error("Invalid entity type: " + entityType));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(ApiResponse.error("Failed to upload file: " + e.getMessage()));
+        }
 	}
 	
 	@PostMapping("/update-files")
-	public ResponseEntity<String> updateFiles( @RequestParam @NotBlank String entityType, @RequestParam @NotNull UUID entityId, @RequestParam("files") @NotEmpty MultipartFile[] files) {
+	public ResponseEntity<ApiResponse<String>> updateFiles( @RequestParam @NotBlank String entityType, @RequestParam @NotNull UUID entityId, @RequestParam("files") @NotEmpty List<MultipartFile> files) {
 		try {
 			ProjectType type = ProjectType.valueOf(entityType);
-			s3Service.updateFiles(type, entityId, List.of(files));
-			return ResponseEntity.ok("Files updated successfully");
+			s3Service.updateFiles(type, entityId, files);
+			return ResponseEntity.ok(ApiResponse.success("Files updated successfully"));
 		} catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid entity type");
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Invalid entity type"));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Failed to update files");
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("Failed to update files"));
         }
 	}
 	
@@ -71,37 +76,38 @@ public class S3Controller {
     
 
     @GetMapping("/public-url/{fileName}")
-    public ResponseEntity<String> getPublicFileUrl(@PathVariable String fileName) {
+    public ResponseEntity<ApiResponse<String>> getPublicFileUrl(@PathVariable String fileName) {
     	try {
 			String fileUrl = s3Service.getPublicFileUrl(fileName);
-			return ResponseEntity.ok(fileUrl);
-		} catch (Exception e) {
-			return ResponseEntity.status(500).body("Failed to generate public URL: " + e.getMessage());
+			return ResponseEntity.ok(ApiResponse.success(fileUrl));
+		}catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(ApiResponse.error("Failed to generate public URL: " + e.getMessage()));
 		}
     }
     
     @GetMapping("/metadata/{fileId}")
-    public ResponseEntity<FileMetadataDTO> getFileMetadata(@PathVariable UUID fileId) {
+    public ResponseEntity<ApiResponse<FileMetadataDTO>> getFileMetadata(@PathVariable UUID fileId) {
     	try {
 			FileMetadataDTO metadata = s3Service.getFileMetadata(fileId);
-			return ResponseEntity.ok(metadata);
+			return ResponseEntity.ok(ApiResponse.success(metadata));
 		} catch (Exception e) {
-			return ResponseEntity.status(500).body(null);
-		}
+			 return ResponseEntity.status(500)
+	                    .body(ApiResponse.error("Failed to get file metadata"));		}
     }
     
     @GetMapping("/files/{entityType}/{entityId}")
-    public ResponseEntity<List<FileMetadataDTO>> getFilesByEntity(@PathVariable String entityType, @PathVariable UUID entityId) {
+    public ResponseEntity<ApiResponse<List<FileMetadataDTO>>> getFilesByEntity(@PathVariable String entityType, @PathVariable UUID entityId) {
 
     	try {
             System.out.println("Received request for entityType: " + entityType + ", entityId: " + entityId);
 			List<FileMetadataDTO> files = s3Service.getFilesByEntity(entityType, entityId);
-			return ResponseEntity.ok(files);
+			return ResponseEntity.ok(ApiResponse.success(files));
 		} catch (Exception e) {
 			 System.err.println("Error in getFilesByEntity: " + e.getMessage());
 		        e.printStackTrace();
-			return ResponseEntity.status(500).body(null);
-		}
+		        return ResponseEntity.status(500)
+	                    .body(ApiResponse.error("Failed to get files by entity"));		}
     }
 }
 

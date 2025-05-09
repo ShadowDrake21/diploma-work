@@ -25,9 +25,9 @@ formService.allUsers$ | async; @let authors = formService.authors;
     <create-project-general-info-step
       [generalInfoForm]="generalInfoForm()!"
       [typeForm]="typeForm()!"
-      [existingFiles]="formService.existingFiles$ | async"
     />
   </mat-step>
+  <!-- [existingFiles]="formService.existingFiles$ | async" -->
 
   <!-- Step 3: Work Information (Dynamic based on type) -->
   @if (typeForm().value.type; as projectType) {

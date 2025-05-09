@@ -10,6 +10,7 @@ import { MatButton } from '@angular/material/button';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkFormPipe } from '@pipes/work-form.pipe';
+import { FileMetadataDTO } from '@models/file.model';
 
 @Component({
   selector: 'create-project-stepper',
@@ -64,7 +65,10 @@ export class ProjectStepperComponent {
       return;
     }
 
-    const attachments = this.generalInfoForm()?.value.attachments || [];
+    const allAttachments = this.generalInfoForm()?.value.attachments || [];
+    const newFiles = allAttachments.filter(
+      (item: File | FileMetadataDTO) => item instanceof File
+    ) as File[];
 
     if (!this.formService.creatorId) {
       console.error('No creator ID available');
@@ -82,7 +86,7 @@ export class ProjectStepperComponent {
         workForm,
         projectId,
         this.formService.creatorId,
-        attachments
+        newFiles
       )
       .subscribe({
         next: (response) => {

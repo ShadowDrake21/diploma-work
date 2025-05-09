@@ -50,6 +50,13 @@ public class FileMetadata {
 
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
+    
+    @Column(name = "file_size")
+    private Long fileSize;
+    
+    @Column(name = "checksum", length = 32)
+    private String checksum;
+
 
 	@PrePersist
 	protected void onCreate() {

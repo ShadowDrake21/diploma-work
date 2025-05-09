@@ -18,9 +18,11 @@ public class FileMetadataDTO {
 	private ProjectType entityType;
 	private UUID entityId;
 	private LocalDateTime uploadedAt;
+	 private Long fileSize;
+	    private String checksum;
 	
 	public FileMetadataDTO(UUID id, String fileName, String fileUrl, ProjectType projectType, UUID entityId,
-			LocalDateTime uploadedAt) {
+			LocalDateTime uploadedAt,  Long fileSize, String checksum) {
 		super();
 		this.id = id;
 		this.fileName = fileName;
@@ -28,5 +30,7 @@ public class FileMetadataDTO {
 		this.entityType = projectType;
 		this.entityId = entityId;
 		this.uploadedAt = uploadedAt;
+		 this.fileSize = fileSize;
+	        this.checksum = checksum;
 	}
 }
