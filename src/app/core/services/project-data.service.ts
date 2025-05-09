@@ -251,7 +251,7 @@ export class ProjectDataService {
   ): CreateResearchRequest {
     return {
       projectId,
-      participantIds: formValue.participants || [],
+      participantIds: formValue.participantIds || [],
       budget: formValue.budget || 0,
       startDate: formValue.startDate?.toISOString() || new Date().toISOString(),
       endDate: formValue.endDate?.toISOString() || new Date().toISOString(),

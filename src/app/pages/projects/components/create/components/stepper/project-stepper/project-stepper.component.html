@@ -53,6 +53,7 @@ formService.allUsers$ | async; @let authors = formService.authors;
       [allUsers]="allUsers"
     />
     } @else if (typeForm().value.type === 'RESEARCH') {
+    {{ researchForm()?.value | json }}
     <create-project-work-info-step
       [typeForm]="typeForm()!"
       [researchesForm]="researchForm()!"

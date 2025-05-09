@@ -8,6 +8,7 @@ import {
   PublicationFormGroup,
   ResearchFormGroup,
 } from '@shared/types/project-form.types';
+import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'create-project-work-info-step',
@@ -15,28 +16,10 @@ import {
     ProjectPublicationFormComponent,
     ProjectPatentFormComponent,
     ProjectResearchFormComponent,
+    JsonPipe,
   ],
   styleUrl: './project-work-info-step.component.scss',
-  template: ` @if(typeForm().value.type === 'PUBLICATION' && publicationsForm())
-    {
-    <create-project-publication-form
-      [publicationsForm]="publicationsForm()!"
-      [allUsers]="allUsers()"
-      [authors]="authors()"
-    />
-    } @else if(typeForm().value.type === 'PATENT' && patentsForm()) {
-    <create-project-patent-form
-      [patentsForm]="patentsForm()!"
-      [authors]="authors()"
-      [allUsers]="allUsers()"
-    />
-    } @else if (typeForm().value.type === 'RESEARCH' && researchesForm()) {
-    <create-project-research-form
-      [researchesForm]="researchesForm()!"
-      [allUsers]="allUsers()"
-      [authors]="authors()"
-    />
-    }`,
+  templateUrl: './project-work-info-step.component.html',
 })
 export class ProjectWorkInfoStepComponent {
   typeForm = input.required<FormGroup>();
