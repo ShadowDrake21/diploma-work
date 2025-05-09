@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import jakarta.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/api/s3")
+@Validated
 public class S3Controller {
 	private final S3Service s3Service;
 	

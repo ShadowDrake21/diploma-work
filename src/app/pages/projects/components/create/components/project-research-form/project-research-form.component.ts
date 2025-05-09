@@ -48,9 +48,7 @@ export class ProjectResearchFormComponent
 {
   private userService = inject(UserService);
 
-  researchProjectsFormSig = input.required<ResearchFormGroup>({
-    alias: 'researchesForm',
-  });
+  researchProjectsForm = input.required<ResearchFormGroup>();
 
   statuses = statuses;
 
@@ -60,6 +58,8 @@ export class ProjectResearchFormComponent
 
   ngOnInit(): void {
     this.allUsers$ = this.userService.getAllUsers();
+
+    console.log('researchProjectsForm', this.researchProjectsForm());
   }
 
   compareStatuses = (status1: string, status2: Filter | string) => {
@@ -68,4 +68,8 @@ export class ProjectResearchFormComponent
     }
     return status1 === status2.value;
   };
+
+  onSelectionChange(event: any) {
+    console.log('event', event);
+  }
 }

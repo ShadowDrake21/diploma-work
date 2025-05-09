@@ -176,7 +176,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
                     tap((research) => {
                       this.projectFormService.patchResearchForm(
                         this.researchesForm,
-                        research
+                        research.data
                       );
                     })
                   );

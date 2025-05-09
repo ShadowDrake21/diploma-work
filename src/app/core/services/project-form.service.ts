@@ -111,7 +111,10 @@ export class ProjectFormService implements OnInit {
   createResearchForm(): FormGroup {
     return new FormGroup({
       id: new FormControl<string | null>(null),
-      participants: new FormControl<string[] | null>([], [Validators.required]),
+      participantIds: new FormControl<string[] | null>(
+        [],
+        [Validators.required]
+      ),
       budget: new FormControl<number | null>(0, [
         Validators.required,
         Validators.min(0),
@@ -156,6 +159,7 @@ export class ProjectFormService implements OnInit {
   ): Observable<PublicationDTO[] | PatentDTO[] | PatentDTO[]> {
     this.loading.next(true);
 
+    console.log('submitForm', typeForm.value.type, workForm?.value);
     const formValues = this.prepareFormValues(
       typeForm.value.type,
       workForm?.value
@@ -270,9 +274,11 @@ export class ProjectFormService implements OnInit {
   }
 
   patchResearchForm(form: FormGroup, research: any): void {
+    console.log('patchResearchForm', research);
+    console.log('Form:', form);
     const {
       id,
-      participants,
+      participantIds,
       budget,
       startDate,
       endDate,
@@ -282,7 +288,7 @@ export class ProjectFormService implements OnInit {
 
     form.patchValue({
       id,
-      participants: participants.map((p: any) => p.id.toString()),
+      participantIds,
       budget,
       startDate: new Date(startDate),
       endDate: new Date(endDate),

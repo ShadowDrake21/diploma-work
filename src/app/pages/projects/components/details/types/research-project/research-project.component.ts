@@ -7,7 +7,8 @@ import {
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { ProjectService } from '@core/services/project.service';
 import { UserService } from '@core/services/user.service';
-import { forkJoin, Observable, Subscription } from 'rxjs';
+import { ResearchDTO } from '@models/research.model';
+import { forkJoin, map, Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'details-research-project',
@@ -22,18 +23,26 @@ export class ResearchProjectComponent implements OnInit, OnDestroy {
   @Input({ required: true })
   id!: string;
 
-  research$!: Observable<any>;
+  research$!: Observable<ResearchDTO | null>;
   participants$!: Observable<any>;
 
   subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
-    this.research$ = this.projectService.getResearchByProjectId(this.id!);
+    this.research$ = this.projectService.getResearchByProjectId(this.id!).pipe(
+      map((response) => {
+        if (response.success) {
+          return response.data;
+        } else {
+          throw new Error('Failed to fetch research data');
+        }
+      })
+    );
 
     const researchSub = this.research$.subscribe((research) => {
-      this.participants$ = research?.data.participantIds
+      this.participants$ = research?.participantIds
         ? forkJoin(
-            research?.data.participantIds.map((participantId: number) =>
+            research?.participantIds.map((participantId: number) =>
               this.userService.getUserById(participantId)
             )
           )

@@ -27,7 +27,7 @@ export interface PatentForm {
 }
 
 export interface ResearchForm {
-  participants: FormControl<string[] | null>;
+  participantIds: FormControl<string[] | null>;
   budget: FormControl<number | null>;
   startDate: FormControl<Date | null>;
   endDate: FormControl<Date | null>;

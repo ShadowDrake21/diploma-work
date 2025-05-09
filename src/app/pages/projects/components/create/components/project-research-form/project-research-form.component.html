@@ -1,15 +1,15 @@
-@let researchProjects = researchProjectsFormSig(); @let allUsers = allUsers$ |
-async;
-
-<form [formGroup]="researchProjects" class="project-research__form">
+@let allUsers = allUsers$ | async;
+<form [formGroup]="researchProjectsForm()" class="project-research__form">
+  {{ researchProjectsForm().value | json }}
   <mat-form-field>
     <mat-label>Participants</mat-label>
     <mat-select
-      formControlName="participants"
+      formControlName="participantIds"
       multiple
       [compareWith]="compareParticipants"
     >
       @for (participant of allUsers; track participant) {
+      <p>{{ participant.username }} ({{ participant.id }})</p>
       <mat-option [value]="participant.id">{{
         participant.username
       }}</mat-option>
@@ -61,12 +61,16 @@ async;
       placeholder="U.S. Small Business Administration (SBA)"
       matInput
       formControlName="fundingSource"
-      [value]="researchProjects.controls.fundingSource.value"
+      [value]="researchProjectsForm().controls.fundingSource.value"
     />
   </mat-form-field>
   <div>
     <button mat-button matStepperPrevious>Back</button>
-    <button mat-button matStepperNext [disabled]="researchProjects.invalid">
+    <button
+      mat-button
+      matStepperNext
+      [disabled]="researchProjectsForm().invalid"
+    >
       Next
     </button>
   </div>
