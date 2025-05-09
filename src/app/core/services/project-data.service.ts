@@ -22,6 +22,7 @@ import {
 } from '@models/research.model';
 import { statuses } from '@content/createProject.content';
 import { ApiResponse } from '@models/api-response.model';
+import { FileMetadataDTO } from '@models/file.model';
 
 @Injectable({
   providedIn: 'root',
@@ -279,7 +280,7 @@ export class ProjectDataService {
   getAttachments(
     projectType: ProjectType,
     projectId: string
-  ): Observable<any[]> {
+  ): Observable<FileMetadataDTO[]> {
     return this.attachmentsService.getFilesByEntity(projectType, projectId);
   }
 }

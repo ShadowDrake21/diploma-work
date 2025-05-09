@@ -12,22 +12,24 @@
   @for (file of files; track $index) {
   <mat-list-item>
     <mat-icon matListItemIcon>note</mat-icon>
-    <div matListItemTitle>{{ file.name }}</div>
-    <div matListItemLine>{{ file.type }}</div>
-    <div matListItemLine>{{ file.size }} bytes</div>
+    <div matListItemTitle>
+      @if (isFile(file)) {
+      {{ file.name }}
+      } @else {
+      {{ file.fileName }}
+      }
+    </div>
+    <div matListItemLine>
+      @if (isFile(file)) {
+      {{ file.size | fileSize }}
+      } @else {
+      {{ file.uploadedAt | date }}
+      }
+    </div>
+    <button mat-icon-button (click)="fileRemoved.emit($index)">
+      <mat-icon>delete</mat-icon>
+    </button>
   </mat-list-item>
-  }</mat-list
->
+  }
+</mat-list>
 }
-
-<!-- <button (click)="onUpload()" class="upload-button">Upload the file</button> -->
-
-<!-- @switch (status) { @case ('uploading') {
-  <p>⏳ Uploading...</p>
-  } @case ('success') {
-  <p>✅ Done!</p>
-  } @case ('fail') {
-  <p>❌ Error!</p>
-  } @default {
-  <p>😶 Waiting to upload...</p>
-  } } -->

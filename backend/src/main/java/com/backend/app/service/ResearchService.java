@@ -1,10 +1,12 @@
 package com.backend.app.service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -153,16 +155,27 @@ public class ResearchService {
 		}
 	
 	private void updateResearchParticipantsByIds(Research research, List<Long> participantIds) {
-		research.getResearchParticipants().clear();
+		List<ResearchParticipant> currentParticipants = research.getResearchParticipants();
 		
-		if(participantIds != null) {
-			participantIds.forEach(id -> {
-				User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
-				
-				research.addParticipant(new ResearchParticipant(research, user));
-			});
+		Set<Long> existingUserIds = currentParticipants.stream().map(
+				p -> p.getUser().getId()).collect(Collectors.toSet());
+		
+		if (participantIds == null) {
+			participantIds = Collections.emptyList();
 		}
 		
-		entityManager.flush();
+		participantIds.stream().filter(Objects::nonNull).filter(id -> !existingUserIds.contains(id)).forEach(id -> {
+			User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+			research.addParticipant(new ResearchParticipant(research, user));
+		});
+		
+		Iterator<ResearchParticipant> iterator = currentParticipants.iterator();
+		while(iterator.hasNext()) {
+			ResearchParticipant participant = iterator.next();
+			if(!participantIds.contains(participant.getUser().getId())) {
+				iterator.remove();
+				participant.setResearch(null);
+			}
+		}
 	}
 }

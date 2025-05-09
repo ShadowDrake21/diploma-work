@@ -39,45 +39,85 @@
     </mat-select>
   </mat-form-field>
 
-  @if (existingFiles.length! > 0 && !isFilesReseted) { @for (file of
-  existingFiles(); track file) {
-  <a
-    [href]="file.fileUrl"
-    target="_blank"
-    download
-    style="text-decoration: none"
-  >
-    <mat-list-item style="cursor: pointer">
-      <mat-icon matListItemIcon>note</mat-icon>
-      <div matListItemTitle>
-        {{ file.fileName }}
-      </div>
-      <div matListItemLine>
-        {{ file.uploadedAt | date }}
-      </div>
-    </mat-list-item></a
-  >
-  }
-  <button mat-raised-button (click)="isFilesReseted = true">
-    Вибрати нові файли
-  </button>
-  } @if(!existingFiles?.length! || isFilesReseted) {<shared-multiple-file-upload
-    [formControl]="generalInformationForm().controls.attachments"
-    [entityType]="entityType()"
-  />
-  @if (generalInformationForm().controls.attachments.invalid &&
-  generalInformationForm().controls.attachments.touched) {
-  <mat-error>Attachments are required.</mat-error>
-  } }
+  <!-- <div class="files-section"> -->
+  <!-- File Upload -->
 
+  <!-- <shared-multiple-file-upload
+      [formControl]="generalInformationForm().controls.attachments"
+      accept="application/pdf"
+      (filesSelected)="handleNewFiles($event)"
+      (fileRemoved)="removeFile($event)"
+    /> -->
+  <!-- [entityType]="entityType()" -->
+
+  <!-- @if (generalInformationForm().controls.attachments.invalid &&
+    generalInformationForm().controls.attachments.touched) {
+    <mat-error>Attachments are required.</mat-error>
+    } -->
+  <!-- </div> -->
+
+  <div class="file-upload-container">
+    <input
+      type="file"
+      #fileInput
+      multiple
+      (change)="onFilesSelected($event)"
+      style="display: none"
+    />
+
+    <button mat-button color="primary" (click)="fileInput.click()">
+      <mat-icon>attach_file</mat-icon>
+      Select Files
+    </button>
+
+    <button
+      mat-button
+      color="accent"
+      (click)="uploadFiles()"
+      [disabled]="!pendingFiles.length || isUploading"
+    >
+      <mat-icon>cloud_upload</mat-icon>
+      Upload Selected ({{ pendingFiles.length }})
+    </button>
+
+    <mat-progress-bar
+      *ngIf="isUploading"
+      mode="determinate"
+      [value]="uploadProgress"
+    >
+    </mat-progress-bar>
+
+    <mat-list class="file-list">
+      <!-- Pending files -->
+      <mat-list-item *ngFor="let file of pendingFiles; let i = index">
+        <mat-icon matListItemIcon>insert_drive_file</mat-icon>
+        <div matListItemTitle>{{ file.name }}</div>
+        <div matListItemLine>{{ file.size | fileSize }}</div>
+        <button mat-icon-button (click)="removeFile(i, true)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-list-item>
+
+      <!-- Uploaded files -->
+      <mat-list-item *ngFor="let file of uploadedFiles; let i = index">
+        <mat-icon matListItemIcon>description</mat-icon>
+        <div matListItemTitle>{{ file.fileName }}</div>
+        <div matListItemLine>
+          {{ file.fileSize ? (file.fileSize | fileSize) : "Size unknown" }} •
+          Uploaded {{ file.uploadedAt | date }}
+        </div>
+        <button mat-icon-button (click)="removeFile(i, false)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-list-item>
+    </mat-list>
+  </div>
   <div>
     <button mat-button matStepperPrevious>Back</button>
     <button
       mat-button
       matStepperNext
-      [disabled]="
-        generalInformationForm().invalid && existingFiles.length! === 0
-      "
+      [disabled]="generalInformationForm().invalid"
     >
       Next
     </button>

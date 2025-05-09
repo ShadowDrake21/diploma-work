@@ -84,7 +84,7 @@
     }
     <ul class="details-attachments__list">
       @if (attachments$ | async; as attachments) { @for (attachment of
-      attachments; track attachment) {
+      (attachments || []); track attachment) {
       <li class="details-attachments__list-item">
         <h5 class="details-attachments__list-item__title">
           {{ attachment.fileName | truncateText : 20 }}
@@ -100,8 +100,10 @@
           Download PDF <mat-icon>picture_as_pdf</mat-icon>
         </a>
       </li>
-      } } @else {
+      }@empty {
       <p>No attachments found.</p>
+      } } @else {
+      <p>Loading attachments...</p>
       }
     </ul>
   </div>

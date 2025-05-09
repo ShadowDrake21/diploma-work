@@ -1,18 +1,23 @@
 package com.backend.app.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.module.ModuleDescriptor.Builder;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.app.dto.FileMetadataDTO;
@@ -20,6 +25,7 @@ import com.backend.app.enums.ProjectType;
 import com.backend.app.model.FileMetadata;
 import com.backend.app.repository.FileMetadataRepository;
 
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -30,6 +36,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
+@Slf4j
 @Service
 public class S3Service {
 	private final S3Client s3Client;
@@ -67,6 +74,10 @@ public class S3Service {
 		}
 		
 		for(MultipartFile newFile : newFiles) {
+			if(newFile.isEmpty()) {
+				continue;
+			}
+			
 			boolean fileAlreadyExists = existingFiles.stream().anyMatch(existingFile -> existingFile.getFileName().equals(newFile.getOriginalFilename()));
 			
 			if(!fileAlreadyExists) {
@@ -80,16 +91,28 @@ public class S3Service {
 		String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
 		
 		try {
+			 String checksum = DigestUtils.md5DigestAsHex(file.getBytes());
+		        long fileSize = file.getSize();
+		        
+		        Optional<FileMetadata> existingFile = fileMetadataRepository.findByChecksum(checksum);
+		        if (existingFile.isPresent()) {
+		            return "File already exists: " + existingFile.get().getFileUrl();
+		        }
+		        
 			s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(fileName).contentType(file.getContentType()).build(), RequestBody.fromBytes(file.getBytes()));
 			
 			LocalDateTime uploadedAt = new Date().toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
 			
-	        FileMetadata metadata = new FileMetadata();
-	        metadata.setFileName(file.getOriginalFilename());
-	        metadata.setFileUrl(fileUrl);
-	        metadata.setEntityType(entityType);
-	        metadata.setEntityId(projectId);
-	        metadata.setUploadedAt(uploadedAt);
+			 FileMetadata metadata = FileMetadata.builder()
+			            .fileName(file.getOriginalFilename())
+			            .fileUrl(fileUrl)
+			            .entityType(entityType)
+			            .entityId(projectId)
+			            .uploadedAt(uploadedAt)
+			            .fileSize(fileSize)
+			            .checksum(checksum)
+			            .build();
+			 
 	        fileMetadataRepository.save(metadata);
 	        
 			return "File uploaded successfully: " + fileName;
@@ -99,6 +122,25 @@ public class S3Service {
 		}
 	}
 	
+	public void addFiles(ProjectType entityType, UUID entityId, List<MultipartFile> newFiles) {
+		for(MultipartFile newFile:newFiles) {
+			if(newFile.isEmpty()) {
+				continue;
+			}
+			
+			try {
+				String checksum = DigestUtils.md5DigestAsHex(newFile.getBytes());
+				
+				boolean fileExists = fileMetadataRepository.existsByChecksumAndEntityTypeAndEntityId(checksum, entityType, entityId);
+				
+				if(!fileExists) {
+					uploadFile(newFile, entityType, entityId);
+				}
+			} catch (Exception e) {
+	            log.error("Error processing file: " + newFile.getOriginalFilename(), e);
+			}
+		}
+	}
 	public String uploadIndependentFile(MultipartFile file, String fileName) {
         try {
             s3Client.putObject(
@@ -155,7 +197,9 @@ public class S3Service {
                 metadata.getFileUrl(),
                 metadata.getEntityType(),
                 metadata.getEntityId(),
-                metadata.getUploadedAt()
+                metadata.getUploadedAt(),
+                metadata.getFileSize(),
+                metadata.getChecksum()
         );
 	}
 	
@@ -176,7 +220,9 @@ public class S3Service {
 	                        String.format("https://%s.s3.%s.amazonaws.com/%s/%s/%s", bucketName, region, entityType.toLowerCase(), entityId, metadata.getFileName()),
 	                        metadata.getEntityType(),
 	                        metadata.getEntityId(),
-	                        metadata.getUploadedAt()
+	                        metadata.getUploadedAt(),
+	                        metadata.getFileSize(),
+	                        metadata.getChecksum()
 	                ))
 	                .collect(Collectors.toList());
 	    }catch (Exception e) {

@@ -12,6 +12,7 @@ import { ProjectDataService } from './project-data.service';
 import { UserService } from './user.service';
 import { PublicationDTO } from '@models/publication.model';
 import { PatentDTO } from '@models/patent.model';
+import { FileMetadataDTO } from '@models/file.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,7 @@ export class ProjectFormService implements OnInit {
   loading = new BehaviorSubject<boolean>(false);
   isEditing = false;
   creatorId: number | null = null;
-  existingFiles$: Observable<any[]> = of([]);
+  // existingFiles$: Observable<any[]> = of([]);
   allUsers$: Observable<any[]> = of([]);
   authors: any[] = [];
 
@@ -63,7 +64,7 @@ export class ProjectFormService implements OnInit {
         Validators.max(100),
       ]),
       tags: new FormControl<string[]>([]),
-      attachments: new FormControl<File[]>([]),
+      attachments: new FormControl<(File | FileMetadataDTO)[]>([]),
     });
   }
 

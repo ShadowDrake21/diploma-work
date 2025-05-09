@@ -1,4 +1,12 @@
-import { Component, forwardRef, inject, input } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  forwardRef,
+  inject,
+  input,
+  Output,
+  output,
+} from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -10,10 +18,20 @@ import { AttachmentsService } from '@core/services/attachments.service';
 import { Observable } from 'rxjs';
 import { ProjectSharedService } from '@core/services/project-shared.service';
 import { MatButtonModule } from '@angular/material/button';
+import { FileMetadataDTO } from '@models/file.model';
+import { FileSizePipe } from '@pipes/file-size.pipe';
+import { DatePipe, JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'shared-multiple-file-upload',
-  imports: [MatListModule, MatIconModule, MatButtonModule],
+  imports: [
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    FileSizePipe,
+    DatePipe,
+    JsonPipe,
+  ],
   templateUrl: './multiple-file-upload.component.html',
   styleUrl: './multiple-file-upload.component.scss',
   providers: [
@@ -25,30 +43,24 @@ import { MatButtonModule } from '@angular/material/button';
   ],
 })
 export class MultipleFileUploadComponent implements ControlValueAccessor {
-  private attachmentsService = inject(AttachmentsService);
-  private projectSharedService = inject(ProjectSharedService);
+  formControl =
+    input.required<FormControl<(File | FileMetadataDTO)[] | null>>();
+  accept = input<string>('*');
+  maxSizeMB = input<number | null>(null); // Optional max file size in MB
 
-  formControlSig = input.required<FormControl<File[] | null>>({
-    alias: 'formControl',
-  });
-  entityTypeSig = input.required<string | null | undefined>({
-    alias: 'entityType',
-  });
+  @Output() filesSelected = new EventEmitter<File[]>();
+  @Output() fileRemoved = new EventEmitter<number>();
+  @Output() invalidFiles = new EventEmitter<{ file: File; reason: string }[]>();
 
-  status: 'initial' | 'uploading' | 'success' | 'fail' = 'initial';
-  files: File[] = [];
-  existingFiles$!: Observable<any[]>;
-
-  isProjectCreation: boolean = this.projectSharedService.isProjectCreation;
+  files: (File | FileMetadataDTO)[] = [];
 
   // ControlValueAccessor methods
-  onChange: any = () => {};
-  onTouched: any = () => {};
+  private onChange: (value: (File | FileMetadataDTO)[] | null) => void =
+    () => {};
+  private onTouched: () => void = () => {};
 
-  writeValue(obj: File[] | null): void {
-    if (obj) {
-      this.files = obj;
-    }
+  writeValue(obj: (File | FileMetadataDTO)[] | null): void {
+    this.files = obj || [];
   }
 
   registerOnChange(fn: any): void {
@@ -59,69 +71,29 @@ export class MultipleFileUploadComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState?(isDisabled: boolean): void {
-    // Handle disabled state if needed
+  isFile(file: any): file is File {
+    return file instanceof File;
   }
 
-  // Handle file input changes
-  onFileChange(event: any) {
-    const files = event.target.files;
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
 
-    if (files.length) {
-      this.status = 'initial';
-      this.files = Array.from(files);
-      this.formControlSig().setValue(this.files);
-      this.onChange(this.files); // Notify Angular of the change
-      this.onTouched(); // Notify Angular that the component was touched
-    }
+    const newFiles = Array.from(input.files);
+
+    this.files = [...this.files, ...newFiles];
+
+    this.updateControl();
+    input.value = '';
   }
 
-  // Reset files
-  onResetFiles() {
-    this.files = [];
-    this.formControlSig().setValue(null);
-    this.isProjectCreation = true;
-    this.onChange(this.files); // Notify Angular of the change
-    this.onTouched(); // Notify Angular that the component was touched
+  private updateControl(): void {
+    const newValue = [...this.files];
+    this.onChange(newValue);
+    this.onTouched();
+    this.formControl().setValue(newValue, {
+      emitEvent: false,
+      emitModelToViewChange: false,
+    });
   }
-
-  // onUpload() {
-  //   if (this.files.length && this.entityTypeSig()) {
-  //     this.status = 'uploading';
-
-  //     const entityType = stringToProjectType(this.entityTypeSig() as string);
-
-  //     if (!entityType) {
-  //       console.error('Invalid entity type: ', this.entityTypeSig());
-  //       return;
-  //     }
-
-  //     if (!this.projectIdSig()) {
-  //       console.error('Invalid project id: ', this.projectIdSig());
-  //       return;
-  //     }
-
-  //     const uploadObservables = this.files.map((file) =>
-  //       this.attachmentsService
-  //         .uploadFile(file, entityType, this.projectIdSig()!)
-  //         .pipe(
-  //           catchError((error) => {
-  //             console.log('Error uploading file', error);
-  //             return of(null);
-  //           })
-  //         )
-  //     );
-
-  //     forkJoin(uploadObservables)
-  //       .pipe(
-  //         finalize(() => {
-  //           this.status = 'success';
-  //         })
-  //       )
-  //       .subscribe((responses) => {
-  //         this.uploadCompleteSig.emit(this.files);
-  //         this.formControlSig().setValue(this.files);
-  //       });
-  //   }
-  // }
 }

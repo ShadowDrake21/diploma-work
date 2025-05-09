@@ -19,7 +19,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { types } from '@content/createProject.content';
 import { UserService } from '@core/services/user.service';
-import { of, Subscription, switchMap, tap } from 'rxjs';
+import { forkJoin, Observable, of, Subscription, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ProjectSharedService } from '@core/services/project-shared.service';
@@ -134,8 +134,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
               );
               this.typeForm.disable();
               this.cdr.detectChanges(); // Add this line
-              console.log('After patching - typeForm:', this.typeForm.value);
-              console.log('Form disabled status:', this.typeForm.disabled);
             });
           }),
           switchMap((project) => {
@@ -145,60 +143,25 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
               project.data
             );
 
-            switch (project.data.type) {
-              case ProjectType.PUBLICATION:
-                return this.projectDataService
-                  .getPublicationByProjectId(this.projectId!)
-                  .pipe(
-                    tap((publication: ApiResponse<PublicationDTO>) => {
-                      this.projectFormService.patchPublicationForm(
-                        this.publicationsForm,
-                        publication.data
-                      );
-                    })
-                  );
-              case ProjectType.PATENT:
-                return this.projectDataService
-                  .getPatentByProjectId(this.projectId!)
-                  .pipe(
-                    tap((patent) => {
-                      console.log('Patent in creation:', patent);
-                      this.projectFormService.patchPatentForm(
-                        this.patentsForm,
-                        patent.data
-                      );
-                    })
-                  );
-              case ProjectType.RESEARCH:
-                return this.projectDataService
-                  .getResearchByProjectId(this.projectId!)
-                  .pipe(
-                    tap((research) => {
-                      this.projectFormService.patchResearchForm(
-                        this.researchesForm,
-                        research.data
-                      );
-                    })
-                  );
-              default:
-                return of(null);
-            }
-          }),
-          switchMap(() => {
-            return this.projectDataService
-              .getAttachments(
-                this.typeForm.value.type as ProjectType,
+            return forkJoin([
+              this.projectDataService.getAttachments(
+                project.data.type as ProjectType,
                 this.projectId!
-              )
-              .pipe(
-                tap((attachments) => {
-                  this.generalInformationForm.patchValue({ attachments });
-                })
-              );
+              ),
+              this.handleProjectTypeData(project.data.type),
+            ]);
           })
         )
         .subscribe({
-          next: () => {
+          next: (result) => {
+            if (result) {
+              const [attachmentsResponse] = result;
+              if (attachmentsResponse) {
+                this.generalInformationForm.patchValue({
+                  attachments: attachmentsResponse,
+                });
+              }
+            }
             this.loading = false;
             this.projectSharedService.isProjectCreation = false;
           },
@@ -208,6 +171,47 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           },
         })
     );
+  }
+
+  private handleProjectTypeData(type: ProjectType): Observable<any> {
+    switch (type) {
+      case ProjectType.PUBLICATION:
+        return this.projectDataService
+          .getPublicationByProjectId(this.projectId!)
+          .pipe(
+            tap((publication: ApiResponse<PublicationDTO>) => {
+              this.projectFormService.patchPublicationForm(
+                this.publicationsForm,
+                publication.data
+              );
+            })
+          );
+      case ProjectType.PATENT:
+        return this.projectDataService
+          .getPatentByProjectId(this.projectId!)
+          .pipe(
+            tap((patent) => {
+              console.log('Patent in creation:', patent);
+              this.projectFormService.patchPatentForm(
+                this.patentsForm,
+                patent.data
+              );
+            })
+          );
+      case ProjectType.RESEARCH:
+        return this.projectDataService
+          .getResearchByProjectId(this.projectId!)
+          .pipe(
+            tap((research) => {
+              this.projectFormService.patchResearchForm(
+                this.researchesForm,
+                research.data
+              );
+            })
+          );
+      default:
+        return of(null);
+    }
   }
 
   ngOnDestroy(): void {
