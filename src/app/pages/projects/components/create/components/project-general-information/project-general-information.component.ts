@@ -22,13 +22,12 @@ import { finalize, tap } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { FileMetadataDTO } from '@models/file.model';
-import { FileSizePipe } from '@pipes/file-size.pipe';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { MatProgressBar } from '@angular/material/progress-bar';
 import { ActivatedRoute } from '@angular/router';
 import { FileHandlerService } from '@core/services/file-handler.service';
 import { GeneralInformationForm } from '@shared/types/project-form.types';
+import { FileUploadListComponent } from './components/file-upload-list/file-upload-list.component';
 
 @Component({
   selector: 'create-project-general-information',
@@ -46,8 +45,7 @@ import { GeneralInformationForm } from '@shared/types/project-form.types';
     MatDatepickerModule,
     MatListModule,
     MatIconModule,
-    FileSizePipe,
-    MatProgressBar,
+    FileUploadListComponent,
   ],
   templateUrl: './project-general-information.component.html',
   styleUrl: './project-general-information.component.scss',
@@ -93,18 +91,13 @@ export class ProjectGeneralInformationComponent implements OnInit {
     );
   }
 
-  onFilesSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.length) return;
-
-    const newFiles = Array.from(input.files);
-    const uniqueNewFiles = this.filterDuplicateFiles(newFiles);
+  onFilesSelected(files: File[]): void {
+    const uniqueNewFiles = this.filterDuplicateFiles(files);
 
     if (uniqueNewFiles.length === 0) return;
 
     this.pendingFiles.update((files) => [...files, ...uniqueNewFiles]);
     this.updateFormControl();
-    input.value = '';
   }
 
   private updateFormControl(): void {
