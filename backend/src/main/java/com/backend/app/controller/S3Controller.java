@@ -17,28 +17,32 @@ import org.springframework.web.multipart.MultipartFile;
 import com.backend.app.dto.ApiResponse;
 import com.backend.app.dto.FileMetadataDTO;
 import com.backend.app.enums.ProjectType;
+import com.backend.app.mapper.ResearchMapper;
+import com.backend.app.repository.FileMetadataRepository;
+import com.backend.app.service.ResearchService;
 import com.backend.app.service.S3Service;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/s3")
 @Validated
+@RequiredArgsConstructor
 public class S3Controller {
 	private final S3Service s3Service;
-	
-	public S3Controller(S3Service s3Service) {
-		this.s3Service = s3Service;
-	}
+    private final FileMetadataRepository fileMetadataRepository;
 	
 	@PostMapping("/upload")
 	public ResponseEntity<ApiResponse<String>> uploadFile(@RequestParam MultipartFile file, @RequestParam String entityType, @RequestParam UUID entityId) {
 		try {
 			ProjectType type = ProjectType.valueOf(entityType);
 			String fileUrl = s3Service.uploadFile(file, type, entityId);
-			return ResponseEntity.ok(ApiResponse.success("File uploaded successfully: " + fileUrl));
+			return ResponseEntity.ok(ApiResponse.success(fileUrl));
 		} catch(IllegalArgumentException e) {
             return ResponseEntity.status(400)
                     .body(ApiResponse.error("Invalid entity type: " + entityType));
@@ -64,14 +68,29 @@ public class S3Controller {
 	}
 	
 	
-    @DeleteMapping("/delete/{fileName}")
-	public ResponseEntity<String> deleteFile(@PathVariable String fileName) {
+    @DeleteMapping("/delete/{entityType}/{entityId}/{fileName:.+}")
+	public ResponseEntity<String> deleteFile(@PathVariable String entityType,
+		    @PathVariable UUID entityId, @PathVariable String fileName) {
 		try {
-			s3Service.deleteFile(fileName);
+			ProjectType type = ProjectType.valueOf(entityType.toUpperCase());
+			String filePath = entityType.toLowerCase() + "/" + entityId + "/" + fileName;
+			s3Service.deleteFile(filePath);
+			
+			fileMetadataRepository.deleteByEntityTypeAndEntityIdAndFileName(
+					type,
+		            entityId,
+		            fileName);
+			
+			
 			return ResponseEntity.ok("File deleted successfully: " + fileName);
-		} catch (Exception e) {
-			return ResponseEntity.status(500).body("Failed to delete file: " + e.getMessage());
-		}
+		}catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body("Invalid entity type: " + entityType);
+            } catch (Exception e) {
+                log.error("Failed to delete file", e);
+                return ResponseEntity.status(500)
+                    .body("Failed to delete file: " + e.getMessage());
+            }
 	}
     
 

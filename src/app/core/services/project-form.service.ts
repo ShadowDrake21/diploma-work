@@ -216,14 +216,25 @@ export class ProjectFormService implements OnInit {
     form.updateValueAndValidity();
   }
   patchGeneralInformationForm(form: FormGroup, project: any): void {
-    const { title, description, progress, tagIds } = project;
-    console.log('patchGeneralInformationForm', project);
-    form.patchValue({
-      title,
-      description,
-      progress,
-      tags: tagIds,
-    });
+    const { title, description, progress, tagIds, attachments } = project;
+
+    console.log('Patching form with attachments:', attachments);
+
+    form.patchValue(
+      {
+        title,
+        description,
+        progress,
+        tags: tagIds,
+        attachments: Array.isArray(attachments) ? [...attachments] : [],
+      },
+      {
+        emitEvent: false,
+      }
+    );
+
+    form.markAsTouched();
+    form.updateValueAndValidity();
   }
   patchPublicationForm(form: FormGroup, publication: PublicationDTO): void {
     const {

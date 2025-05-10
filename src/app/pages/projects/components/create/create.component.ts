@@ -120,48 +120,35 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(
       this.projectDataService
-        .getProjectById(this.projectId)
+        .getProjectWithAttachments(this.projectId)
         .pipe(
-          tap((project) => {
-            if (!project) return;
+          tap(({ project, attachments }) => {
+            console.log('API Response - Attachments:', attachments);
 
-            // Use setTimeout to ensure change detection runs
-            setTimeout(() => {
-              console.log('before patching - project:', project.data);
-              this.projectFormService.patchTypeForm(
-                this.typeForm,
-                project.data.type
-              );
-              this.typeForm.disable();
-              this.cdr.detectChanges(); // Add this line
-            });
-          }),
-          switchMap((project) => {
-            if (!project) return of(null);
+            this.projectFormService.patchTypeForm(this.typeForm, project.type);
+            this.typeForm.disable();
+
             this.projectFormService.patchGeneralInformationForm(
               this.generalInformationForm,
-              project.data
+              { ...project, attachments: attachments || [] }
             );
+            this.cdr.detectChanges();
 
-            return forkJoin([
-              this.projectDataService.getAttachments(
-                project.data.type as ProjectType,
-                this.projectId!
-              ),
-              this.handleProjectTypeData(project.data.type),
-            ]);
-          })
+            setTimeout(() => {
+              console.log(
+                'Form value after patching:',
+                this.generalInformationForm.value
+              );
+              console.log(
+                'Attachments control value:',
+                this.generalInformationForm.controls['attachments'].value
+              );
+            });
+          }),
+          switchMap(({ project }) => this.handleProjectTypeData(project.type))
         )
         .subscribe({
           next: (result) => {
-            if (result) {
-              const [attachmentsResponse] = result;
-              if (attachmentsResponse) {
-                this.generalInformationForm.patchValue({
-                  attachments: attachmentsResponse,
-                });
-              }
-            }
             this.loading = false;
             this.projectSharedService.isProjectCreation = false;
           },

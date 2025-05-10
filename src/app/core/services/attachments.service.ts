@@ -5,7 +5,15 @@ import { ApiResponse } from '@models/api-response.model';
 import { FileMetadataDTO } from '@models/file.model';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
-import { catchError, forkJoin, map, Observable, of, timestamp } from 'rxjs';
+import {
+  catchError,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  tap,
+  timestamp,
+} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -56,6 +64,24 @@ export class AttachmentsService {
     entityId: string,
     files: File[]
   ): Observable<ApiResponse<string[]>> {
+    if (files.length === 1) {
+      return this.uploadFile(files[0], entityType, entityId).pipe(
+        map((response) => ({
+          success: true,
+          message: response.message,
+          data: response.data ? [response.data] : [],
+          timestamp: new Date(),
+        })),
+        catchError((error) =>
+          of({
+            success: false,
+            message: 'Upload failed',
+            data: [],
+            timestamp: new Date(),
+          })
+        )
+      );
+    }
     const uploadObservables = files.map((file) =>
       this.uploadFile(file, entityType, entityId).pipe(
         map((response) => response.data),
@@ -64,14 +90,18 @@ export class AttachmentsService {
     );
 
     return forkJoin(uploadObservables).pipe(
-      map((results) => ({
-        success: results.every((r) => r !== null),
-        message: results.every((r) => r !== null)
-          ? 'All files uploaded successfully'
-          : 'Some files failed to upload',
-        data: results.filter((r) => r !== null) as string[],
-        timestamp: new Date(),
-      }))
+      map((results) => {
+        const successfulUploads = results.filter((url) => !!url) as string[];
+        return {
+          success: successfulUploads.length > 0,
+          message:
+            successfulUploads.length === files.length
+              ? 'All files uploaded successfully'
+              : `Uploaded ${successfulUploads.length} of ${files.length} files`,
+          data: successfulUploads,
+          timestamp: new Date(),
+        };
+      })
     );
   }
 
@@ -133,9 +163,18 @@ export class AttachmentsService {
     );
   }
 
-  deleteFile(fileName: string): Observable<ApiResponse<string>> {
+  deleteFile(
+    entityType: string,
+    entityId: string,
+    fileName: string
+  ): Observable<ApiResponse<string>> {
+    // Encode each part of the URL separately
+    const encodedType = encodeURIComponent(entityType.toLowerCase());
+    const encodedId = encodeURIComponent(entityId);
+    const encodedFile = encodeURIComponent(fileName);
+
     return this.http.delete<ApiResponse<string>>(
-      `${this.apiUrl}/delete/${fileName}`,
+      `${this.apiUrl}/delete/${encodedType}/${encodedId}/${encodedFile}`,
       {
         responseType: 'text' as 'json',
         ...getAuthHeaders(),

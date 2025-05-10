@@ -9,7 +9,7 @@ import {
   ProjectDTO,
   UpdateProjectRequest,
 } from '@models/project.model';
-import { forkJoin, Observable, of, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import {
   CreatePublicationRequest,
@@ -282,5 +282,21 @@ export class ProjectDataService {
     projectId: string
   ): Observable<FileMetadataDTO[]> {
     return this.attachmentsService.getFilesByEntity(projectType, projectId);
+  }
+
+  getProjectWithAttachments(projectId: string): Observable<{
+    project: ProjectDTO;
+    attachments: FileMetadataDTO[];
+  }> {
+    return this.getProjectById(projectId).pipe(
+      switchMap((projectResponse) => {
+        return this.getAttachments(projectResponse.data.type, projectId).pipe(
+          map((attachments) => ({
+            project: projectResponse.data,
+            attachments,
+          }))
+        );
+      })
+    );
   }
 }

@@ -61,7 +61,7 @@ import { format } from 'date-fns';
   templateUrl: './project-general-information.component.html',
   styleUrl: './project-general-information.component.scss',
 })
-export class ProjectGeneralInformationComponent implements OnInit {
+export class ProjectGeneralInformationComponent implements OnInit, OnChanges {
   private tagService = inject(TagService);
   private attachmentsService = inject(AttachmentsService);
   private destroyRef = inject(DestroyRef);
@@ -90,21 +90,49 @@ export class ProjectGeneralInformationComponent implements OnInit {
 
   ngOnInit(): void {
     this.tags$ = this.tagService.getAllTags();
-    this.uploadedFiles = this.existingFiles() || [];
+    this.updateFileList();
+
+    this.generalInformationForm()
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.updateFileList();
+      });
+  }
+
+  private updateFileList(): void {
+    const currentAttachments =
+      this.generalInformationForm().controls.attachments.value || [];
+
+    const validAttachments = currentAttachments.filter((item) => !!item);
+
+    this.uploadedFiles = (currentAttachments || []).filter(
+      (file): file is FileMetadataDTO => !this.isFileType(file)
+    );
+    this.pendingFiles = (currentAttachments || []).filter(
+      (file): file is File => this.isFileType(file)
+    );
+
+    console.log('Updated file lists:', {
+      attachments: currentAttachments,
+      uploaded: this.uploadedFiles,
+      pending: this.pendingFiles,
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['entityTypeSig']) {
-      console.log(
-        'ngOnChanges in ProjectGeneralInformationComponent',
-        this.entityType()?.toLowerCase()
+    if (changes['generalInformationForm']) {
+      const currentAttachments =
+        this.generalInformationForm().controls.attachments.value;
+      this.uploadedFiles = (currentAttachments || []).filter(
+        (file): file is FileMetadataDTO => !(file instanceof File)
       );
-    }
-    if (changes['existingFilesSig']) {
-      console.log(
-        'existingFilesSig in ProjectGeneralInformationComponent',
-        this.existingFiles()
+      this.pendingFiles = (currentAttachments || []).filter(
+        (file): file is File => file instanceof File
       );
+
+      console.log('Current attachments:', currentAttachments);
+      console.log('Uploaded files:', this.uploadedFiles);
+      console.log('Pending files:', this.pendingFiles);
     }
   }
 
@@ -146,18 +174,27 @@ export class ProjectGeneralInformationComponent implements OnInit {
     // Get the entity ID from the route or create a temporary one
     const entityId = this.getEntityId();
 
+    if (!entityId) {
+      console.warn('Cannot upload files - no project ID yet.');
+      return;
+    }
+
     this.attachmentsService
       .uploadFiles(this.entityType()!, entityId, this.pendingFiles)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          if (response.success) {
+          console.log('Upload response:', response);
+          if (response.success && response.data) {
+            const uploadedUrls = Array.isArray(response.data)
+              ? response.data
+              : [response.data];
             // Add to uploaded files
             this.uploadedFiles = [
               ...this.uploadedFiles,
-              ...response.data.map((url) =>
-                this.createFileMetadata(url, entityId)
-              ),
+              ...response.data
+                .filter((url) => !!url)
+                .map((url) => this.createFileMetadata(url, entityId)),
             ];
             this.pendingFiles = [];
             this.updateFormControl();
@@ -209,15 +246,29 @@ export class ProjectGeneralInformationComponent implements OnInit {
   removeFile(index: number, isPending: boolean): void {
     if (isPending) {
       this.pendingFiles.splice(index, 1);
+      this.updateFormControl();
     } else {
       const file = this.uploadedFiles[index];
-      this.attachmentsService.deleteFile(file.fileName).subscribe(() => {
-        this.uploadedFiles.splice(index, 1);
-        this.updateFormControl();
-      });
+
+      this.attachmentsService
+        .deleteFile(
+          file.entityType.toString().toLowerCase(),
+          file.entityId,
+          file.fileName
+        )
+        .subscribe({
+          next: () => {
+            this.uploadedFiles.splice(index, 1);
+            this.updateFormControl();
+          },
+          error: (err) => {
+            console.error('Error deleting file:', err);
+          },
+        });
     }
     this.updateFormControl();
   }
+
   onResetFiles(): void {
     this.generalInformationForm().controls.attachments.setValue([]);
     this.isFilesReseted = true;
@@ -228,22 +279,33 @@ export class ProjectGeneralInformationComponent implements OnInit {
   }
 
   private getEntityId(): string {
-    const routeId = this.route.snapshot.paramMap.get('id');
+    const routeId = this.route.snapshot.queryParamMap.get('id');
     if (routeId) return routeId;
 
-    return 'temp-' + Math.random().toString(36).substring(2);
+    return '';
   }
 
+  private loadExistingAttachments(): void {
+    console.log(
+      'Loading existing attachments for entity type:',
+      this.generalInformationForm().value
+    );
+  }
+
+  // TODO: Updating with existing files!!!!
+
   private createFileMetadata(url: string, entityId: string): FileMetadataDTO {
+    const fileName = url.split('/').pop() || '';
+
     return {
       fileUrl: url,
-      fileName: url.split('/').pop() || '',
+      fileName,
       entityType: this.entityType()!,
       entityId: entityId,
       uploadedAt: format(new Date(), 'yyyy-MM-dd HH:mm:ss.SSS'),
-      // Add other required properties from FileMetadataDTO
-      id: '', // You might need to generate this or get from backend
-      fileSize: 0, // You can get this from the File object if available
+      id: '',
+      fileSize: 0,
+      checksum: '',
     };
   }
 }

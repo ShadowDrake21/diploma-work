@@ -105,7 +105,18 @@
         <div matListItemLine>
           {{ file.fileSize ? (file.fileSize | fileSize) : "Size unknown" }} •
           Uploaded {{ file.uploadedAt | date }}
+          @if(file.entityType) {
+          <span>({{ file.entityType }})</span>
+          }
         </div>
+        <a
+          mat-icon-button
+          [href]="file.fileUrl"
+          target="_blank"
+          matTooltip="View file"
+        >
+          <mat-icon>visibility</mat-icon>
+        </a>
         <button mat-icon-button (click)="removeFile(i, false)">
           <mat-icon>delete</mat-icon>
         </button>

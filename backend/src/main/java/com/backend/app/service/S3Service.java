@@ -96,26 +96,24 @@ public class S3Service {
 		        
 		        Optional<FileMetadata> existingFile = fileMetadataRepository.findByChecksum(checksum);
 		        if (existingFile.isPresent()) {
-		            return "File already exists: " + existingFile.get().getFileUrl();
+		            return existingFile.get().getFileUrl();
 		        }
 		        
 			s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(fileName).contentType(file.getContentType()).build(), RequestBody.fromBytes(file.getBytes()));
-			
-			LocalDateTime uploadedAt = new Date().toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
-			
+						
 			 FileMetadata metadata = FileMetadata.builder()
 			            .fileName(file.getOriginalFilename())
 			            .fileUrl(fileUrl)
 			            .entityType(entityType)
 			            .entityId(projectId)
-			            .uploadedAt(uploadedAt)
+			            .uploadedAt(LocalDateTime.now())
 			            .fileSize(fileSize)
 			            .checksum(checksum)
 			            .build();
 			 
 	        fileMetadataRepository.save(metadata);
 	        
-			return "File uploaded successfully: " + fileName;
+			return fileUrl;
 		}
 		catch (IOException e) {
 			throw new RuntimeException("Error uploading file: " + e.getMessage());
