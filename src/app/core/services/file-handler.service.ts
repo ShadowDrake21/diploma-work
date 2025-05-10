@@ -6,59 +6,34 @@ import { FileMetadataDTO } from '@models/file.model';
 import { format } from 'date-fns';
 import { ApiResponse } from '@models/api-response.model';
 
+interface UploadResult {
+  progress: number;
+  files: FileMetadataDTO[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class FileHandlerService {
-  private attachmentsService = inject(AttachmentsService);
+  private readonly attachmentsService = inject(AttachmentsService);
+  private readonly completeProgress = 100;
 
   uploadFiles(
     entityType: ProjectType,
     entityId: string,
     files: File[]
-  ): Observable<{ progress: number; files?: FileMetadataDTO[] }> {
+  ): Observable<UploadResult> {
+    if (!files.length) {
+      return of(this.createEmptyResult());
+    }
+
     return this.attachmentsService
       .uploadFiles(entityType, entityId, files)
       .pipe(
-        map((response) => {
-          if (files.length === 1) {
-            return {
-              progress: 100,
-              files:
-                response.data && response.data[0]
-                  ? [
-                      this.createFileMetadata(
-                        response.data[0],
-                        entityType,
-                        entityId,
-                        files[0]
-                      ),
-                    ]
-                  : [],
-            };
-          }
-          return {
-            progress: 100,
-            files: response.data
-              ? (response.data
-                  .map((url, i) =>
-                    url
-                      ? this.createFileMetadata(
-                          url,
-                          entityType,
-                          entityId,
-                          files[i]
-                        )
-                      : null
-                  )
-                  .filter((file) => file !== null) as FileMetadataDTO[])
-              : [],
-          };
-        }),
-        catchError((error) => {
-          console.error('Upload error:', error);
-          return of({ progress: 100, files: [] });
-        })
+        map((response) =>
+          this.handleUploadResponse(response, entityType, entityId, files)
+        ),
+        catchError((error) => this.handleUploadError(error))
       );
   }
 
@@ -68,6 +43,29 @@ export class FileHandlerService {
       file.entityId,
       file.fileName
     );
+  }
+
+  private handleUploadResponse(
+    response: ApiResponse<string[]>,
+    entityType: ProjectType,
+    entityId: string,
+    files: File[]
+  ): UploadResult {
+    if (!response.success || !response.data.length) {
+      return this.createEmptyResult();
+    }
+
+    const uploadedFiles = response.data
+      .map((url, index) =>
+        url
+          ? this.createFileMetadata(url, entityType, entityId, files[index])
+          : null
+      )
+      .filter((file): file is FileMetadataDTO => file !== null);
+    return {
+      progress: this.completeProgress,
+      files: uploadedFiles,
+    };
   }
 
   private createFileMetadata(
@@ -85,6 +83,18 @@ export class FileHandlerService {
       id: '',
       fileSize: file.size,
       checksum: '',
+    };
+  }
+
+  private handleUploadError(error: unknown): Observable<UploadResult> {
+    console.error('Upload error:', error);
+    return of(this.createEmptyResult());
+  }
+
+  private createEmptyResult(): UploadResult {
+    return {
+      progress: this.completeProgress,
+      files: [],
     };
   }
 }

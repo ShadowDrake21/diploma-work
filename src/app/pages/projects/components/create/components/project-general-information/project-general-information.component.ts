@@ -5,18 +5,10 @@ import {
   DestroyRef,
   inject,
   input,
-  OnChanges,
-  OnDestroy,
   OnInit,
   signal,
-  SimpleChanges,
 } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,17 +18,15 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSliderModule } from '@angular/material/slider';
 import { TagService } from '@core/services/tag.service';
-import { finalize, Observable, Subscription, tap } from 'rxjs';
+import { finalize, tap } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { FileMetadataDTO } from '@models/file.model';
 import { FileSizePipe } from '@pipes/file-size.pipe';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AttachmentsService } from '@core/services/attachments.service';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { ActivatedRoute } from '@angular/router';
-import { format } from 'date-fns';
 import { FileHandlerService } from '@core/services/file-handler.service';
 import { GeneralInformationForm } from '@shared/types/project-form.types';
 
