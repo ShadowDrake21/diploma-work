@@ -193,10 +193,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     this.subscriptions.push(deleteSub);
   }
 
-  openPdfInNewTab(fileUrl: string): void {
-    window.open(fileUrl, '_blank');
-  }
-
   loadComments() {
     if (!this.workId) return;
 

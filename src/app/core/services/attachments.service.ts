@@ -1,19 +1,11 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse } from '@models/api-response.model';
 import { FileMetadataDTO } from '@models/file.model';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
-import {
-  catchError,
-  forkJoin,
-  map,
-  Observable,
-  of,
-  tap,
-  timestamp,
-} from 'rxjs';
+import { catchError, filter, forkJoin, map, Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -49,14 +41,30 @@ export class AttachmentsService {
     formData.append('file', file);
     formData.append('entityType', entityType.toString());
     formData.append('entityId', uuid.toString());
-    return this.http.post<ApiResponse<string>>(
-      `${this.apiUrl}/upload`,
-      formData,
-      {
-        responseType: 'text' as 'json',
+    return this.http
+      .post<ApiResponse<string>>(`${this.apiUrl}/upload`, formData, {
+        reportProgress: true,
+        observe: 'events',
+        responseType: 'json',
         ...getAuthHeaders(),
-      }
-    );
+      })
+      .pipe(
+        filter((event) => event.type === HttpEventType.Response),
+        map(
+          (event) =>
+            (event as HttpResponse<ApiResponse<string>>)
+              .body as ApiResponse<string>
+        ),
+        catchError((error) => {
+          console.error('Upload error: ', error);
+          return of({
+            success: false,
+            message: 'Upload failed',
+            data: '',
+            timestamp: new Date(),
+          });
+        })
+      );
   }
 
   uploadFiles(
@@ -67,10 +75,8 @@ export class AttachmentsService {
     if (files.length === 1) {
       return this.uploadFile(files[0], entityType, entityId).pipe(
         map((response) => ({
-          success: true,
-          message: response.message,
+          ...response,
           data: response.data ? [response.data] : [],
-          timestamp: new Date(),
         })),
         catchError((error) =>
           of({
@@ -126,40 +132,6 @@ export class AttachmentsService {
       {
         headers: getAuthHeaders().headers,
       }
-    );
-  }
-
-  addFilesWithoutReplacing(
-    entityType: ProjectType,
-    entityId: string,
-    files: File[]
-  ): Observable<ApiResponse<string[]>> {
-    if (!files.length) {
-      return of({
-        success: false,
-        message: 'No files to upload',
-        data: [],
-        timestamp: new Date(),
-      });
-    }
-
-    // Upload each file individually
-    const uploadObservables = files.map((file) =>
-      this.uploadFile(file, entityType, entityId).pipe(
-        map((response) => response.data),
-        catchError(() => of(null))
-      )
-    );
-
-    return forkJoin(uploadObservables).pipe(
-      map((results) => ({
-        success: results.every((r) => r !== null),
-        message: results.every((r) => r !== null)
-          ? 'All files uploaded successfully'
-          : 'Some files failed to upload',
-        data: results.filter((r) => r !== null) as string[],
-        timestamp: new Date(),
-      }))
     );
   }
 
