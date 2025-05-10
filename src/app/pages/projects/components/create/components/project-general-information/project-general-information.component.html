@@ -1,5 +1,3 @@
-@let tags = tags$ | async;
-
 <form
   [formGroup]="generalInformationForm()"
   class="project-general-information__form"
@@ -46,6 +44,7 @@
       multiple
       (change)="onFilesSelected($event)"
       style="display: none"
+      accept="application/pdf"
     />
 
     <button mat-button color="primary" (click)="fileInput.click()">
@@ -64,8 +63,7 @@
     </button>
 
     @if (isUploading()) {
-    <mat-progress-bar mode="determinate" [value]="uploadProgress()">
-    </mat-progress-bar>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
 
     <mat-list class="file-list">
