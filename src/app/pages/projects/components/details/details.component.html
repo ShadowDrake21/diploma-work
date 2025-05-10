@@ -1,17 +1,3 @@
-<!-- @if (project$ | async; as project) {
-  @switch (project.type) {
-    @case('publication') {
-      <details-publication [work]="project" />
-    }
-    @case('patent') {
-      <details-patent [work]="project" />
-    }
-    @case('research project') {
-      <details-research-project [work]="project" />
-    }
-  }
-} -->
-
 @let comments = comments$ | async; @let project = project$ | async; @if
 (project) {
 <div class="details">
@@ -94,7 +80,6 @@
           class="details-attachments__list-item__btn"
           [href]="attachment.fileUrl"
           target="_blank"
-          (click)="openPdfInNewTab(attachment.fileUrl)"
           download
         >
           Download PDF <mat-icon>picture_as_pdf</mat-icon>

@@ -1,11 +1,20 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import { IUser } from './users.types';
 import { ResponseUserDTO } from '@models/user.model';
+import { FileMetadataDTO } from '@models/file.model';
 
 export type BaseFormInputs = {
   allUsers: IUser[] | null;
   authors: (IUser | ResponseUserDTO | any)[] | null;
 };
+
+export interface GeneralInformationForm {
+  title: FormControl<string | null>;
+  description: FormControl<string | null>;
+  progress: FormControl<number | null>;
+  tags: FormControl<string[] | null>;
+  attachments: FormControl<(File | FileMetadataDTO)[] | null>;
+}
 
 export interface PublicationForm {
   authors: FormControl<string[] | null>;
