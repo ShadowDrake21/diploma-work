@@ -23,38 +23,31 @@ import {
 import { statuses } from '@content/createProject.content';
 import { ApiResponse } from '@models/api-response.model';
 import { FileMetadataDTO } from '@models/file.model';
+import {
+  ProjectWithAttachments,
+  TypedProjectFormValues,
+} from '@shared/types/services/project-data.types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectDataService {
-  private projectService = inject(ProjectService);
-  private publicationService = inject(PublicationService);
-  private patentService = inject(PatentService);
-  private researchService = inject(ResearchService);
-  private attachmentsService = inject(AttachmentsService);
-
-  constructor() {}
+  private readonly projectService = inject(ProjectService);
+  private readonly publicationService = inject(PublicationService);
+  private readonly patentService = inject(PatentService);
+  private readonly researchService = inject(ResearchService);
+  private readonly attachmentsService = inject(AttachmentsService);
 
   createProject(
     projectData: CreateProjectRequest,
     attachments: File[],
-    formValues: {
-      publication?: any;
-      patent?: any;
-      research?: any;
-    }
+    formValues: TypedProjectFormValues
   ): Observable<any> {
     return this.projectService.createProject(projectData).pipe(
       switchMap((projectResponse) => {
-        console.log('Project created:', projectResponse);
         const projectId = projectResponse.data;
         const operations = [
-          this.handleTypedProjectCreation(
-            projectId,
-            projectData.type,
-            formValues
-          ),
+          this.createTypedProject(projectId, projectData.type, formValues),
         ];
 
         if (attachments.length > 0) {
@@ -75,26 +68,18 @@ export class ProjectDataService {
     projectId: string,
     projectData: UpdateProjectRequest,
     attachments: File[],
-    formValues: {
-      publication?: any;
-      patent?: any;
-      research?: any;
-    }
+    formValues: TypedProjectFormValues
   ): Observable<any> {
     return this.projectService.updateProject(projectId, projectData).pipe(
       switchMap((projectResponse) => {
         console.log('Project updated:', projectData);
         const projectId = projectResponse.data;
-        const typedProjectId =
-          projectData.type === ProjectType.PUBLICATION
-            ? formValues.publication?.id
-            : projectData.type === ProjectType.PATENT
-            ? formValues.patent?.id
-            : projectData.type === ProjectType.RESEARCH
-            ? formValues.research?.id
-            : undefined;
+        const typedProjectId = this.getTypedProjectId(
+          projectData.type!,
+          formValues
+        );
         const operations = [
-          this.handleTypedProjectUpdate(
+          this.updateTypedProject(
             typedProjectId,
             projectId,
             projectData.type!,
@@ -117,97 +102,78 @@ export class ProjectDataService {
     );
   }
 
-  private handleTypedProjectCreation(
+  private createTypedProject(
     projectId: string,
     projectType: ProjectType,
-    formValues: {
-      publication?: any;
-      patent?: any;
-      research?: any;
-    }
+    formValues: TypedProjectFormValues
   ): Observable<any> {
-    console.log(
-      'handleTypedProjectCreation',
-      projectType === ProjectType.PUBLICATION
-    );
     switch (projectType) {
       case ProjectType.PUBLICATION:
-        const publicationData = this.getPublicationFormValues(
-          projectId,
-          formValues.publication
-        ) as CreatePublicationRequest;
-        return this.publicationService.createPublication(publicationData);
+        return this.publicationService.createPublication(
+          this.buildPublicationCreateRequest(projectId, formValues.publication)
+        );
       case ProjectType.PATENT:
-        const patentData = this.getPatentFormValues(
-          projectId,
-          formValues.patent
-        ) as CreatePatentRequest;
-        return this.patentService.createPatent(patentData);
+        return this.patentService.createPatent(
+          this.buildPatentCreateRequest(projectId, formValues.patent)
+        );
       case ProjectType.RESEARCH:
-        const researchData = this.getResearchFormValues(
-          projectId,
-          formValues.research
-        ) as CreateResearchRequest;
-        return this.researchService.create(researchData);
+        return this.researchService.create(
+          this.buildResearchCreateRequest(projectId, formValues.research)
+        );
       default:
         console.error('Invalid project type');
         return of(null);
     }
   }
 
-  private handleTypedProjectUpdate(
+  private updateTypedProject(
     typedProjectId: string,
     projectId: string,
     projectType: ProjectType,
-    formValues: {
-      publication?: any;
-      patent?: any;
-      research?: any;
-    }
+    formValues: TypedProjectFormValues
   ): Observable<any> {
-    console.log('projectId', projectId);
-    console.log('typedProjectId', typedProjectId);
     switch (projectType) {
       case ProjectType.PUBLICATION:
-        const publicationData = {
-          ...this.getPublicationFormValues(projectId, formValues.publication),
-          id: typedProjectId,
-        } as UpdatePublicationRequest;
         return this.publicationService.updatePublication(
           typedProjectId,
-          publicationData
+          this.buildPublicationUpdateRequest(
+            projectId,
+            formValues.publication,
+            typedProjectId
+          )
         );
       case ProjectType.PATENT:
-        const patentData = {
-          ...this.getPatentFormValues(projectId, formValues.patent),
-          id: typedProjectId,
-        } as UpdatePatentRequest;
-        console.log('patentData', patentData);
-        return this.patentService.updatePatent(patentData.id, patentData);
-      case ProjectType.RESEARCH:
-        const researchData = {
-          ...(this.getResearchFormValues(
+        return this.patentService.updatePatent(
+          typedProjectId,
+          this.buildPatentUpdateRequest(
             projectId,
-            formValues.research
-          ) as UpdateResearchRequest),
-          id: typedProjectId,
-        };
-        return this.researchService.update(typedProjectId, researchData);
+            formValues.patent,
+            typedProjectId
+          )
+        );
+      case ProjectType.RESEARCH:
+        return this.researchService.update(
+          typedProjectId,
+          this.buildResearchUpdateRequest(
+            projectId,
+            formValues.research,
+            typedProjectId
+          )
+        );
       default:
         console.error('Invalid project type');
         return of(null);
     }
   }
 
-  private getPublicationFormValues(
+  private buildPublicationCreateRequest(
     projectId: string,
-    formValue: any
-  ): CreatePublicationRequest | UpdatePublicationRequest {
+    formValue: any,
+    id?: string
+  ): CreatePublicationRequest {
     if (!formValue?.publicationDate) {
       throw new Error('Publication date is required');
     }
-    const authors =
-      formValue.authors?.map((author: string) => parseInt(author)) || [];
 
     return {
       projectId,
@@ -218,11 +184,24 @@ export class ProjectDataService {
       endPage: formValue.endPage ?? 1,
       journalVolume: formValue.journalVolume ?? 1,
       issueNumber: formValue.issueNumber ?? 1,
-      authors,
+      authors:
+        formValue.authors?.map((author: string) => parseInt(author)) || [],
     };
   }
 
-  private getPatentFormValues(
+  private buildPublicationUpdateRequest(
+    projectId: string,
+    formValue: any,
+    id: string
+  ): UpdatePublicationRequest {
+    const baseRequest = this.buildPublicationCreateRequest(
+      projectId,
+      formValue
+    );
+    return { ...baseRequest, id };
+  }
+
+  private buildPatentCreateRequest(
     projectId: string,
     formValue: any
   ): CreatePatentRequest | UpdatePatentRequest {
@@ -230,23 +209,28 @@ export class ProjectDataService {
       throw new Error('Primary author is required');
     }
 
-    const primaryAuthorIdNumber = +formValue.primaryAuthor;
-    const coInventorsNums =
-      formValue.coInventors?.map((inventor: any) => +inventor) || [];
-
-    const baseValues = {
+    return {
       projectId,
-      primaryAuthorId: primaryAuthorIdNumber,
+      primaryAuthorId: +formValue.primaryAuthor,
       registrationNumber: formValue.registrationNumber ?? '',
       registrationDate:
         formValue.registrationDate?.toISOString() ?? new Date().toISOString(),
       issuingAuthority: formValue.issuingAuthority ?? '',
-      coInventors: coInventorsNums,
+      coInventors:
+        formValue.coInventors?.map((inventor: any) => +inventor) || [],
     };
-
-    return baseValues;
   }
-  private getResearchFormValues(
+
+  private buildPatentUpdateRequest(
+    projectId: string,
+    formValue: any,
+    id: string
+  ): UpdatePatentRequest {
+    const baseRequest = this.buildPatentCreateRequest(projectId, formValue);
+    return { ...baseRequest, id };
+  }
+
+  private buildResearchCreateRequest(
     projectId: string,
     formValue: any
   ): CreateResearchRequest {
@@ -259,6 +243,15 @@ export class ProjectDataService {
       status: formValue.status || statuses[0].value,
       fundingSource: formValue.fundingSource || '',
     };
+  }
+
+  private buildResearchUpdateRequest(
+    projectId: string,
+    formValue: any,
+    id: string
+  ): UpdateResearchRequest {
+    const baseRequest = this.buildResearchCreateRequest(projectId, formValue);
+    return { ...baseRequest, id };
   }
 
   getProjectById(projectId: string): Observable<ApiResponse<ProjectDTO>> {
@@ -284,10 +277,9 @@ export class ProjectDataService {
     return this.attachmentsService.getFilesByEntity(projectType, projectId);
   }
 
-  getProjectWithAttachments(projectId: string): Observable<{
-    project: ProjectDTO;
-    attachments: FileMetadataDTO[];
-  }> {
+  getProjectWithAttachments(
+    projectId: string
+  ): Observable<ProjectWithAttachments> {
     return this.getProjectById(projectId).pipe(
       switchMap((projectResponse) => {
         return this.getAttachments(projectResponse.data.type, projectId).pipe(
@@ -298,5 +290,21 @@ export class ProjectDataService {
         );
       })
     );
+  }
+
+  private getTypedProjectId(
+    projectType: ProjectType,
+    formValues: TypedProjectFormValues
+  ): string {
+    switch (projectType) {
+      case ProjectType.PUBLICATION:
+        return formValues.publication?.id;
+      case ProjectType.PATENT:
+        return formValues.patent?.id;
+      case ProjectType.RESEARCH:
+        return formValues.research?.id;
+      default:
+        return '';
+    }
   }
 }

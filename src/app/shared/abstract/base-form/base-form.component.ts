@@ -9,10 +9,8 @@ import {
   template: '',
 })
 export abstract class BaseFormComponent {
-  allUsersSig = input.required<BaseFormInputs['allUsers']>({
-    alias: 'allUsers',
-  });
-  authorsSig = input.required<BaseFormInputs['authors']>({ alias: 'authors' });
+  allUsers = input.required<BaseFormInputs['allUsers']>();
+  authors = input.required<BaseFormInputs['authors']>();
 
   compareIds(id1: string | number, id2: string | number): boolean {
     return id1?.toString() === id2?.toString();

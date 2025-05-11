@@ -1,12 +1,6 @@
 import { Component, inject, input, OnInit } from '@angular/core';
-import { CreateWorkService } from '../../../../../../core/services/create-work.service';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { map, Observable, startWith } from 'rxjs';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { authors } from '@content/createProject.content';
 import { UserService } from '@core/services/user.service';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
 import {
@@ -46,7 +39,7 @@ export class ProjectPatentFormComponent
 {
   private userService = inject(UserService);
 
-  patentsFormSig = input.required<PatentFormGroup>({ alias: 'patentsForm' });
+  patentsForm = input.required<PatentFormGroup>();
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   ngOnInit(): void {

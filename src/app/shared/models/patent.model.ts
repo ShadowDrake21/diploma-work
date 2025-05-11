@@ -20,8 +20,14 @@ export interface CreatePatentRequest {
   coInventors: number[];
 }
 
-export interface UpdatePatentRequest extends Partial<CreatePatentRequest> {
+export interface UpdatePatentRequest {
   id: string;
+  projectId: string;
+  primaryAuthorId: number;
+  registrationNumber: string;
+  registrationDate: Date | string;
+  issuingAuthority: string;
+  coInventors: number[];
 }
 
 export interface PatentCoInventorDTO {
