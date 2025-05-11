@@ -19,14 +19,10 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { types } from '@content/createProject.content';
 import { UserService } from '@core/services/user.service';
-import { forkJoin, Observable, of, Subscription, switchMap, tap } from 'rxjs';
+import { Observable, of, Subscription, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ProjectSharedService } from '@core/services/project-shared.service';
-import {
-  CreateProjectRequest,
-  UpdateProjectRequest,
-} from '@models/project.model';
 import { IUser } from '@shared/types/users.types';
 import { ProjectFormService } from '@core/services/project-form.service';
 import { ProjectDataService } from '@core/services/project-data.service';
@@ -80,9 +76,13 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
 
   typeForm = this.projectFormService.createTypeForm();
   generalInformationForm = this.projectFormService.createGeneralInfoForm();
-  publicationsForm = this.projectFormService.createPublicationForm();
-  patentsForm = this.projectFormService.createPatentForm();
-  researchesForm = this.projectFormService.createResearchForm();
+  publicationsForm = this.projectFormService.createSpecificForm(
+    ProjectType.PUBLICATION
+  );
+  patentsForm = this.projectFormService.createSpecificForm(ProjectType.PATENT);
+  researchesForm = this.projectFormService.createSpecificForm(
+    ProjectType.RESEARCH
+  );
 
   subscriptions: Subscription[] = [];
 
@@ -167,9 +167,10 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           .getPublicationByProjectId(this.projectId!)
           .pipe(
             tap((publication: ApiResponse<PublicationDTO>) => {
-              this.projectFormService.patchPublicationForm(
+              this.projectFormService.patchSpecificForm(
                 this.publicationsForm,
-                publication.data
+                publication.data,
+                ProjectType.PUBLICATION
               );
             })
           );
@@ -179,9 +180,10 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           .pipe(
             tap((patent) => {
               console.log('Patent in creation:', patent);
-              this.projectFormService.patchPatentForm(
+              this.projectFormService.patchSpecificForm(
                 this.patentsForm,
-                patent.data
+                patent.data,
+                ProjectType.PATENT
               );
             })
           );
@@ -190,9 +192,10 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           .getResearchByProjectId(this.projectId!)
           .pipe(
             tap((research) => {
-              this.projectFormService.patchResearchForm(
+              this.projectFormService.patchSpecificForm(
                 this.researchesForm,
-                research.data
+                research.data,
+                ProjectType.RESEARCH
               );
             })
           );

@@ -1,7 +1,6 @@
-@let patentsForm = patentsFormSig();
 @let allUsers = allUsers$ | async;
 
-<form [formGroup]="patentsForm" class="project-patent__form">
+<form [formGroup]="patentsForm()" class="project-patent__form">
   <mat-form-field>
     <mat-label>Primary author</mat-label>
     <mat-select

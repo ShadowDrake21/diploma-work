@@ -1,45 +1,38 @@
-import { inject, Injectable, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { statuses } from '@content/createProject.content';
+import { inject, Injectable } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import {
   CreateProjectRequest,
-  ProjectDTO,
   UpdateProjectRequest,
 } from '@models/project.model';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { BehaviorSubject, finalize, Observable, of, Subscription } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { ProjectDataService } from './project-data.service';
 import { UserService } from './user.service';
 import { PublicationDTO } from '@models/publication.model';
 import { PatentDTO } from '@models/patent.model';
-import { FileMetadataDTO } from '@models/file.model';
+import { TypedProjectFormValues } from '@shared/types/services/project-data.types';
+import { PatentFormService } from './project-form/patent-form.service';
+import { ProjectFormCoreService } from './project-form/project-form-core.service';
+import { PublicationFormService } from './project-form/publication-form.service';
+import { ResearchFormService } from './project-form/research-form.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ProjectFormService implements OnInit {
-  private projectDataService = inject(ProjectDataService);
-  private userService = inject(UserService);
-
-  readonly statuses = statuses;
-  loading = new BehaviorSubject<boolean>(false);
-  isEditing = false;
-  creatorId: number | null = null;
-  // existingFiles$: Observable<any[]> = of([]);
-  allUsers$: Observable<any[]> = of([]);
-  authors: any[] = [];
-
-  subscriptions: Subscription[] = [];
-
-  ngOnInit(): void {}
+export class ProjectFormService extends ProjectFormCoreService {
+  private readonly projectDataService = inject(ProjectDataService);
+  private readonly userService = inject(UserService);
+  private readonly publicationFormService = inject(PublicationFormService);
+  private readonly patentFormService = inject(PatentFormService);
+  private readonly researchFormService = inject(ResearchFormService);
 
   constructor() {
+    super();
     this.subscriptions.push(
       this.userService.getCurrentUser().subscribe({
         next: (user) => {
           if (user.id) {
             this.creatorId = +user.id;
-            console.log('Creator ID set to:', this.creatorId);
           }
         },
         error: (err) => {
@@ -49,105 +42,37 @@ export class ProjectFormService implements OnInit {
     );
   }
 
-  createTypeForm(): FormGroup {
-    return new FormGroup({
-      type: new FormControl<ProjectType | null>(null, [Validators.required]),
-    });
+  createSpecificForm(type: ProjectType): FormGroup {
+    switch (type) {
+      case ProjectType.PUBLICATION:
+        return this.publicationFormService.createForm();
+      case ProjectType.PATENT:
+        return this.patentFormService.createForm();
+      case ProjectType.RESEARCH:
+        return this.researchFormService.createForm();
+      default:
+        throw new Error('Invalid project type');
+    }
   }
 
-  createGeneralInfoForm(): FormGroup {
-    return new FormGroup({
-      title: new FormControl<string>('', [Validators.required]),
-      description: new FormControl<string>('', [Validators.required]),
-      progress: new FormControl<number>(0, [
-        Validators.min(0),
-        Validators.max(100),
-      ]),
-      tags: new FormControl<string[]>([]),
-      attachments: new FormControl<(File | FileMetadataDTO)[]>([]),
-    });
-  }
-
-  createPublicationForm(): FormGroup {
-    return new FormGroup({
-      id: new FormControl<string | null>(null),
-      authors: new FormControl<string[]>([], [Validators.required]),
-      publicationDate: new FormControl<Date | null>(new Date(), [
-        Validators.required,
-      ]),
-      publicationSource: new FormControl<string>('', [Validators.required]),
-      doiIsbn: new FormControl<string>('', [Validators.required]),
-      startPage: new FormControl<number>(1, [
-        Validators.required,
-        Validators.min(1),
-      ]),
-      endPage: new FormControl<number>(10, [
-        Validators.required,
-        Validators.min(1),
-      ]),
-      journalVolume: new FormControl<number>(1, [
-        Validators.required,
-        Validators.min(1),
-      ]),
-      issueNumber: new FormControl<number>(1, [
-        Validators.required,
-        Validators.min(1),
-      ]),
-    });
-  }
-
-  createPatentForm(): FormGroup {
-    return new FormGroup({
-      id: new FormControl<string | null>(null),
-      primaryAuthor: new FormControl<string | null>(null, [
-        Validators.required,
-      ]),
-      coInventors: new FormControl<number[]>([]),
-      registrationNumber: new FormControl<string>(''),
-      registrationDate: new FormControl<Date | null>(new Date()),
-      issuingAuthority: new FormControl<string>(''),
-    });
-  }
-
-  createResearchForm(): FormGroup {
-    return new FormGroup({
-      id: new FormControl<string | null>(null),
-      participantIds: new FormControl<string[] | null>(
-        [],
-        [Validators.required]
-      ),
-      budget: new FormControl<number | null>(0, [
-        Validators.required,
-        Validators.min(0),
-      ]),
-      startDate: new FormControl<Date | null>(new Date(), [
-        Validators.required,
-      ]),
-      endDate: new FormControl<Date | null>(new Date(), [Validators.required]),
-      status: new FormControl<string | null>(this.statuses[0].value, [
-        Validators.required,
-      ]),
-      fundingSource: new FormControl<string>('', [Validators.required]),
-    });
-  }
-
-  private buildProjectRequest(
-    typeForm: FormGroup,
-    generalInfoForm: FormGroup,
-    creatorId: number | null,
-    isUpdate: boolean = false
-  ): CreateProjectRequest | UpdateProjectRequest {
-    console.log('buildProjectRequest', creatorId, generalInfoForm.value);
-    const baseValues = {
-      title: generalInfoForm.value.title ?? '',
-      description: generalInfoForm.value.description ?? '',
-      type: typeForm.value.type ?? ProjectType.PUBLICATION,
-      progress: generalInfoForm.value.progress ?? 0,
-      tagIds: generalInfoForm.value.tags ?? [],
-      ...(!isUpdate && { createdBy: creatorId ?? 0 }),
-    };
-
-    return baseValues as CreateProjectRequest | UpdateProjectRequest;
+  patchSpecificForm(
+    form: FormGroup,
+    data: any,
+    projectType: ProjectType
+  ): void {
+    switch (projectType) {
+      case ProjectType.PUBLICATION:
+        this.publicationFormService.patchForm(form, data);
+        break;
+      case ProjectType.PATENT:
+        this.patentFormService.patchForm(form, data);
+        break;
+      case ProjectType.RESEARCH:
+        this.researchFormService.patchForm(form, data);
+        break;
+      default:
+        throw new Error('Invalid project type');
+    }
   }
 
   submitForm(
@@ -160,7 +85,6 @@ export class ProjectFormService implements OnInit {
   ): Observable<PublicationDTO[] | PatentDTO[] | PatentDTO[]> {
     this.loading.next(true);
 
-    console.log('submitForm', typeForm.value.type, workForm?.value);
     const formValues = this.prepareFormValues(
       typeForm.value.type,
       workForm?.value
@@ -188,10 +112,26 @@ export class ProjectFormService implements OnInit {
     return operation.pipe(finalize(() => this.loading.next(false)));
   }
 
+  private buildProjectRequest(
+    typeForm: FormGroup,
+    generalInfoForm: FormGroup,
+    creatorId: number | null,
+    isUpdate: boolean = false
+  ): CreateProjectRequest | UpdateProjectRequest {
+    return {
+      title: generalInfoForm.value.title ?? '',
+      description: generalInfoForm.value.description ?? '',
+      type: typeForm.value.type ?? ProjectType.PUBLICATION,
+      progress: generalInfoForm.value.progress ?? 0,
+      tagIds: generalInfoForm.value.tags ?? [],
+      ...(!isUpdate && { createdBy: creatorId ?? 0 }),
+    };
+  }
+
   private prepareFormValues(
     projectType: ProjectType,
     workFormValues: any
-  ): { publication?: any; patent?: any; research?: any } {
+  ): TypedProjectFormValues {
     switch (projectType) {
       case ProjectType.PUBLICATION:
         return { publication: workFormValues };
@@ -202,110 +142,5 @@ export class ProjectFormService implements OnInit {
       default:
         return {};
     }
-  }
-
-  patchTypeForm(form: FormGroup, type: ProjectType) {
-    if (!form) return;
-
-    form.patchValue({ type }, { emitEvent: false });
-
-    form.disable({ emitEvent: false });
-    form.markAsPristine();
-    form.markAsUntouched();
-
-    form.updateValueAndValidity();
-  }
-  patchGeneralInformationForm(form: FormGroup, project: any): void {
-    const { title, description, progress, tagIds, attachments } = project;
-
-    console.log('Patching form with attachments:', attachments);
-
-    form.patchValue(
-      {
-        title,
-        description,
-        progress,
-        tags: tagIds,
-        attachments: Array.isArray(attachments) ? [...attachments] : [],
-      },
-      {
-        emitEvent: false,
-      }
-    );
-
-    form.markAsTouched();
-    form.updateValueAndValidity();
-  }
-  patchPublicationForm(form: FormGroup, publication: PublicationDTO): void {
-    const {
-      id,
-      publicationDate,
-      publicationSource,
-      doiIsbn,
-      startPage,
-      endPage,
-      journalVolume,
-      issueNumber,
-      authors,
-    } = publication;
-
-    console.log('patchPublicationForm', publication);
-
-    form.patchValue({
-      id,
-      authors: authors.map((a: any) => a.id.toString()),
-      publicationDate: new Date(publicationDate),
-      publicationSource,
-      doiIsbn,
-      startPage,
-      endPage,
-      journalVolume,
-      issueNumber,
-    });
-  }
-
-  patchPatentForm(form: FormGroup, patent: any): void {
-    console.log('patchPatentForm', patent);
-    const {
-      id,
-      primaryAuthorId,
-      coInventors,
-      registrationNumber,
-      registrationDate,
-      issuingAuthority,
-    } = patent;
-
-    form.patchValue({
-      id,
-      primaryAuthor: primaryAuthorId?.toString(),
-      coInventors,
-      registrationNumber,
-      registrationDate: new Date(registrationDate),
-      issuingAuthority,
-    });
-  }
-
-  patchResearchForm(form: FormGroup, research: any): void {
-    console.log('patchResearchForm', research);
-    console.log('Form:', form);
-    const {
-      id,
-      participantIds,
-      budget,
-      startDate,
-      endDate,
-      status,
-      fundingSource,
-    } = research;
-
-    form.patchValue({
-      id,
-      participantIds,
-      budget,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      status,
-      fundingSource,
-    });
   }
 }

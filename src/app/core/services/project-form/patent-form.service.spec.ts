@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CreateWorkService } from './create-work.service';
+import { PatentFormService } from './patent-form.service';
 
-describe('CreateWorkService', () => {
-  let service: CreateWorkService;
+describe('PatentFormService', () => {
+  let service: PatentFormService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CreateWorkService);
+    service = TestBed.inject(PatentFormService);
   });
 
   it('should be created', () => {
