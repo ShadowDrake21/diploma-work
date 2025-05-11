@@ -23,14 +23,8 @@ import { JsonPipe } from '@angular/common';
 })
 export class ProjectWorkInfoStepComponent {
   typeForm = input.required<FormGroup>();
-  publicationsForm = input<PublicationFormGroup | null>(null, {
-    alias: 'publicationsForm',
-  });
-  patentsForm = input<PatentFormGroup | null>(null, {
-    alias: 'patentsForm',
-  });
-  researchesForm = input<ResearchFormGroup | null>(null, {
-    alias: 'researchesForm',
-  });
-  authors = input.required<any[] | null>({ alias: 'authors' });
+  publicationsForm = input<PublicationFormGroup | null>(null);
+  patentsForm = input<PatentFormGroup | null>(null);
+  researchesForm = input<ResearchFormGroup | null>(null);
+  authors = input<any[]>([]);
 }
