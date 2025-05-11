@@ -29,6 +29,7 @@ import { ProjectDataService } from '@core/services/project-data.service';
 import { ProjectStepperComponent } from './components/stepper/project-stepper/project-stepper.component';
 import { ApiResponse } from '@models/api-response.model';
 import { PublicationDTO } from '@models/publication.model';
+import { ProjectService } from '@core/services/project.service';
 
 @Component({
   selector: 'project-creation',
@@ -62,6 +63,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
   private userService = inject(UserService);
+  private projectService = inject(ProjectService);
   private projectFormService = inject(ProjectFormService);
   private projectDataService = inject(ProjectDataService);
   private projectSharedService = inject(ProjectSharedService);
@@ -163,7 +165,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   private handleProjectTypeData(type: ProjectType): Observable<any> {
     switch (type) {
       case ProjectType.PUBLICATION:
-        return this.projectDataService
+        return this.projectService
           .getPublicationByProjectId(this.projectId!)
           .pipe(
             tap((publication: ApiResponse<PublicationDTO>) => {
@@ -175,30 +177,26 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
             })
           );
       case ProjectType.PATENT:
-        return this.projectDataService
-          .getPatentByProjectId(this.projectId!)
-          .pipe(
-            tap((patent) => {
-              console.log('Patent in creation:', patent);
-              this.projectFormService.patchSpecificForm(
-                this.patentsForm,
-                patent.data,
-                ProjectType.PATENT
-              );
-            })
-          );
+        return this.projectService.getPatentByProjectId(this.projectId!).pipe(
+          tap((patent) => {
+            console.log('Patent in creation:', patent);
+            this.projectFormService.patchSpecificForm(
+              this.patentsForm,
+              patent.data,
+              ProjectType.PATENT
+            );
+          })
+        );
       case ProjectType.RESEARCH:
-        return this.projectDataService
-          .getResearchByProjectId(this.projectId!)
-          .pipe(
-            tap((research) => {
-              this.projectFormService.patchSpecificForm(
-                this.researchesForm,
-                research.data,
-                ProjectType.RESEARCH
-              );
-            })
-          );
+        return this.projectService.getResearchByProjectId(this.projectId!).pipe(
+          tap((research) => {
+            this.projectFormService.patchSpecificForm(
+              this.researchesForm,
+              research.data,
+              ProjectType.RESEARCH
+            );
+          })
+        );
       default:
         return of(null);
     }
