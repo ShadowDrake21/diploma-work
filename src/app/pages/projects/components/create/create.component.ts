@@ -30,6 +30,7 @@ import { ProjectStepperComponent } from './components/stepper/project-stepper/pr
 import { ApiResponse } from '@models/api-response.model';
 import { PublicationDTO } from '@models/publication.model';
 import { ProjectService } from '@core/services/project.service';
+import { ProjectLoaderService } from '@core/services/project-creation/project-loader.service';
 
 @Component({
   selector: 'project-creation',
@@ -57,15 +58,12 @@ import { ProjectService } from '@core/services/project.service';
   ],
   host: { style: 'display: block; height: 100%' },
 })
-// TODO: move to different files + html
 export class CreateProjectComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private headerService = inject(HeaderService);
   private userService = inject(UserService);
-  private projectService = inject(ProjectService);
-  private projectFormService = inject(ProjectFormService);
-  private projectDataService = inject(ProjectDataService);
+  private projectLoaderService = inject(ProjectLoaderService);
   private projectSharedService = inject(ProjectSharedService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -76,17 +74,13 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   subtext: string =
     'Choose the type of record you want to create and provide the required details.';
 
-  typeForm = this.projectFormService.createTypeForm();
-  generalInformationForm = this.projectFormService.createGeneralInfoForm();
-  publicationsForm = this.projectFormService.createSpecificForm(
-    ProjectType.PUBLICATION
-  );
-  patentsForm = this.projectFormService.createSpecificForm(ProjectType.PATENT);
-  researchesForm = this.projectFormService.createSpecificForm(
-    ProjectType.RESEARCH
-  );
+  typeForm = this.projectLoaderService.typeForm;
+  generalInformationForm = this.projectLoaderService.generalInformationForm;
+  publicationsForm = this.projectLoaderService.publicationsForm;
+  patentsForm = this.projectLoaderService.patentsForm;
+  researchesForm = this.projectLoaderService.researchesForm;
 
-  subscriptions: Subscription[] = [];
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     this.initializeComponent();
@@ -95,7 +89,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   private initializeComponent(): void {
     this.headerService.setTitle('Create New Entry');
     this.projectId = this.route.snapshot.queryParamMap.get('id');
-    console.log('Project ID:', this.projectId);
 
     this.subscriptions.push(
       this.userService.getCurrentUser().subscribe((user: IUser) => {
@@ -111,48 +104,20 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   }
 
   private loadExistingProject(): void {
-    console.log('Before patching - typeForm:', this.typeForm); // Add this
-
     if (!this.projectId) return;
 
     this.loading = true;
     this.headerService.setTitle('Edit Project: ' + this.projectId);
 
-    this.typeForm = this.projectFormService.createTypeForm();
-
     this.subscriptions.push(
-      this.projectDataService
-        .getProjectWithAttachments(this.projectId)
-        .pipe(
-          tap(({ project, attachments }) => {
-            console.log('API Response - Attachments:', attachments);
+      this.projectLoaderService
+        .loadProject(this.projectId)
 
-            this.projectFormService.patchTypeForm(this.typeForm, project.type);
-            this.typeForm.disable();
-
-            this.projectFormService.patchGeneralInformationForm(
-              this.generalInformationForm,
-              { ...project, attachments: attachments || [] }
-            );
-            this.cdr.detectChanges();
-
-            setTimeout(() => {
-              console.log(
-                'Form value after patching:',
-                this.generalInformationForm.value
-              );
-              console.log(
-                'Attachments control value:',
-                this.generalInformationForm.controls['attachments'].value
-              );
-            });
-          }),
-          switchMap(({ project }) => this.handleProjectTypeData(project.type))
-        )
         .subscribe({
-          next: (result) => {
+          next: () => {
             this.loading = false;
             this.projectSharedService.isProjectCreation = false;
+            this.cdr.detectChanges();
           },
           error: (error) => {
             console.error('Error loading project:', error);
@@ -162,47 +127,8 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     );
   }
 
-  private handleProjectTypeData(type: ProjectType): Observable<any> {
-    switch (type) {
-      case ProjectType.PUBLICATION:
-        return this.projectService
-          .getPublicationByProjectId(this.projectId!)
-          .pipe(
-            tap((publication: ApiResponse<PublicationDTO>) => {
-              this.projectFormService.patchSpecificForm(
-                this.publicationsForm,
-                publication.data,
-                ProjectType.PUBLICATION
-              );
-            })
-          );
-      case ProjectType.PATENT:
-        return this.projectService.getPatentByProjectId(this.projectId!).pipe(
-          tap((patent) => {
-            console.log('Patent in creation:', patent);
-            this.projectFormService.patchSpecificForm(
-              this.patentsForm,
-              patent.data,
-              ProjectType.PATENT
-            );
-          })
-        );
-      case ProjectType.RESEARCH:
-        return this.projectService.getResearchByProjectId(this.projectId!).pipe(
-          tap((research) => {
-            this.projectFormService.patchSpecificForm(
-              this.researchesForm,
-              research.data,
-              ProjectType.RESEARCH
-            );
-          })
-        );
-      default:
-        return of(null);
-    }
-  }
-
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+    this.subscriptions = [];
   }
 }
