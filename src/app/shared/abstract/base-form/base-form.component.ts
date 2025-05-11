@@ -9,7 +9,6 @@ import {
   template: '',
 })
 export abstract class BaseFormComponent {
-  allUsers = input.required<BaseFormInputs['allUsers']>();
   authors = input.required<BaseFormInputs['authors']>();
 
   compareIds(id1: string | number, id2: string | number): boolean {

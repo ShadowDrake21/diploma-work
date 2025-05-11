@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { types } from '@content/createProject.content';
+import { ProjectType } from '@shared/enums/categories.enum';
 
 @Component({
   selector: 'create-project-type',
@@ -21,7 +22,7 @@ import { types } from '@content/createProject.content';
 export class ProjectTypeComponent implements OnInit {
   typeForm = input.required<
     FormGroup<{
-      type: FormControl<string | null>;
+      type: FormControl<ProjectType | null>;
     }>
   >();
 

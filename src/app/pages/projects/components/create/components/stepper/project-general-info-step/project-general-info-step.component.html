@@ -1,1 +1,7 @@
-<p>project-general-info-step works!</p>
+@let existingFiles = existingFilesSig(); @if (generalInfoForm() && typeForm()) {
+<create-project-general-information
+  [generalInformationForm]="generalInfoForm()"
+  [entityType]="typeForm().value.type"
+  [existingFiles]="existingFiles"
+/>
+}

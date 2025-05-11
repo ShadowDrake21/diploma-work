@@ -1,9 +1,7 @@
-@let loading = formService.loading | async; @let subtext = formService.isEditing
-? 'Edit your project' : 'Create a new project'; @let allUsers =
-formService.allUsers$ | async; @let authors = formService.authors;
+@let loading = formService.loading | async; @let authors = formService.authors;
 
 <p class="create-subtext">
-  {{ subtext }}
+  {{ subtext() }}
 </p>
 
 <mat-stepper #stepper orientation="vertical" linear>
@@ -38,29 +36,13 @@ formService.allUsers$ | async; @let authors = formService.authors;
     errorMessage="Type-specific information is required."
     label="Fill out work information"
   >
-    @if (typeForm().value.type === 'PUBLICATION') {
     <create-project-work-info-step
-      [typeForm]="typeForm()!"
-      [publicationsForm]="publicationForm()!"
-      [allUsers]="allUsers"
+      [typeForm]="typeForm()"
+      [publicationsForm]="publicationForm()"
+      [patentsForm]="patentForm()"
+      [researchesForm]="researchForm()"
       [authors]="authors"
-    />
-    } @else if (typeForm().value.type === 'PATENT') {
-    <create-project-work-info-step
-      [typeForm]="typeForm()!"
-      [patentsForm]="patentForm()!"
-      [authors]="authors"
-      [allUsers]="allUsers"
-    />
-    } @else if (typeForm().value.type === 'RESEARCH') {
-    {{ researchForm()?.value | json }}
-    <create-project-work-info-step
-      [typeForm]="typeForm()!"
-      [researchesForm]="researchForm()!"
-      [allUsers]="allUsers"
-      [authors]="authors"
-    />
-    } </mat-step
+    /> </mat-step
   >}
 
   <!-- Final Step: Submission -->
@@ -77,8 +59,5 @@ formService.allUsers$ | async; @let authors = formService.authors;
     @if (loading) {
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
-    <!-- @if (errorMessage) {
-      <mat-error>{{ errorMessage }}</mat-error>
-    } -->
   </mat-step>
 </mat-stepper>

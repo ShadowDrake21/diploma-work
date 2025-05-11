@@ -2,11 +2,16 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { IUser } from './users.types';
 import { ResponseUserDTO } from '@models/user.model';
 import { FileMetadataDTO } from '@models/file.model';
+import { ProjectType } from '@shared/enums/categories.enum';
 
 export type BaseFormInputs = {
   allUsers: IUser[] | null;
   authors: (IUser | ResponseUserDTO | any)[] | null;
 };
+
+export interface TypeForm {
+  type: FormControl<ProjectType | null>;
+}
 
 export interface GeneralInformationForm {
   title: FormControl<string | null>;
