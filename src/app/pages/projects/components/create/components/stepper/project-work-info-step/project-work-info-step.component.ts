@@ -32,6 +32,5 @@ export class ProjectWorkInfoStepComponent {
   researchesForm = input<ResearchFormGroup | null>(null, {
     alias: 'researchesForm',
   });
-  allUsers = input.required<any[] | null>({ alias: 'allUsers' });
   authors = input.required<any[] | null>({ alias: 'authors' });
 }

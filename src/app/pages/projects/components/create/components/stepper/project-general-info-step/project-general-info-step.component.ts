@@ -6,17 +6,8 @@ import { FileMetadataDTO } from '@models/file.model';
 @Component({
   selector: 'create-project-general-info-step',
   imports: [ProjectGeneralInformationComponent],
+  templateUrl: './project-general-info-step.component.html',
   styleUrl: './project-general-info-step.component.scss',
-  template: `
-    @let existingFiles = existingFilesSig(); @if (generalInfoForm() &&
-    typeForm()) {
-    <create-project-general-information
-      [generalInformationForm]="generalInfoForm()"
-      [entityType]="typeForm().value.type"
-      [existingFiles]="existingFiles"
-    />
-    }
-  `,
 })
 export class ProjectGeneralInfoStepComponent {
   generalInfoForm = input.required<FormGroup>();

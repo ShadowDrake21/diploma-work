@@ -1,20 +1,17 @@
 @if(typeForm().value.type === 'PUBLICATION' && publicationsForm()) {
 <create-project-publication-form
   [publicationsForm]="publicationsForm()!"
-  [allUsers]="allUsers()"
   [authors]="authors()"
 />
 } @else if(typeForm().value.type === 'PATENT' && patentsForm()) {
 <create-project-patent-form
   [patentsForm]="patentsForm()!"
   [authors]="authors()"
-  [allUsers]="allUsers()"
 />
 } @else if (typeForm().value.type === 'RESEARCH' && researchesForm()) {
 {{ researchesForm()?.value | json }}
 <create-project-research-form
   [researchProjectsForm]="researchesForm()!"
-  [allUsers]="allUsers()"
   [authors]="authors()"
 />
 }

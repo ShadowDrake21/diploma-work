@@ -52,19 +52,9 @@ export class ProjectDataService extends ProjectDataCoreService {
     formValues: TypedProjectFormValues
   ): Observable<any> {
     return this.projectService.updateProject(projectId, projectData).pipe(
-      switchMap((projectResponse) => {
-        // const projectId = projectResponse.data;
-        const typedProjectId = this.getTypedProjectId(
-          projectData.type!,
-          formValues
-        );
+      switchMap(() => {
         const operations = [
-          this.updateTypedProject(
-            typedProjectId,
-            // projectId,
-            projectData.type!,
-            formValues
-          ),
+          this.updateTypedProject(projectId, projectData.type!, formValues),
         ];
 
         if (attachments.length > 0) {
