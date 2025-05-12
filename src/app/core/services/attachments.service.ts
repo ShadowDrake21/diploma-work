@@ -84,6 +84,7 @@ export class AttachmentsService {
     entityId: string,
     files: File[]
   ): Observable<ApiResponse<string[]>> {
+    console.log('Uploading files:', files);
     if (files.length === 1) {
       return this.uploadSingleFileAsArray(files[0], entityType, entityId);
     }

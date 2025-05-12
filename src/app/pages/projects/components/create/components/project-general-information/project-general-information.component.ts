@@ -136,32 +136,43 @@ export class ProjectGeneralInformationComponent implements OnInit {
     this.isUploading.set(true);
     this.uploadProgress.set(0);
 
+    const uniqueFiles = this.filterDuplicateFilesBeforeUpload(filesToUpload);
+
+    const skippedCount = filesToUpload.length - uniqueFiles.length;
+    if (skippedCount > 0) {
+      console.log(`Skipped ${skippedCount} duplicate files by name.`);
+    }
+
+    if (uniqueFiles.length === 0) {
+      this.isUploading.set(false);
+      return;
+    }
+
     this.fileHandler
       .uploadFiles(entityType, entityId, filesToUpload)
       .pipe(
         tap(({ progress }) => {
-          console.log('Upload progress:', progress);
           this.uploadProgress.set(progress);
         }),
         finalize(() => {
-          console.log('Upload completed ');
           this.isUploading.set(false);
         })
       )
       .subscribe({
         next: ({ files }) => {
-          console.log('Upload response received:', files);
           if (files && files.length > 0) {
-            console.log('Processing successful upload...');
-            const newUploadedFiles = [...this.uploadedFiles(), ...files];
-            this.uploadedFiles.set(newUploadedFiles);
-            this.pendingFiles.set([]);
+            this.pendingFiles.update((currentPending) =>
+              currentPending.filter(
+                (pendingFile) =>
+                  !uniqueFiles.some((uf) => uf.name === pendingFile.name)
+              )
+            );
 
-            this.generalInformationForm().controls.attachments.setValue([
-              ...newUploadedFiles,
-              ...this.pendingFiles(),
+            this.uploadedFiles.update((currentUploaded) => [
+              ...currentUploaded,
+              ...files,
             ]);
-            console.log('Updated uploadedFiles:', this.uploadedFiles());
+            this.updateFormControl();
             this.cdr.detectChanges();
           }
         },
@@ -199,9 +210,16 @@ export class ProjectGeneralInformationComponent implements OnInit {
   }
 
   private getFileKey(file: File | FileMetadataDTO): string {
-    if (this.isFile(file)) {
-      return `${file.name}-${file.size}-${file.lastModified}`;
-    }
-    return `${file.fileName}-${file.fileUrl}`;
+    return this.isFile(file) ? file.name : file.fileName;
+  }
+
+  private filterDuplicateFilesBeforeUpload(files: File[]): File[] {
+    const existingFileNames = new Set(
+      this.uploadedFiles().map((file) => file.fileName)
+    );
+
+    return files.filter((file) => {
+      return !existingFileNames.has(file.name);
+    });
   }
 }

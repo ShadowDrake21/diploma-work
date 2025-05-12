@@ -3,6 +3,7 @@ package com.backend.app.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.module.ModuleDescriptor.Builder;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,31 +60,34 @@ public class S3Service {
 		return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
 	}
 	
-	public void updateFiles(ProjectType entityType, UUID entityId, List<MultipartFile> newFiles) {
+	public List<FileMetadataDTO> updateFiles(ProjectType entityType, UUID entityId, List<MultipartFile> newFiles) {
 		List<FileMetadata> existingFiles = fileMetadataRepository.findByEntityTypeAndEntityId(entityType, entityId);
 		
 		for(FileMetadata existingFile : existingFiles) {
-			boolean fileExistsInNewFiles = newFiles.stream().anyMatch(newFile -> newFile.getOriginalFilename().equals(existingFile.getFileName()));
-			
-			if(!fileExistsInNewFiles) {
-				String filePath = entityType.toString().toLowerCase() + "/" + entityId + "/" + existingFile.getFileName();
-				deleteFile(filePath);
-				
-				fileMetadataRepository.delete(existingFile);
+			if(newFiles.stream().noneMatch(f->f.getOriginalFilename().equals(existingFile.getFileName()))) {
+				deleteFile(existingFile);
 			}
 		}
 		
-		for(MultipartFile newFile : newFiles) {
-			if(newFile.isEmpty()) {
-				continue;
-			}
-			
-			boolean fileAlreadyExists = existingFiles.stream().anyMatch(existingFile -> existingFile.getFileName().equals(newFile.getOriginalFilename()));
-			
-			if(!fileAlreadyExists) {
-				uploadFile(newFile, entityType, entityId);
-			}
-		}
+		return newFiles.stream()
+		        .filter(f -> !f.isEmpty())
+		        .map(file -> {
+		            try {
+		                String checksum = DigestUtils.md5DigestAsHex(file.getBytes());
+		                Optional<FileMetadata> existingMetadata = fileMetadataRepository.findByChecksumAndEntityTypeAndEntityId(checksum, entityType, entityId);
+		                
+		                if(existingMetadata.isPresent()) {
+		                	return convertToDTO(existingMetadata.get()); 
+		                } else {
+		                	String url = uploadFile(file, entityType, entityId);
+		                	FileMetadata newMetadata = fileMetadataRepository.findByFileUrl(url).orElseThrow(() -> new RuntimeException("Failed to retrieve saved metadata"));
+		                    return convertToDTO(newMetadata);
+		                }
+		            } catch (IOException e) {
+		                throw new RuntimeException("Error processing file", e);
+		            }
+		        })
+		        .collect(Collectors.toList());
 	}
 	
 	public String uploadFile(MultipartFile file, ProjectType entityType, UUID projectId) {
@@ -94,7 +98,7 @@ public class S3Service {
 			 String checksum = DigestUtils.md5DigestAsHex(file.getBytes());
 		        long fileSize = file.getSize();
 		        
-		        Optional<FileMetadata> existingFile = fileMetadataRepository.findByChecksum(checksum);
+		        Optional<FileMetadata> existingFile = fileMetadataRepository.findByChecksumAndEntityTypeAndEntityId(checksum,  entityType, projectId);
 		        if (existingFile.isPresent()) {
 		            return existingFile.get().getFileUrl();
 		        }
@@ -139,22 +143,6 @@ public class S3Service {
 			}
 		}
 	}
-	public String uploadIndependentFile(MultipartFile file, String fileName) {
-        try {
-            s3Client.putObject(
-                PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileName)
-                    .contentType(file.getContentType())
-                    .build(),
-                RequestBody.fromBytes(file.getBytes())
-            );
-            return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
-        } catch (IOException e) {
-            throw new RuntimeException("Error uploading file: " + e.getMessage());
-        }
-    }
-	
 	public byte[] downloadFile(String fileName) {
 		try(ResponseInputStream<GetObjectResponse> response = s3Client.getObject(GetObjectRequest.builder()
                 .bucket(bucketName)
@@ -168,24 +156,19 @@ public class S3Service {
 		
 	}
 	
+	public void deleteFile(FileMetadata fileMetadata) {
+		String filePath = fileMetadata.getEntityType().toString().toLowerCase() + "/" + 
+                fileMetadata.getEntityId() + "/" + fileMetadata.getFileName();
+		deleteFile(filePath);
+		fileMetadataRepository.delete(fileMetadata);
+	}
+	
 	public String deleteFile(String filePath) {
-		System.out.println("delete file deleteFile: " + filePath);
 		s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(filePath).build());
 		
 		return "File deleted: " + filePath;
 	}
 	
-//	public String generatePresignedUrl(String fileName) {
-//		 try {
-//		       GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(fileName).build();
-//		       
-//		       PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(builder -> builder.getObjectRequest(getObjectRequest).signatureDuration(Duration.ofHours(1)));
-//		       return presignedRequest.url().toString();
-//		    } catch (Exception e) {
-//		        throw new RuntimeException("Failed to generate pre-signed URL", e);
-//		    }
-//	}
-//	
 	public FileMetadataDTO getFileMetadata(UUID fileId) {
 		FileMetadata metadata = fileMetadataRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File metadata not found"));
 		
@@ -228,4 +211,17 @@ public class S3Service {
 	         e.printStackTrace();
 	         throw e; 
 		}}
+	
+	private FileMetadataDTO convertToDTO(FileMetadata metadata) {
+	    return new FileMetadataDTO(
+	        metadata.getId(),
+	        metadata.getFileName(),
+	        metadata.getFileUrl(),
+	        metadata.getEntityType(),
+	        metadata.getEntityId(),
+	        metadata.getUploadedAt(),
+	        metadata.getFileSize(),
+	        metadata.getChecksum()
+	    );
+	}
 }
