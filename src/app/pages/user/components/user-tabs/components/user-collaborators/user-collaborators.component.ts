@@ -3,7 +3,7 @@ import { Component, inject, input, OnInit } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { UserService } from '@core/services/user.service';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
-import { IUser } from '@shared/types/users.types';
+import { IUser } from '@shared/models/user.model';
 import { Observable } from 'rxjs';
 
 @Component({

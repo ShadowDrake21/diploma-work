@@ -50,7 +50,7 @@ export class PublicationFormService extends ProjectFormCoreService {
 
     form.patchValue({
       id,
-      authors: authors.map((a: any) => a.id.toString()),
+      authors: authors.map((a) => a.id),
       publicationDate: new Date(publicationDate),
       publicationSource,
       doiIsbn,

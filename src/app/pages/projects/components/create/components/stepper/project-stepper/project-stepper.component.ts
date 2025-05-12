@@ -4,7 +4,7 @@ import { ProjectFormService } from '@core/services/project-form.service';
 import { ProjectTypeStepComponent } from '../project-type-step/project-type-step.component';
 import { ProjectGeneralInfoStepComponent } from '../project-general-info-step/project-general-info-step.component';
 import { ProjectWorkInfoStepComponent } from '../project-work-info-step/project-work-info-step.component';
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatProgressBar } from '@angular/material/progress-bar';
@@ -30,7 +30,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
     MatButton,
     MatProgressBar,
     WorkFormPipe,
-    JsonPipe,
   ],
   templateUrl: './project-stepper.component.html',
   styleUrl: './project-stepper.component.scss',

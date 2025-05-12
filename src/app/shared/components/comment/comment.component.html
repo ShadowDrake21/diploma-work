@@ -37,9 +37,10 @@
     }
     <button
       (click)="onLikeToggle()"
-      class="comment-action"
+      class="comment-action like-button"
       [disabled]="isLiking"
       [class.liked]="comment.isLikedByCurrentUser"
+      [class.disabled]="comment.userId === currentUserId"
     >
       @if(!isLiking) {
       <span

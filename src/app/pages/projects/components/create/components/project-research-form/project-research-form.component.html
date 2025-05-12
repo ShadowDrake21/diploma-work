@@ -1,6 +1,5 @@
 @let allUsers = allUsers$ | async;
 <form [formGroup]="researchProjectsForm()" class="project-research__form">
-  {{ researchProjectsForm().value | json }}
   <mat-form-field>
     <mat-label>Participants</mat-label>
     <mat-select
@@ -9,7 +8,6 @@
       [compareWith]="compareParticipants"
     >
       @for (participant of allUsers; track participant) {
-      <p>{{ participant.username }} ({{ participant.id }})</p>
       <mat-option [value]="participant.id">{{
         participant.username
       }}</mat-option>

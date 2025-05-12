@@ -1,4 +1,4 @@
-import { IUser } from '../types/users.types';
+import { IUser } from '@models/user.model';
 
 export interface PatentDTO {
   id: string;

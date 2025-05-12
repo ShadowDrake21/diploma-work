@@ -34,7 +34,7 @@ export class PatentFormService extends ProjectFormCoreService {
 
     form.patchValue({
       id,
-      primaryAuthor: primaryAuthorId?.toString(),
+      primaryAuthor: primaryAuthorId,
       coInventors,
       registrationNumber,
       registrationDate: new Date(registrationDate),

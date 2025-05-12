@@ -18,11 +18,11 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { IProfileInfo } from '@shared/types/profile.types';
 import { UserService } from '@core/services/user.service';
 import { Observable, tap } from 'rxjs';
-import { IAuthorizedUser, IUser } from '@shared/types/users.types';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AsyncPipe } from '@angular/common';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { IUser } from '@models/user.model';
 
 @Component({
   selector: 'profile-info',

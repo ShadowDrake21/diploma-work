@@ -40,9 +40,7 @@ export class ProjectPublicationFormComponent
   implements OnInit
 {
   private userService = inject(UserService);
-  publicationsFormSig = input.required<PublicationFormGroup>({
-    alias: 'publicationsForm',
-  });
+  publicationsForm = input.required<PublicationFormGroup>();
 
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
 

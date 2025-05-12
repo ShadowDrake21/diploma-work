@@ -9,7 +9,6 @@
   [authors]="authors()"
 />
 } @else if (typeForm().value.type === 'RESEARCH' && researchesForm()) {
-{{ researchesForm()?.value | json }}
 <create-project-research-form
   [researchProjectsForm]="researchesForm()!"
   [authors]="authors()"

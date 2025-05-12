@@ -1,4 +1,4 @@
-import { AsyncPipe, DatePipe, JsonPipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { ProjectService } from '@core/services/project.service';
 import { UserService } from '@core/services/user.service';
@@ -14,7 +14,7 @@ import {
 
 @Component({
   selector: 'details-patent',
-  imports: [DatePipe, AsyncPipe, JsonPipe],
+  imports: [DatePipe, AsyncPipe],
   templateUrl: './patent.component.html',
   styleUrl: './patent.component.scss',
 })

@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { usersContent } from '@content/users.content';
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
-import { IUser } from '@shared/types/users.types';
+import { IUser } from '@shared/models/user.model';
 import { HeaderService } from '@core/services/header.service';
 import { PaginationService } from '@core/services/pagination.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -35,7 +35,7 @@ export class UserComponent implements OnInit {
   private projectService = inject(ProjectService);
   paginationService = inject(PaginationService);
 
-  userId: string | null = null;
+  userId: number | null = null;
   user: IUser | undefined = undefined;
   users = usersContent;
   pages: number[] = [];
