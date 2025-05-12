@@ -19,17 +19,11 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { types } from '@content/createProject.content';
 import { UserService } from '@core/services/user.service';
-import { Observable, of, Subscription, switchMap, tap } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProjectType } from '@shared/enums/categories.enum';
 import { ProjectSharedService } from '@core/services/project-shared.service';
-import { IUser } from '@shared/types/users.types';
-import { ProjectFormService } from '@core/services/project-form.service';
-import { ProjectDataService } from '@core/services/project-data.service';
+import { IUser } from '@shared/models/user.model';
 import { ProjectStepperComponent } from './components/stepper/project-stepper/project-stepper.component';
-import { ApiResponse } from '@models/api-response.model';
-import { PublicationDTO } from '@models/publication.model';
-import { ProjectService } from '@core/services/project.service';
 import { ProjectLoaderService } from '@core/services/project-creation/project-loader.service';
 
 @Component({

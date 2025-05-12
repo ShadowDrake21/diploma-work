@@ -39,11 +39,34 @@ export class ProjectPatentFormComponent
 {
   private userService = inject(UserService);
 
+  // TODO: primaryAuthorId and coInventorsId should be numbers, not strings!!!
   patentsForm = input.required<PatentFormGroup>();
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
+  selectedPrimaryAuthor: number | null = null;
 
   ngOnInit(): void {
     this.allUsers$ = this.userService.getAllUsers();
+
+    const initialValue = this.patentsForm().get('primaryAuthor')?.value || null;
+    this.selectedPrimaryAuthor = initialValue !== null ? +initialValue : null;
+
+    this.patentsForm()
+      .get('primaryAuthor')
+      ?.valueChanges.subscribe((authorId) => {
+        console.log('ProjectPatentFormComponent authorId', authorId);
+        this.selectedPrimaryAuthor = authorId !== null ? +authorId : null;
+
+        const coInventors = this.patentsForm().get('coInventors')?.value;
+        if (coInventors && this.selectedPrimaryAuthor !== null) {
+          this.patentsForm()
+            .get('coInventors')
+            ?.setValue(
+              coInventors.filter(
+                (id: number) => id !== this.selectedPrimaryAuthor
+              )
+            );
+        }
+      });
   }
 
   comparePrimaryAuthors = (id1: number, id2: number) =>

@@ -20,8 +20,11 @@
       [compareWith]="compareCoInventors"
     >
       @for (coInventor of allUsers; track coInventor) {
+      @if(selectedPrimaryAuthor === null || +coInventor.id !==
+      selectedPrimaryAuthor){
+
       <mat-option [value]="coInventor.id">{{ coInventor.username }}</mat-option>
-      }
+      } }
     </mat-select>
   </mat-form-field>
   <mat-form-field>

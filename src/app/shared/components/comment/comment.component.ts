@@ -51,6 +51,7 @@ export class CommentComponent {
 
   onLikeToggle() {
     if (this.isLiking) return;
+    if (this.comment.userId === this.currentUserId) return;
 
     this.isLiking = true;
 

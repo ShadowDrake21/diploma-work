@@ -6,14 +6,12 @@ import { BaseFormInputs } from '@shared/types/project-form.types';
 })
 export class AuthorNamePipe implements PipeTransform {
   transform(
-    authorId: string,
+    authorId: number,
     users: BaseFormInputs['allUsers'] | null | undefined
-  ): string {
-    if (!authorId || !users) return '';
+  ): string | null {
+    if (!authorId || !users) return null;
 
-    const author = users.find(
-      (user) => user.id.toString() === authorId.toString()
-    );
+    const author = users.find((user) => user.id === authorId);
     console.log('author', author);
     return author ? author.username : '';
   }

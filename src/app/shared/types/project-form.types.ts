@@ -1,6 +1,6 @@
 import { FormControl, FormGroup } from '@angular/forms';
-import { IUser } from './users.types';
-import { ResponseUserDTO } from '@models/user.model';
+
+import { IUser, ResponseUserDTO } from '@models/user.model';
 import { FileMetadataDTO } from '@models/file.model';
 import { ProjectType } from '@shared/enums/categories.enum';
 
@@ -22,7 +22,7 @@ export interface GeneralInformationForm {
 }
 
 export interface PublicationForm {
-  authors: FormControl<string[] | null>;
+  authors: FormControl<number[] | null>;
   publicationDate: FormControl<Date | null>;
   publicationSource: FormControl<string | null>;
   doiIsbn: FormControl<string | null>;
@@ -33,7 +33,7 @@ export interface PublicationForm {
 }
 
 export interface PatentForm {
-  primaryAuthor: FormControl<string | null>;
+  primaryAuthor: FormControl<number | null>;
   coInventors: FormControl<number[] | null>;
   registrationNumber: FormControl<string | null>;
   registrationDate: FormControl<Date | null>;
@@ -41,7 +41,7 @@ export interface PatentForm {
 }
 
 export interface ResearchForm {
-  participantIds: FormControl<string[] | null>;
+  participantIds: FormControl<number[] | null>;
   budget: FormControl<number | null>;
   startDate: FormControl<Date | null>;
   endDate: FormControl<Date | null>;

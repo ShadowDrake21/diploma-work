@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { UserCardComponent } from '../../shared/components/user-card/user-card.component';
 import { PaginationService } from '@core/services/pagination.service';
-import { IUser } from '@shared/types/users.types';
+import { IUser } from '@shared/models/user.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { UserService } from '@core/services/user.service';
 import { MatPaginatorModule } from '@angular/material/paginator';

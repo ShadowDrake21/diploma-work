@@ -4,7 +4,6 @@ import { ProfileProjectsComponent } from '../../../../shared/components/profile-
 import { PaginationService } from '@core/services/pagination.service';
 import { recentProjectContent } from '@content/recentProjects.content';
 import { usersContent } from '@content/users.content';
-import { IUser } from '@shared/types/users.types';
 import { UserService } from '@core/services/user.service';
 import {
   BehaviorSubject,
@@ -18,6 +17,7 @@ import { AsyncPipe } from '@angular/common';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 import { ProjectDTO } from '@models/project.model';
+import { IUser } from '@models/user.model';
 
 @Component({
   selector: 'user-tabs',

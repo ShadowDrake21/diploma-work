@@ -8,7 +8,7 @@ import {
   ICreateUser,
   IUpdateUserProfile,
   IUser,
-} from '@shared/types/users.types';
+} from '@shared/models/user.model';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ProjectService } from './project.service';
@@ -95,7 +95,7 @@ export class UserService {
     );
   }
 
-  public getUserProjects(userId: string): Observable<ProjectDTO[]> {
+  public getUserProjects(userId: number): Observable<ProjectDTO[]> {
     return this.http.get<ProjectDTO[]>(
       `${this.apiUrl}/${userId}/projects`,
       getAuthHeaders()
@@ -121,7 +121,7 @@ export class UserService {
     );
   }
 
-  getProjectsWithDetails(userId: string): Observable<ProjectDTO[]> {
+  getProjectsWithDetails(userId: number): Observable<ProjectDTO[]> {
     return this.getUserProjects(userId).pipe(
       switchMap((projects) => {
         return forkJoin(

@@ -1,8 +1,8 @@
-import { IUser } from '@shared/types/users.types';
+import { IUser } from '@models/user.model';
 
 export const usersContent: IUser[] = [
   {
-    id: '1',
+    id: 1,
     username: 'Dr. Alice Smith',
     avatarUrl:
       'https://upload.wikimedia.org/wikipedia/commons/7/71/Ewa_Zajączkowska-Hernik%2C_18.07.24_%2801%29.jpg',
@@ -20,7 +20,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '2',
+    id: 2,
     username: 'John Doe',
     avatarUrl:
       'https://yt3.googleusercontent.com/aYMfqtZoi7h8dKN0H626KsxrwGyver5V0t_8voqHaMW6k_WApCwj3vxfSQs41vJZh-ugiMfcbQ=s900-c-k-c0x00ffffff-no-rj',
@@ -38,7 +38,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '3',
+    id: 3,
     username: 'Dr. Emily Brown',
     avatarUrl:
       'https://i.ytimg.com/vi/D9gWp9gbaEg/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLB_s2yzRWmT3q9sukyyjo3KrvHlSQ',
@@ -56,7 +56,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '4',
+    id: 4,
     username: 'Michael Lee',
     avatarUrl:
       'https://i.gremicdn.pl/image/free/c5ac7ed6b8397236705c2f2560890ae9/?t=crop:2204:1366:nowe:50.705467372134:215.41093474427,resize:fill:948:593,enlarge:1',
@@ -74,7 +74,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '5',
+    id: 5,
     username: 'Dr. Sarah Wilson',
     avatarUrl:
       'https://bi.im-g.pl/im/7e/dd/1c/z30267262ICR,Sanah-podczas-koncertu-na-Stadionie-Slaskim-w-Chor.jpg',
@@ -92,7 +92,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '6',
+    id: 6,
     username: 'Dr. Laura Thompson',
     avatarUrl:
       'https://yt3.googleusercontent.com/ORAuTRcDsufrp_XCSTDK7dewCU1CHoaiG3QGHpRiwzIM-0epGN7XXuRnj3tGWuCmAgg7A9sFfg=s900-c-k-c0x00ffffff-no-rj',
@@ -110,7 +110,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '7',
+    id: 7,
     username: 'Dr. William Harris',
     avatarUrl: 'https://wnet.fm/wp-content/uploads/2023/08/IMG_1160.jpg',
     role: 'Researcher',
@@ -127,7 +127,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '8',
+    id: 8,
     username: 'Sophia Martinez',
     avatarUrl:
       'https://yt3.googleusercontent.com/u5OB7mpDktPkbTVjc8Rssx71RPH4akdyHPNONilfvGBWCg9T7kMS-iV3JTAss5FZn_k7hd7H=s900-c-k-c0x00ffffff-no-rj',
@@ -145,7 +145,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '9',
+    id: 9,
     username: 'Dr. James Wilson',
     avatarUrl:
       'https://yt3.googleusercontent.com/loheQn5VW2zuvJi64keZKe4ogBX2vGUAUfic2_J4cTj6UO8PHCyANBkZIp9RVRTw2qSMVNClMHk=s900-c-k-c0x00ffffff-no-rj',
@@ -163,7 +163,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '10',
+    id: 10,
     username: 'Emma Johnson',
     avatarUrl:
       'https://yt3.googleusercontent.com/uKVX93BZk6SUi5hwF6F9oW6LBs0NVTd1hf6Ux1IFiRwzx0x-WI9xgvuEsAo4oIQsweBX14zTvg=s900-c-k-c0x00ffffff-no-rj',
@@ -181,7 +181,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '11',
+    id: 11,
     username: 'Dr. Olivia White',
     avatarUrl:
       'https://api.culture.pl/sites/default/files/styles/1920_auto/public/2019-09/dawid_podsiadlo_promo-2.jpg?itok=x4cbs9aq',
@@ -199,7 +199,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '12',
+    id: 12,
     username: 'Dr. Ethan Walker',
     avatarUrl:
       'https://preview.redd.it/who-should-be-blamed-for-robert-lewandowski-lack-of-form-v0-q2juliey3egc1.jpeg?width=640&crop=smart&auto=webp&s=1adb74a1c4a3ab893a6a3b0bacd906f263ea12ed',
@@ -217,7 +217,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '13',
+    id: 13,
     username: 'Ava Smith',
     avatarUrl:
       'https://yt3.googleusercontent.com/ytc/AIdro_kvdxAg2dZbgnADkHp6oR8KdOVRY09RdYNM-MCBzM8Ruw=s900-c-k-c0x00ffffff-no-rj',
@@ -235,7 +235,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '14',
+    id: 14,
     username: 'Dr. Noah Martinez',
     avatarUrl:
       'https://modawysoka.pl/wp-content/uploads/2025/01/dzieki-400x400.jpg',
@@ -253,7 +253,7 @@ export const usersContent: IUser[] = [
     universityGroup: 'PI-211',
   },
   {
-    id: '15',
+    id: 15,
     username: 'Mia Brown',
     avatarUrl:
       'https://visitwroclaw.eu/files/news/visitwro_daria-zawialow-albo-inaczej.jpeg',

@@ -15,7 +15,6 @@ import { PatentFormService } from './project-form/patent-form.service';
 import { ProjectFormCoreService } from './project-form/project-form-core.service';
 import { PublicationFormService } from './project-form/publication-form.service';
 import { ResearchFormService } from './project-form/research-form.service';
-import { IUser } from '@shared/types/users.types';
 
 @Injectable({
   providedIn: 'root',
