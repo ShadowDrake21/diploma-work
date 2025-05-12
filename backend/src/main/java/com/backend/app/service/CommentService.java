@@ -91,7 +91,26 @@ public class CommentService {
     		throw new BusinessRuleException("You cannot like your own comment");
     	}
     	
+    	 if(comment.getLikedByUsers().contains(userId)) {
+    	        throw new BusinessRuleException("You already liked this comment");
+    	    }
+    	
+    	 comment.getLikedByUsers().add(userId);
     	comment.setLikes(comment.getLikes() + 1);
+    	return commentMapper.toDTO(commentRepository.save(comment));
+    }
+    
+    @Transactional
+    public CommentDTO unlikeComment(UUID commentId, Long userId) {
+    	Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
+    	
+    	if(!comment.getLikedByUsers().contains(userId)) {
+            throw new BusinessRuleException("You haven't liked this comment");
+        }
+    	
+
+   	 comment.getLikedByUsers().remove(userId);
+   	comment.setLikes(Math.max(0, comment.getLikes() - 1) );
     	return commentMapper.toDTO(commentRepository.save(comment));
     }
     

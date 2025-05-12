@@ -6,6 +6,8 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { profile } from '../../content/header.content';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
+import { UserService } from '@core/services/user.service';
+import { AuthService } from '@core/authentication/auth.service';
 
 @Component({
   selector: 'app-profile-dropdown',
@@ -22,6 +24,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
 })
 export class ProfileDropdownComponent {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   @Input({ required: true }) userEmail: string = '';
 
@@ -39,5 +42,6 @@ export class ProfileDropdownComponent {
 
   onLogout(): void {
     console.log('Logout');
+    this.authService.logout();
   }
 }

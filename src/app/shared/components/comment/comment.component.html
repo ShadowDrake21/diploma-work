@@ -1,34 +1,3 @@
-<!-- @let comment = commentSig();
-
-<div class="comment">
-  <div class="comment-avatar">
-    <img class="comment-avatar__img" [src]="comment.avatarUrl" alt="avatar" />
-  </div>
-
-  <div class="comment-box">
-    <div class="comment-head">
-      <div>
-        <h6 class="comment-name by-author">
-          <a class="comment-name__link" href="#">{{ comment.userName }}</a>
-        </h6>
-        <span class="comment-name__time">{{
-          comment.timestamp | timeAgo
-        }}</span>
-      </div>
-      <div>
-        <mat-icon>reply</mat-icon>
-        <mat-icon>favorite</mat-icon>
-      </div>
-    </div>
-    <div class="comment-content">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit omnis
-      animi et iure laudantium vitae, praesentium optio, sapiente distinctio
-      illo?
-    </div>
-  </div>
-</div> -->
-
-<!-- comment.component.html -->
 <div class="comment" [class.reply]="isReply">
   <div class="comment-header">
     <img
@@ -66,8 +35,22 @@
 
     <button (click)="onReply()" class="comment-action">Reply</button>
     }
-    <button (click)="onLike()" class="comment-action">
-      Like ({{ comment.likes }})
+    <button
+      (click)="onLikeToggle()"
+      class="comment-action"
+      [disabled]="isLiking"
+      [class.liked]="comment.isLikedByCurrentUser"
+    >
+      @if(!isLiking) {
+      <span
+        >{{ comment.isLikedByCurrentUser ? "Unlike" : "Like" }} ({{
+          comment.likes
+        }})
+      </span>
+
+      } @else {
+      <span>Processing...</span>
+      }
     </button>
     <button
       *ngIf="isCurrentUserComment()"

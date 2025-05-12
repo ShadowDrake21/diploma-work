@@ -1,16 +1,5 @@
 export interface IComment {
   id: string;
-  userId: string;
-  userName: string;
-  avatarUrl: string;
-  timestamp: string;
-  content: string;
-  likes: number;
-  replies: number;
-}
-
-export interface CommentInterface {
-  id: string;
   content: string;
   createdAt: string;
   updatedAt: string;
@@ -20,10 +9,11 @@ export interface CommentInterface {
   userAvatarUrl: string;
   projectId: string;
   parentCommentId?: string;
-  replies?: CommentInterface[];
+  isLikedByCurrentUser: boolean;
+  replies?: IComment[];
 }
 
-export interface CreateCommentInterface {
+export interface ICreateComment {
   content: string;
   projectId: string;
   parentCommentId?: string;

@@ -2,14 +2,18 @@ package com.backend.app.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -68,6 +72,12 @@ public class Comment {
 	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<Comment> replies = new ArrayList<>();
+	
+	@ElementCollection
+	@CollectionTable(name = "comment_likes", joinColumns = @JoinColumn(name = "comment_id"))
+	@Column(name = "user_id")
+	@Builder.Default
+	private Set<Long> likedByUsers = new HashSet<Long>();
 	
 	public void addReply(Comment reply) {
 		replies.add(reply);

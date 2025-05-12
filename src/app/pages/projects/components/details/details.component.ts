@@ -1,6 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DashboardRecentProjectItemModal } from '@shared/types/dashboard.types';
 import { PublicationComponent } from './types/publication/publication.component';
 import { ResearchProjectComponent } from './types/research-project/research-project.component';
 import { PatentComponent } from './types/patent/patent.component';
@@ -12,27 +11,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { CommentComponent } from '@shared/components/comment/comment.component';
 import { AsyncPipe, DatePipe, JsonPipe, TitleCasePipe } from '@angular/common';
-import { userComments } from '@content/userComments.content';
-import { ProjectService } from '@core/services/project.service';
-import {
-  catchError,
-  forkJoin,
-  map,
-  Observable,
-  of,
-  Subscription,
-  tap,
-} from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
-import { TagService } from '@core/services/tag.service';
-import { AttachmentsService } from '@core/services/attachments.service';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { MatButtonModule } from '@angular/material/button';
-import { CommentService } from '@core/services/comment.service';
-import {
-  CommentInterface,
-  CreateCommentInterface,
-} from '@shared/types/comment.types';
+import { ICreateComment } from '@shared/types/comment.types';
 import { FormsModule } from '@angular/forms';
 import { ProjectDTO } from '@models/project.model';
 import { ProjectDetailsService } from '@core/services/project-details/project-details.service';
@@ -46,8 +29,6 @@ import { ProjectDetailsService } from '@core/services/project-details/project-de
     MatButton,
     MatProgressBarModule,
     MatIcon,
-    MatChipSet,
-    MatChip,
     CommentComponent,
     TitleCasePipe,
     AsyncPipe,
@@ -56,7 +37,6 @@ import { ProjectDetailsService } from '@core/services/project-details/project-de
     MatButtonModule,
     FormsModule,
     MatProgressBarModule,
-    JsonPipe,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
@@ -69,7 +49,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   workId: string | null = null;
   work: ProjectDTO | undefined;
-  comment = userComments[0];
   errorMessage: string | null = null;
   newCommentContent = '';
   replyingToCommentId: string | null = null;
@@ -193,7 +172,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   postComment() {
     if (!this.workId || !this.newCommentContent.trim()) return;
 
-    const comment: CreateCommentInterface = {
+    const comment: ICreateComment = {
       content: this.newCommentContent,
       projectId: this.workId,
       parentCommentId: this.replyingToCommentId || undefined,
@@ -208,7 +187,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   postReply(parentCommentId: string) {
     if (!this.replyContent.trim()) return;
 
-    const comment: CreateCommentInterface = {
+    const comment: ICreateComment = {
       content: this.replyContent,
       projectId: this.workId!,
       parentCommentId,
@@ -219,25 +198,43 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  onCommentLike(commentId: string): void {
-    this.setLoadingState(true);
-    this.projectDetailsService.likeComment(commentId).subscribe({
-      error: (err) => console.error('Error liking comment:', err),
+  onCommentLikeToggle([action, commentId]: ['like' | 'unlike', string]): void {
+    const serviceCall =
+      action === 'like'
+        ? this.projectDetailsService.likeComment(commentId)
+        : this.projectDetailsService.unlikeComment(commentId);
+
+    serviceCall.subscribe({
+      error: (err) => console.error(`Error ${action} comment:`, err),
     });
   }
 
   onCommentEdit(commentId: string, newContent: string): void {
     this.setLoadingState(true);
-    this.projectDetailsService.updateComment(commentId, newContent).subscribe({
-      error: (err) => console.error('Error updating comment:', err),
-    });
+    this.projectDetailsService
+      .updateComment(commentId, newContent)
+      .pipe(
+        finalize(() => {
+          this.setLoadingState(false);
+        })
+      )
+      .subscribe({
+        error: (err) => console.error('Error updating comment:', err),
+      });
   }
 
   onCommentDelete(commentId: string): void {
     this.setLoadingState(true);
-    this.projectDetailsService.deleteComment(commentId).subscribe({
-      error: (err) => console.error('Error deleting comment:', err),
-    });
+    this.projectDetailsService
+      .deleteComment(commentId)
+      .pipe(
+        finalize(() => {
+          this.setLoadingState(false);
+        })
+      )
+      .subscribe({
+        error: (err) => console.error('Error deleting comment:', err),
+      });
   }
 
   startReply(commentId: string) {

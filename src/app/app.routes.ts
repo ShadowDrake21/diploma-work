@@ -39,14 +39,14 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
-  {
-    path: 'my-comments',
-    loadComponent: () =>
-      import('./pages/comments/comments.component').then(
-        (c) => c.CommentsComponent
-      ),
-    canActivate: [authGuard],
-  },
+  // {
+  //   path: 'my-comments',
+  //   loadComponent: () =>
+  //     import('./pages/comments/comments.component').then(
+  //       (c) => c.CommentsComponent
+  //     ),
+  //   canActivate: [authGuard],
+  // },
   {
     path: 'settings',
     loadChildren: () =>

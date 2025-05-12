@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -76,10 +77,29 @@ public class CommentController {
 		try {
 			CommentDTO commentDTO = commentService.likeComment(commentId, userId);
 			return ResponseEntity.ok(ApiResponse.success(commentDTO));
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-		}
+		} catch (ResourceNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(ApiResponse.error(e.getMessage()));
+	    } catch (BusinessRuleException e) {
+	        return ResponseEntity.badRequest()
+	                .body(ApiResponse.error(e.getMessage()));
+	    }
+	}
+	
+	@DeleteMapping("/{commentId}/like")
+	public ResponseEntity<ApiResponse<CommentDTO>> removeLike(@PathVariable UUID commentId) {
+		Long userId = getAuthenticatedUserId().orElseThrow(() -> new UnauthorizedException("Authentication required"));
 
+		try {
+			CommentDTO commentDTO = commentService.unlikeComment(commentId, userId);
+			return ResponseEntity.ok(ApiResponse.success(commentDTO));
+		} catch (ResourceNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(ApiResponse.error(e.getMessage()));
+	    } catch (BusinessRuleException e) {
+	        return ResponseEntity.badRequest()
+	                .body(ApiResponse.error(e.getMessage()));
+	    }
 	}
 
 	private Optional<Long> getAuthenticatedUserId() {

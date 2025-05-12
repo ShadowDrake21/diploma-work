@@ -4,10 +4,7 @@ import { CommentService } from '../comment.service';
 import { ProjectService } from '../project.service';
 import { TagService } from '../tag.service';
 import { ProjectDTO } from '@models/project.model';
-import {
-  CommentInterface,
-  CreateCommentInterface,
-} from '@shared/types/comment.types';
+
 import {
   BehaviorSubject,
   catchError,
@@ -20,7 +17,9 @@ import {
   Subject,
   switchMap,
   tap,
+  throwError,
 } from 'rxjs';
+import { IComment, ICreateComment } from '@shared/types/comment.types';
 
 // COMMENTS!!!! (BUG FIXING)
 
@@ -35,36 +34,45 @@ export class ProjectDetailsService {
 
   private commentActions$ = new Subject<'refresh'>();
   private _commentsLoading = new BehaviorSubject<boolean>(false);
+
   private _project = new BehaviorSubject<ProjectDTO | undefined>(undefined);
   project$ = this._project.asObservable();
   private _tags = new BehaviorSubject<any[]>([]);
   tags$ = this._tags.asObservable();
-
   private _attachments = new BehaviorSubject<any[]>([]);
   attachments$ = this._attachments.asObservable();
+  private _comments = new BehaviorSubject<IComment[]>([]); // New BehaviorSubject for comments
+  comments$ = this._comments.asObservable(); // Expose as observable
 
   publication$!: Observable<any>;
   patent$!: Observable<any>;
   research$!: Observable<any>;
-  comments$!: Observable<CommentInterface[]>;
   commentsLoading$ = this._commentsLoading.asObservable();
 
   private currentProjectId: string | null = null;
 
   constructor() {
-    this.comments$ = this.commentActions$.pipe(
-      startWith('refresh'),
-      switchMap(() => {
-        if (!this.currentProjectId) return of([]);
-        return this.commentService
-          .getCommentsByProjectId(this.currentProjectId)
-          .pipe(finalize(() => this._commentsLoading.next(false)));
-      }),
-      catchError((error) => {
-        console.error('Error fetching comments:', error);
-        return of([]);
-      })
-    );
+    this.commentActions$
+      .pipe(
+        startWith('refresh'),
+        switchMap(() => {
+          if (!this.currentProjectId) return of([]);
+          this._commentsLoading.next(true);
+          return this.commentService
+            .getCommentsByProjectId(this.currentProjectId)
+            .pipe(
+              map((res) => res.data),
+              catchError((error) => {
+                console.error('Error fetching comments:', error);
+                return of([]);
+              }),
+              finalize(() => this._commentsLoading.next(false))
+            );
+        })
+      )
+      .subscribe((comments) => {
+        this._comments.next(comments);
+      });
   }
 
   loadProjectDetails(projectId: string): void {
@@ -79,6 +87,7 @@ export class ProjectDetailsService {
           this.loadTags(project.tagIds);
           this.loadAttachments(project.type, project.id);
           this.loadSpecificProjectData(project.type, projectId);
+          this.refreshComments();
         }
       }),
       catchError((error) => {
@@ -147,6 +156,7 @@ export class ProjectDetailsService {
 
   loadComments(projectId: string) {
     this.comments$ = this.commentService.getCommentsByProjectId(projectId).pipe(
+      map((res) => res.data),
       catchError((error) => {
         console.error('Error fetching comments:', error);
         return of([]);
@@ -154,38 +164,76 @@ export class ProjectDetailsService {
     );
   }
 
-  postComment(comment: CreateCommentInterface, callback?: () => void): void {
+  postComment(comment: ICreateComment, callback?: () => void): void {
     this.commentService.createComment(comment).subscribe({
       next: () => {
         callback?.();
-        this.commentActions$.next('refresh');
+        this.refreshComments();
       },
       error: (error) => console.error('Error posting comment:', error),
     });
   }
 
-  likeComment(commentId: string): Observable<CommentInterface> {
+  likeComment(commentId: string): Observable<IComment> {
+    const currentComments = this._comments.value || [];
+    const commentToUpdate = this.findCommentWithReplies(
+      currentComments,
+      commentId
+    );
+
+    if (commentToUpdate) {
+      commentToUpdate.likes += 1;
+      commentToUpdate.isLikedByCurrentUser = true;
+      this._comments.next([...currentComments]);
+    }
+
     return this.commentService.likeComment(commentId).pipe(
-      tap((updatedComment) => {
-        this.commentActions$.next('refresh');
-        console.debug('Comment liked:', updatedComment);
-      }),
+      map((res) => res.data),
+
       catchError((err) => {
-        console.error('Error liking comment:', err);
-        throw err;
+        if (commentToUpdate) {
+          commentToUpdate.likes = Math.max(0, commentToUpdate.likes - 1);
+          commentToUpdate.isLikedByCurrentUser = false;
+          this._comments.next([...currentComments]);
+        }
+        return throwError(() => err);
       })
     );
   }
 
-  updateComment(
-    commentId: string,
-    newContent: string
-  ): Observable<CommentInterface> {
+  unlikeComment(commentId: string): Observable<IComment> {
+    const currentComments = this._comments.value || [];
+    const commentToUpdate = this.findCommentWithReplies(
+      currentComments,
+      commentId
+    );
+
+    if (commentToUpdate) {
+      commentToUpdate.likes = Math.max(0, commentToUpdate.likes - 1);
+      commentToUpdate.isLikedByCurrentUser = false;
+      this._comments.next([...currentComments]);
+    }
+
+    return this.commentService.unlikeComment(commentId).pipe(
+      map((res) => res.data),
+      catchError((err) => {
+        if (commentToUpdate) {
+          commentToUpdate.likes += 1;
+          commentToUpdate.isLikedByCurrentUser = true;
+          this._comments.next([...currentComments]);
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+
+  updateComment(commentId: string, newContent: string): Observable<IComment> {
     return this.commentService.updateComment(commentId, newContent).pipe(
       tap((updatedComment) => {
-        this.commentActions$.next('refresh');
+        this.refreshComments();
         console.debug('Comment updated:', updatedComment);
       }),
+      map((res) => res.data),
       catchError((error) => {
         console.error('Error deleting comment:', error);
         throw error;
@@ -195,7 +243,8 @@ export class ProjectDetailsService {
 
   deleteComment(commentId: string): Observable<void> {
     return this.commentService.deleteComment(commentId).pipe(
-      tap(() => this.commentActions$.next('refresh')),
+      tap(() => this.refreshComments()),
+      map((res) => res.data),
       catchError((error) => {
         console.error('Error deleting comment:', error);
         throw error;
@@ -203,7 +252,27 @@ export class ProjectDetailsService {
     );
   }
 
+  refreshComments(): void {
+    this.commentActions$.next('refresh');
+  }
+
   deleteProject(projectId: string): Observable<any> {
     return this.projectService.deleteProject(projectId);
+  }
+
+  private findCommentWithReplies(
+    comments: IComment[],
+    commentId: string
+  ): IComment | null {
+    const comment = comments.find((c) => c.id === commentId);
+    if (comment) return comment;
+
+    for (const c of comments) {
+      if (c.replies) {
+        const reply = c.replies.find((r) => r.id === commentId);
+        if (reply) return reply;
+      }
+    }
+    return null;
   }
 }
