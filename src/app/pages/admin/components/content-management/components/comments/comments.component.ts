@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { PaginationService } from '@core/services/pagination.service';
 import { CommentComponent } from '@shared/components/comment/comment.component';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
-import { userComments } from '@content/userComments.content';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -17,7 +16,7 @@ export class CommentsComponent implements OnInit {
   paginationService = inject(PaginationService);
 
   pages: number[] = [];
-  comments = userComments;
+  // comments = userComments;
 
   ngOnInit(): void {
     this.paginationUsage();
@@ -29,7 +28,7 @@ export class CommentsComponent implements OnInit {
 
   paginationUsage() {
     this.paginationService.currentPage = 1;
-    this.paginationService.elements = this.comments;
+    // this.paginationService.elements = this.comments;
     this.paginationService.itemsPerPage = 7;
     this.paginationService.updateVisibleElements();
 

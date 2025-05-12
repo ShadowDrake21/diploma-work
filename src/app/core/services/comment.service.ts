@@ -1,12 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import {
-  CommentInterface,
-  CreateCommentInterface,
-} from '@shared/types/comment.types';
+import { ApiResponse } from '@models/api-response.model';
+import { IComment, ICreateComment } from '@shared/types/comment.types';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
-import { Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -16,44 +14,69 @@ export class CommentService {
 
   private apiUrl = BASE_URL + 'comments';
 
-  getCommentsByProjectId(projectId: string): Observable<CommentInterface[]> {
-    return this.http.get<CommentInterface[]>(
-      `${this.apiUrl}/project/${projectId}`,
-      getAuthHeaders()
-    );
+  getCommentsByProjectId(
+    projectId: string
+  ): Observable<ApiResponse<IComment[]>> {
+    return this.http
+      .get<ApiResponse<IComment[]>>(
+        `${this.apiUrl}/project/${projectId}`,
+        getAuthHeaders()
+      )
+      .pipe(catchError(this.handleError));
   }
 
-  createComment(comment: CreateCommentInterface): Observable<CommentInterface> {
-    return this.http.post<CommentInterface>(
-      this.apiUrl,
-      comment,
-      getAuthHeaders()
-    );
+  createComment(comment: ICreateComment): Observable<ApiResponse<IComment>> {
+    return this.http
+      .post<ApiResponse<IComment>>(this.apiUrl, comment, getAuthHeaders())
+      .pipe(catchError(this.handleError));
   }
 
   updateComment(
     commentId: string,
     content: string
-  ): Observable<CommentInterface> {
-    return this.http.put<CommentInterface>(
-      `${this.apiUrl}/${commentId}`,
-      content,
-      getAuthHeaders()
-    );
+  ): Observable<ApiResponse<IComment>> {
+    return this.http
+      .put<ApiResponse<IComment>>(
+        `${this.apiUrl}/${commentId}`,
+        content,
+        getAuthHeaders()
+      )
+      .pipe(catchError(this.handleError));
   }
 
-  deleteComment(commentId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.apiUrl}/${commentId}`,
-      getAuthHeaders()
-    );
+  deleteComment(commentId: string): Observable<ApiResponse<void>> {
+    return this.http
+      .delete<ApiResponse<void>>(
+        `${this.apiUrl}/${commentId}`,
+        getAuthHeaders()
+      )
+      .pipe(catchError(this.handleError));
   }
 
-  likeComment(commentId: string): Observable<CommentInterface> {
-    return this.http.post<CommentInterface>(
+  likeComment(commentId: string): Observable<ApiResponse<IComment>> {
+    return this.http
+      .post<ApiResponse<IComment>>(
+        `${this.apiUrl}/${commentId}/like`,
+        null,
+        getAuthHeaders()
+      )
+      .pipe(catchError(this.handleError));
+  }
+
+  unlikeComment(commentId: string): Observable<ApiResponse<IComment>> {
+    return this.http.delete<ApiResponse<IComment>>(
       `${this.apiUrl}/${commentId}/like`,
-      null,
       getAuthHeaders()
     );
+  }
+
+  private handleError(error: any): Observable<never> {
+    let errorMessage = 'An unknown error occurred!';
+    if (error.error?.message) {
+      errorMessage = error.error.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    return throwError(() => new Error(errorMessage));
   }
 }

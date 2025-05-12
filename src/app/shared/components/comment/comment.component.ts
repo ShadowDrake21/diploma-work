@@ -19,9 +19,10 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
-import { CommentInterface } from '@shared/types/comment.types';
 import { CommentDeleteDialogueComponent } from '../comment-delete-dialogue/comment-delete-dialogue.component';
 import { MatButtonModule } from '@angular/material/button';
+import { IComment } from '@shared/types/comment.types';
+import { set } from 'date-fns';
 
 @Component({
   selector: 'shared-comment',
@@ -32,14 +33,15 @@ import { MatButtonModule } from '@angular/material/button';
 export class CommentComponent {
   private authService = inject(AuthService);
 
-  @Input() comment!: CommentInterface;
+  @Input() comment!: IComment;
   @Input() isReply = false;
   @Output() reply = new EventEmitter<string>();
-  @Output() like = new EventEmitter<string>();
+  @Output() like = new EventEmitter<['like' | 'unlike', string]>();
   @Output() edit = new EventEmitter<{ id: string; content: string }>();
   @Output() delete = new EventEmitter<string>();
 
   isEditing = false;
+  isLiking = false;
   editedContent = '';
   currentUserId = this.authService.getCurrentUserId();
 
@@ -47,8 +49,16 @@ export class CommentComponent {
     this.reply.emit(this.comment.id);
   }
 
-  onLike() {
-    this.like.emit(this.comment.id);
+  onLikeToggle() {
+    if (this.isLiking) return;
+
+    this.isLiking = true;
+
+    const likeAction = this.comment.isLikedByCurrentUser
+      ? this.like.emit(['unlike', this.comment.id])
+      : this.like.emit(['like', this.comment.id]);
+
+    setTimeout(() => (this.isLiking = false), 2000);
   }
 
   onEdit() {

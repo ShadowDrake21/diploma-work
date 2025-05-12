@@ -131,7 +131,7 @@
       comment) {
       <shared-comment
         [comment]="comment"
-        (like)="onCommentLike($event)"
+        (like)="onCommentLikeToggle($event)"
         (edit)="onCommentEdit($event.id, $event.content)"
         (delete)="onCommentDelete($event)"
         (reply)="startReply($event)"
@@ -168,7 +168,7 @@
         @for (reply of comment.replies; track reply.id) {
         <shared-comment
           [comment]="reply"
-          (like)="onCommentLike($event)"
+          (like)="onCommentLikeToggle($event)"
           (edit)="onCommentEdit($event.id, $event.content)"
           (delete)="onCommentDelete($event)"
           (reply)="startReply($event)"

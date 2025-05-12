@@ -27,4 +27,5 @@ public class CommentDTO {
 	 private UUID projectId;
 	 private UUID parentCommentId;
 	 private List<CommentDTO> replies;	 
+	 private boolean isLikedByCurrentUser;
 }
