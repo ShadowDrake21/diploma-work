@@ -53,15 +53,12 @@ public class S3Controller {
 	}
 	
 	@PostMapping("/update-files")
-	public ResponseEntity<ApiResponse<String>> updateFiles( @RequestParam @NotBlank String entityType, @RequestParam @NotNull UUID entityId, @RequestParam("files") @NotEmpty List<MultipartFile> files) {
+	public ResponseEntity<ApiResponse<List<FileMetadataDTO>>> updateFiles( @RequestParam @NotBlank String entityType, @RequestParam @NotNull UUID entityId, @RequestParam("files") @NotEmpty List<MultipartFile> files) {
 		try {
 			ProjectType type = ProjectType.valueOf(entityType);
-			s3Service.updateFiles(type, entityId, files);
-			return ResponseEntity.ok(ApiResponse.success("Files updated successfully"));
-		} catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Invalid entity type"));
-        } catch (Exception e) {
+			List<FileMetadataDTO> updatedFiles = s3Service.updateFiles(type, entityId, files);
+			return ResponseEntity.ok(ApiResponse.success(updatedFiles));
+		}  catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(ApiResponse.error("Failed to update files"));
         }

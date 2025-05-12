@@ -107,20 +107,4 @@ export class ProjectDataService extends ProjectDataCoreService {
         return of(null);
     }
   }
-
-  private getTypedProjectId(
-    projectType: ProjectType,
-    formValues: TypedProjectFormValues
-  ): string {
-    switch (projectType) {
-      case ProjectType.PUBLICATION:
-        return formValues.publication?.id;
-      case ProjectType.PATENT:
-        return formValues.patent?.id;
-      case ProjectType.RESEARCH:
-        return formValues.research?.id;
-      default:
-        return '';
-    }
-  }
 }

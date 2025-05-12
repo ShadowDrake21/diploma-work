@@ -12,20 +12,19 @@
     }
   }
 
-  &-recent-project__list {
-    display: flex;
-    width: 100%;
-    list-style: none;
-    overflow-x: scroll;
-    padding-bottom: 10px;
-
-    &-item {
+  &-recent-project {
+    &__list {
+      display: flex;
+      flex-wrap: wrap;
       width: 100%;
-      border-right: 1px solid #000000;
+      list-style: none;
+      overflow-x: scroll;
+      padding-bottom: 10px;
+      gap: 30px;
+    }
 
-      &:last-child {
-        border-right: none;
-      }
+    &__title {
+      text-align: center;
     }
   }
 
@@ -39,5 +38,11 @@
   &-content {
     display: flex;
     gap: 20px;
+
+    &__inner {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
   }
 }

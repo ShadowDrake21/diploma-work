@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { DashboardService } from '@core/services/dashboard.service';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { ProjectDTO } from '@models/project.model';
+import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +23,7 @@ import { ProjectDTO } from '@models/project.model';
     MetricCardItemComponent,
     ProjectCardComponent,
     FrequentLinksComponent,
+    FilterSidebarComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

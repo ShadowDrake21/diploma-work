@@ -23,6 +23,10 @@ public interface FileMetadataRepository extends JpaRepository<FileMetadata, UUID
 	boolean existsByChecksumAndEntityTypeAndEntityId(String checksum, ProjectType entityType, UUID entityId);
 	void deleteByFileName(String fileName);
 	
+	Optional<FileMetadata> findByChecksumAndEntityTypeAndEntityId(String checksum, ProjectType entityType, UUID entityId);
+	Optional<FileMetadata> findByFileUrl(String fileUrl);
+	
+	
 	 @Modifying
 	 @Transactional
 	    @Query("DELETE FROM FileMetadata f WHERE f.entityType = :entityType AND f.entityId = :entityId AND f.fileName = :fileName")
