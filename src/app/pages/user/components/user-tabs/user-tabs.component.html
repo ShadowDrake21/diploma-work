@@ -22,7 +22,7 @@
   </mat-tab>
   <mat-tab label="Collaborators">
     @if (userSig()) {
-    <user-collaborators [userId]="this.userSig()?.id || ''" />
+    <user-collaborators [userId]="this.userSig()?.id || 0" />
     }
   </mat-tab>
   <mat-tab label="Contact information"

@@ -14,38 +14,55 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.app.dto.ApiResponse;
 import com.backend.app.dto.TagDTO;
+import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.service.TagService;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/tags")
 public class TagController {
-	@Autowired
-	private TagService tagService;
+	private final TagService tagService;
 	
 	@GetMapping
-	public List<TagDTO> getAllTags() {
-		return tagService.findAllTags();
-	}
+	public ResponseEntity<ApiResponse<List<TagDTO>>> getAllTags() {
+		log.info("Fetching all tags");
+		List<TagDTO> tags = tagService.findAllTags();
+        return ResponseEntity.ok(ApiResponse.success(tags));
+ 	}
 	
 	@GetMapping("/{id}")
-	public TagDTO getTagById(@PathVariable UUID id) {
-		return tagService.findTagById(id).orElseThrow(() -> new RuntimeException("Tag not found with ID: " + id));
+	public ResponseEntity<ApiResponse<TagDTO>> getTagById(@PathVariable UUID id) {
+        log.info("Fetching tag with id: {}", id);
+        TagDTO tag = tagService.findTagById(id).orElseThrow(() -> new ResourceNotFoundException("Tag not found with ID: " + id));
+		return ResponseEntity.ok(ApiResponse.success(tag));
 	}
 	
 	@PostMapping
-	public ResponseEntity<TagDTO> createTag(@RequestBody TagDTO tagDTO){
+	public ResponseEntity<ApiResponse<TagDTO>> createTag(@RequestBody TagDTO tagDTO){
+		log.info("Creating new tag: {}", tagDTO);
 		TagDTO createTag = tagService.createTag(tagDTO);
-		return ResponseEntity.status(HttpStatus.CREATED).body(createTag);
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(createTag));
 	}
 	
 	@PostMapping("/{id}")
-	public TagDTO updateTag(@PathVariable UUID id, @RequestBody TagDTO tagDTO) {
-		return tagService.updateTag(id, tagDTO).orElseThrow(() -> new RuntimeException("Tag not found with ID: " + id));
+	public ResponseEntity<ApiResponse<TagDTO>> updateTag(@PathVariable UUID id, @RequestBody TagDTO tagDTO) {
+        log.info("Updating tag with id {}: {}", id, tagDTO);
+        TagDTO updatedTag = tagService.updateTag(id, tagDTO).orElseThrow(() -> new ResourceNotFoundException("Tag not found with ID: " + id));
+		return ResponseEntity.ok(ApiResponse.success(updatedTag));
 	}
 	
 	@DeleteMapping("/{id}")
-	public void deleteTag(@PathVariable UUID id) {
+	public ResponseEntity<ApiResponse<Void>> deleteTag(@PathVariable UUID id) {
+		log.info("Deleting tag with id: {}", id);
 		tagService.deleteTag(id);
+		 return ResponseEntity
+	                .status(HttpStatus.OK)
+	                .body(ApiResponse.success(null));
 	}
 }

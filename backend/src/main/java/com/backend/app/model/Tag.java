@@ -6,60 +6,61 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import com.backend.app.model.Project;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 @Entity
-@Table(name="tags")
+@Table(name="tags", uniqueConstraints = {
+		@UniqueConstraint(columnNames = "name")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Tag {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(updatable = false, nullable = false)
 	private UUID id;
 	
-	@Column(name = "name", length = 100, nullable = false, unique = true)
+	@Column(name = "name", length = 100, nullable = false)
 	private String name;
 	
 	@ManyToMany(mappedBy = "tags")
 	@JsonIgnore
+	@Builder.Default
 	private Set<Project> projects = new HashSet<>();
 	
-	public Tag() {
-		
-	}
-	
-	public Tag(String name) {
-		this.name = name;
-	}
+	 @Override
+	    public boolean equals(Object o) {
+	        if (this == o) return true;
+	        if (!(o instanceof Tag tag)) return false;
+	        return id != null && id.equals(tag.id);
+	    }
 
-	public UUID getId() {
-		return id;
-	}
+	    @Override
+	    public int hashCode() {
+	        return getClass().hashCode();
+	    }
 
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Set<Project> getProjects() {
-		return projects;
-	}
-
-	public void setProjects(Set<Project> projects) {
-		this.projects = projects;
-	}		
+	    @Override
+	    public String toString() {
+	        return "Tag{" +
+	                "id=" + id +
+	                ", name='" + name + '\'' +
+	                '}';
+	    }
 }
