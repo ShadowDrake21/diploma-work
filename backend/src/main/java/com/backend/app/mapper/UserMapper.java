@@ -13,21 +13,21 @@ public class UserMapper {
 			return null;
 		}
 		
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setRole(user.getRole());
-        userDTO.setUsername(user.getUsername());
-        userDTO.setAvatarUrl(user.getAvatarUrl());
-        userDTO.setPhoneNumber(user.getPhoneNumber());
-        userDTO.setUniversityGroup(user.getUniversityGroup());
-        userDTO.setUserType(user.getUserType());
-        userDTO.setDateOfBirth(user.getDateOfBirth());
-        userDTO.setPublicationCount(user.getPublicationCount());
-        userDTO.setPatentCount(user.getPatentCount());
-        userDTO.setResearchCount(user.getResearchCount());
-        userDTO.setAffiliation(user.getAffiliation());
-        return userDTO;
+		 return UserDTO.builder()
+	                .id(user.getId())
+	                .email(user.getEmail())
+	                .role(user.getRole())
+	                .username(user.getUsername())
+	                .avatarUrl(user.getAvatarUrl())
+	                .phoneNumber(user.getPhoneNumber())
+	                .universityGroup(user.getUniversityGroup())
+	                .userType(user.getUserType())
+	                .dateOfBirth(user.getDateOfBirth())
+	                .publicationCount(user.getPublicationCount())
+	                .patentCount(user.getPatentCount())
+	                .researchCount(user.getResearchCount())
+	                .affiliation(user.getAffiliation())
+	                .build();
     }
 	
 	
@@ -36,10 +36,31 @@ public class UserMapper {
 			return null;
 		}
 		
-        ResponseUserDTO responseUserDTO = new ResponseUserDTO();
-        responseUserDTO.setId(user.getId());
-        responseUserDTO.setUsername(user.getUsername());
-        responseUserDTO.setAvatarUrl(user.getAvatarUrl());
-        return responseUserDTO;
+       return ResponseUserDTO.builder().id(user.getId())
+               .username(user.getUsername())
+               .avatarUrl(user.getAvatarUrl())
+               .build();
     }
+	
+	 public User mapToEntity(UserDTO userDTO) {
+	        if (userDTO == null) {
+	            return null;
+	        }
+
+	        return User.builder()
+	                .id(userDTO.getId())
+	                .email(userDTO.getEmail())
+	                .role(userDTO.getRole())
+	                .username(userDTO.getUsername())
+	                .avatarUrl(userDTO.getAvatarUrl())
+	                .phoneNumber(userDTO.getPhoneNumber())
+	                .universityGroup(userDTO.getUniversityGroup())
+	                .userType(userDTO.getUserType())
+	                .dateOfBirth(userDTO.getDateOfBirth())
+	                .publicationCount(userDTO.getPublicationCount())
+	                .patentCount(userDTO.getPatentCount())
+	                .researchCount(userDTO.getResearchCount())
+	                .affiliation(userDTO.getAffiliation())
+	                .build();
+	    }
 }
