@@ -151,7 +151,7 @@ export class UserService {
     );
   }
 
-  public getUserCollaborators(userId: string): Observable<IUser[]> {
+  public getUserCollaborators(userId: number): Observable<IUser[]> {
     return this.http.get<IUser[]>(
       `${this.apiUrl}/${userId}/collaborators`,
       getAuthHeaders()

@@ -124,6 +124,24 @@ public class S3Service {
 		}
 	}
 	
+	 public String uploadIndependentFile(MultipartFile file, String fileName) {
+	        String fileUrl = getPublicFileUrl(fileName);
+	        
+	        try {
+	            s3Client.putObject(
+	                PutObjectRequest.builder()
+	                    .bucket(bucketName)
+	                    .key(fileName)
+	                    .contentType(file.getContentType())
+	                    .build(), 
+	                RequestBody.fromBytes(file.getBytes()));
+	            
+	            return fileUrl;
+	        } catch (IOException e) {
+	            throw new RuntimeException("Error uploading independent file", e);
+	        }
+	    }
+	
 	public void addFiles(ProjectType entityType, UUID entityId, List<MultipartFile> newFiles) {
 		for(MultipartFile newFile:newFiles) {
 			if(newFile.isEmpty()) {

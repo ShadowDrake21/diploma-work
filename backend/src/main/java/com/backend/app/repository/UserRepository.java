@@ -12,25 +12,18 @@ import org.springframework.data.repository.query.Param;
 import com.backend.app.enums.Role;
 import com.backend.app.model.User;
 
-public interface UserRepository extends JpaRepository<User, Long>{
-	
+public interface UserRepository extends JpaRepository<User, Long>{	
 	Optional<User> findByEmail(String email);
 	List<User> findByRole(Role role);
+	boolean existsByEmail(String email);
+	Optional<User> findByResetToken(String resetToken);
 	
 	@Query("SELECT u FROM User u WHERE u.email = :email AND u.role = :role")
 	Optional<User> findByEmailAndRole(@Param("email") String email, @Param("role") Role role);
 	
-	boolean existsByEmail(String email);
-	
-	@Query("SELECT u FROM User u WHERE u.role = :role")
-	List<User> findByRole(@Param("role") Role role, Pageable pageable);
-	
-	Optional<User> findByResetToken(String resetToken);
-	
 	@Query("SELECT u FROM User u WHERE u.resetToken IS NOT NULL AND u.tokenExpiration < CURRENT_TIMESTAMP")
 	List<User> findExpiredResetTokens();
 	
-	Page<User> findAll(Pageable pageable);
-	
-	Page<User> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email, Pageable pageable);
+    @Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(concat('%', :query, '%')) OR LOWER(u.email) LIKE LOWER(concat('%', :query, '%'))")
+    Page<User> searchUsers(String query, Pageable pageable);
 	}

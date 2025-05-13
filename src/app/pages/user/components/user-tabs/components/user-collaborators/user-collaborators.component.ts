@@ -14,7 +14,7 @@ import { Observable } from 'rxjs';
 })
 export class UserCollaboratorsComponent implements OnInit {
   private userService = inject(UserService);
-  userIdSig = input.required<string>({
+  userIdSig = input.required<number>({
     alias: 'userId',
   });
   collaborators$!: Observable<IUser[]>;
