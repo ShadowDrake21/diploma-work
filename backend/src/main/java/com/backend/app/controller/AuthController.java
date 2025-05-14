@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.backend.app.dto.ApiResponse;
+import com.backend.app.dto.AuthResponse;
 import com.backend.app.dto.LoginRequest;
 import com.backend.app.dto.RegisterRequest;
 import com.backend.app.dto.RequestPasswordResetRequest;
@@ -23,151 +25,98 @@ import com.backend.app.service.PasswordResetService;
 import com.backend.app.service.UserService;
 import com.backend.app.util.JwtUtil;
 
+import jakarta.validation.constraints.Email;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 	private final JwtUtil jwtUtil;
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
 	private final PasswordResetService passwordResetService;
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
-	
-	public AuthController(JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder, PasswordResetService passwordResetService) {
-		this.jwtUtil = jwtUtil;
-		this.userService = userService;
-		this.passwordEncoder = passwordEncoder;
-		this.passwordResetService = passwordResetService;
-	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
-		String email = request.getEmail();
-		String password = request.getPassword();
+	public ResponseEntity<com.backend.app.dto.ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
+		if(request.getEmail() == null || request.getEmail().isEmpty()) {
+			return ResponseEntity.badRequest().body(ApiResponse.error("Email is required."));
+		}
+		if(request.getPassword() == null || request.getPassword().isEmpty()) {
+			return ResponseEntity.badRequest().body(ApiResponse.error("Password is required."));
+		}
 		
-		Map<String, String> response = new HashMap<>();
-		    
-		    if (request.getEmail() == null || request.getEmail().isEmpty()) {
-		        response.put("error", "Email is required.");
-		        return ResponseEntity.badRequest().body(response);
-		    }
-		    if (request.getPassword() == null || request.getPassword().isEmpty()) {
-		        response.put("error", "Password is required.");
-		        return ResponseEntity.badRequest().body(response);
-		    }
-
-		    try {
-		    	Optional<User> optionalUser = userService.getUserByEmail(email);
-		    	
-		    	if(optionalUser.isEmpty()) {
-		    		response.put("error", "Invalid email or password!");
-			    	return ResponseEntity.badRequest().body(response);
-		    	}
-		    	
-		    	User user = optionalUser.get();
-		    	
-		    	if(!passwordEncoder.matches(password, user.getPassword())) {
-		    		response.put("error", "Invalid email or password!");
-		    		return ResponseEntity.badRequest().body(response);
-		    	}
-		    	
-		    	String token = jwtUtil.generateToken(email, user.getId());
-		    	response.put("message", "Login successful!");
-		    	response.put("authToken", token);
-		    	return ResponseEntity.ok(response);
-		    }
-		    catch (Exception e) {
-		    	logger.error("Login error: ", e);
-		        response.put("error", "An error occurred while logging in.");
-		        return ResponseEntity.internalServerError().body(response);
+		try {
+			Optional<User> optionalUser = userService.getUserByEmail(request.getEmail());
+			
+			if(optionalUser.isEmpty() || !passwordEncoder.matches(request.getPassword(), optionalUser.get().getPassword())) {
+				return ResponseEntity.badRequest().body(ApiResponse.error("Invalid email or password!"));
 			}
+			
+			User user = optionalUser.get();
+			String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+			AuthResponse authResponse = new AuthResponse("Login successful!", token);
+			
+			return ResponseEntity.ok(ApiResponse.success(authResponse));
+		} catch (Exception e) {
+			log.error("Login error: ", e);
+            return ResponseEntity.internalServerError().body(ApiResponse.error("An error occurred while logging in."));
+		}
 	}
 	
 	@PostMapping("/register")
-	public ResponseEntity<Map<String, String>> register(@RequestBody RegisterRequest request){
-		String username = request.getUsername();
-		String email = request.getEmail();
-		String password = request.getPassword();
-		Role role = request.getRole();
-        logger.info("Received registration request with username: {} and email: {} and role: {}", username, email, role);
-
-		if(userService.userExistsByEmail(email)) {
-			Map<String, String> errorResponse = new HashMap<>();
-			errorResponse.put("error", "Email is already in use!");
-			
-			return ResponseEntity.badRequest().body(errorResponse);
+	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request){
+		log.info("Received registration request with username: {} and email: {} and role: {}", request.getUsername(), request.getEmail(), request.getRole());
+		
+		if(userService.userExistsByEmail(request.getEmail())) {
+			return ResponseEntity.badRequest().body(ApiResponse.error("Email is already in use!"));
 		}
 		
-		String encodedPassword = passwordEncoder.encode(password);
+		String encodedPassword = passwordEncoder.encode(request.getPassword());
+		userService.savePendingUser(request.getUsername(), request.getEmail(), encodedPassword, request.getRole());
 		
-		userService.savePendingUser(username, email, encodedPassword, role);
-		
-		Map<String, String> response = new HashMap<>();
-		response.put("message", "Verification code sent! Please check your email.");
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(ApiResponse.success("Verification code sent! Please check your email."));
 	}
 	
 	@PostMapping("/verify")
-	public ResponseEntity<Map<String, String>> verify(@RequestBody VerifyRequest request) {
-		String email = request.getEmail();
-		String code = request.getCode();
-		
-		boolean verified = userService.verifyUser(email, code);
-		
-		if(verified) {
-			User user = userService.getUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found after verification"));
-			
-			String token = jwtUtil.generateToken(email, user.getId());
-			
-			Map<String, String> response = new HashMap<>();
-			response.put("message", "User verified successfully!");
-			response.put("authToken", token);
-			return ResponseEntity.ok(response);
-		} else {
-			Map<String, String> errorResponse = new HashMap<>();
-			errorResponse.put("error", "Invalid verification code.");
-			return ResponseEntity.badRequest().body(errorResponse);
+	public ResponseEntity<ApiResponse<AuthResponse>> verify(@RequestBody VerifyRequest request) {
+		if(!userService.verifyUser(request.getEmail(), request.getCode())) {
+			return ResponseEntity.badRequest().body(ApiResponse.error("Invalid verification code."));
 		}
+		
+		User user = userService.getUserByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not found after verification"));
+		
+		String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+		AuthResponse authResponse = new AuthResponse("User verified successfully!", token);
+		
+		return ResponseEntity.ok(ApiResponse.success(authResponse));
 	}
 	
 	@PostMapping("/request-password-reset")
-	public ResponseEntity<Map<String, String>> requestPasswordReset(@RequestBody RequestPasswordResetRequest request) {
-		String email = request.getEmail();
-		
-		Map<String, String> response = new HashMap<>();
-		if(email == null || email.isEmpty()) {
-			response.put("error", "Email is required.");
-			return ResponseEntity.badRequest().body(response);
-		}
-		
-	    boolean emailSent = passwordResetService.sendResetLink(email);
-	    if (emailSent) {
-	        response.put("message", "Password reset link has been sent to your email.");
-	        return ResponseEntity.ok(response);
-	    } else {
-	        response.put("error", "Email not found.");
-	        return ResponseEntity.badRequest().body(response);
-	    }
+	public ResponseEntity<ApiResponse<String>> requestPasswordReset(@RequestBody RequestPasswordResetRequest request) {
+		  if (request.getEmail() == null || request.getEmail().isEmpty()) {
+	            return ResponseEntity.badRequest().body(ApiResponse.error("Email is required."));
+	        }
+
+	        if (!passwordResetService.sendResetLink(request.getEmail())) {
+	            return ResponseEntity.badRequest().body(ApiResponse.error("Email not found."));
+	        }
+	        
+	        return ResponseEntity.ok(ApiResponse.success("Password reset link has been sent to your email."));
 	}
 	
 	@PostMapping("/reset-password")
-	public ResponseEntity<Map<String, String>> resetPassword(@RequestBody ResetPasswordRequest request) {
-		String token = request.getToken();
-		String newPassword = request.getNewPassword();
+	public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody ResetPasswordRequest request) {
+		if(request.getToken() == null || request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
+			 return ResponseEntity.badRequest().body(ApiResponse.error("Invalid request.")); 
+		}
 		
-		Map<String, String> response = new HashMap<>();
-		if (token == null || newPassword == null || newPassword.isEmpty()) {
-		    response.put("error", "Invalid request.");
-		    return ResponseEntity.badRequest().body(response);
+		if(!passwordResetService.resetPassword(request.getToken(), request.getNewPassword())) {
+			return ResponseEntity.badRequest().body(ApiResponse.error("Invalid or expired token."));
 		}
-
-		boolean passwordUpdated = passwordResetService.resetPassword(token, newPassword);
-		if (passwordUpdated) {
-		   response.put("message", "Password updated successfully!");
-		   return ResponseEntity.ok(response);
-		} else {
-		   response.put("error", "Invalid or expired token.");
-		   return ResponseEntity.badRequest().body(response);
-		}
+		
+		return ResponseEntity.ok(ApiResponse.success("Password updated successfully!"));
 	}
 }

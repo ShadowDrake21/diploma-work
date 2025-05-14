@@ -26,6 +26,8 @@ import com.backend.app.enums.ProjectType;
 import com.backend.app.model.FileMetadata;
 import com.backend.app.repository.FileMetadataRepository;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -39,9 +41,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class S3Service {
 	private final S3Client s3Client;
-//    private final S3Presigner s3Presigner;
     private final FileMetadataRepository fileMetadataRepository;
 
 	
@@ -50,11 +52,6 @@ public class S3Service {
 
 	@Value("${aws.region}")
 	private String region;
-	
-	public S3Service(S3Client s3Client, FileMetadataRepository fileMetadataRepository) {
-		this.s3Client = s3Client;
-		this.fileMetadataRepository = fileMetadataRepository;
-	}
 	
 	public String getPublicFileUrl(String fileName) {
 		return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);

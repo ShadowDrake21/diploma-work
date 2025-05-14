@@ -17,7 +17,4 @@ public class ResponseUserDTO {
 	public ResponseUserDTO(Long id, String username) {
 		this(id, username, null);
 	}
-
-
-	
 }
