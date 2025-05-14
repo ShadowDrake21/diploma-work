@@ -23,54 +23,72 @@ public class UpdatePublicationRequestMapper {
 	private final PublicationRepository publicationRepository;
 
 	public PublicationDTO toPublicationDTO(UpdatePublicationRequest request, UUID publicationId) {
-		Publication existing = publicationRepository.findById(publicationId)
-				.orElseThrow(() -> new ResourceNotFoundException("Publication not found"));
+		Publication existing = getExistingPublication(publicationId);
 
 		PublicationDTO dto = new PublicationDTO();
-		dto.setProjectId(request.getProject() != null ? request.getProject().getId() : existing.getProject().getId());
-
-		dto.setPublicationDate(
-				request.getPublicationDate() != null ? request.getPublicationDate() : existing.getPublicationDate());
-
-		dto.setPublicationSource(request.getPublicationSource() != null ? request.getPublicationSource()
-				: existing.getPublicationSource());
-
-		dto.setPublicationDate(
-				request.getPublicationDate() != null ? request.getPublicationDate() : existing.getPublicationDate());
-
-		dto.setPublicationSource(request.getPublicationSource() != null ? request.getPublicationSource()
-				: existing.getPublicationSource());
-
-		dto.setStartPage(request.getStartPage());
-		dto.setEndPage(request.getEndPage());
-
-		dto.setPublicationDate(
-				request.getPublicationDate() != null ? request.getPublicationDate() : existing.getPublicationDate());
-
-		dto.setJournalVolume(
-				request.getJournalVolume() != 0 ? request.getJournalVolume() : existing.getJournalVolume());
-
-		dto.setIssueNumber(request.getIssueNumber() != 0 ? request.getIssueNumber() : existing.getIssueNumber());
-
-		if (request.getAuthors() != null) {
-            dto.setAuthors(request.getAuthors().stream()
-                    .map(a -> new ResponseUserDTO(a, null))
-                    .collect(Collectors.toList()));
-        } else {
-            // Only use existing authors if request didn't specify any
-            dto.setAuthors(existing.getPublicationAuthors().stream()
-                    .map(a -> new ResponseUserDTO(a.getUser().getId(), a.getUser().getUsername()))
-                    .collect(Collectors.toList()));
-        }
+		mapProjectId(request, existing, dto);
+		mapPublicationDatesAndSources(request, existing, dto);
+		mapPages(request, dto);
+		mapJournalDetails(request, existing, dto);
+		mapAuthors(request, existing, dto);
 
 		return dto;
 	}
-	
-	private List<ResponseUserDTO> mapAuthors(List<PublicationAuthor> authors) {
-		if (authors == null) {
-			return Collections.emptyList();
-			
-		}
-		return authors.stream().map(a -> new ResponseUserDTO(a.getUser().getId(), a.getUser().getUsername())).collect(Collectors.toList());
+
+	private Publication getExistingPublication(UUID publicationId) {
+		return publicationRepository.findById(publicationId)
+				.orElseThrow(() -> new ResourceNotFoundException("Publication not found"));
+	}
+
+	private void mapProjectId(UpdatePublicationRequest request, Publication existing, PublicationDTO dto) {
+		UUID projectId = (request.getProject() != null) ? request.getProject().getId() : existing.getProject().getId();
+		dto.setProjectId(projectId);
+	}
+
+	private void mapPublicationDatesAndSources(UpdatePublicationRequest request, Publication existing,
+			PublicationDTO dto) {
+		dto.setPublicationDate(getNonNullOrDefault(request.getPublicationDate(), existing.getPublicationDate()));
+
+		dto.setPublicationSource(getNonNullOrDefault(request.getPublicationSource(), existing.getPublicationSource()));
+
+		dto.setDoiIsbn(getNonNullOrDefault(request.getDoiIsbn(), existing.getDoiIsbn()));
+	}
+
+	private void mapPages(UpdatePublicationRequest request, PublicationDTO dto) {
+		dto.setStartPage(request.getStartPage());
+		dto.setEndPage(request.getEndPage());
+	}
+
+	private void mapJournalDetails(UpdatePublicationRequest request, Publication existing, PublicationDTO dto) {
+		dto.setJournalVolume(getNonZeroOrDefault(request.getJournalVolume(), existing.getJournalVolume()));
+
+		dto.setIssueNumber(getNonZeroOrDefault(request.getIssueNumber(), existing.getIssueNumber()));
+	}
+
+	private void mapAuthors(UpdatePublicationRequest request, Publication existing, PublicationDTO dto) {
+		List<ResponseUserDTO> authors = (request.getAuthors() != null) ? mapRequestAuthors(request)
+				: mapExistingAuthors(existing);
+		dto.setAuthors(authors);
+	}
+
+	private List<ResponseUserDTO> mapRequestAuthors(UpdatePublicationRequest request) {
+		return request.getAuthors().stream().map(authorId -> new ResponseUserDTO(authorId, null))
+				.collect(Collectors.toList());
+	}
+
+	private List<ResponseUserDTO> mapExistingAuthors(Publication existing) {
+		return existing.getPublicationAuthors().stream().map(this::toResponseUserDTO).collect(Collectors.toList());
+	}
+
+	private ResponseUserDTO toResponseUserDTO(PublicationAuthor author) {
+		return new ResponseUserDTO(author.getUser().getId(), author.getUser().getUsername());
+	}
+
+	private <T> T getNonNullOrDefault(T newValue, T defaultValue) {
+		return newValue != null ? newValue : defaultValue;
+	}
+
+	private int getNonZeroOrDefault(int newValue, int defaultValue) {
+		return newValue != 0 ? newValue : defaultValue;
 	}
 }
