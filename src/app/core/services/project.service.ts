@@ -1,7 +1,10 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { ProjectSearchResponse } from '@shared/types/search.types';
+import {
+  ProjectSearchFilters,
+  ProjectSearchResponse,
+} from '@shared/types/search.types';
 import { catchError, Observable, of, throwError } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import {
@@ -11,24 +14,6 @@ import {
 } from '@models/project.model';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
-
-interface ProjectSearchFilters {
-  search?: string;
-  types?: ProjectType[];
-  tags?: string[];
-  startDate?: string;
-  endDate?: string;
-  progressMin?: number;
-  progressMax?: number;
-  publicationSource?: string;
-  doiIsbn?: string;
-  minBudget?: number;
-  maxBudget?: number;
-  fundingSource?: string;
-  registrationNumber?: string;
-  issuingAuthority?: string;
-  statuses?: string[];
-}
 
 @Injectable({
   providedIn: 'root',
@@ -149,9 +134,11 @@ export class ProjectService {
   }
 
   searchProjects(
-    filters: ProjectSearchFilters
+    filters: ProjectSearchFilters,
+    page: number = 0,
+    pageSize: number = 10
   ): Observable<ApiResponse<ProjectSearchResponse>> {
-    const params = this.buildSearchParams(filters);
+    const params = this.buildSearchParams(filters, page, pageSize);
 
     return this.http
       .get<ApiResponse<ProjectSearchResponse>>(`${this.apiUrl}/search`, {
@@ -175,8 +162,14 @@ export class ProjectService {
     );
   }
 
-  private buildSearchParams(filters: ProjectSearchFilters): HttpParams {
-    let params = new HttpParams();
+  private buildSearchParams(
+    filters: ProjectSearchFilters,
+    page: number,
+    pageSize: number
+  ): HttpParams {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
 
     if (filters.search) params = params.set('search', filters.search);
     if (filters.publicationSource)

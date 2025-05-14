@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
-import { usersContent } from '@content/users.content';
+// import { usersContent } from '@content/users.content';
 import { UsersListComponent } from '@shared/components/users-list/users-list.component';
 import { PaginationService } from '@core/services/pagination.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -27,7 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class SearchUsersComponent implements OnInit {
   paginationService = inject(PaginationService);
 
-  users = usersContent;
+  // users = usersContent;
   pages: number[] = [];
 
   userForm = new FormGroup({
@@ -46,7 +46,7 @@ export class SearchUsersComponent implements OnInit {
 
   paginationUsage() {
     this.paginationService.currentPage = 1;
-    this.paginationService.elements = this.users;
+    // this.paginationService.elements = this.users;
     this.paginationService.itemsPerPage = 5;
     this.paginationService.updateVisibleElements();
 

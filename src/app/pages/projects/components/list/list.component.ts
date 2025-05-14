@@ -8,6 +8,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { ProjectService } from '@core/services/project.service';
 import { DashboardRecentProjectItem } from '@shared/types/dashboard.types';
 import { ProjectDTO } from '@models/project.model';
+import { ProjectSearchFilters } from '@shared/types/search.types';
 
 @Component({
   selector: 'projects-list',
@@ -17,43 +18,38 @@ import { ProjectDTO } from '@models/project.model';
   providers: [PaginationService, provideNativeDateAdapter()],
 })
 export class ListProjectsComponent implements OnInit {
-  private route = inject(ActivatedRoute);
+  private paginationService = inject(PaginationService);
+  private projectService = inject(ProjectService);
 
-  paginationService = inject(PaginationService);
-  projectService = inject(ProjectService);
-
-  pages: number[] = [];
   projects: ProjectDTO[] = [];
-
-  searchResults: any[] = [];
   isLoading = false;
   totalElements = 0;
   currentPage = 0;
   pageSize = 10;
 
   ngOnInit(): void {
-    this.paginationUsage();
-
-    this.projectService.getAllProjects().subscribe((projects) => {
-      this.searchResults = projects.data;
-      console.log('projects', projects);
-      this.paginationUsage();
-    });
+    this.loadProjects();
   }
 
-  onFiltering(filters: any): void {
-    console.log('filters', filters);
-    this.projectService.searchProjects(filters).subscribe({
-      next: (projects) => {
-        this.searchResults = projects.data.content;
-        this.totalElements = projects.data.totalElements;
-        this.pageSize = projects.data.size;
-      },
-      error: (err) => {
-        console.error('Error searching projects:', err);
-        this.isLoading = false;
-      },
-    });
+  onFiltering(filters: ProjectSearchFilters): void {
+    this.isLoading = true;
+    this.currentPage = 0;
+
+    this.projectService
+      .searchProjects(filters, this.currentPage, this.pageSize)
+      .subscribe({
+        next: (projects) => {
+          this.projects = projects.data.content;
+          this.totalElements = projects.data.totalElements;
+          this.pageSize = projects.data.size;
+          this.isLoading = false;
+          this.updatePagination();
+        },
+        error: (err) => {
+          console.error('Error searching projects:', err);
+          this.isLoading = false;
+        },
+      });
   }
 
   paginationUsage() {
@@ -61,15 +57,62 @@ export class ListProjectsComponent implements OnInit {
     this.paginationService.elements = this.projects;
     this.paginationService.itemsPerPage = 10;
     this.paginationService.updateVisibleElements();
+  }
 
-    this.pages = Array.from(
-      { length: this.paginationService.numPages() },
+  get pages(): number[] {
+    return Array.from(
+      {
+        length: this.paginationService.numPages(),
+      },
       (_, i) => i + 1
     );
+  }
+
+  get currentPaginationPage(): number {
+    return this.paginationService.currentPage;
+  }
+
+  prevPage(): void {
+    this.paginationService.prevPage();
+  }
+
+  nextPage(): void {
+    this.paginationService.nextPage();
+  }
+
+  goToPage(page: number): void {
+    this.paginationService.goToPage(page);
   }
 
   onPageChange(event: any): void {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
+    this.loadProjects();
+  }
+
+  private loadProjects(): void {
+    this.isLoading = true;
+    this.projectService
+      .searchProjects({}, this.currentPage, this.pageSize)
+      .subscribe({
+        next: (projects) => {
+          this.projects = projects.data.content;
+          this.totalElements = projects.data.totalElements;
+          this.pageSize = projects.data.size;
+          this.isLoading = false;
+          this.updatePagination();
+        },
+        error: (err) => {
+          console.error('Error loading projects:', err);
+          this.isLoading = false;
+        },
+      });
+  }
+
+  private updatePagination(): void {
+    this.paginationService.elements = this.projects;
+    this.paginationService.currentPage = this.currentPage + 1;
+    this.paginationService.itemsPerPage = this.pageSize;
+    this.paginationService.updateVisibleElements();
   }
 }

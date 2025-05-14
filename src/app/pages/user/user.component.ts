@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { usersContent } from '@content/users.content';
+
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { IUser } from '@shared/models/user.model';
@@ -37,7 +37,7 @@ export class UserComponent implements OnInit {
 
   userId: number | null = null;
   user: IUser | undefined = undefined;
-  users = usersContent;
+  users = [];
   pages: number[] = [];
   userProjects: any[] = [];
   isLoading = true;
@@ -59,7 +59,7 @@ export class UserComponent implements OnInit {
   getUserById() {
     if (!this.userId) return;
 
-    this.user = usersContent.find((user) => user.id === this.userId);
+    // this.user = usersContent.find((user) => user.id === this.userId);
   }
 
   userMetrics() {

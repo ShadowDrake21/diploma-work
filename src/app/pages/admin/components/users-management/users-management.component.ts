@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { UsersListComponent } from '@shared/components/users-list/users-list.component';
 import { PaginationService } from '@core/services/pagination.service';
-import { usersContent } from '@content/users.content';
+// import { usersContent } from '@content/users.content';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ export class UsersManagementComponent implements OnInit {
   paginationService = inject(PaginationService);
 
   pages: number[] = [];
-  users = usersContent;
+  users = [];
 
   searchForm = new FormGroup({
     search: new FormControl(''),

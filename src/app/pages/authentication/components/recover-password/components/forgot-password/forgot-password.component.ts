@@ -45,7 +45,7 @@ export class ForgotPasswordComponent {
     }
 
     this.authService
-      .requestPasswordReset(this.emailFormControl.value)
+      .requestPasswordReset({ email: this.emailFormControl.value })
       .subscribe({
         next: (response) => {
           console.log(response);

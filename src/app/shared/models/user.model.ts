@@ -1,13 +1,25 @@
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+}
+
+export enum UserType {
+  STUDENT = 'student',
+  TEACHER = 'teacher',
+  RESEARCHER = 'researcher',
+  STAFF = 'staff',
+}
+
 export interface IUser {
   id: number;
   username: string;
   avatarUrl: string;
-  role: string;
+  role: UserRole;
   affiliation: string;
   email: string;
   phone: string;
   dateOfBirth: string;
-  userType: 'student' | 'teacher' | 'researcher' | 'staff';
+  userType: UserType;
   universityGroup: string;
   phoneNumber?: string;
   publicationCount: number;
@@ -32,7 +44,7 @@ export interface IAuthorizedUser {
 export interface IUpdateUserProfile {
   phoneNumber?: string;
   dateOfBirth?: string;
-  userType?: 'student' | 'teacher' | 'researcher' | 'staff';
+  userType?: UserType;
   universityGroup?: string;
   avatarUrl?: string;
 }
