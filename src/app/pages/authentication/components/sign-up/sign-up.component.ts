@@ -71,17 +71,19 @@ export class SignUpComponent implements OnInit {
 
     if (!name || !email || !password || !role) return;
 
-    this.authService.register(name, email, password, role).subscribe({
-      next: (response) => {
-        console.log(response);
-        this.router.navigate(['/authentication/verification-code'], {
-          queryParams: { email },
-        });
-      },
-      error: (error) => {
-        console.error('Registration failed', error);
-      },
-    });
+    this.authService
+      .register({ username: name, email, password, role })
+      .subscribe({
+        next: (response) => {
+          console.log(response);
+          this.router.navigate(['/authentication/verification-code'], {
+            queryParams: { email },
+          });
+        },
+        error: (error) => {
+          console.error('Registration failed', error);
+        },
+      });
     this.router.navigate(['/authentication/verification-code']);
   }
 

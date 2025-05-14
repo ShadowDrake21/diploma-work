@@ -22,7 +22,7 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import jakarta.persistence.criteria.CriteriaBuilder.Case;
-
+import jakarta.persistence.criteria.*;
 @Service
 @RequiredArgsConstructor
 public class ProjectSpecificationService {

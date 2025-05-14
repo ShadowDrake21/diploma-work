@@ -1,18 +1,17 @@
 <div class="list">
   <profile-filter-panel (filtersApplied)="onFiltering($event)" />
   <div class="list__projects">
-    @for (project of searchResults; track $index) {
+    @for (project of projects; track $index) {
     <shared-project-card [project]="project" />
     }
   </div>
-  @if(projects.length > paginationService.itemsPerPage) {
-  <!-- get rid of the service in html (not important) -->
+  @if(projects.length > pageSize) {
   <shared-pagination
     [pages]="pages"
-    [currentPage]="paginationService.currentPage"
-    (prevPage)="paginationService.prevPage()"
-    (nextPage)="paginationService.nextPage()"
-    (goToPage)="paginationService.goToPage($event)"
+    [currentPage]="currentPaginationPage"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"
+    (goToPage)="goToPage($event)"
   />
   }
 </div>

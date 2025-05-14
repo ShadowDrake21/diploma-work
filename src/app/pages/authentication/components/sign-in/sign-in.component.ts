@@ -76,7 +76,7 @@ export class SignInComponent implements OnInit {
 
     if (!email || !password) return;
 
-    this.authService.login(email, password).subscribe({
+    this.authService.login({ email, password }).subscribe({
       next: (token) => {
         console.log('Logged in', token);
         this.router.navigate(['/']);

@@ -109,7 +109,7 @@ export class VerificationCodeComponent implements OnInit {
       return;
     }
 
-    this.authService.verifyUser(this.email, code).subscribe({
+    this.authService.verifyUser({ email: this.email, code }).subscribe({
       next: (response) => {
         console.log(response);
         this.verificationMessage = 'Verification successful';

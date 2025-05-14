@@ -72,7 +72,10 @@ export class ResetPasswordComponent implements OnInit {
     }
 
     this.authService
-      .resetPassword(this.token, this.passwordController.value)
+      .resetPassword({
+        token: this.token,
+        newPassword: this.passwordController.value,
+      })
       .subscribe({
         next: (response) => {
           console.log(response);

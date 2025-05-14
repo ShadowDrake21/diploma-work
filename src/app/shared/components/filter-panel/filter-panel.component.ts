@@ -17,6 +17,8 @@ import { ProjectService } from '@core/services/project.service';
 import { TagService } from '@core/services/tag.service';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { ProjectSearchFilters } from '@shared/types/search.types';
+import { ProjectStatus } from '@shared/enums/project.enums';
 
 @Component({
   selector: 'profile-filter-panel',
@@ -121,25 +123,19 @@ export class FilterPanelComponent implements OnInit {
   }
 
   applyFilters(): void {
-    if (this.searchForm.invalid) {
-      return;
-    }
+    if (this.searchForm.invalid) return;
 
     const formValue = this.searchForm.value;
+    const statuses = this.getSelectedStatuses(formValue.status);
 
-    const toDateString = (date: Date | null): string | undefined =>
-      date ? date.toISOString().split('T')[0] : undefined;
-
-    const filters = {
+    const filters: ProjectSearchFilters = {
       search: formValue.searchQuery || undefined,
-      types:
-        formValue.projectTypes.length > 0 ? formValue.projectTypes : undefined,
-      tags: formValue.tags.length > 0 ? formValue.tags : undefined,
-      startDate: toDateString(formValue.dateRange.start),
-      endDate: toDateString(formValue.dateRange.end),
-      assigned: formValue.status.assigned || undefined,
-      inProgress: formValue.status.inProgress || undefined,
-      completed: formValue.status.completed || undefined,
+      types: formValue.projectTypes?.length
+        ? formValue.projectTypes
+        : undefined,
+      tags: formValue.tags?.length ? formValue.tags : undefined,
+      startDate: formValue.dateRange.start?.toISOString().split('T')[0],
+      endDate: formValue.dateRange.end?.toISOString().split('T')[0],
       progressMin:
         formValue.progressRange.min !== 0
           ? formValue.progressRange.min
@@ -155,14 +151,20 @@ export class FilterPanelComponent implements OnInit {
       fundingSource: formValue.research.fundingSource || undefined,
       registrationNumber: formValue.patent.registrationNumber || undefined,
       issuingAuthority: formValue.patent.issuingAuthority || undefined,
+      statuses: statuses.length ? statuses : undefined,
     };
 
     this.filtersApplied.emit(filters);
-    console.log('Applied filters:', filters);
-    this.projectService.searchProjects(filters).subscribe((projects) => {
-      console.log('Filtered projects:', projects);
-    });
   }
+
+  private getSelectedStatuses(statusGroup: any): ProjectStatus[] {
+    const statuses: ProjectStatus[] = [];
+    if (statusGroup.assigned) statuses.push(ProjectStatus.PENDING);
+    if (statusGroup.inProgress) statuses.push(ProjectStatus.IN_PROGRESS);
+    if (statusGroup.completed) statuses.push(ProjectStatus.COMPLETED);
+    return statuses;
+  }
+
   resetFilters(): void {
     this.searchForm.reset({
       searchQuery: '',

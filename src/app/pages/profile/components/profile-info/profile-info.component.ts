@@ -22,7 +22,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AsyncPipe } from '@angular/common';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { IUser } from '@models/user.model';
+import { IUser, UserType } from '@models/user.model';
 
 @Component({
   selector: 'profile-info',
@@ -58,9 +58,7 @@ export class ProfileInfoComponent implements OnInit {
 
   profileForm = new FormGroup({
     dateOfBirth: new FormControl<string | null>(null),
-    userType: new FormControl<
-      'student' | 'teacher' | 'researcher' | 'staff' | null
-    >(null),
+    userType: new FormControl<UserType | null>(null),
     universityGroup: new FormControl<string | null>(null),
     phoneNumber: new FormControl<string | null>(null, [
       Validators.pattern(/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/),

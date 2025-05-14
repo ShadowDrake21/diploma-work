@@ -3,7 +3,7 @@ import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { ProfileProjectsComponent } from '../../../../shared/components/profile-projects/profile-projects.component';
 import { PaginationService } from '@core/services/pagination.service';
 import { recentProjectContent } from '@content/recentProjects.content';
-import { usersContent } from '@content/users.content';
+// import { usersContent } from '@content/users.content';
 import { UserService } from '@core/services/user.service';
 import {
   BehaviorSubject,
@@ -38,7 +38,7 @@ export class TabsComponent implements OnInit, OnDestroy {
   userSig = input.required<IUser | undefined>({ alias: 'user' });
 
   userProjects = recentProjectContent;
-  users = usersContent;
+  users = [];
   pages: number[] = [];
 
   private projects$$ = new BehaviorSubject<ProjectDTO[]>([]);
