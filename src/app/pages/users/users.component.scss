@@ -5,6 +5,7 @@
     align-items: flex-start;
     gap: 20px;
     padding: 20px 0;
+    width: 100%;
 
     &-field {
       display: flex;
@@ -22,6 +23,21 @@
   }
 
   &__list {
-    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &__loader-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: opacity 0.2s ease-in-out;
   }
 }

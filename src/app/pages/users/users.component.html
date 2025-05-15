@@ -1,6 +1,6 @@
-<div class="users">
+<div class="users" style="height: 100%; position: relative">
   <div class="users__form">
-    <mat-form-field>
+    <mat-form-field class="users__form-field">
       <mat-label>Search users by name or email</mat-label>
       <input
         matInput
@@ -20,26 +20,27 @@
       }
     </mat-form-field>
   </div>
-  @if (searchQuery) {
-
-  <p class="users__paragraph">
-    Search results for: "<strong>{{ searchQuery }}</strong
-    >": {{ users.length }} of {{ totalElements }} users found
-  </p>
+  @if(isLoading) {
+  <div class="users__loader-wrapper">
+    <div class="loader"></div>
+  </div>
   } @else {
-  <p class="users__paragraph">All Users: {{ users.length }}</p>
-  } @if (users && users.length > 0) {
+  <p class="users__paragraph">
+    {{ displayMessage }}
+  </p>
+  @if (users.length > 0) {
   <div class="users__list">
-    @for (user of users; track user) {
+    @for (user of users; track user.id) {
     <shared-user-card [user]="user" />
     }
   </div>
 
   <mat-paginator
-    [length]="totalElements"
+    [length]="totalItems"
     [pageSize]="pageSize"
     [pageIndex]="currentPage"
-    (page)="onPageChange($event.pageIndex)"
+    [pageSizeOptions]="[5, 10, 20]"
+    (page)="onPageChange($event)"
     aria-label="Select page"
   ></mat-paginator>
   } @else {
@@ -47,5 +48,5 @@
     @if (searchQuery) { No users found for: <strong>{{ searchQuery }}</strong
     >} @else { No users found }
   </p>
-  }
+  }}
 </div>

@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
   imports: [MatButton, MatDividerModule],
   templateUrl: './user-card.component.html',
   styleUrl: './user-card.component.scss',
+  // host: { style: 'display: block; width: 275px; height: 325px;' },
 })
 export class UserCardComponent {
   private router = inject(Router);
