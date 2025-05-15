@@ -36,3 +36,8 @@ export type SignInFormValues = {
   password: string;
   rememberMe: boolean;
 };
+
+export type SignInErrorMessages = {
+  email: WritableSignal<string>;
+  password: WritableSignal<string>;
+};

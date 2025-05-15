@@ -1,7 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@core/authentication/auth.service';
+import { Subscription } from 'rxjs';
+
+const CODE_LENGTH = 6;
 
 @Component({
   selector: 'app-verification-code',
@@ -9,117 +12,124 @@ import { AuthService } from '@core/authentication/auth.service';
   templateUrl: './verification-code.component.html',
   styleUrl: './verification-code.component.scss',
 })
-export class VerificationCodeComponent implements OnInit {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private authService = inject(AuthService);
+export class VerificationCodeComponent implements OnInit, OnDestroy {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
 
-  inputValues: string[] = [];
-  verificationMessage: string = '';
-  email: string = '';
+  readonly inputValues = signal<string[]>(Array(CODE_LENGTH).fill(''));
+  readonly verificationMessage = signal<string>('');
+  readonly email = signal<string>('');
+
+  private subsctription!: Subscription;
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
-      this.email = params['email'] || '';
+      this.email.set(params['email'] || '');
     });
   }
 
-  goToNextInput(event: KeyboardEvent, index: number): void {
-    const key = event.key;
+  handleKeyUp(event: KeyboardEvent, index: number): void {
     const target = event.target as HTMLInputElement;
+    const key = event.key;
     const parent = target.parentElement;
 
     if (!parent) return;
 
-    if (key !== 'Tab' && key !== 'Backspace' && (key < '0' || key > '9')) {
+    if (!this.isValidKey(key)) {
       event.preventDefault();
       return;
     }
 
-    if (key === 'Tab') return;
-
-    this.inputValues[index] = target.value;
+    this.inputValues.update((values) => {
+      const newValues = [...values];
+      newValues[index] = target.value;
+      return newValues;
+    });
 
     if (key === 'Backspace' && target.value === '') {
-      const prevInput = this.findPrevInput(target, parent);
-      if (prevInput) {
-        prevInput.focus();
-        prevInput.select();
-      }
-    } else {
-      const nextInput = this.findNextInput(target, parent);
-      if (nextInput) {
-        nextInput.focus();
-        nextInput.select();
-      }
+      this.focusPreviousInput(target, parent);
+    } else if (key !== 'Backspace') {
+      this.focusNextInput(target, parent);
     }
   }
 
-  onKeyDown(event: KeyboardEvent): void {
-    const key = event.key;
-
-    if (key === 'Tab' || key === 'Backspace' || (key >= '0' && key <= '9'))
-      return;
-
-    event.preventDefault();
-  }
-
-  onFocus(event: FocusEvent): void {
-    const target = event.target as HTMLInputElement;
-    target.select();
-  }
-
-  private findNextInput(
-    currentInput: HTMLInputElement,
-    parent: HTMLElement
-  ): HTMLInputElement | null {
-    const inputs = Array.from(parent.querySelectorAll('input'));
-    const currentIndex = inputs.indexOf(currentInput);
-
-    if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
-      return inputs[currentIndex + 1] as HTMLInputElement;
+  handleKeyDown(event: KeyboardEvent): void {
+    if (!this.isValidKey(event.key)) {
+      event.preventDefault();
     }
-
-    return null;
   }
 
-  private findPrevInput(
-    currentInput: HTMLInputElement,
-    parent: HTMLElement
-  ): HTMLInputElement | null {
-    const inputs = Array.from(parent.querySelectorAll('input'));
-    const currentIndex = inputs.indexOf(currentInput);
-
-    if (currentIndex > 0) {
-      return inputs[currentIndex - 1] as HTMLInputElement;
-    }
-
-    return null;
+  handleFocus(event: FocusEvent): void {
+    (event.target as HTMLInputElement).select();
   }
 
-  private getVerificationCode(): string {
-    return this.inputValues.join('');
+  getVerificationCode(): string {
+    return this.inputValues().join('');
   }
 
   public onSubmit() {
     const code = this.getVerificationCode();
 
-    if (code.length !== 6) {
-      this.verificationMessage = 'Please enter a valid 6-digit code';
+    if (code.length !== CODE_LENGTH) {
+      this.verificationMessage.set('Please enter a valid 6-digit code');
       return;
     }
 
-    this.authService.verifyUser({ email: this.email, code }).subscribe({
-      next: (response) => {
-        console.log(response);
-        this.verificationMessage = 'Verification successful';
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        console.error('Verification failed', error);
-        this.verificationMessage =
-          'Invalid verification code. Please try again';
-      },
-    });
+    this.subsctription = this.authService
+      .verifyUser({ email: this.email(), code })
+      .subscribe({
+        next: (response) => {
+          console.log(response);
+          this.verificationMessage.set('Verification successful');
+          this.router.navigate(['/']);
+        },
+        error: (error) => {
+          console.error('Verification failed', error);
+          this.verificationMessage.set(
+            'Invalid verification code. Please try again'
+          );
+        },
+      });
+  }
+
+  private isValidKey(key: string): boolean {
+    return key === 'Tab' || key === 'Backspace' || (key >= '0' && key <= '9');
+  }
+
+  private focusNextInput(
+    currentInput: HTMLInputElement,
+    parent: HTMLElement
+  ): void {
+    const inputs = this.getInputElements(parent);
+    const currentIndex = inputs.indexOf(currentInput);
+
+    if (currentIndex < inputs.length - 1) {
+      inputs[currentIndex + 1].focus();
+      inputs[currentIndex + 1].select();
+    }
+  }
+
+  private focusPreviousInput(
+    currentInput: HTMLInputElement,
+    parent: HTMLElement
+  ): void {
+    const inputs = this.getInputElements(parent);
+    const currentIndex = inputs.indexOf(currentInput);
+
+    if (currentIndex > 0) {
+      inputs[currentIndex - 1].focus();
+      inputs[currentIndex - 1].select();
+    }
+  }
+
+  private getInputElements(parent: HTMLElement): HTMLInputElement[] {
+    return Array.from(parent.querySelectorAll('input'));
+  }
+
+  ngOnDestroy(): void {
+    if (this.subsctription) {
+      this.subsctription.unsubscribe();
+    }
   }
 }

@@ -16,11 +16,12 @@ import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { AuthService } from '@core/authentication/auth.service';
+import {
+  SignInErrorMessages,
+  SignInForm,
+  SignInFormValues,
+} from '@shared/types/forms/auth-form.types';
 
-type SignInForm = {
-  email: string;
-  password: string;
-};
 @Component({
   selector: 'auth-sign-in',
   imports: [
@@ -43,52 +44,61 @@ export class SignInComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  protected signInForm = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required]),
-    rememberMe: new FormControl(false),
+  protected signInForm = new FormGroup<SignInForm>({
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    rememberMe: new FormControl(false, { nonNullable: true }),
   });
 
-  errorMessages = {
+  readonly isPasswordHidden = signal(true);
+
+  readonly errorMessages = {
     email: signal<string>(''),
     password: signal<string>(''),
   };
 
   ngOnInit(): void {
+    this.setupFormValidation();
+  }
+
+  private setupFormValidation() {
     Object.entries(this.signInForm.controls).forEach(([key, control]) => {
       if (key !== 'rememberMe') {
         control.statusChanges
           .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => this.updateErrorMessage(key as keyof SignInForm));
+          .subscribe(() =>
+            this.updateErrorMessage(key as keyof SignInErrorMessages)
+          );
       }
     });
   }
 
-  hide = signal(true);
-
-  clickEvent(event: MouseEvent) {
-    this.hide.set(!this.hide());
+  togglePasswordVisibility(event: MouseEvent) {
+    this.isPasswordHidden.update((prev) => !prev);
     event.stopPropagation();
   }
 
-  onSignIn() {
-    const { email, password } = this.signInForm.value;
+  onSubmit() {
+    if (this.signInForm.invalid) return;
 
-    if (!email || !password) return;
+    const { email, password } = this.signInForm.value as SignInFormValues;
 
     this.authService.login({ email, password }).subscribe({
-      next: (token) => {
-        console.log('Logged in', token);
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        console.error('Incorrect login or password', error);
-      },
+      next: (token) => this.router.navigate(['/']),
+      error: (error) => console.error('Login failed', error),
     });
   }
 
-  updateErrorMessage(key: keyof SignInForm) {
-    const control = this.signInForm.controls[key];
-    this.errorMessages[key].set(getValidationErrorMessage(control, key));
+  private updateErrorMessage(key: keyof SignInErrorMessages): void {
+    const control = this.signInForm.get(key) as FormControl;
+    if (control) {
+      this.errorMessages[key].set(getValidationErrorMessage(control, key));
+    }
   }
 }
