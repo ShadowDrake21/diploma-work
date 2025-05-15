@@ -4,7 +4,7 @@ import { MatListModule } from '@angular/material/list';
 import { UserService } from '@core/services/user.service';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { IUser } from '@shared/models/user.model';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'user-collaborators',
@@ -23,8 +23,8 @@ export class UserCollaboratorsComponent implements OnInit {
     if (!this.userIdSig()) {
       throw new Error('User ID is required');
     }
-    this.collaborators$ = this.userService.getUserCollaborators(
-      this.userIdSig()
-    );
+    this.collaborators$ = this.userService
+      .getUserCollaborators(this.userIdSig())
+      .pipe(map((response) => response.data));
   }
 }

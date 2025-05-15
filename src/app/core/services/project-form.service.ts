@@ -5,7 +5,7 @@ import {
   UpdateProjectRequest,
 } from '@models/project.model';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { finalize, Observable } from 'rxjs';
+import { finalize, map, Observable } from 'rxjs';
 import { ProjectDataService } from './project-data.service';
 import { UserService } from './user.service';
 import { PublicationDTO } from '@models/publication.model';
@@ -29,16 +29,19 @@ export class ProjectFormService extends ProjectFormCoreService {
   constructor() {
     super();
     this.subscriptions.push(
-      this.userService.getCurrentUser().subscribe({
-        next: (user) => {
-          if (user.id) {
-            this.creatorId = +user.id;
-          }
-        },
-        error: (err) => {
-          console.error('Failed to get current user', err);
-        },
-      })
+      this.userService
+        .getCurrentUser()
+        .pipe(map((result) => result.data))
+        .subscribe({
+          next: (user) => {
+            if (user.id) {
+              this.creatorId = +user.id;
+            }
+          },
+          error: (err) => {
+            console.error('Failed to get current user', err);
+          },
+        })
     );
   }
 

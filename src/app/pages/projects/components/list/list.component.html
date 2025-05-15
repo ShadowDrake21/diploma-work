@@ -1,5 +1,8 @@
 <div class="list">
-  <profile-filter-panel (filtersApplied)="onFiltering($event)" />
+  <profile-filter-panel
+    (filtersApplied)="onFiltering($event)"
+    (filtersReset)="onFiltersReset()"
+  />
   <div class="list__projects">
     @for (project of projects; track $index) {
     <shared-project-card [project]="project" />

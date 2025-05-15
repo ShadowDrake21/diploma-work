@@ -128,14 +128,22 @@ export class FilterPanelComponent implements OnInit {
     const formValue = this.searchForm.value;
     const statuses = this.getSelectedStatuses(formValue.status);
 
+    let startDate = formValue.dateRange.start;
+    let endDate = formValue.dateRange.end;
+
+    if (endDate) {
+      endDate = new Date(endDate);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
     const filters: ProjectSearchFilters = {
       search: formValue.searchQuery || undefined,
       types: formValue.projectTypes?.length
         ? formValue.projectTypes
         : undefined,
       tags: formValue.tags?.length ? formValue.tags : undefined,
-      startDate: formValue.dateRange.start?.toISOString().split('T')[0],
-      endDate: formValue.dateRange.end?.toISOString().split('T')[0],
+      startDate: startDate?.toISOString().split('T')[0],
+      endDate: endDate?.toISOString().split('T')[0],
       progressMin:
         formValue.progressRange.min !== 0
           ? formValue.progressRange.min
@@ -194,6 +202,8 @@ export class FilterPanelComponent implements OnInit {
         issuingAuthority: '',
       },
     });
+
+    this.filtersReset.emit();
   }
 
   formatProgressLabel(value: number): string {

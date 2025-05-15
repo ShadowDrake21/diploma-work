@@ -13,6 +13,7 @@ import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ProjectService } from './project.service';
 import { ProjectDTO } from '@models/project.model';
+import { ApiResponse } from '@models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,77 +34,100 @@ export class UserService {
     );
   }
 
-  public getAllUsers(): Observable<IUser[]> {
-    return this.http.get<IUser[]>(`${this.apiUrl}/list`, getAuthHeaders());
+  public getAllUsers(): Observable<ApiResponse<IUser[]>> {
+    return this.http.get<ApiResponse<IUser[]>>(
+      `${this.apiUrl}/list`,
+      getAuthHeaders()
+    );
   }
 
-  public createUser(user: ICreateUser): Observable<IAuthorizedUser> {
-    return this.http.post<IAuthorizedUser>(this.apiUrl, user, getAuthHeaders());
+  public createUser(
+    user: ICreateUser
+  ): Observable<ApiResponse<IAuthorizedUser>> {
+    return this.http.post<ApiResponse<IAuthorizedUser>>(
+      this.apiUrl,
+      user,
+      getAuthHeaders()
+    );
   }
 
-  public getUserById(id: number): Observable<IAuthorizedUser> {
-    return this.http.get<IAuthorizedUser>(
+  public getUserById(id: number): Observable<ApiResponse<IAuthorizedUser>> {
+    return this.http.get<ApiResponse<IAuthorizedUser>>(
       `${this.apiUrl}/${id}`,
       getAuthHeaders()
     );
   }
 
-  public getFullUserById(id: number): Observable<IUser> {
-    return this.http.get<IUser>(`${this.apiUrl}/${id}/info`, getAuthHeaders());
+  public getFullUserById(id: number): Observable<ApiResponse<IUser>> {
+    return this.http.get<ApiResponse<IUser>>(
+      `${this.apiUrl}/${id}/info`,
+      getAuthHeaders()
+    );
   }
 
-  public getUserByEmail(email: string): Observable<IAuthorizedUser> {
-    return this.http.get<IAuthorizedUser>(
+  public getUserByEmail(
+    email: string
+  ): Observable<ApiResponse<IAuthorizedUser>> {
+    return this.http.get<ApiResponse<IAuthorizedUser>>(
       `${this.apiUrl}/email/${email}`,
       getAuthHeaders()
     );
   }
 
-  public getUsersByRole(role: string): Observable<IAuthorizedUser[]> {
-    return this.http.get<IAuthorizedUser[]>(
+  public getUsersByRole(
+    role: string
+  ): Observable<ApiResponse<IAuthorizedUser[]>> {
+    return this.http.get<ApiResponse<IAuthorizedUser[]>>(
       `${this.apiUrl}/role/${role}`,
       getAuthHeaders()
     );
   }
 
-  public userExistsByEmail(email: string): Observable<boolean> {
-    return this.http.get<boolean>(
+  public userExistsByEmail(email: string): Observable<ApiResponse<boolean>> {
+    return this.http.get<ApiResponse<boolean>>(
       `${this.apiUrl}/exists/${email}`,
       getAuthHeaders()
     );
   }
 
-  public getCurrentUser(): Observable<IUser> {
-    return this.http.get<IUser>(`${this.apiUrl}/me`, getAuthHeaders());
+  public getCurrentUser(): Observable<ApiResponse<IUser>> {
+    return this.http.get<ApiResponse<IUser>>(
+      `${this.apiUrl}/me`,
+      getAuthHeaders()
+    );
   }
 
-  public updateUserProfile(profileData: IUpdateUserProfile): Observable<IUser> {
-    return this.http.patch<IUser>(
+  public updateUserProfile(
+    profileData: IUpdateUserProfile
+  ): Observable<ApiResponse<IUser>> {
+    return this.http.patch<ApiResponse<IUser>>(
       `${this.apiUrl}/me/profile`,
       profileData,
       getAuthHeaders()
     );
   }
 
-  public updateUserAvatar(file: File): Observable<IUser> {
+  public updateUserAvatar(file: File): Observable<ApiResponse<IUser>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<IUser>(
+    return this.http.post<ApiResponse<IUser>>(
       `${this.apiUrl}/me/avatar`,
       formData,
       getAuthHeaders()
     );
   }
 
-  public getUserProjects(userId: number): Observable<ProjectDTO[]> {
-    return this.http.get<ProjectDTO[]>(
+  public getUserProjects(
+    userId: number
+  ): Observable<ApiResponse<ProjectDTO[]>> {
+    return this.http.get<ApiResponse<ProjectDTO[]>>(
       `${this.apiUrl}/${userId}/projects`,
       getAuthHeaders()
     );
   }
 
-  public getCurrentUserProjects(): Observable<ProjectDTO[]> {
-    return this.http.get<ProjectDTO[]>(
+  public getCurrentUserProjects(): Observable<ApiResponse<ProjectDTO[]>> {
+    return this.http.get<ApiResponse<ProjectDTO[]>>(
       `${this.apiUrl}/me/projects`,
       getAuthHeaders()
     );
@@ -125,7 +149,7 @@ export class UserService {
     return this.getUserProjects(userId).pipe(
       switchMap((projects) => {
         return forkJoin(
-          projects.map((project) => {
+          projects.data.map((project) => {
             if (project.type === ProjectType.PUBLICATION) {
               return this.projectService
                 .getPublicationByProjectId(project.id)
@@ -151,15 +175,20 @@ export class UserService {
     );
   }
 
-  public getUserCollaborators(userId: number): Observable<IUser[]> {
-    return this.http.get<IUser[]>(
+  public getUserCollaborators(
+    userId: number
+  ): Observable<ApiResponse<IUser[]>> {
+    return this.http.get<ApiResponse<IUser[]>>(
       `${this.apiUrl}/${userId}/collaborators`,
       getAuthHeaders()
     );
   }
 
   // Delete User by ID
-  public deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders());
+  public deleteUser(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${this.apiUrl}/${id}`,
+      getAuthHeaders()
+    );
   }
 }

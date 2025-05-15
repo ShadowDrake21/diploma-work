@@ -22,12 +22,6 @@ export class ProjectService {
   private http = inject(HttpClient);
   private apiUrl = BASE_URL + 'projects';
 
-  private get headers(): HttpHeaders {
-    return new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-    });
-  }
-
   getAllProjects(): Observable<ApiResponse<ProjectDTO[]>>;
 
   getAllProjects(
@@ -62,9 +56,10 @@ export class ProjectService {
   }
 
   getPublicationByProjectId(projectId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${projectId}/publication`, {
-      headers: this.headers,
-    });
+    return this.http.get(
+      `${this.apiUrl}/${projectId}/publication`,
+      getAuthHeaders()
+    );
   }
 
   getPatentByProjectId(projectId: string): Observable<any> {
@@ -83,9 +78,10 @@ export class ProjectService {
   }
 
   getResearchByProjectId(projectId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${projectId}/research`, {
-      headers: this.headers,
-    });
+    return this.http.get(
+      `${this.apiUrl}/${projectId}/research`,
+      getAuthHeaders()
+    );
   }
 
   createProject(

@@ -52,6 +52,11 @@ export class ListProjectsComponent implements OnInit {
       });
   }
 
+  onFiltersReset(): void {
+    this.currentPage = 0;
+    this.loadProjects();
+  }
+
   paginationUsage() {
     this.paginationService.currentPage = 1;
     this.paginationService.elements = this.projects;
