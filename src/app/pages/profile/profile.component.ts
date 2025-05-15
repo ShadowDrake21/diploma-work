@@ -18,7 +18,7 @@ import { ProfileInfoComponent } from './components/profile-info/profile-info.com
 import { IProfileInfo } from '@shared/types/profile.types';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/user.service';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { ProjectDTO } from '@models/project.model';
 
@@ -66,6 +66,8 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.headerService.setTitle(`User ${this.profile.username}`);
-    this.myProjects$ = this.userService.getCurrentUserProjects();
+    this.myProjects$ = this.userService
+      .getCurrentUserProjects()
+      .pipe(map((response) => response.data));
   }
 }

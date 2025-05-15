@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Filter } from '@shared/types/filters.types';
 import { statuses } from '@content/createProject.content';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
@@ -50,7 +50,9 @@ export class ProjectResearchFormComponent
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   ngOnInit(): void {
-    this.allUsers$ = this.userService.getAllUsers();
+    this.allUsers$ = this.userService
+      .getAllUsers()
+      .pipe(map((response) => response.data));
 
     console.log('researchProjectsForm', this.researchProjectsForm());
   }

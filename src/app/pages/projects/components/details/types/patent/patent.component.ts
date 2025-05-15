@@ -52,9 +52,7 @@ export class PatentComponent implements OnInit, OnDestroy {
         this.coInventors$ = forkJoin(
           coInventorIds.map((coInventorId: number) =>
             this.userService.getUserById(coInventorId).pipe(
-              tap((coInventor) => {
-                console.log('Co-inventor:', coInventor);
-              }),
+              map((response) => response.data),
               catchError((error) => {
                 console.error('Error fetching co-inventor:', error);
                 return of(null);

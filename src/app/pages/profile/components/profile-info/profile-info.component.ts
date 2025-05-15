@@ -17,7 +17,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { IProfileInfo } from '@shared/types/profile.types';
 import { UserService } from '@core/services/user.service';
-import { Observable, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AsyncPipe } from '@angular/common';
@@ -69,6 +69,7 @@ export class ProfileInfoComponent implements OnInit {
 
   ngOnInit(): void {
     this.user$ = this.userService.getCurrentUser().pipe(
+      map((user) => user.data),
       tap((user) => {
         this.profileForm.patchValue({
           dateOfBirth: user.dateOfBirth || null,
@@ -109,6 +110,7 @@ export class ProfileInfoComponent implements OnInit {
         userType: formValue.userType || undefined,
         universityGroup: formValue.universityGroup || undefined,
       })
+      .pipe(map((response) => response.data))
       .subscribe({
         next: (user) => {
           this._snackBar.open('Profile updated successfully.', 'Close', {
@@ -123,7 +125,9 @@ export class ProfileInfoComponent implements OnInit {
             universityGroup: user.universityGroup || null,
             phoneNumber: user.phoneNumber || null,
           });
-          this.user$ = this.userService.getCurrentUser();
+          this.user$ = this.userService
+            .getCurrentUser()
+            .pipe(map((user) => user.data));
         },
         error: (err) => {
           console.log('Failed to update profile', err);
@@ -175,7 +179,9 @@ export class ProfileInfoComponent implements OnInit {
       next: (response) => {
         console.log('Avatar updated successfully', response);
         this.selectedImagePreview = null;
-        this.user$ = this.userService.getCurrentUser();
+        this.user$ = this.userService
+          .getCurrentUser()
+          .pipe(map((user) => user.data));
       },
       error: (error) => {
         console.error('Avatar upload failed', error);

@@ -60,7 +60,9 @@ public class ProjectService {
 	 * @return List of all projects ordered by creation date (newest first)
 	 */
 	public Page<Project> findAllProjects(Pageable pageable) {
-		return projectRepository.findAll(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by(Sort.Direction.DESC, "createdAt")));
+		return projectRepository.findAll(PageRequest.of(pageable.getPageNumber(),
+				pageable.getPageSize(),
+				Sort.by(Sort.Direction.DESC, "createdAt")));
 	}
 	
 	public List<Project> findAllProjects() {
@@ -88,7 +90,7 @@ public class ProjectService {
 	 */
 	public Page<Project> searchProjects(ProjectSearchCriteria criteria, Pageable pageable) {
 		Specification<Project> spec = specificationService.buildSpecification(criteria);
-		return projectRepository.findAll(spec, pageable);
+		return projectRepository.findAll(spec, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt")));
 	}
 
 	/**

@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
 import {
   BaseFormInputs,
@@ -45,7 +45,9 @@ export class ProjectPublicationFormComponent
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   ngOnInit(): void {
-    this.allUsers$ = this.userService.getAllUsers();
+    this.allUsers$ = this.userService
+      .getAllUsers()
+      .pipe(map((response) => response.data));
   }
 
   compareAuthors = (id1: string, id2: string) => this.compareIds(id1, id2);

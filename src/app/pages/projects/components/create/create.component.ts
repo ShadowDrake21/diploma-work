@@ -19,7 +19,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { types } from '@content/createProject.content';
 import { UserService } from '@core/services/user.service';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectSharedService } from '@core/services/project-shared.service';
 import { IUser } from '@shared/models/user.model';
@@ -85,9 +85,12 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     this.projectId = this.route.snapshot.queryParamMap.get('id');
 
     this.subscriptions.push(
-      this.userService.getCurrentUser().subscribe((user: IUser) => {
-        this.creatorId = +user.id;
-      })
+      this.userService
+        .getCurrentUser()
+        .pipe(map((result) => result.data))
+        .subscribe((user: IUser) => {
+          this.creatorId = +user.id;
+        })
     );
 
     if (this.projectId) {

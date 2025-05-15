@@ -49,7 +49,7 @@ export class UserComponent implements OnInit {
     });
 
     this.userService.getFullUserById(+this.userId!).subscribe((user) => {
-      this.user = user;
+      this.user = user.data;
       this.headerService.setTitle('User: ' + this.user?.username);
       this.loadUserProjects();
     });
@@ -147,7 +147,7 @@ export class UserComponent implements OnInit {
       )
       .subscribe((user) => {
         if (user) {
-          this.user = user;
+          this.user = user.data;
           this.headerService.setTitle('User: ' + this.user?.username);
           this.loadUserProjects();
         }
@@ -164,7 +164,11 @@ export class UserComponent implements OnInit {
         })
       )
       .subscribe((projects) => {
-        this.userProjects = projects;
+        if (Array.isArray(projects) && projects.length) {
+          this.userProjects = projects;
+        } else {
+          this.userProjects = [];
+        }
         this.isLoading = false;
         this.paginationUsage();
       });
