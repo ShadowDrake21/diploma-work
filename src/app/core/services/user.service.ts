@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ProjectType } from '@shared/enums/categories.enum';
@@ -26,10 +26,10 @@ export class UserService {
   public getPaginatedUsers(
     page: number = 0,
     size: number = 10,
-    sortBy: string = 'id'
+    sort: string = 'createdAt,desc'
   ): Observable<PageResponse<IUser>> {
     return this.http.get<PageResponse<IUser>>(
-      `${this.apiUrl}?page=${page}&size=${size}&sortBy=${sortBy}`,
+      `${this.apiUrl}?page=${page}&size=${size}&sort=${sort}`,
       getAuthHeaders()
     );
   }
@@ -137,10 +137,10 @@ export class UserService {
     query: string,
     page: number = 0,
     size: number = 10,
-    sortBy: string = 'id'
+    sort = 'createdAt,desc'
   ): Observable<PageResponse<IUser>> {
     return this.http.get<PageResponse<IUser>>(
-      `${this.apiUrl}/search?query=${query}&page=${page}&size=${size}&sortBy=${sortBy}`,
+      `${this.apiUrl}/search?query=${query}&page=${page}&size=${size}&sort=${sort}`,
       getAuthHeaders()
     );
   }

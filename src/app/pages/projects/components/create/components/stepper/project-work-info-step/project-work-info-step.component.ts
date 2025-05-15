@@ -8,7 +8,6 @@ import {
   PublicationFormGroup,
   ResearchFormGroup,
 } from '@shared/types/project-form.types';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'create-project-work-info-step',
@@ -16,7 +15,6 @@ import { JsonPipe } from '@angular/common';
     ProjectPublicationFormComponent,
     ProjectPatentFormComponent,
     ProjectResearchFormComponent,
-    JsonPipe,
   ],
   templateUrl: './project-work-info-step.component.html',
   styleUrl: './project-work-info-step.component.scss',

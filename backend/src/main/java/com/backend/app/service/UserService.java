@@ -166,7 +166,10 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public Page<UserDTO> searchUsers(String query, Pageable pageable) {
-		return userRepository.searchUsers(query, pageable).map(userMapper::mapToDTO);
+		if(query == null || query.trim().isEmpty()) {
+			return userRepository.findAll(pageable).map(userMapper::mapToDTO);
+		}
+		return userRepository.searchUsers(query.trim(), pageable).map(userMapper::mapToDTO);
 	}
 
 	@Transactional
