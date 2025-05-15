@@ -4,27 +4,33 @@
       Введіть код, який ми відправили на Вашу пошту
     </h3>
     <div class="verification-code__inputs">
-      @for (_ of [0,1,2,3,4,5]; track $index) {
+      @for (_ of inputValues(); track $index) {
       <input
         class="verification-code__inputs-item"
         type="text"
         maxlength="1"
-        (keydown)="onKeyDown($event)"
-        (keyup)="goToNextInput($event, $index)"
-        (focus)="onFocus($event)"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        (keydown)="handleKeyDown($event)"
+        (keyup)="handleKeyUp($event, $index)"
+        (focus)="handleFocus($event)"
+        [value]="inputValues()[$index]"
       />
       }
     </div>
     <shared-custom-button
-      type="submit"
-      [disabled]="inputValues.length !== 6"
+      type="button"
+      [disabled]="getVerificationCode().length !== 6"
       (onPress)="onSubmit()"
       >Відправити</shared-custom-button
     >
   </div>
-  @if(verificationMessage) {
-  <div class="error-message">
-    {{ verificationMessage }}
+  @if(verificationMessage()) {
+  <div
+    class="verification-code__message"
+    [class.error]="verificationMessage().includes('Invalid')"
+  >
+    {{ verificationMessage() }}
   </div>
   }
 </div>
