@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { BaseFormInputs } from '@shared/types/project-form.types';
+import { BaseFormInputs } from '@shared/types/forms/project-form.types';
 
 @Pipe({
   name: 'authorName',

@@ -14,13 +14,12 @@ import { matchValidator } from '../../validators/match.validator';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { AuthService } from '@core/authentication/auth.service';
+import { UserRole } from '@models/user.model';
+import {
+  SignUpErrorMessages,
+  SignUpForm,
+} from '@shared/types/forms/auth-form.types';
 
-type SignUpForm = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
 @Component({
   selector: 'auth-sign-up',
   imports: [
@@ -35,75 +34,94 @@ type SignUpForm = {
   styleUrl: './sign-up.component.scss',
 })
 export class SignUpComponent implements OnInit {
-  destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
-  private router = inject(Router);
-  private authService = inject(AuthService);
-
-  protected signUpForm = new FormGroup(
+  protected signUpForm = new FormGroup<SignUpForm>(
     {
-      name: new FormControl('', [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(30),
-      ]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(30),
-      ]),
-      confirmPassword: new FormControl('', [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(30),
-      ]),
-      role: new FormControl<'USER' | 'ADMIN'>('USER', Validators.required),
+      name: new FormControl('', {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(30),
+        ],
+      }),
+      email: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.email],
+      }),
+      password: new FormControl('', {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(30),
+        ],
+      }),
+      confirmPassword: new FormControl('', {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(30),
+        ],
+      }),
+      role: new FormControl<UserRole>(UserRole.USER, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
     },
     {
       validators: matchValidator('password', 'confirmPassword'),
     }
   );
 
-  // VERIFICATION CODE CHECK
-  onSignUp() {
-    const { name, email, password, role } = this.signUpForm.value;
-
-    if (!name || !email || !password || !role) return;
-
-    this.authService
-      .register({ username: name, email, password, role })
-      .subscribe({
-        next: (response) => {
-          console.log(response);
-          this.router.navigate(['/authentication/verification-code'], {
-            queryParams: { email },
-          });
-        },
-        error: (error) => {
-          console.error('Registration failed', error);
-        },
-      });
-    this.router.navigate(['/authentication/verification-code']);
-  }
-
-  ngOnInit(): void {
-    Object.entries(this.signUpForm.controls).forEach(([key, control]) => {
-      control.statusChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.updateErrorMessage(key as keyof SignUpForm));
-    });
-  }
-
-  errorMessages = {
+  readonly errorMessages: SignUpErrorMessages = {
     name: signal<string>(''),
     email: signal<string>(''),
     password: signal<string>(''),
     confirmPassword: signal<string>(''),
   };
 
-  updateErrorMessage(key: keyof SignUpForm) {
-    const control = this.signUpForm.controls[key];
+  ngOnInit(): void {
+    this.setupFormValidation();
+  }
+
+  private setupFormValidation(): void {
+    (
+      Object.keys(this.errorMessages) as Array<keyof SignUpErrorMessages>
+    ).forEach((key) => {
+      const control = this.signUpForm.get(key) as FormControl;
+      control.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.updateErrorMessage(key));
+    });
+  }
+
+  private updateErrorMessage(key: keyof SignUpErrorMessages): void {
+    const control = this.signUpForm.get(key) as FormControl;
     this.errorMessages[key].set(getValidationErrorMessage(control, key));
+  }
+
+  onSignUp() {
+    if (this.signUpForm.invalid) return;
+
+    const { name, email, password, role } = this.signUpForm.getRawValue();
+
+    this.authService
+      .register({ username: name, email, password, role })
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/authentication/verification-code'], {
+            queryParams: { email },
+            replaceUrl: true,
+          });
+        },
+        error: (error) => {
+          console.error('Registration failed', error);
+        },
+      });
   }
 }

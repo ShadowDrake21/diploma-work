@@ -16,7 +16,7 @@ import {
   PublicationForm,
   ResearchForm,
   TypeForm,
-} from '@shared/types/project-form.types';
+} from '@shared/types/forms/project-form.types';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({

@@ -26,7 +26,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ActivatedRoute } from '@angular/router';
 import { FileHandlerService } from '@core/services/file-handler.service';
-import { GeneralInformationForm } from '@shared/types/project-form.types';
+import { GeneralInformationForm } from '@shared/types/forms/project-form.types';
 import { FileUploadListComponent } from './components/file-upload-list/file-upload-list.component';
 
 @Component({
