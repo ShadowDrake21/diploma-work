@@ -15,7 +15,7 @@ import { BaseFormComponent } from '@shared/abstract/base-form/base-form.componen
 import {
   BaseFormInputs,
   ResearchFormGroup,
-} from '@shared/types/project-form.types';
+} from '@shared/types/forms/project-form.types';
 import { UserService } from '@core/services/user.service';
 
 @Component({

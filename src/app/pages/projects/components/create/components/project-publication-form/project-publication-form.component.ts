@@ -13,7 +13,7 @@ import { BaseFormComponent } from '@shared/abstract/base-form/base-form.componen
 import {
   BaseFormInputs,
   PublicationFormGroup,
-} from '@shared/types/project-form.types';
+} from '@shared/types/forms/project-form.types';
 import { UserService } from '@core/services/user.service';
 import { AuthorNamePipe } from '@pipes/author-name.pipe';
 

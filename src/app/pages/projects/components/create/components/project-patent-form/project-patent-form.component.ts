@@ -14,7 +14,7 @@ import { BaseFormComponent } from '@shared/abstract/base-form/base-form.componen
 import {
   BaseFormInputs,
   PatentFormGroup,
-} from '@shared/types/project-form.types';
+} from '@shared/types/forms/project-form.types';
 
 @Component({
   selector: 'create-project-patent-form',

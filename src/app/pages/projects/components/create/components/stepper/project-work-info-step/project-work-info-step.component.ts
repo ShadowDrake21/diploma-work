@@ -7,7 +7,7 @@ import {
   PatentFormGroup,
   PublicationFormGroup,
   ResearchFormGroup,
-} from '@shared/types/project-form.types';
+} from '@shared/types/forms/project-form.types';
 
 @Component({
   selector: 'create-project-work-info-step',

@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 import {
   BaseFormInputs,
   ProjectFormGroup,
-} from '@shared/types/project-form.types';
+} from '@shared/types/forms/project-form.types';
 
 @Component({
   template: '',
