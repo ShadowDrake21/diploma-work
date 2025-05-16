@@ -1,9 +1,9 @@
 <div class="profile">
   <div class="profile__inner">
     <profile-info />
-    <!-- <shared-profile-projects
-      [projects]="myProjects"
-    /> -->
+    @if(myProjects()){
+    <shared-profile-projects [projects]="myProjects()!" />
+    }
     <shared-frequent-links />
   </div>
 </div>
