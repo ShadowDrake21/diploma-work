@@ -52,7 +52,7 @@ public class PasswordResetService {
 		}
 		
 		updateUserPasswordAndClearToken(user, newPassword);
-		return false;
+		return true;
 	}
 	
 	private String generateResetToken() {

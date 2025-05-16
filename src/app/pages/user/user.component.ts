@@ -1,11 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { IUser } from '@shared/models/user.model';
 import { HeaderService } from '@core/services/header.service';
-import { PaginationService } from '@core/services/pagination.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TabsComponent } from './components/user-tabs/user-tabs.component';
@@ -14,73 +13,65 @@ import { MatChipsModule } from '@angular/material/chips';
 import { UserService } from '@core/services/user.service';
 import { ProjectService } from '@core/services/project.service';
 import { catchError, of } from 'rxjs';
+import { ProjectDTO } from '@models/project.model';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
-  selector: 'app-user',
+  selector: 'app-user-profile',
   imports: [
     MetricCardItemComponent,
     MatTabsModule,
     TabsComponent,
     MatButtonModule,
     MatChipsModule,
+    MatPaginatorModule,
   ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss',
-  providers: [provideNativeDateAdapter(), PaginationService],
+  providers: [provideNativeDateAdapter()],
 })
-export class UserComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private headerService = inject(HeaderService);
-  private userService = inject(UserService);
-  private projectService = inject(ProjectService);
-  paginationService = inject(PaginationService);
+export class UserProfileComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly headerService = inject(HeaderService);
+  private readonly userService = inject(UserService);
 
-  userId: number | null = null;
-  user: IUser | undefined = undefined;
-  users = [];
-  pages: number[] = [];
-  userProjects: any[] = [];
-  isLoading = true;
-  error: string | null = null;
+  userId = signal<number | null>(null);
+  user = signal<IUser | null>(null);
+  userProjects = signal<ProjectDTO[]>([]);
+  isLoading = signal(true);
+  error = signal<string | null>(null);
+
+  pageSize = signal(5);
+  currentPage = signal(0);
+  pageSizeOptions = signal([5, 10, 20]);
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
-      this.userId = params['id'];
+      this.userId.set(+params['id']);
+      this.loadUserData();
     });
-
-    this.userService.getFullUserById(+this.userId!).subscribe((user) => {
-      this.user = user.data;
-      this.headerService.setTitle('User: ' + this.user?.username);
-      this.loadUserProjects();
-    });
-    this.paginationUsage();
-  }
-
-  getUserById() {
-    if (!this.userId) return;
-
-    // this.user = usersContent.find((user) => user.id === this.userId);
   }
 
   userMetrics() {
-    if (!this.user) return [];
+    const user = this.user();
+    if (!user) return [];
 
     const metrics: DashboardMetricCardItem[] = [
       {
         title: 'Publications',
-        value: this.user.publicationCount + '',
+        value: user.publicationCount.toString(),
         link: '',
         icon: 'description',
       },
       {
         title: 'Patents',
-        value: this.user?.patentCount + '',
+        value: user.patentCount.toString(),
         link: '',
         icon: 'gavel',
       },
       {
         title: 'Research Projects',
-        value: this.user?.researchCount + '',
+        value: user.researchCount.toString(),
         link: '',
         icon: 'science',
       },
@@ -88,89 +79,51 @@ export class UserComponent implements OnInit {
     return metrics;
   }
 
-  paginationUsage() {
-    this.paginationService.currentPage = 1;
-    this.paginationService.elements = this.userProjects;
-    this.paginationService.itemsPerPage = 5;
-    this.paginationService.updateVisibleElements();
-
-    this.pages = Array.from(
-      { length: this.paginationService.numPages() },
-      (_, i) => i + 1
-    );
+  onPageChange(event: PageEvent): void {
+    this.currentPage.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
-  tabChanged(index: number) {
-    switch (index) {
-      case 0:
-        this.paginationService.elements = this.userProjects;
-        this.paginationService.updateVisibleElements();
-        console.log('Publications tab selected');
-        break;
-      case 1:
-        this.paginationService.elements = this.userProjects;
-        this.paginationService.updateVisibleElements();
-        console.log('Patents tab selected');
-        break;
-      case 2:
-        this.paginationService.elements = this.userProjects;
-        this.paginationService.updateVisibleElements();
-        console.log('Research tab selected');
-        break;
-      case 3:
-        this.paginationService.elements = this.users;
-        this.paginationService.updateVisibleElements();
-        console.log('Collaborators tab selected');
-        break;
-      case 4:
-        console.log('Contact information tab selected');
-        break;
-      default:
-        console.log('Invalid tab index');
-        break;
-    }
-    console.log(index);
-  }
+  private loadUserData(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
 
-  loadUserData(): void {
-    this.isLoading = true;
-    this.error = null;
+    const userId = this.userId();
+    if (!userId) return;
 
     this.userService
-      .getFullUserById(+this.userId!)
+      .getFullUserById(userId)
       .pipe(
         catchError((err) => {
-          this.error = 'Failed to load user data';
-          this.isLoading = false;
+          this.error.set('Failed to load user data');
+          this.isLoading.set(false);
           return of(null);
         })
       )
       .subscribe((user) => {
         if (user) {
-          this.user = user.data;
-          this.headerService.setTitle('User: ' + this.user?.username);
+          this.user.set(user.data);
+          this.headerService.setTitle(`User: ${user.data.username}`);
           this.loadUserProjects();
         }
       });
   }
 
-  loadUserProjects(): void {
+  private loadUserProjects(): void {
+    const userId = this.userId();
+    if (!userId) return;
+
     this.userService
-      .getUserProjects(this.userId!)
+      .getUserProjects(userId)
       .pipe(
         catchError((err) => {
-          this.error = 'Failed to load user projects';
+          this.error.set('Failed to load user projects');
           return of([]);
         })
       )
       .subscribe((projects) => {
-        if (Array.isArray(projects) && projects.length) {
-          this.userProjects = projects;
-        } else {
-          this.userProjects = [];
-        }
-        this.isLoading = false;
-        this.paginationUsage();
+        this.userProjects.set(Array.isArray(projects) ? projects : []);
+        this.isLoading.set(false);
       });
   }
 }

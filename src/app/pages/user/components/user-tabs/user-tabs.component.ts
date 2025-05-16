@@ -1,15 +1,26 @@
-import { Component, inject, input, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+} from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { ProfileProjectsComponent } from '../../../../shared/components/profile-projects/profile-projects.component';
-import { PaginationService } from '@core/services/pagination.service';
 import { recentProjectContent } from '@content/recentProjects.content';
 // import { usersContent } from '@content/users.content';
 import { UserService } from '@core/services/user.service';
 import {
   BehaviorSubject,
+  catchError,
   distinctUntilChanged,
+  filter,
   map,
   Observable,
+  of,
   shareReplay,
   Subscription,
 } from 'rxjs';
@@ -18,6 +29,8 @@ import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 import { ProjectDTO } from '@models/project.model';
 import { IUser } from '@models/user.model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'user-tabs',
@@ -30,88 +43,51 @@ import { IUser } from '@models/user.model';
   ],
   templateUrl: './user-tabs.component.html',
   styleUrl: './user-tabs.component.scss',
-  providers: [PaginationService],
 })
-export class TabsComponent implements OnInit, OnDestroy {
-  private userService = inject(UserService);
-  paginationService = inject(PaginationService);
-  userSig = input.required<IUser | undefined>({ alias: 'user' });
+export class TabsComponent {
+  private readonly userService = inject(UserService);
 
-  userProjects = recentProjectContent;
-  users = [];
-  pages: number[] = [];
+  user = input.required<IUser>();
+  pageSize = input.required<number>();
+  currentPage = input.required<number>();
 
-  private projects$$ = new BehaviorSubject<ProjectDTO[]>([]);
-  publications$!: Observable<ProjectDTO[]>;
-  patents$!: Observable<ProjectDTO[]>;
-  researches$!: Observable<ProjectDTO[]>;
+  pageChange = output<PageEvent>();
 
-  subscriptions: Subscription[] = [];
+  projects = toSignal(
+    this.userService
+      .getProjectsWithDetails(this.user().id)
+      .pipe(catchError(() => of([] as ProjectDTO[])))
+  );
 
-  ngOnInit(): void {
-    const projectsSub = this.userService
-      .getProjectsWithDetails(this.userSig()?.id!)
-      .subscribe({
-        next: (projects) => {
-          this.projects$$.next(projects);
-          this.updateFilteredProjects();
-        },
-      });
+  publications = computed(
+    () =>
+      (this.projects() as ProjectDTO[] | undefined)?.filter(
+        (p: ProjectDTO) => p.type === ProjectType.PUBLICATION
+      ) || []
+  );
 
-    this.subscriptions.push(projectsSub);
-  }
+  patents = computed(
+    () =>
+      (this.projects() as ProjectDTO[] | undefined)?.filter(
+        (p: ProjectDTO) => p.type === ProjectType.PATENT
+      ) || []
+  );
 
-  tabChanged(index: number) {
-    switch (index) {
-      case 0:
-        this.paginationUsage('projects');
-        break;
-      case 1:
-        this.paginationUsage('projects');
-        break;
-      case 2:
-        this.paginationUsage('projects');
-        break;
-      case 3:
-        console.log('Collaborators tab selected');
-        break;
-      case 4:
-        console.log('Contact information tab selected');
-        break;
-      default:
-        console.log('Invalid tab index');
-        break;
-    }
-  }
+  researches = computed(
+    () =>
+      (this.projects() as ProjectDTO[] | undefined)?.filter(
+        (p: ProjectDTO) => p.type === ProjectType.RESEARCH
+      ) || []
+  );
 
-  paginationUsage(type: 'users' | 'projects' = 'projects') {
-    this.paginationService.currentPage = 1;
-    this.paginationService.elements =
-      type === 'users' ? this.users : this.userProjects;
-    this.paginationService.updateVisibleElements();
-    this.pages = Array.from(
-      { length: this.paginationService.numPages() },
-      (_, i) => i + 1
-    );
-  }
+  // Social links data
+  socialLinks = [
+    { url: 'www.x.com', name: 'X (formerly Twitter)' },
+    { url: 'www.instagram.com', name: 'Instagram' },
+    { url: 'www.linkedin.com', name: 'LinkedIn' },
+  ];
 
-  private updateFilteredProjects() {
-    this.publications$ = this.createFilteredObservable(ProjectType.PUBLICATION);
-    this.patents$ = this.createFilteredObservable(ProjectType.PATENT);
-    this.researches$ = this.createFilteredObservable(ProjectType.RESEARCH);
-  }
-
-  private createFilteredObservable(
-    type: ProjectType
-  ): Observable<ProjectDTO[]> {
-    return this.projects$$.pipe(
-      map((projects) => projects.filter((p) => p.type === type)),
-      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-      shareReplay(1)
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  onPageChange(event: PageEvent): void {
+    this.pageChange.emit(event);
   }
 }

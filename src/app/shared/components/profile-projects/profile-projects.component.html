@@ -1,26 +1,24 @@
-@let paginationService = paginationServiceSig(); @let projects = projectsSig();
-@let isFiltered = isFilteredSig();
-
 <div class="profile-projects">
   <h4 class="profile-projects__title">My projects</h4>
   <div class="profile-projects__container">
-    @if(isFiltered) {
+    @if(isFiltered()) {
     <profile-filter-panel (filtersApplied)="filters.emit($event)" />
     }
     <div class="profile-projects__list">
-      @for (project of projects; track $index) {
+      @for (project of paginatedProjects(); track $index) {
       <shared-project-card [project]="project" />
       }
     </div>
-    @if(projects) { @if(projects.length > paginationService.itemsPerPage) {
-    <!-- get rid of the service in html (not important) -->
-    <shared-pagination
-      [pages]="pages"
-      [currentPage]="paginationService.currentPage"
-      (prevPage)="paginationService.prevPage()"
-      (nextPage)="paginationService.nextPage()"
-      (goToPage)="paginationService.goToPage($event)"
-    />
-    } }
+    @if(projects().length > pageSize()) {
+    <mat-paginator
+      [length]="projects().length"
+      [pageSize]="pageSize()"
+      [pageIndex]="currentPage()"
+      [pageSizeOptions]="[5, 8, 10, 25]"
+      (page)="onPageChange($event)"
+      aria-label="Select page"
+    >
+    </mat-paginator>
+    }
   </div>
 </div>

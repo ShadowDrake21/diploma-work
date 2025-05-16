@@ -1,8 +1,12 @@
 <h2>Collaborators</h2>
 <mat-list>
-  @for (collaborator of collaborators$ | async; track collaborator.id) {
+  @for (collaborator of collaborators(); track collaborator.id) {
   <mat-list-item>
     <shared-user-card [user]="collaborator" />
+  </mat-list-item>
+  } @empty {
+  <mat-list-item>
+    <p>No collaborators found</p>
   </mat-list-item>
   }
 </mat-list>

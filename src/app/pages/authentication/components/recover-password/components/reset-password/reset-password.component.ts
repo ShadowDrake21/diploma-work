@@ -87,7 +87,7 @@ export class ResetPasswordComponent implements OnInit {
       .subscribe({
         next: (response) => {
           console.log(response);
-          this.router.navigate(['/auth/sign-in']);
+          this.router.navigate(['/authentication/sign-in']);
         },
         error: (error) => console.error('Password reset failed', error),
       });

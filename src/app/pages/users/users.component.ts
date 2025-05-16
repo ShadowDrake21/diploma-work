@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -9,19 +9,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { UserCardComponent } from '../../shared/components/user-card/user-card.component';
-import { PaginationService } from '@core/services/pagination.service';
 import { IUser } from '@shared/models/user.model';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  Subject,
-  Subscription,
-  takeUntil,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { UserService } from '@core/services/user.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PageResponse } from '@shared/types/generics.types';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-users',
@@ -42,96 +36,90 @@ import { PageResponse } from '@shared/types/generics.types';
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
-  providers: [PaginationService],
   host: { style: 'height: 100%; display: block;' },
 })
-export class UsersComponent implements OnInit, OnDestroy {
+export class UsersComponent {
+  private readonly userService = inject(UserService);
+
   searchControl = new FormControl('');
 
-  private userService = inject(UserService);
+  users = signal<IUser[]>([]);
+  isLoading = signal(false);
+  searchQuery = signal('');
+  currentPage = signal(0);
+  pageSize = signal(10);
+  totalItems = signal(0);
 
-  users: IUser[] = [];
-  isLoading = false;
-  searchQuery: string = '';
+  displayMessage = computed(() => {
+    if (this.searchQuery()) {
+      return `Search results for: "${this.searchQuery()}": ${
+        this.users().length
+      } of ${this.totalItems()} users found`;
+    }
+    return `All Users: ${this.totalItems()}`;
+  });
 
-  currentPage = 0;
-  pageSize = 10;
-  totalItems = 0;
+  searchQuery$ = toSignal(
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ),
+    { initialValue: '' }
+  );
 
-  private destroy$ = new Subject<void>();
-  private subscriptions: Subscription[] = [];
-
-  ngOnInit(): void {
-    this.initLoading();
-    this.setupSearch();
-  }
-
-  private initLoading(): void {
-    this.isLoading = true;
+  constructor() {
+    this.isLoading.set(true);
     setTimeout(() => {
-      this.isLoading = false;
+      this.isLoading.set(false);
       this.loadUsers();
     }, 1000);
-  }
 
-  private setupSearch() {
-    this.searchControl.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe((query) => {
-        this.searchQuery = query || '';
-        this.currentPage = 0;
+    effect(
+      () => {
+        const query = this.searchQuery$();
+        this.searchQuery.set(query || '');
+        this.currentPage.set(0);
         this.loadUsers();
-      });
+      },
+      { allowSignalWrites: true }
+    );
   }
 
-  private loadUsers(page: number = this.currentPage): void {
-    if (this.users.length === 0) {
-      this.isLoading = true;
+  private loadUsers(): void {
+    if (this.users().length === 0) {
+      this.isLoading.set(true);
     }
 
-    const request$ = this.searchQuery
-      ? this.userService.searchUsers(this.searchQuery, page, this.pageSize)
-      : this.userService.getPaginatedUsers(page, this.pageSize);
+    const request = this.searchQuery()
+      ? this.userService.searchUsers(
+          this.searchQuery(),
+          this.currentPage(),
+          this.pageSize()
+        )
+      : this.userService.getPaginatedUsers(this.currentPage(), this.pageSize());
 
-    const sub = request$.subscribe({
+    request.subscribe({
       next: (response) => {
         this.handleLoadingResponse(response);
-        setTimeout(() => (this.isLoading = false), 100);
+        setTimeout(() => this.isLoading.set(false), 100);
       },
       error: (error) => {
         console.error('Error loading users:', error);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
-
-    this.subscriptions.push(sub);
   }
 
   private handleLoadingResponse(response: PageResponse<IUser>): void {
-    this.users = response.data;
-    this.totalItems = response.totalItems;
-    this.currentPage = response.page;
-    this.isLoading = false;
+    this.users.set(response.data);
+    this.totalItems.set(response.totalItems);
+    this.currentPage.set(response.page);
+    this.isLoading.set(false);
   }
 
   onPageChange(event: PageEvent): void {
-    this.pageSize = event.pageSize;
-    this.currentPage = event.pageIndex;
+    this.pageSize.set(event.pageSize);
+    this.currentPage.set(event.pageIndex);
     this.loadUsers();
-  }
-
-  get displayMessage(): string {
-    if (this.searchQuery) {
-      return `Search results for: "${this.searchQuery}": ${this.users.length} of ${this.totalItems} users found`;
-    }
-    return `All Users: ${this.totalItems}`;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-
-    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
-    this.subscriptions = [];
   }
 }
