@@ -1,30 +1,8 @@
-import {
-  Component,
-  computed,
-  EventEmitter,
-  inject,
-  input,
-  OnDestroy,
-  OnInit,
-  output,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { ProfileProjectsComponent } from '../../../../shared/components/profile-projects/profile-projects.component';
-import { recentProjectContent } from '@content/recentProjects.content';
-// import { usersContent } from '@content/users.content';
 import { UserService } from '@core/services/user.service';
-import {
-  BehaviorSubject,
-  catchError,
-  distinctUntilChanged,
-  filter,
-  map,
-  Observable,
-  of,
-  shareReplay,
-  Subscription,
-} from 'rxjs';
-import { AsyncPipe } from '@angular/common';
+import { catchError, of } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 import { ProjectDTO } from '@models/project.model';
@@ -38,7 +16,6 @@ import { PageEvent } from '@angular/material/paginator';
     MatTabGroup,
     MatTab,
     ProfileProjectsComponent,
-    AsyncPipe,
     UserCollaboratorsComponent,
   ],
   templateUrl: './user-tabs.component.html',
@@ -80,7 +57,6 @@ export class TabsComponent {
       ) || []
   );
 
-  // Social links data
   socialLinks = [
     { url: 'www.x.com', name: 'X (formerly Twitter)' },
     { url: 'www.instagram.com', name: 'Instagram' },

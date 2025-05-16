@@ -1,17 +1,17 @@
-@let comments = comments$ | async; @let project = work; @if (projectLoading) {
+@if (projectLoading()) {
 <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-} @else if (project) {
+} @else if (project()) {
 <div class="details">
   <div class="details-header">
     <div class="details-header__status">
       <h4 class="details-header__status-title">
-        Status: {{ getStatusOnProgess(project.progress) }} or
-        {{ project.progress }}%
+        Status: {{ getStatusOnProgess(project()!.progress) }} or
+        {{ project()!.progress }}%
       </h4>
       <mat-progress-bar
         class="details-header__status-progress"
         mode="determinate"
-        [value]="project.progress"
+        [value]="project()!.progress"
       ></mat-progress-bar>
     </div>
     <div class="details-header__btns">
@@ -37,36 +37,38 @@
   <div class="details-basic">
     <h3 class="details-basic__section-title">Basic</h3>
     <p class="details-basic__title details-basic__item">
-      <span class="details-subtitle">Title:</span> {{ project.title }}
+      <span class="details-subtitle">Title:</span> {{ project()!.title }}
     </p>
     <p class="details-basic__description details-basic__item">
       <span class="details-subtitle">Description:</span>
-      {{ project.description }}
+      {{ project()!.description }}
     </p>
     <p class="details-basic__lastupdated details-basic__item">
       <span class="details-subtitle">Last updated:</span>
-      {{ project.updatedAt | date : "medium" }}
+      {{ project()!.updatedAt | date : "medium" }}
     </p>
   </div>
   <div class="details-content">
-    <h3 class="details-basic__section-title">{{ work?.type | titlecase }}</h3>
-    @switch (project.type) { @case('PUBLICATION') {
-    <details-publication [id]="project.id" />
+    <h3 class="details-basic__section-title">
+      {{ project()!.type | titlecase }}
+    </h3>
+    @switch (project()!.type) { @case('PUBLICATION') {
+    <details-publication [id]="project()!.id" />
     } @case('PATENT') {
-    <details-patent [id]="project.id" />
-    } @case('RESEARCH') { <details-research-project [id]="project.id" /> }
+    <details-patent [id]="project()!.id" />
+    } @case('RESEARCH') { <details-research-project [id]="project()!.id" /> }
     @default {
     <p>Unknown work type</p>
     } }
   </div>
   <div class="details-attachments">
     <h3 class="details-attachments__title">Attachments Section</h3>
-    @if(errorMessage) {
-    <p class="error-message">{{ errorMessage }}</p>
+    @if(errorMessage()) {
+    <p class="error-message">{{ errorMessage() }}</p>
     }
     <ul class="details-attachments__list">
-      @if (this.projectDetailsService.attachments$ | async; as attachments) {
-      @for (attachment of (attachments || []); track attachment) {
+      @if (attachments()) { @for (attachment of attachments(); track attachment)
+      {
       <li class="details-attachments__list-item">
         <h5 class="details-attachments__list-item__title">
           {{ attachment.fileName | truncateText : 20 }}
@@ -88,11 +90,11 @@
       }
     </ul>
   </div>
+
   <div class="details-attachments">
     <h3 class="details-attachments__title">Project tags:</h3>
     <ul class="details-attachments__list">
-      @if(this.projectDetailsService.tags$| async; as tags ) { @for (tag of
-      tags; track tag) {
+      @if(tags() ) { @for (tag of tags()!; track tag) {
       <li class="details-attachments__list-item">
         <button mat-flat-button class="details-attachments__list-item__btn">
           {{ tag.name }}
@@ -122,13 +124,12 @@
         Post comment
       </button>
     </div>
-    @if(commentsLoading) {
+    @if(commentsLoading()) {
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     } @else {
-
     <div class="comments-list">
-      @if(comments && comments.length > 0) { @for (comment of comments; track
-      comment) {
+      @if(comments() && comments()!.length > 0) { @for (comment of comments()!;
+      track comment) {
       <shared-comment
         [comment]="comment"
         (like)="onCommentLikeToggle($event)"
@@ -137,7 +138,7 @@
         (reply)="startReply($event)"
       />
 
-      @if(replyingToCommentId === comment.id) {
+      @if(replyingToCommentId() === comment.id) {
       <div class="reply-input">
         <textarea
           [(ngModel)]="replyContent"
@@ -183,6 +184,6 @@
     }
   </div>
 </div>
-} @else if (errorMessage) {
-<p class="error-message">{{ errorMessage }}</p>
+} @else if (errorMessage()) {
+<p class="error-message">{{ errorMessage() }}</p>
 }

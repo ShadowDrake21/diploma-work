@@ -1,8 +1,7 @@
 import { Component, input } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { CommonModule, LowerCasePipe, TitleCasePipe } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { DashboardRecentProjectItemModal } from '@shared/types/dashboard.types';
 import { ProjectDTO } from '@models/project.model';
 
 @Component({
@@ -12,7 +11,5 @@ import { ProjectDTO } from '@models/project.model';
   styleUrl: './project-card.component.scss',
 })
 export class ProjectCardComponent {
-  projectSig = input.required<ProjectDTO>({
-    alias: 'project',
-  });
+  project = input.required<ProjectDTO>();
 }

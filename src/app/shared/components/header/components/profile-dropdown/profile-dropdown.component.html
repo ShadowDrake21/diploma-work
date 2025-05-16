@@ -1,32 +1,50 @@
 <div
   class="profile-dropdown__wrapper"
   clickOutside
-  (clickOutside)="clickedProfileOutside()"
+  (clickOutside)="closeProfile()"
 >
   <div class="profile-dropdown__container">
     <div class="dropdown-container">
       <div class="dropdown-toggler" (click)="toggleProfile()">
         <img
-          src="mock-avatar.jpg"
+          [src]="getAvatarUrl()"
           alt="avatar"
           class="dropdown-toggler__image"
         />
       </div>
-      @if(isProfileOpened) {
+      @if(isProfileOpened()) {
       <div class="dropdown profile-dropdown">
-        <div class="dropdown-email__wrapper">
-          <h5 class="dropdown-email">
-            {{ userEmail | truncateText : 22 : false | uppercase }}
-          </h5>
+        <div class="dropdown-user-info">
+          <img [src]="getAvatarUrl()" alt="User avatar" class="user-avatar" />
+          <div class="user-details">
+            <h5 class="user-name">{{ currentUser()?.username || "User" }}</h5>
+            <p class="user-email">
+              {{ currentUser()?.email || "" | truncateText : 22 : false }}
+            </p>
+          </div>
         </div>
-        @for (item of profile; track $index) {
-        <div class="dropdown-item">
-          <a [routerLink]="item.link">{{ item.title }}</a>
-        </div>
-        }
-        <div class="dropdown-item">
-          <button (click)="onLogout()">Sign out</button>
-        </div>
+
+        <mat-divider></mat-divider>
+
+        <nav class="dropdown-menu">
+          @for (item of profileMenuItems; track $index) {
+          <a
+            class="dropdown-item"
+            [routerLink]="item.link"
+            (click)="closeProfile()"
+          >
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.title }}</span>
+          </a>
+          }
+        </nav>
+
+        <mat-divider></mat-divider>
+
+        <button class="dropdown-item logout-button" (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+          <span>Sign out</span>
+        </button>
       </div>
       }
     </div>

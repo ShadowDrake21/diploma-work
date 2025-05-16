@@ -1,101 +1,98 @@
-// import { Component, input } from '@angular/core';
-// import { MatIcon } from '@angular/material/icon';
-// import { TimeAgoPipe } from '@shared/pipes/time-ago.pipe';
-// import { IComment } from '@shared/types/comment.types';
-
-// @Component({
-//   selector: 'shared-comment',
-//   imports: [MatIcon, TimeAgoPipe],
-//   templateUrl: './comment.component.html',
-//   styleUrl: './comment.component.scss',
-// })
-// export class CommentComponent {
-//   commentSig = input.required<IComment>({ alias: 'comment' });
-// }
-
-// comment.component.ts
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  computed,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
 import { CommentDeleteDialogueComponent } from '../comment-delete-dialogue/comment-delete-dialogue.component';
 import { MatButtonModule } from '@angular/material/button';
 import { IComment } from '@shared/types/comment.types';
-import { set } from 'date-fns';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'shared-comment',
-  imports: [FormsModule, CommonModule, MatDialogModule, MatButtonModule],
+  imports: [
+    FormsModule,
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIcon,
+  ],
   templateUrl: './comment.component.html',
   styleUrls: ['./comment.component.scss'],
 })
 export class CommentComponent {
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
+  readonly comment = input.required<IComment>();
+  readonly isReply = input(false);
 
-  @Input() comment!: IComment;
-  @Input() isReply = false;
-  @Output() reply = new EventEmitter<string>();
-  @Output() like = new EventEmitter<['like' | 'unlike', string]>();
-  @Output() edit = new EventEmitter<{ id: string; content: string }>();
-  @Output() delete = new EventEmitter<string>();
+  readonly reply = output<string>();
+  readonly like = output<['like' | 'unlike', string]>();
+  readonly edit = output<{ id: string; content: string }>();
+  readonly delete = output<string>();
 
-  isEditing = false;
-  isLiking = false;
-  editedContent = '';
-  currentUserId = this.authService.getCurrentUserId();
+  readonly isEditing = signal(false);
+  readonly isLiking = signal(false);
+  readonly editedContent = signal('');
+
+  readonly currentUserId = toSignal(
+    this.authService.currentUser.pipe(map((user) => user?.userId))
+  );
+
+  readonly isCurrentUserComment = computed(() => {
+    const userId = this.currentUserId();
+    return userId ? userId === this.comment().userId : false;
+  });
 
   onReply() {
-    this.reply.emit(this.comment.id);
+    this.reply.emit(this.comment().id);
   }
 
   onLikeToggle() {
-    if (this.isLiking) return;
-    if (this.comment.userId === this.currentUserId) return;
+    if (this.isLiking() || this.isCurrentUserComment()) return;
 
-    this.isLiking = true;
+    this.isLiking.set(true);
+    const action = this.comment().isLikedByCurrentUser ? 'unlike' : 'like';
+    this.like.emit([action, this.comment().id]);
 
-    const likeAction = this.comment.isLikedByCurrentUser
-      ? this.like.emit(['unlike', this.comment.id])
-      : this.like.emit(['like', this.comment.id]);
-
-    setTimeout(() => (this.isLiking = false), 2000);
+    setTimeout(() => this.isLiking.set(false), 2000);
   }
 
   onEdit() {
-    this.isEditing = true;
-    this.editedContent = this.comment.content;
+    this.isEditing.set(true);
+    this.editedContent.set(this.comment().content);
   }
 
   onSave() {
-    this.edit.emit({ id: this.comment.id, content: this.editedContent });
-    this.isEditing = false;
+    this.edit.emit({
+      id: this.comment().id,
+      content: this.editedContent(),
+    });
+    this.isEditing.set(false);
   }
 
   onCancel() {
-    this.isEditing = false;
+    this.isEditing.set(false);
   }
-
-  // onDelete() {
-
-  //   // this.delete.emit(this.comment.id);
-  // }
-
-  isCurrentUserComment(): boolean {
-    const currentUserId = this.authService.getCurrentUserId();
-    if (!currentUserId) return false;
-    return currentUserId === this.comment.userId;
-  }
-
-  readonly dialog = inject(MatDialog);
 
   onDelete(): void {
     const dialogRef = this.dialog.open(CommentDeleteDialogueComponent, {
       width: '300px',
     });
 
-    dialogRef
-      .afterClosed()
-      .subscribe((result) => result && this.delete.emit(this.comment.id));
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.delete.emit(this.comment().id);
+      }
+    });
   }
 }
