@@ -1,31 +1,29 @@
-@let project = projectSig();
-
-<a class="project-card" routerLink="/projects/{{ project.id }}">
+<a class="project-card" routerLink="/projects/{{ project().id }}">
   <div class="project-card__status">
     <div class="project-card__status-wrapper">
       <p class="project-card__status-text">
         {{
-          project.progress === 100
+          project().progress === 100
             ? "Complete"
-            : project.progress < 100 && project.progress > 0
+            : project().progress < 100 && project().progress > 0
             ? "In Progress"
             : "Assigned"
         }}
       </p>
-      <p class="project-card__status-text">{{ project?.progress }}%</p>
+      <p class="project-card__status-text">{{ project().progress }}%</p>
     </div>
     <mat-progress-bar
       class="project-card__status-progress"
       mode="determinate"
-      [value]="project?.progress"
+      [value]="project().progress"
     ></mat-progress-bar>
   </div>
-  <h3 class="project-card__title">{{ project.title }}</h3>
+  <h3 class="project-card__title">{{ project().title }}</h3>
   <div class="project-card__footer">
     <div class="project-card__footer-members">
       <h5 class="project-card__footer-members__title">Type:</h5>
       <h5 class="project-card__status-text">
-        {{ project.type | titlecase }}
+        {{ project().type | titlecase }}
       </h5>
     </div>
   </div>

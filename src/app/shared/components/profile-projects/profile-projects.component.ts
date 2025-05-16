@@ -6,23 +6,14 @@ import {
   OnInit,
   output,
 } from '@angular/core';
-import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
-import { recentProjectContent } from '@content/recentProjects.content';
-import { UserService } from '@core/services/user.service';
-import { AuthService } from '@core/authentication/auth.service';
 import { ProjectDTO } from '@models/project.model';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'shared-profile-projects',
-  imports: [
-    PaginationComponent,
-    FilterPanelComponent,
-    ProjectCardComponent,
-    MatPaginatorModule,
-  ],
+  imports: [MatPaginatorModule, FilterPanelComponent, ProjectCardComponent],
   templateUrl: './profile-projects.component.html',
   styleUrl: './profile-projects.component.scss',
 })

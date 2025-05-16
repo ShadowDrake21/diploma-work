@@ -10,16 +10,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { recentProjectContent } from '@content/recentProjects.content';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
-import { IProfileInfo } from '@shared/types/profile.types';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/user.service';
-import { map, Observable, Subscription } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
-import { ProjectDTO } from '@models/project.model';
+import { map, Subscription } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -39,7 +35,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
     FrequentLinksComponent,
     ProfileInfoComponent,
     ProfileProjectsComponent,
-    AsyncPipe,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
