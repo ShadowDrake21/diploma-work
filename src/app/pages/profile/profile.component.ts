@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { HeaderService } from '@core/services/header.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,9 +17,10 @@ import { ProfileInfoComponent } from './components/profile-info/profile-info.com
 import { IProfileInfo } from '@shared/types/profile.types';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/user.service';
-import { map, Observable } from 'rxjs';
+import { map, Observable, Subscription } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { ProjectDTO } from '@models/project.model';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-profile',
@@ -44,28 +45,28 @@ import { ProjectDTO } from '@models/project.model';
   styleUrl: './profile.component.scss',
   providers: [provideNativeDateAdapter()],
 })
-export class ProfileComponent implements OnInit {
-  private headerService = inject(HeaderService);
-  private userService = inject(UserService);
+export class ProfileComponent implements OnInit, OnDestroy {
+  private readonly headerService = inject(HeaderService);
+  private readonly userService = inject(UserService);
 
-  profile: IProfileInfo = {
-    username: '@edwardddrake',
-    name: 'Edward D. Drake',
-    email: 'edwardddrake@stu.cn.ua',
-    role: 'user',
-    userType: 'student',
-    universityGroup: 'PI-211',
-    phone: '+1 202-555-0136',
-    birthday: '25.01.2006',
-    imageUrl: '/recent-users/user-1.jpg',
-  };
+  myProjects = toSignal(
+    this.userService
+      .getCurrentUserProjects()
+      .pipe(map((response) => response.data))
+  );
 
-  myProjects$!: Observable<ProjectDTO[] | null>;
+  private subscription!: Subscription;
 
   ngOnInit(): void {
-    this.headerService.setTitle(`User ${this.profile.username}`);
-    this.myProjects$ = this.userService
-      .getCurrentUserProjects()
-      .pipe(map((response) => response.data));
+    this.subscription = this.userService.getCurrentUser().subscribe({
+      next: (response) =>
+        this.headerService.setTitle(`User ${response.data.username}`),
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 }

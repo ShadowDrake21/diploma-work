@@ -1,0 +1,27 @@
+<div class="profile-avatar">
+  @if (selectedImagePreview()) {
+  <img
+    class="avatar-image"
+    [src]="selectedImagePreview()"
+    alt="Profile preview"
+  />
+  } @else {
+  <img class="avatar-image" [src]="avatarUrl()" alt="Profile image" />
+  }
+
+  <button mat-icon-button class="avatar-upload-button" (click)="uploadAvatar()">
+    <mat-icon>photo_camera</mat-icon>
+  </button>
+
+  @if (selectedImagePreview()) {
+  <div class="avatar-actions">
+    <button mat-flat-button color="primary" (click)="confirmUpload()">
+      @if (isLoading()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      } @else { Confirm }
+    </button>
+  </div>
+  } @if (errorMessage()) {
+  <div class="error-message">{{ errorMessage() }}</div>
+  }
+</div>
