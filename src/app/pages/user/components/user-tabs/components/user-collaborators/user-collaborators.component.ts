@@ -1,10 +1,11 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, input, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { UserService } from '@core/services/user.service';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { IUser } from '@shared/models/user.model';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'user-collaborators',
@@ -12,19 +13,15 @@ import { map, Observable } from 'rxjs';
   templateUrl: './user-collaborators.component.html',
   styleUrl: './user-collaborators.component.scss',
 })
-export class UserCollaboratorsComponent implements OnInit {
+export class UserCollaboratorsComponent {
   private userService = inject(UserService);
-  userIdSig = input.required<number>({
-    alias: 'userId',
-  });
-  collaborators$!: Observable<IUser[]>;
+  userId = input.required<number>();
 
-  ngOnInit(): void {
-    if (!this.userIdSig()) {
-      throw new Error('User ID is required');
-    }
-    this.collaborators$ = this.userService
-      .getUserCollaborators(this.userIdSig())
-      .pipe(map((response) => response.data));
-  }
+  collaborators = toSignal(
+    this.userService.getUserCollaborators(this.userId()).pipe(
+      map((response) => response.data),
+      catchError(() => of([] as IUser[]))
+    ),
+    { initialValue: [] }
+  );
 }

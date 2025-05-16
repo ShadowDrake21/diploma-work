@@ -1,42 +1,51 @@
-<mat-tab-group (selectedIndexChange)="tabChanged($event)">
+<mat-tab-group>
   <mat-tab label="Publications">
     <shared-profile-projects
-      [projects]="publications$ | async"
-      [paginationService]="paginationService"
+      [projects]="publications()"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="onPageChange($event)"
       [isFiltered]="false"
     />
   </mat-tab>
+  <!-- Patents Tab -->
   <mat-tab label="Patents">
     <shared-profile-projects
-      [projects]="patents$ | async"
-      [paginationService]="paginationService"
+      [projects]="patents()"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="onPageChange($event)"
       [isFiltered]="false"
     />
   </mat-tab>
+
+  <!-- Research Projects Tab -->
   <mat-tab label="Research Projects">
     <shared-profile-projects
-      [projects]="researches$ | async"
-      [paginationService]="paginationService"
+      [projects]="researches()"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="onPageChange($event)"
       [isFiltered]="false"
     />
   </mat-tab>
+
+  <!-- Collaborators Tab -->
   <mat-tab label="Collaborators">
-    @if (userSig()) {
-    <user-collaborators [userId]="this.userSig()?.id || 0" />
-    }
+    <user-collaborators [userId]="user().id" />
   </mat-tab>
-  <mat-tab label="Contact information"
-    ><p><span>Email:</span> {{ userSig()?.email }}</p>
-    <p><span>Phone:</span> {{ userSig()?.phone }}</p>
+
+  <!-- Contact Information Tab -->
+  <mat-tab label="Contact information">
+    <p><span>Email:</span> {{ user().email }}</p>
+    <p><span>Phone:</span> {{ user().phoneNumber }}</p>
     <ul>
       <h4>Social Links</h4>
-      @for (link of [{url: 'www.x.com', name: 'X (formely Twitter)'},{url:
-      'www.instagram.com', name: 'Instagram'}, {url: 'www.linkedin.com',
-      name:'LinkedIn'} ]; track link) {
+      @for (link of socialLinks; track link.url) {
       <li>
-        <a [href]="link.url">{{ link.name }}</a>
+        <a [href]="'https://' + link.url" target="_blank">{{ link.name }}</a>
       </li>
       }
-    </ul></mat-tab
-  >
+    </ul>
+  </mat-tab>
 </mat-tab-group>

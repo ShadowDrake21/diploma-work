@@ -1,12 +1,10 @@
-@let paginationService = paginationServiceSig();
-
 <mat-list
   role="list"
   style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center"
 >
-  @for (user of paginationService.visibleElements; track user) {
+  @for (user of paginatedUsers; track user.id) {
   <mat-list-item style="height: 100%; width: auto">
-    @if(typeSig() === 'admin' ) {
+    @if(type() === 'admin' ) {
     <div>
       <shared-user-card [user]="user" />
       <div
@@ -50,10 +48,12 @@
   </mat-list-item>
   }
 </mat-list>
-<shared-pagination
-  [pages]="pages()"
-  [currentPage]="paginationService.currentPage"
-  (prevPage)="paginationService.prevPage()"
-  (nextPage)="paginationService.nextPage()"
-  (goToPage)="paginationService.goToPage($event)"
-/>
+<mat-paginator
+  [length]="totalItems()"
+  [pageSize]="pageSizeInternal()"
+  [pageIndex]="currentPage()"
+  [pageSizeOptions]="[5, 10, 25, 100]"
+  (page)="handlePageEvent($event)"
+  aria-label="Select page"
+  style="margin-top: 20px"
+></mat-paginator>

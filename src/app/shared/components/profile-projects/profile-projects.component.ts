@@ -1,50 +1,47 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  output,
+} from '@angular/core';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
-import { PaginationService } from '@core/services/pagination.service';
 import { recentProjectContent } from '@content/recentProjects.content';
 import { UserService } from '@core/services/user.service';
 import { AuthService } from '@core/authentication/auth.service';
 import { ProjectDTO } from '@models/project.model';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'shared-profile-projects',
-  imports: [PaginationComponent, FilterPanelComponent, ProjectCardComponent],
+  imports: [
+    PaginationComponent,
+    FilterPanelComponent,
+    ProjectCardComponent,
+    MatPaginatorModule,
+  ],
   templateUrl: './profile-projects.component.html',
   styleUrl: './profile-projects.component.scss',
 })
-export class ProfileProjectsComponent implements OnInit {
-  private userService = inject(UserService);
-  private authService = inject(AuthService);
-
-  projectsSig = input.required<ProjectDTO[] | null>({
-    alias: 'projects',
-  });
-  paginationServiceSig = input.required<PaginationService>({
-    alias: 'paginationService',
-  });
-  isFilteredSig = input<boolean>(true, {
-    alias: 'isFiltered',
-  });
+export class ProfileProjectsComponent {
+  projects = input.required<ProjectDTO[]>();
+  pageSize = input(8);
+  currentPage = input(0);
+  isFiltered = input(true);
 
   filters = output<any>();
+  pageChange = output<PageEvent>();
 
-  pages: number[] = [];
+  paginatedProjects = computed(() => {
+    const startIndex = this.currentPage() * this.pageSize();
+    const endIndex = startIndex + this.pageSize();
+    return this.projects().slice(startIndex, endIndex);
+  });
 
-  ngOnInit(): void {
-    this.paginationUsage();
-  }
-
-  paginationUsage() {
-    this.paginationServiceSig().currentPage = 1;
-    this.paginationServiceSig().elements = recentProjectContent;
-    // this.paginationService.itemsPerPage = 8;
-    this.paginationServiceSig().updateVisibleElements();
-
-    this.pages = Array.from(
-      { length: this.paginationServiceSig().numPages() },
-      (_, i) => i + 1
-    );
+  onPageChange(event: PageEvent) {
+    this.pageChange.emit(event);
   }
 }

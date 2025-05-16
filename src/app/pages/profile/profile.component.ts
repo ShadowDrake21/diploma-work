@@ -12,7 +12,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { recentProjectContent } from '@content/recentProjects.content';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { PaginationService } from '@core/services/pagination.service';
 import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
 import { IProfileInfo } from '@shared/types/profile.types';
@@ -43,12 +42,11 @@ import { ProjectDTO } from '@models/project.model';
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
-  providers: [provideNativeDateAdapter(), PaginationService],
+  providers: [provideNativeDateAdapter()],
 })
 export class ProfileComponent implements OnInit {
   private headerService = inject(HeaderService);
   private userService = inject(UserService);
-  paginationService = inject(PaginationService);
 
   profile: IProfileInfo = {
     username: '@edwardddrake',

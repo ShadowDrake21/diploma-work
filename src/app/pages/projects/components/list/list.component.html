@@ -3,18 +3,23 @@
     (filtersApplied)="onFiltering($event)"
     (filtersReset)="onFiltersReset()"
   />
+  @if (isLoading()) {
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  } @else {
   <div class="list__projects">
-    @for (project of projects; track $index) {
+    @for (project of projects(); track $index) {
     <shared-project-card [project]="project" />
     }
   </div>
-  @if(projects.length > pageSize) {
-  <shared-pagination
-    [pages]="pages"
-    [currentPage]="currentPaginationPage"
-    (prevPage)="prevPage()"
-    (nextPage)="nextPage()"
-    (goToPage)="goToPage($event)"
-  />
-  }
+  @if(showPagination()) {
+  <mat-paginator
+    [length]="totalElements()"
+    [pageSize]="pageSize()"
+    [pageIndex]="currentPage()"
+    [pageSizeOptions]="[5, 10, 20, 50]"
+    (page)="onPageChange($event)"
+    aria-label="Select page"
+  >
+  </mat-paginator>
+  } }
 </div>

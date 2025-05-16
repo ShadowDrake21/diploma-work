@@ -66,6 +66,6 @@ export class ForgotPasswordComponent {
   }
 
   goToSignIn() {
-    this.router.navigate(['/auth/sign-in']);
+    this.router.navigate(['/authentication/sign-in']);
   }
 }

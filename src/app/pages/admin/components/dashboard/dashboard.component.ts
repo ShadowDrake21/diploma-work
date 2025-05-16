@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { PaginationService } from '@core/services/pagination.service';
 import { MetricsStatisticsComponent } from './components/metrics-statistics/metrics-statistics.component';
 import { RecentActivitiesComponent } from './components/recent-activities/recent-activities.component';
 import { PendingActionsComponent } from './components/pending-actions/pending-actions.component';
@@ -20,6 +19,6 @@ import { SearchFilterComponent } from './components/search-filter/search-filter.
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
-  providers: [provideNativeDateAdapter(), PaginationService],
+  providers: [provideNativeDateAdapter()],
 })
 export class DashboardComponent {}
