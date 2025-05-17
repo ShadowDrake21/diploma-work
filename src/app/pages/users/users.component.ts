@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -68,18 +75,14 @@ export class UsersComponent {
   );
 
   constructor() {
-    this.isLoading.set(true);
-    setTimeout(() => {
-      this.isLoading.set(false);
-      this.loadUsers();
-    }, 1000);
-
     effect(
       () => {
         const query = this.searchQuery$();
-        this.searchQuery.set(query || '');
-        this.currentPage.set(0);
-        this.loadUsers();
+        untracked(() => {
+          this.searchQuery.set(query || '');
+          this.currentPage.set(0);
+          this.loadUsers();
+        });
       },
       { allowSignalWrites: true }
     );
@@ -100,21 +103,16 @@ export class UsersComponent {
 
     request.subscribe({
       next: (response) => {
-        this.handleLoadingResponse(response);
-        setTimeout(() => this.isLoading.set(false), 100);
+        this.users.set(response.data);
+        this.totalItems.set(response.totalItems);
+        this.currentPage.set(response.page);
+        this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Error loading users:', error);
         this.isLoading.set(false);
       },
     });
-  }
-
-  private handleLoadingResponse(response: PageResponse<IUser>): void {
-    this.users.set(response.data);
-    this.totalItems.set(response.totalItems);
-    this.currentPage.set(response.page);
-    this.isLoading.set(false);
   }
 
   onPageChange(event: PageEvent): void {

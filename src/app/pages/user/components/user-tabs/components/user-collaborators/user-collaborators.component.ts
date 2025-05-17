@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { UserService } from '@core/services/user.service';
@@ -17,11 +17,23 @@ export class UserCollaboratorsComponent {
   private userService = inject(UserService);
   userId = input.required<number>();
 
-  collaborators = toSignal(
-    this.userService.getUserCollaborators(this.userId()).pipe(
-      map((response) => response.data),
-      catchError(() => of([] as IUser[]))
-    ),
-    { initialValue: [] }
-  );
+  collaborators = signal<IUser[]>([]);
+
+  constructor() {
+    effect(() => {
+      const userId = this.userId();
+      if (userId) {
+        this.loadCollaborators(userId);
+      }
+    });
+  }
+
+  private loadCollaborators(userId: number): void {
+    this.userService
+      .getUserCollaborators(this.userId())
+      .pipe(catchError(() => of({ data: [] })))
+      .subscribe((response) => {
+        this.collaborators.set(response.data);
+      });
+  }
 }

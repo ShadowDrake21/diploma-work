@@ -1,7 +1,8 @@
 <div class="profile__container">
   <div class="profile__top">
+    @if (user()) {
     <profile-avatar
-      [avatarUrl]="user()?.avatarUrl!"
+      [avatarUrl]="user()?.avatarUrl ?? ''"
       [isLoading]="isLoading()"
       (avatarUpload)="onAvatarUpload($event)"
     />
@@ -15,6 +16,13 @@
       (save)="onSave($event)"
       (cancel)="onCancel()"
     />
+    } } @else {
+    <div class="profile-loading">
+      <mat-progress-bar
+        mode="indeterminate"
+        style="width: 100%"
+      ></mat-progress-bar>
+    </div>
     }
   </div>
 </div>

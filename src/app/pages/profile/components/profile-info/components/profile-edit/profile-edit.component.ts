@@ -1,4 +1,11 @@
-import { Component, input, OnInit, output } from '@angular/core';
+import {
+  Component,
+  input,
+  OnChanges,
+  OnInit,
+  output,
+  SimpleChanges,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -29,7 +36,7 @@ import { ProfileForm } from '@shared/types/forms/profile-form.types';
   templateUrl: './profile-edit.component.html',
   styleUrl: './profile-edit.component.scss',
 })
-export class ProfileEditComponent implements OnInit {
+export class ProfileEditComponent implements OnInit, OnChanges {
   user = input.required<IUser>();
   isLoading = input<boolean>(false);
   save = output<any>();
@@ -39,6 +46,12 @@ export class ProfileEditComponent implements OnInit {
 
   ngOnInit(): void {
     this.patchProfileForm(this.user());
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['user'] && !changes['user'].firstChange) {
+      this.patchProfileForm(this.user());
+    }
   }
 
   private patchProfileForm(user: IUser): void {

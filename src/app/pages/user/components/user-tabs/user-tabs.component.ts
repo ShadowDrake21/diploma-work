@@ -1,4 +1,12 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { ProfileProjectsComponent } from '../../../../shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/user.service';
@@ -29,12 +37,7 @@ export class TabsComponent {
   currentPage = input.required<number>();
 
   pageChange = output<PageEvent>();
-
-  projects = toSignal(
-    this.userService
-      .getProjectsWithDetails(this.user().id)
-      .pipe(catchError(() => of([] as ProjectDTO[])))
-  );
+  projects = signal<ProjectDTO[]>([]);
 
   publications = computed(
     () =>
@@ -62,6 +65,24 @@ export class TabsComponent {
     { url: 'www.instagram.com', name: 'Instagram' },
     { url: 'www.linkedin.com', name: 'LinkedIn' },
   ];
+
+  constructor() {
+    effect(() => {
+      const user = this.user();
+      if (user) {
+        this.loadProjects(user.id);
+      }
+    });
+  }
+
+  private loadProjects(userId: number): void {
+    this.userService
+      .getProjectsWithDetails(userId)
+      .pipe(catchError(() => of([] as ProjectDTO[])))
+      .subscribe((projects) => {
+        this.projects.set(projects);
+      });
+  }
 
   onPageChange(event: PageEvent): void {
     this.pageChange.emit(event);
