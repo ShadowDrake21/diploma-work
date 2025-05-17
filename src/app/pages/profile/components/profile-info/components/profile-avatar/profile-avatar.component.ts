@@ -1,12 +1,15 @@
 import {
   Component,
+  ElementRef,
   EventEmitter,
   inject,
   input,
   Input,
+  OnDestroy,
   output,
   Output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,8 +22,10 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
   templateUrl: './profile-avatar.component.html',
   styleUrl: './profile-avatar.component.scss',
 })
-export class ProfileAvatarComponent {
+export class ProfileAvatarComponent implements OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
+
+  fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   avatarUrl = input<string | null>(null);
   isLoading = input<boolean>(false);
@@ -28,16 +33,37 @@ export class ProfileAvatarComponent {
 
   readonly selectedImagePreview = signal<SafeUrl | null>(null);
   readonly errorMessage = signal('');
+  readonly temporaryAvatarUrl = signal<SafeUrl | null>(null);
+
+  readonly displayAvatarUrl = () => {
+    return this.temporaryAvatarUrl() || this.avatarUrl();
+  };
+
+  onUploadClick(): void {
+    this.fileInput()?.nativeElement?.click();
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.[0]) return;
 
     const file = input.files[0];
+    this.validateAndPreviewFile(file);
+  }
+
+  private validateAndPreviewFile(file: File): void {
+    this.errorMessage.set('');
     this.errorMessage.set('');
 
     if (file.size > 5 * 1024 * 1024) {
       this.errorMessage.set('File must be smaller than 5MB');
+      return;
+    }
+
+    if (!file.type.match(/image\/(jpeg|png|gif|webp)/)) {
+      this.errorMessage.set(
+        'Only image files are allowed (JPEG, PNG, GIF, WEBP)'
+      );
       return;
     }
 
@@ -56,27 +82,26 @@ export class ProfileAvatarComponent {
     reader.readAsDataURL(file);
   }
 
-  uploadAvatar(): void {
-    if (!this.selectedImagePreview()) return;
+  confirmUpload(): void {
+    if (!this.selectedImagePreview() || !this.fileInput()) return;
 
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (event: Event) => this.onFileSelected(event);
-    input.click();
+    // Get the file from the input again
+    const file = this.fileInput()?.nativeElement.files?.[0];
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      this.temporaryAvatarUrl.set(
+        this.sanitizer.bypassSecurityTrustUrl(objectUrl)
+      );
+
+      this.avatarUpload.emit(file);
+      this.selectedImagePreview.set(null);
+      this.fileInput()!.nativeElement.value = '';
+    }
   }
 
-  confirmUpload(): void {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e: Event) => {
-      const fileInput = e.target as HTMLInputElement;
-      if (fileInput.files?.[0]) {
-        this.avatarUpload.emit(fileInput.files[0]);
-        this.selectedImagePreview.set(null);
-      }
-    };
-    input.click();
+  ngOnDestroy(): void {
+    if (this.temporaryAvatarUrl()) {
+      URL.revokeObjectURL(this.temporaryAvatarUrl() as string);
+    }
   }
 }

@@ -2,14 +2,23 @@ import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { UserService } from '@core/services/user.service';
 import { map, Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { IUpdateUserProfile } from '@models/user.model';
+import { IUpdateUserProfile, IUser } from '@models/user.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ProfileAvatarComponent } from './components/profile-avatar/profile-avatar.component';
 import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
 import { ProfileViewComponent } from './components/profile-view/profile-view.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
 @Component({
   selector: 'profile-info',
-  imports: [ProfileAvatarComponent, ProfileEditComponent, ProfileViewComponent],
+  imports: [
+    ProfileAvatarComponent,
+    ProfileEditComponent,
+    ProfileViewComponent,
+    MatProgressSpinner,
+    MatProgressBarModule,
+  ],
   templateUrl: './profile-info.component.html',
   styleUrl: './profile-info.component.scss',
 })
@@ -20,9 +29,14 @@ export class ProfileInfoComponent implements OnDestroy {
   readonly editMode = signal(false);
   readonly isLoading = signal(false);
 
-  readonly user = toSignal(
-    this.userService.getCurrentUser().pipe(map((response) => response.data))
-  );
+  readonly user = signal<IUser | null>(null);
+
+  constructor() {
+    this.userService
+      .getCurrentUser()
+      .pipe(map((response) => response.data))
+      .subscribe((user) => this.user.set(user));
+  }
 
   onEdit(): void {
     this.editMode.set(true);
@@ -35,10 +49,12 @@ export class ProfileInfoComponent implements OnDestroy {
   private subscriptions: Subscription[] = [];
 
   onSave(profileData: any): void {
+    this.isLoading.set(true);
     const sub = this.userService
       .updateUserProfile(this.formProfileData(profileData))
       .subscribe({
-        next: () => {
+        next: (response) => {
+          this.user.set({ ...this.user(), ...profileData });
           this._snackBar.open('Profile updated successfully.', 'Close', {
             duration: 3000,
           });

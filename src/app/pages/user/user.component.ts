@@ -1,4 +1,11 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
@@ -14,6 +21,7 @@ import { UserService } from '@core/services/user.service';
 import { catchError, of } from 'rxjs';
 import { ProjectDTO } from '@models/project.model';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-user-profile',
@@ -24,6 +32,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
     MatButtonModule,
     MatChipsModule,
     MatPaginatorModule,
+    MatProgressSpinner,
   ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss',
@@ -43,6 +52,8 @@ export class UserProfileComponent implements OnInit {
   pageSize = signal(5);
   currentPage = signal(0);
   pageSizeOptions = signal([5, 10, 20]);
+
+  isUserLoaded = computed(() => this.user() !== null);
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {

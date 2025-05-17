@@ -1,4 +1,11 @@
 <div class="profile-avatar">
+  <input
+    #fileInput
+    type="file"
+    accept="image/*"
+    (change)="onFileSelected($event)"
+    style="display: none"
+  />
   @if (selectedImagePreview()) {
   <img
     class="avatar-image"
@@ -6,19 +13,32 @@
     alt="Profile preview"
   />
   } @else {
-  <img class="avatar-image" [src]="avatarUrl()" alt="Profile image" />
+  <img class="avatar-image" [src]="displayAvatarUrl()" alt="Profile image" />
   }
 
-  <button mat-icon-button class="avatar-upload-button" (click)="uploadAvatar()">
+  <button
+    mat-icon-button
+    class="avatar-upload-button"
+    (click)="onUploadClick()"
+    [disabled]="isLoading()"
+  >
     <mat-icon>photo_camera</mat-icon>
   </button>
 
   @if (selectedImagePreview()) {
   <div class="avatar-actions">
-    <button mat-flat-button color="primary" (click)="confirmUpload()">
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="confirmUpload()"
+      [disabled]="isLoading()"
+    >
       @if (isLoading()) {
       <mat-spinner diameter="20"></mat-spinner>
-      } @else { Confirm }
+      } @else { Confirm Upload}
+    </button>
+    <button mat-button (click)="selectedImagePreview.set(null)">
+      <mat-icon>cancel</mat-icon> Cancel
     </button>
   </div>
   } @if (errorMessage()) {
