@@ -1,6 +1,5 @@
 package com.backend.app.dto;
 
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -12,8 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterRequest {
-	@NotBlank private String username;
-    @NotBlank @Email private String email;
-    @NotBlank private String password;  
+public class AdminInviteRequest {
+	@NotBlank @Email private String email;
 }

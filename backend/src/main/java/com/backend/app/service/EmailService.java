@@ -36,6 +36,16 @@ public class EmailService {
 		mailSender.send(message);
 	}
 	
+	public void sendAdminInvite(String email, String token) {
+		String inviteLink = String.format("http://localhost:4200/register/admin?token=%s&email=%s", token, email);
+		
+		SimpleMailMessage message = createEmailMessage(email,
+		        "Admin Account Invitation",
+		        "You've been invited to create an admin account. Click here: " + inviteLink);
+		
+		mailSender.send(message);
+	}
+	
 	private SimpleMailMessage createEmailMessage(String to, String subjct, String text) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(to);
