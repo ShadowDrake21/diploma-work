@@ -96,4 +96,19 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
+    
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+    
+    @PrePersist
+    @PreUpdate
+    protected void validateRole() {
+    	if(this.role == Role.SUPER_ADMIN) {
+    		throw new SecurityException("Super admin accounts can only be created via database initialization");
+    	}
+    }
 }

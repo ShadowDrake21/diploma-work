@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -150,5 +151,37 @@ public class AdminController {
 	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
 	                    .body(ApiResponse.error(e.getMessage()));
 	        }
+	    }
+	    
+	    @Operation(summary = "Deactivate user account",
+	            description = "Soft delete - marks user as inactive but preserves data")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "User deactivated successfully")
+	    @PostMapping("/users/{userId}/deactivate")
+	    public ResponseEntity<ApiResponse<Void>> deactivateUser(
+	    		@PathVariable Long userId, Authentication authentication) {
+	    	adminService.deactivateUser(userId, authentication.getName());
+	    	return ResponseEntity.noContent().build();
+	    }
+	    
+	    @Operation(summary = "Permanently delete user account",
+	            description = "Hard delete - removes user but marks projects as from deleted user")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "User deleted successfully")
+	    @DeleteMapping("/users/{userId}")
+	    public ResponseEntity<ApiResponse<Void>> deleteUser(
+	            @PathVariable Long userId,
+	            Authentication authentication) {
+	        adminService.deleteUser(userId, authentication.getName());
+	        return ResponseEntity.noContent().build();
+	    }
+
+	    @Operation(summary = "Reactivate user account",
+	            description = "Restores a previously deactivated account")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "User reactivated successfully")
+	    @PostMapping("/users/{userId}/reactivate")
+	    public ResponseEntity<ApiResponse<Void>> reactivateUser(
+	            @PathVariable Long userId,
+	            Authentication authentication) {
+	        adminService.reactivateUser(userId, authentication.getName());
+	        return ResponseEntity.noContent().build();
 	    }
 }

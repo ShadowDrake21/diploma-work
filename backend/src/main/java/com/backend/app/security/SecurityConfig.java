@@ -21,17 +21,16 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+	private final TokenBlacklist tokenBlacklist;
 
 	private static final String[] PUBLIC_ENDPOINTS = { "/api/auth/**" };
-
 	private static final String[] AUTHENTICATED_ENDPOINTS = { "/api/comments/**" };
-
 	private static final String FRONTEND_ORIGIN = "http://localhost:4200";
 	private static final long CORS_MAX_AGE = 3600L;
 
 	@Bean
 	JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter();
+		return new JwtAuthenticationFilter(tokenBlacklist);
 	}
 
 	@Bean
