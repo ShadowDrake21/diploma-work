@@ -1,5 +1,6 @@
 package com.backend.app.controller;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,15 @@ import com.backend.app.dto.RequestPasswordResetRequest;
 import com.backend.app.dto.ResetPasswordRequest;
 import com.backend.app.dto.VerifyRequest;
 import com.backend.app.enums.Role;
+import com.backend.app.model.ActiveToken;
 import com.backend.app.model.User;
+import com.backend.app.repository.ActiveTokenRepository;
+import com.backend.app.security.TokenBlacklist;
 import com.backend.app.service.PasswordResetService;
 import com.backend.app.service.UserService;
 import com.backend.app.util.JwtUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +39,8 @@ public class AuthController {
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
 	private final PasswordResetService passwordResetService;
+	private final TokenBlacklist tokenBlacklist;
+	private final ActiveTokenRepository activeTokenRepository;
 
 	@PostMapping("/login")
 	public ResponseEntity<com.backend.app.dto.ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
@@ -54,8 +61,12 @@ public class AuthController {
 
 			User user = optionalUser.get();
 			String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+			
+			ActiveToken activeToken = ActiveToken.builder().token(token).userId(user.getId())
+					.expiry(Instant.now().plusMillis(jwtUtil.getExpirationTime())).build();
+			activeTokenRepository.save(activeToken);
+			
 			AuthResponse authResponse = new AuthResponse("Login successful!", token);
-
 			return ResponseEntity.ok(ApiResponse.success(authResponse));
 		} catch (Exception e) {
 			log.error("Login error: ", e);
@@ -117,5 +128,21 @@ public class AuthController {
 		}
 
 		return ResponseEntity.ok(ApiResponse.success("Password updated successfully!"));
+	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request) {
+		try {
+			String token = jwtUtil.extractJwtFromRequest(request);
+			
+			if(token != null) {
+				tokenBlacklist.addToBlacklist(token);
+				activeTokenRepository.deleteByToken(token);
+			}
+			return ResponseEntity.ok(ApiResponse.success("Logged out successfully!"));
+		} catch (Exception e) {
+			 log.error("Logout error: ", e);
+	            return ResponseEntity.internalServerError().body(ApiResponse.error("An error occurred while logging out."));
+		}
 	}
 }

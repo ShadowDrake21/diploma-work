@@ -7,9 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,17 +15,18 @@ import com.backend.app.exception.JwtConfigurationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public class JwtUtil {
+    private static final String AUTH_HEADER_PREFIX = "Bearer ";
 	private static final String USER_ID_CLAIM = "userId";
 	private static final String SUBJECT_CLAIM = "sub";
 	
@@ -40,7 +38,18 @@ public class JwtUtil {
 	@Value("${jwt.expiration}")
 	private long expirationTime;
 	
+	public String extractJwtFromRequest(HttpServletRequest request) {
+		String authHeader = request.getHeader("Authorization");
+		if(authHeader != null && authHeader.startsWith(AUTH_HEADER_PREFIX)) {
+			return authHeader.substring(AUTH_HEADER_PREFIX.length());
+		}
+		return null;
+	}
+	
 
+	public Long getExpirationTime() {
+		return expirationTime;
+	}
 	
 	private Key getSigningKey() {
 		try {
@@ -105,6 +114,10 @@ public class JwtUtil {
 	
 	public String extractUsername(String token) {
 		return parseToken(token).getBody().getSubject();
+	}
+	
+	public Long extractUserId(String token) {
+		return parseToken(token).getBody().get(USER_ID_CLAIM, Long.class);
 	}
 	
 	private Jws<Claims> parseToken(String token) {

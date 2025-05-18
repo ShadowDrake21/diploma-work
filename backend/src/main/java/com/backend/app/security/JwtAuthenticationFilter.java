@@ -24,13 +24,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private static final String AUTH_HEADER_PREFIX = "Bearer ";
     private static final String USER_ID_CLAIM = "userId";
+    
+    private final TokenBlacklist tokenBlacklist;
 
 	@Value("${jwt.secret}")
 	private String jwtSecretKey;
@@ -42,6 +46,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String jwt = extractJwtFromRequest(request);
 			
 			if(jwt != null) {
+				
+				if(tokenBlacklist.isBlacklisted(jwt)) {
+					sendUnauthorizedError(response, "Token has been revoked");
+					return;
+				}
 				Claims claims = validateAndParseJwt(jwt);
 				authenticateRequest(claims);
 			}

@@ -80,8 +80,11 @@ public class Project {
 	 
 	 
 	 @ManyToOne(fetch = FetchType.LAZY)
-	 @JoinColumn(name = "created_by", nullable = false)
+	 @JoinColumn(name = "created_by", nullable = true)
 	 private User creator;
+	 
+	 @Column(name = "deleted_user_id")
+	 private Long deletedUserId;
 	
 	 @Builder
 	    public Project(ProjectType type, String title, String description, int progress) {

@@ -53,8 +53,9 @@ public class ProjectDTO {
 	@Builder.Default
 	private Set<UUID> tagIds =  Set.of();
 	
-	@NotNull(message = "Creator ID is required", groups = CreateValidation.class)
     private Long createdBy;
+    
+    private Long deletedUserId;
 
 	public ProjectDTO fromEntity(Project project) {
 		if (project == null) {
@@ -73,6 +74,7 @@ public class ProjectDTO {
                         .map(Tag::getId)
                         .collect(Collectors.toUnmodifiableSet()))
                 .createdBy(project.getCreator() != null ? project.getCreator().getId() : null)
+                .deletedUserId(project.getDeletedUserId())
                 .build();
     }
 }
