@@ -2,8 +2,14 @@
   mat-flat-button
   class="button"
   [type]="type()"
-  [disabled]="disabled()"
+  [disabled]="disabled() || isLoading()"
   (click)="onPress.emit()"
 >
-  <ng-content></ng-content>
+  <div class="button-content">
+    @if (isLoading()) {
+    <mat-spinner diameter="20" class="spinner"></mat-spinner>
+    } @else {
+    <ng-content></ng-content>
+    }
+  </div>
 </button>

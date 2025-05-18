@@ -1,6 +1,7 @@
 export interface IJwtPayload {
-  sub: string; // Typically the user's email
+  sub: string;
   userId: number;
-  iat: number; // Issued at
-  exp: number; // Expiration time
+  iat: number;
+  exp: number;
+  rememberMe?: boolean;
 }

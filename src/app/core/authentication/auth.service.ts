@@ -26,11 +26,29 @@ export class AuthService {
   public currentUser!: Observable<IJwtPayload | null>;
 
   constructor() {
-    const token = localStorage.getItem('authToken');
-    const user = token ? this.decodeToken(token) : null;
-    console.log('User', user);
-    this.currentUserSub = new BehaviorSubject<IJwtPayload | null>(user);
-    this.currentUser = this.currentUserSub.asObservable();
+    this.initializeAuthState();
+  }
+
+  private initializeAuthState(): void {
+    const token = this.getToken();
+    if (token) {
+      const decoded = this.decodeToken(token);
+      if (decoded && !this.isTokenExpired(decoded)) {
+        this.currentUserSub.next(decoded);
+      } else {
+        this.clearAuthData();
+      }
+    }
+  }
+
+  public getToken(): string | null {
+    return (
+      localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
+    );
+  }
+
+  private getStorage(rememberMe: boolean): Storage {
+    return rememberMe ? localStorage : sessionStorage;
   }
 
   private decodeToken(token: string): IJwtPayload | null {
@@ -42,21 +60,22 @@ export class AuthService {
     }
   }
 
+  private isTokenExpired(decodedToken: IJwtPayload): boolean {
+    return decodedToken.exp ? decodedToken.exp < Date.now() / 1000 : false;
+  }
+
+  private clearAuthData(): void {
+    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authToken');
+    this.currentUserSub.next(null);
+  }
+
   public isAuthenticated(): boolean {
-    const token = localStorage.getItem('authToken');
+    const token = this.getToken();
     if (!token) return false;
 
-    try {
-      const decodedToken = this.decodeToken(token);
-      if (!decodedToken) return false;
-      const isExpired = decodedToken.exp
-        ? decodedToken.exp < Date.now() / 1000
-        : false;
-      return !isExpired;
-    } catch (error) {
-      console.error('Error decoding token', error);
-      return false;
-    }
+    const decodedToken = this.decodeToken(token);
+    return decodedToken ? !this.isTokenExpired(decodedToken) : false;
   }
 
   public login(credentials: ILoginRequest): Observable<IAuthResponse> {
@@ -64,9 +83,15 @@ export class AuthService {
       .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap((response) => {
-          if (response.success && response.data)
-            localStorage.setItem('authToken', response.data.authToken);
-          this.currentUserSub.next(this.decodeToken(response.data.authToken));
+          if (response.success && response.data?.authToken) {
+            const storage = this.getStorage(credentials.rememberMe);
+            storage.setItem('authToken', response.data.authToken);
+
+            const decoded = this.decodeToken(response.data.authToken);
+            if (decoded) {
+              this.currentUserSub.next(decoded);
+            }
+          }
         }),
         map((response) => response.data)
       );
@@ -110,16 +135,7 @@ export class AuthService {
   }
 
   public getCurrentUserId(): number | null {
-    const token = localStorage.getItem('authToken');
-    if (!token) return null;
-
-    try {
-      const decodedToken = this.decodeToken(token);
-      return decodedToken?.userId || null;
-    } catch (error) {
-      console.error('Error decoding token', error);
-      return null;
-    }
+    return this.currentUserSub.value?.userId || null;
   }
 
   public getCurrentUser(): IJwtPayload | null {
@@ -127,8 +143,16 @@ export class AuthService {
   }
 
   public logout() {
-    localStorage.removeItem('authToken');
-    this.currentUserSub.next(null);
-    this.router.navigate(['/authentication/sign-in']);
+    this.http.post<ApiResponse<string>>(`${this.apiUrl}/logout`, {}).subscribe({
+      next: (response) => {
+        this.clearAuthData();
+        this.router.navigate(['/authentication/sign-in']);
+      },
+      error: (error) => {
+        console.error('Logout error', error);
+        this.clearAuthData();
+        this.router.navigate(['/authentication/sign-in']);
+      },
+    });
   }
 }

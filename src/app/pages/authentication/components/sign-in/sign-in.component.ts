@@ -21,6 +21,7 @@ import {
   SignInForm,
   SignInFormValues,
 } from '@shared/types/forms/auth-form.types';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'auth-sign-in',
@@ -43,6 +44,7 @@ export class SignInComponent implements OnInit {
 
   private authService = inject(AuthService);
   private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   protected signInForm = new FormGroup<SignInForm>({
     email: new FormControl('', {
@@ -57,7 +59,7 @@ export class SignInComponent implements OnInit {
   });
 
   readonly isPasswordHidden = signal(true);
-
+  readonly isLoading = signal(false);
   readonly errorMessages = {
     email: signal<string>(''),
     password: signal<string>(''),
@@ -87,12 +89,28 @@ export class SignInComponent implements OnInit {
   onSubmit() {
     if (this.signInForm.invalid) return;
 
-    const { email, password } = this.signInForm.value as SignInFormValues;
-
-    this.authService.login({ email, password }).subscribe({
-      next: (token) => this.router.navigate(['/']),
-      error: (error) => console.error('Login failed', error),
-    });
+    this.authService
+      .login(this.signInForm.value as SignInFormValues)
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/']);
+          this.snackBar.open('Успішний вхід', 'Закрити', {
+            duration: 3000,
+          });
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          console.error('Login failed', error);
+          this.snackBar.open(
+            error.error?.message || 'Помилка входу.Спробуйте ще раз',
+            'Закрити',
+            {
+              duration: 5000,
+            }
+          );
+        },
+        complete: () => this.isLoading.set(false),
+      });
   }
 
   private updateErrorMessage(key: keyof SignInErrorMessages): void {
