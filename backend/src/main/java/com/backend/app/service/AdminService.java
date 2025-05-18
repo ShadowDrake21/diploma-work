@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import com.backend.app.exception.ResourceAlreadyExistsException;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.exception.UnauthorizedAccessException;
 import com.backend.app.mapper.UserMapper;
+import com.backend.app.model.ActiveToken;
 import com.backend.app.model.Project;
 import com.backend.app.model.User;
 import com.backend.app.repository.ActiveTokenRepository;
@@ -82,6 +84,13 @@ public class AdminService {
         
 		User savedUser = userRepository.save(user);
         String authToken = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getId());
+        
+        ActiveToken activeToken = ActiveToken.builder()
+                .token(authToken)
+                .userId(savedUser.getId())
+                .expiry(Instant.now().plusMillis(jwtUtil.getExpirationTime()))
+                .build();
+        activeTokenRepository.save(activeToken);
         
         return new AuthResponse("Admin registration successful!", authToken);
 	}

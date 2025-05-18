@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,18 +41,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private String jwtSecretKey;
     
 	@Override
-	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+	protected void doFilterInternal(@NonNull HttpServletRequest request, 
+			@NonNull HttpServletResponse response, 
+			@NonNull FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
 			String jwt = extractJwtFromRequest(request);
 			
 			if(jwt != null) {
-				
 				if(tokenBlacklist.isBlacklisted(jwt)) {
 					sendUnauthorizedError(response, "Token has been revoked");
 					return;
 				}
+				
 				Claims claims = validateAndParseJwt(jwt);
+				 if (isRememberMeToken(claims)) {
+	                    log.debug("Processing Remember Me token for user: {}", claims.getSubject());
+	                }
+				 
 				authenticateRequest(claims);
 			}
 			
@@ -108,5 +115,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	        byte[] decodedKey = Base64.getDecoder().decode(jwtSecretKey);
 	        return Keys.hmacShaKeyFor(decodedKey);
 	    } 
+	    
+	    private boolean isRememberMeToken(Claims claims) {
+	    	Date expiration = claims.getExpiration();
+	    	Date now = new Date();
+	    	long tokenLifetime = expiration.getTime() - now.getTime();
+	    	
+	    	return tokenLifetime > (7 * 24 * 60 * 60 * 1000);
+	    }
 
 }
