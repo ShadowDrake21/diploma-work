@@ -1,4 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { UsersListComponent } from '@shared/components/users-list/users-list.component';
 
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
@@ -7,6 +14,13 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
+import { AdminService } from '@core/services/admin.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { IUser } from '@models/user.model';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-users-management',
@@ -23,34 +37,4 @@ import { MatInput } from '@angular/material/input';
   templateUrl: './users-management.component.html',
   styleUrl: './users-management.component.scss',
 })
-export class UsersManagementComponent {
-  pages: number[] = [];
-  users = [];
-
-  searchForm = new FormGroup({
-    search: new FormControl(''),
-    role: new FormControl(''),
-    activity: new FormControl(''),
-    sort: new FormControl(''),
-  });
-
-  // ngOnInit(): void {
-  //   this.paginationUsage();
-  // }
-
-  // paginationUsage() {
-  //   this.paginationService.currentPage = 1;
-  //   this.paginationService.elements = this.users;
-  //   this.paginationService.itemsPerPage = 10;
-  //   this.paginationService.updateVisibleElements();
-
-  //   this.pages = Array.from(
-  //     { length: this.paginationService.numPages() },
-  //     (_, i) => i + 1
-  //   );
-  // }
-
-  onSearch(): void {
-    console.log(this.searchForm.value);
-  }
-}
+export class UsersManagementComponent {}

@@ -10,7 +10,8 @@
       <mat-label>E-mail</mat-label>
       <input matInput type="email" formControlName="email" />
       <mat-icon matSuffix>person</mat-icon>
-      @if (this.signInForm.controls.email.invalid) {
+      @if (this.signInForm.controls.email.invalid &&
+      signInForm.controls.email.touched) {
       <mat-error>{{ errorMessages.email() }}</mat-error>
       }
     </mat-form-field>
@@ -35,7 +36,8 @@
           isPasswordHidden() ? "visibility_off" : "visibility"
         }}</mat-icon>
       </button>
-      @if (this.signInForm.controls.email.invalid) {
+      @if (this.signInForm.controls.email.invalid &&
+      signInForm.controls.email.touched) {
       <mat-error>{{ errorMessages.password() }}</mat-error>
       }
     </mat-form-field>
@@ -52,7 +54,11 @@
       >
     </div>
 
-    <shared-custom-button type="submit" [disabled]="signInForm.invalid"
+    <shared-custom-button
+      type="submit"
+      [disabled]="signInForm.invalid"
+      [isLoading]="isLoading()"
+    >
       >Ввійти</shared-custom-button
     >
   </form>

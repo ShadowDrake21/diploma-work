@@ -11,8 +11,8 @@ import { catchError, filter, forkJoin, map, Observable, of } from 'rxjs';
   providedIn: 'root',
 })
 export class AttachmentsService {
-  private http = inject(HttpClient);
-  private apiUrl = BASE_URL + 's3';
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = BASE_URL + 's3';
 
   /**
    * Gets files associated with an entity

@@ -80,5 +80,12 @@ export const routes: Routes = [
         (c) => c.NotFoundComponent
       ),
   },
+  {
+    path: 'forbidden',
+    loadComponent: () =>
+      import('./pages/forbidden/forbidden.component').then(
+        (c) => c.ForbiddenComponent
+      ),
+  },
   { path: '**', redirectTo: 'not-found' },
 ];
