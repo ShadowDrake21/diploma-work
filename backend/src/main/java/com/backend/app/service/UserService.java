@@ -20,14 +20,11 @@ import com.backend.app.enums.Role;
 import com.backend.app.exception.ResourceAlreadyExistsException;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.UserMapper;
-import com.backend.app.model.Patent;
 import com.backend.app.model.Project;
-import com.backend.app.model.Publication;
-import com.backend.app.model.Research;
 import com.backend.app.model.User;
 import com.backend.app.repository.UserRepository;
+import com.backend.app.util.CreationUtils;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,7 +49,7 @@ public class UserService {
 		}
 
 		User user = User.builder().username(username).email(email).password(passwordEncoder.encode(password)).role(role)
-				.verificationCode(emailService.generateVerificationCode()).avatarUrl(getDefaultAvatarUrl(email))
+				.verificationCode(emailService.generateVerificationCode()).avatarUrl(CreationUtils.getDefaultAvatarUrl())
 				.build();
 		userRepository.save(user);
 
@@ -187,7 +184,7 @@ public class UserService {
 	public UserDTO updateAvatar(Long userId, MultipartFile file) {
 		User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-		if (user.getAvatarUrl() != null && !user.getAvatarUrl().equals(getDefaultAvatarUrl(user.getEmail()))) {
+		if (user.getAvatarUrl() != null && !user.getAvatarUrl().equals(CreationUtils.getDefaultAvatarUrl())) {
 			s3Service.deleteFile(extractFileNameFromUrl(user.getAvatarUrl()));
 		}
 
@@ -237,7 +234,5 @@ public class UserService {
 		return url.substring(url.lastIndexOf("/") + 1);
 	}
 
-	private String getDefaultAvatarUrl(String email) {
-		return "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-	}
+	
 }

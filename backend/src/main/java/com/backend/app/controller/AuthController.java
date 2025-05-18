@@ -16,6 +16,7 @@ import com.backend.app.dto.RegisterRequest;
 import com.backend.app.dto.RequestPasswordResetRequest;
 import com.backend.app.dto.ResetPasswordRequest;
 import com.backend.app.dto.VerifyRequest;
+import com.backend.app.enums.Role;
 import com.backend.app.model.User;
 import com.backend.app.service.PasswordResetService;
 import com.backend.app.service.UserService;
@@ -64,15 +65,15 @@ public class AuthController {
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
-		log.info("Received registration request with username: {} and email: {} and role: {}", request.getUsername(),
-				request.getEmail(), request.getRole());
+		log.info("Received registration request with username: {} and email: {}", request.getUsername(),
+				request.getEmail());
 
 		if (userService.userExistsByEmail(request.getEmail())) {
 			return ResponseEntity.badRequest().body(ApiResponse.error("Email is already in use!"));
 		}
 
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
-		userService.savePendingUser(request.getUsername(), request.getEmail(), encodedPassword, request.getRole());
+		userService.savePendingUser(request.getUsername(), request.getEmail(), encodedPassword, Role.USER);
 
 		return ResponseEntity.ok(ApiResponse.success("Verification code sent! Please check your email."));
 	}
