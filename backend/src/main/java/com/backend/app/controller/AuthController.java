@@ -60,10 +60,11 @@ public class AuthController {
 			}
 
 			User user = optionalUser.get();
-			String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+			String token = jwtUtil.generateToken(user.getEmail(), user.getId(), request.isRememberMe());
 			
 			ActiveToken activeToken = ActiveToken.builder().token(token).userId(user.getId())
-					.expiry(Instant.now().plusMillis(jwtUtil.getExpirationTime())).build();
+					.expiry(Instant.now().plusMillis(request.isRememberMe() ? 
+							jwtUtil.getRememberMeExpirationTime() : jwtUtil.getExpirationTime())).build();
 			activeTokenRepository.save(activeToken);
 			
 			AuthResponse authResponse = new AuthResponse("Login successful!", token);
@@ -99,8 +100,15 @@ public class AuthController {
 				.orElseThrow(() -> new RuntimeException("User not found after verification"));
 
 		String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+		
+		ActiveToken activeToken = ActiveToken.builder()
+	            .token(token)
+	            .userId(user.getId())
+	            .expiry(Instant.now().plusMillis(jwtUtil.getExpirationTime()))
+	            .build();
+	    activeTokenRepository.save(activeToken);
+	    
 		AuthResponse authResponse = new AuthResponse("User verified successfully!", token);
-
 		return ResponseEntity.ok(ApiResponse.success(authResponse));
 	}
 

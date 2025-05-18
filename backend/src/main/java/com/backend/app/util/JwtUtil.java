@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mapstruct.ap.shaded.freemarker.core.ReturnInstruction.Return;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,9 @@ public class JwtUtil {
 	@Value("${jwt.expiration}")
 	private long expirationTime;
 	
+	@Value("${jwt.remember-me-expiration}")
+	private long rememberMeExpirationTime;
+	
 	public String extractJwtFromRequest(HttpServletRequest request) {
 		String authHeader = request.getHeader("Authorization");
 		if(authHeader != null && authHeader.startsWith(AUTH_HEADER_PREFIX)) {
@@ -49,6 +53,10 @@ public class JwtUtil {
 
 	public Long getExpirationTime() {
 		return expirationTime;
+	}
+	
+	public Long getRememberMeExpirationTime() {
+		return rememberMeExpirationTime;
 	}
 	
 	private Key getSigningKey() {
@@ -63,12 +71,16 @@ public class JwtUtil {
 	}
 	
 	public String generateToken(String email, Long userId) {
+		return generateToken(email, userId, false);
+	}
+	
+	public String generateToken(String email, Long userId, boolean rememberMe) {
 		 Map<String, Object> claims = new HashMap<>();
 	        claims.put(SUBJECT_CLAIM, email);
 	        claims.put(USER_ID_CLAIM, userId);  
 	        
 	        Date now = new Date();
-	        Date expiration = new Date(now.getTime() + expirationTime);
+	        Date expiration = new Date(now.getTime() + (rememberMe ? rememberMeExpirationTime : expirationTime));
 	        
 	        return Jwts.builder()
 	                .setClaims(claims)
