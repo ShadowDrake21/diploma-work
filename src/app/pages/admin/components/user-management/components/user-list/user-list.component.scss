@@ -1,0 +1,29 @@
+.user-detail-container {
+  padding: 24px;
+
+  .user-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .user-card {
+    max-width: 800px;
+    margin: 0 auto;
+
+    mat-card-header {
+      margin-bottom: 16px;
+    }
+
+    .details-content {
+      padding: 16px;
+    }
+
+    .projects-content,
+    .activity-content {
+      padding: 16px;
+      min-height: 200px;
+    }
+  }
+}

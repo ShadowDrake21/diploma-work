@@ -3,20 +3,22 @@ import { UserRole, UserType } from '@shared/enums/user.enum';
 export interface IUser {
   id: number;
   username: string;
-  avatarUrl: string;
-  role: UserRole;
-  affiliation: string;
   email: string;
-  phone: string;
-  dateOfBirth: string;
-  userType: UserType;
-  universityGroup: string;
+  role: UserRole;
+  avatarUrl?: string;
+  affiliation: string;
+  dateOfBirth?: string | Date;
+  userType?: UserType;
+  universityGroup?: string;
   phoneNumber?: string;
   publicationCount: number;
   patentCount: number;
   researchCount: number;
-  lastActive: string;
+  lastActive?: string | Date;
   tags: string[];
+  active: boolean;
+  createdAt?: string | Date;
+  verified?: boolean;
 }
 
 export interface ICreateUser {
