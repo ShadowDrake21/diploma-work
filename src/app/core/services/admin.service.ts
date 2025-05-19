@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
 import { IUser } from '@models/user.model';
+import { AdminInvitation } from '@pages/admin/components/user-management/components/types/invitation-list.types';
 import {
   AdminInviteRequest,
   AuthResponse,
@@ -95,5 +96,32 @@ export class AdminService {
         { params }
       )
       .pipe(map((response) => response.data?.isValid ?? false));
+  }
+
+  getAdminInvitations(
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<AdminInvitation>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<PaginatedResponse<AdminInvitation>>(
+      `${this.apiUrl}/invitations`,
+      { params }
+    );
+  }
+
+  resendInvitation(invitationId: number): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(
+      `${this.apiUrl}/invitations/${invitationId}/resend`,
+      {}
+    );
+  }
+
+  revokeInvitation(invitationId: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${this.apiUrl}/invitations/${invitationId}`
+    );
   }
 }

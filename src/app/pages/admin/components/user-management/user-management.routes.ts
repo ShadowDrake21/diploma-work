@@ -29,15 +29,6 @@ export const UserManagementRoutes: Routes = [
         data: { title: 'User Details' },
       },
       {
-        path: ':id/edit',
-        loadComponent: () =>
-          import('./components/user-form/user-form.component').then(
-            (c) => c.UserFormComponent
-          ),
-        canActivate: [adminGuard],
-        data: { title: 'Edit User' },
-      },
-      {
         path: 'invitations',
         loadComponent: () =>
           import('./components/invitation-list/invitation-list.component').then(
