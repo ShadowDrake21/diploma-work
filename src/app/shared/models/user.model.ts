@@ -1,14 +1,4 @@
-export enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-}
-
-export enum UserType {
-  STUDENT = 'student',
-  TEACHER = 'teacher',
-  RESEARCHER = 'researcher',
-  STAFF = 'staff',
-}
+import { UserRole, UserType } from '@shared/enums/user.enum';
 
 export interface IUser {
   id: number;
