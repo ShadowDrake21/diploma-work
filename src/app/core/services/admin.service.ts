@@ -9,7 +9,7 @@ import {
   RegisterRequest,
 } from '@shared/types/admin.types';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -84,5 +84,16 @@ export class AdminService {
       `${this.apiUrl}/users/${userId}/reactivate`,
       {}
     );
+  }
+
+  validateAdminInviteToken(token: string, email: string): Observable<boolean> {
+    const params = new HttpParams().set('token', token).set('email', email);
+
+    return this.http
+      .get<ApiResponse<{ isValid: boolean }>>(
+        `${this.apiUrl}/validate-invite-token`,
+        { params }
+      )
+      .pipe(map((response) => response.data?.isValid ?? false));
   }
 }

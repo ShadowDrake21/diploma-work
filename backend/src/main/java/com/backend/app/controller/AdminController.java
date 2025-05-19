@@ -28,6 +28,7 @@ import com.backend.app.exception.ResourceAlreadyExistsException;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.exception.UnauthorizedAccessException;
 import com.backend.app.service.AdminService;
+import com.backend.app.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,6 +45,7 @@ public class AdminController {
 	private static final String DEFAULT_SORT_BY = "id";
 	
 	private final AdminService adminService;
+	private final JwtUtil jwtUtil;
 	    
 	@Operation(summary = "Invite new admin",
             description = "Send invitation email to register as an admin")
@@ -84,6 +86,20 @@ public class AdminController {
         }
 	        
 	    }
+	 
+	 @Operation(summary = "Validate admin invite token",
+			    description = "Validates an admin invitation token")
+	 @GetMapping("/validate-invite-token")
+	 public ResponseEntity<ApiResponse<Boolean>> validateAdminInviteToken(
+			 @RequestParam String token, @RequestParam String email) {
+		 try {
+			boolean isValid = jwtUtil.validateAdminInviteToken(token, email);
+			return ResponseEntity.ok(ApiResponse.success(isValid));
+		} catch (Exception e) {
+			 log.error("Token validation failed", e);
+		        return ResponseEntity.ok(ApiResponse.success(false));
+		}
+	 }
 	    
 	    @Operation(summary = "Get all users (paginated)", 
 	            description = "Admin-only endpoint to list all users with pagination")
@@ -184,4 +200,6 @@ public class AdminController {
 	        adminService.reactivateUser(userId, authentication.getName());
 	        return ResponseEntity.noContent().build();
 	    }
+	    
+	    
 }

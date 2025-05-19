@@ -20,15 +20,6 @@ export const UserManagementRoutes: Routes = [
         data: { title: 'User Management' },
       },
       {
-        path: 'create',
-        loadComponent: () =>
-          import('./components/admin-user-form/admin-user-form.component').then(
-            (c) => c.AdminUserFormComponent
-          ),
-        canActivate: [adminGuard],
-        data: { title: 'Create Admin' },
-      },
-      {
         path: ':id',
         loadComponent: () =>
           import('./components/user-details/user-details.component').then(
