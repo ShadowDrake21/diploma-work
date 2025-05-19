@@ -24,9 +24,9 @@ export const AdminRoutes: Routes = [
       {
         path: 'users-management',
         loadComponent: () =>
-          import(
-            './components/users-management/users-management.component'
-          ).then((c) => c.UsersManagementComponent),
+          import('./components/user-management/user-management.component').then(
+            (c) => c.UserManagementComponent
+          ),
       },
     ],
   },

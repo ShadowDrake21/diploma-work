@@ -11,6 +11,11 @@ import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
 import { IUser } from '@models/user.model';
+import { UserRoleChipComponent } from '../utils/user-role-chip/user-role-chip.component';
+import { UserStatusChipComponent } from '../utils/user-status-chip/user-status-chip.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
+import { AdminInviteDialogComponent } from '../dialogs/admin-invite-dialog/admin-invite-dialog.component';
 
 @Component({
   selector: 'app-user-list',
@@ -22,9 +27,9 @@ import { IUser } from '@models/user.model';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    // MatMenuModule,
-    // UserRoleChipComponent,
-    // UserStatusChipComponent
+    MatMenuModule,
+    UserRoleChipComponent,
+    UserStatusChipComponent,
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
@@ -235,6 +240,19 @@ export class UserListComponent {
             );
           },
         });
+      }
+    });
+  }
+
+  openInviteDialog(): void {
+    const dialogRef = this.dialog.open(AdminInviteDialogComponent, {
+      width: '500px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadUsers();
       }
     });
   }
