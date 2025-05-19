@@ -14,11 +14,11 @@ import { matchValidator } from '../../validators/match.validator';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { AuthService } from '@core/authentication/auth.service';
-import { UserRole } from '@models/user.model';
 import {
   SignUpErrorMessages,
   SignUpForm,
 } from '@shared/types/forms/auth-form.types';
+import { UserRole } from '@shared/enums/user.enum';
 
 @Component({
   selector: 'auth-sign-up',

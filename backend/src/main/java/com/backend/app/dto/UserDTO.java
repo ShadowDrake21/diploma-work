@@ -1,6 +1,8 @@
 package com.backend.app.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import com.backend.app.enums.Role;
 
@@ -66,4 +68,12 @@ public class UserDTO {
 
     @Size(max = 255, message = "Affiliation cannot exceed 255 characters")
     private String affiliation;
+    
+    private LocalDateTime lastActive;
+    
+    private List<String> tags;
+    
+    private boolean active;
+    
+    private LocalDateTime createdAt;
 }

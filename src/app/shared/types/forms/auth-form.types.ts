@@ -1,6 +1,6 @@
 import { WritableSignal } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { UserRole } from '@models/user.model';
+import { UserRole } from '@shared/enums/user.enum';
 
 export interface SignUpForm {
   name: FormControl<string>;

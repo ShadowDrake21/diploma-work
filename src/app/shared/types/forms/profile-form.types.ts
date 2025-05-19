@@ -1,5 +1,5 @@
 import { FormControl } from '@angular/forms';
-import { UserType } from '@models/user.model';
+import { UserType } from '@shared/enums/user.enum';
 
 export interface ProfileForm {
   dateOfBirth: FormControl<string | null>;

@@ -27,6 +27,8 @@ public class UserMapper {
 	                .patentCount(user.getPatentCount())
 	                .researchCount(user.getResearchCount())
 	                .affiliation(user.getAffiliation())
+	                .active(user.isActive())
+	                .createdAt(user.getCreatedAt())
 	                .build();
     }
 	
@@ -61,6 +63,7 @@ public class UserMapper {
 	                .patentCount(userDTO.getPatentCount())
 	                .researchCount(userDTO.getResearchCount())
 	                .affiliation(userDTO.getAffiliation())
+	                .active(userDTO.isActive())
 	                .build();
 	    }
 }

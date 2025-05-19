@@ -9,9 +9,9 @@ export const UserManagementRoutes: Routes = [
         (c) => c.UserManagementComponent
       ),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'user-list' },
+      { path: '', pathMatch: 'full', redirectTo: 'users' },
       {
-        path: 'users-list',
+        path: 'users',
         loadComponent: () =>
           import('./components/user-list/user-list.component').then(
             (c) => c.UserListComponent
