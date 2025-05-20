@@ -22,9 +22,11 @@ import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.exception.UnauthorizedAccessException;
 import com.backend.app.mapper.UserMapper;
 import com.backend.app.model.ActiveToken;
+import com.backend.app.model.AdminInvitation;
 import com.backend.app.model.Project;
 import com.backend.app.model.User;
 import com.backend.app.repository.ActiveTokenRepository;
+import com.backend.app.repository.AdminInvitationRepository;
 import com.backend.app.repository.CommentRepository;
 import com.backend.app.repository.FileMetadataRepository;
 import com.backend.app.repository.ProjectRepository;
@@ -40,18 +42,25 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
-	private final JwtUtil jwtUtil;
-	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
+	private final AuditService auditService;
 	private final EmailService emailService;
 	private final ProjectService projectService;
-	private final AuditService auditService;
+	
+	private final JwtUtil jwtUtil;
+	private final PasswordEncoder passwordEncoder;
+	private final TokenBlacklist tokenBlacklist;
+	private final UserMapper userMapper;
+	
+	private final UserRepository userRepository;
 	private final CommentRepository commentRepository;
 	private final FileMetadataRepository fileMetadataRepository;
 	private final ProjectRepository projectRepository;
-	private final TokenBlacklist tokenBlacklist;
 	private final ActiveTokenRepository activeTokenRepository;
-	private final UserMapper userMapper;
+	private final AdminInvitationRepository adminInvitationRepository;
+	
+	public Page<AdminInvitation> getAdminInvitations(Pageable pageable) {
+		return adminInvitationRepository.findAll(pageable);
+	}
 	
 	public String inviteAdmin(AdminInviteRequest request, String currentAdminEmail) {
 		log.info("Admin invitation requested by {} for {}", currentAdminEmail, request.getEmail());
@@ -66,8 +75,18 @@ public class AdminService {
        if(userRepository.existsByEmail(request.getEmail())) {
     	   throw new ResourceAlreadyExistsException("Email already registered");
        }
+       
+       if(adminInvitationRepository.existsByEmailAndCompletedFalseAndRevokedFalse(request.getEmail())) {
+    	   throw new ResourceAlreadyExistsException("There is already a pending invitation for this email");
+       }
         
         String adminToken = jwtUtil.generateAdminInviteToken(request.getEmail());
+        
+        AdminInvitation invitation = AdminInvitation.builder().email(request.getEmail()).token(adminToken)
+        		.sentAt(LocalDateTime.now()).revoked(false).completed(false).build();
+        
+        adminInvitationRepository.save(invitation);
+        
         emailService.sendAdminInvite(request.getEmail(), adminToken);
         
         return String.format("Admin invitation sent to %s", request.getEmail());
@@ -78,12 +97,33 @@ public class AdminService {
 		if(!jwtUtil.validateAdminInviteToken(token, request.getEmail())) {
             throw new InvalidTokenException("Invalid or expired invitation token");
         }
+		
+		AdminInvitation invitation = adminInvitationRepository.findByToken(token)
+				.orElseThrow(() -> new InvalidTokenException("Invalid invitation token"));
+		
+		if(invitation.isRevoked()) {
+			throw new InvalidTokenException("This invitation has been revoked");
+		}
+		
+		if(invitation.isCompleted()) {
+			throw new InvalidTokenException("This invitation has already been used");
+		}
+		
+		if(!invitation.getEmail().equals(request.getEmail())) {
+			throw new InvalidTokenException("Email does not match invitation");
+		}
         
-		User user = User.builder().username(request.getUsername()).email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
-				.role(Role.ADMIN).verified(true).avatarUrl(CreationUtils.getDefaultAvatarUrl()).build();
+		User user = User.builder().username(request.getUsername()).email(request.getEmail())
+				.password(passwordEncoder.encode(request.getPassword()))
+				.role(Role.ADMIN).verified(true)
+				.avatarUrl(CreationUtils.getDefaultAvatarUrl()).build();
         
 		User savedUser = userRepository.save(user);
         String authToken = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getId());
+        
+        invitation.setCompleted(true);
+        invitation.setCompletedAt(LocalDateTime.now());
+        adminInvitationRepository.save(invitation);
         
         ActiveToken activeToken = ActiveToken.builder()
                 .token(authToken)
@@ -203,7 +243,47 @@ public class AdminService {
 		userRepository.save(targetUser);
 		
 	    log.info("User {} reactivated by admin {}", userId, currentAdminEmail);
+	}
+	
+	@Transactional
+	public void resendInvitation(Long invitationId) {
+		AdminInvitation invitation = adminInvitationRepository.findById(invitationId)
+				.orElseThrow(() -> new ResourceNotFoundException("Invitation not found"));
+		
+		if(invitation.isRevoked()) {
+			throw new BusinessRuleException("Cannot resend a revoked invitation");
 		}
+		
+		if(invitation.isCompleted()) {
+			throw new BusinessRuleException("Cannot resend a completed invitation");
+		}
+		
+		String newToken = jwtUtil.generateAdminInviteToken(invitation.getEmail());
+		
+		invitation.setToken(newToken);
+		invitation.setSentAt(LocalDateTime.now());
+		adminInvitationRepository.save(invitation);
+		
+		emailService.sendAdminInvite(invitation.getEmail(), newToken);
+	}
+	
+	@Transactional
+	public void revokeInvitation(Long invitationId) {
+		AdminInvitation invitation = adminInvitationRepository.findById(invitationId)
+				.orElseThrow(() -> new ResourceNotFoundException("Invitation not found"));
+		
+		if(invitation.isRevoked()) {
+			throw new BusinessRuleException("Invitation is already revoked");
+		}
+		
+		if(invitation.isCompleted()) {
+			throw new BusinessRuleException("Cannot revoke a completed invitation");
+		}
+		
+		invitation.setRevoked(true);
+		invitation.setRevokedAt(LocalDateTime.now());
+		adminInvitationRepository.save(invitation);
+	}
 	
 	private User validateAdminAction(String adminEmail, Long targetUserId) {
 		 User admin = userRepository.findByEmail(adminEmail)

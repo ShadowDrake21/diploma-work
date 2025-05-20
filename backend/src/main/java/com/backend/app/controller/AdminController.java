@@ -27,6 +27,7 @@ import com.backend.app.exception.InvalidTokenException;
 import com.backend.app.exception.ResourceAlreadyExistsException;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.exception.UnauthorizedAccessException;
+import com.backend.app.model.AdminInvitation;
 import com.backend.app.service.AdminService;
 import com.backend.app.util.JwtUtil;
 
@@ -46,6 +47,26 @@ public class AdminController {
 	
 	private final AdminService adminService;
 	private final JwtUtil jwtUtil;
+	
+	@Operation(summary = "Get all admin invitations (paginated)", 
+	        description = "List all admin invitations with pagination")
+	@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved invitations")
+	@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
+	@GetMapping("/invitations")
+	public ResponseEntity<PaginatedResponse<AdminInvitation>> getAdminInvitations(
+			@Parameter(description = "Page number") @RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
+			@Parameter(description = "Page size") @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size,
+			@Parameter(description = "Sort by field") @RequestParam(defaultValue = DEFAULT_SORT_BY) String sortBy) {
+		try {
+			Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+			Page<AdminInvitation> invitationsPage = adminService.getAdminInvitations(pageable);
+			return ResponseEntity.ok(PaginatedResponse.success(invitationsPage));
+		} catch (Exception e) {
+			 log.error("Error fetching admin invitations: ", e);
+		        return ResponseEntity.internalServerError()
+		                .body(PaginatedResponse.error("Error fetching admin invitations"));
+		}
+	}
 	    
 	@Operation(summary = "Invite new admin",
             description = "Send invitation email to register as an admin")
@@ -201,5 +222,51 @@ public class AdminController {
 	        return ResponseEntity.noContent().build();
 	    }
 	    
+	    @Operation(summary = "Resend admin invitation",
+	            description = "Resend an invitation email to register as an admin")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Invitation resent successfully")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid invitation state")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Invitation not found")
+	    @PostMapping("/invitations/{invitationId}/resend")
+	    public ResponseEntity<ApiResponse<Void>> resendInvitation(
+	    		@PathVariable Long invitationId, Authentication authentication) {
+	    	try {
+				adminService.resendInvitation(invitationId);
+				return ResponseEntity.ok(ApiResponse.success(null));
+			} catch (ResourceNotFoundException e) {
+		        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+		                .body(ApiResponse.error(e.getMessage()));
+		    } catch (BusinessRuleException e) {
+		        return ResponseEntity.badRequest()
+		                .body(ApiResponse.error(e.getMessage()));
+		    } catch (UnauthorizedAccessException e) {
+		        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+		                .body(ApiResponse.error(e.getMessage()));
+		    }
+	    }
 	    
+	    @Operation(summary = "Revoke admin invitation",
+	            description = "Revoke a pending admin invitation")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Invitation revoked successfully")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid invitation state")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
+	    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Invitation not found")
+	    @DeleteMapping("/invitations/{invitationId}")
+	    public ResponseEntity<ApiResponse<Void>> revokeInvitation(
+	    		@PathVariable Long invitationId, Authentication authentication) {
+	    	try {
+				adminService.revokeInvitation(invitationId);
+				return ResponseEntity.noContent().build();
+			} catch (ResourceNotFoundException e) {
+		        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+		                .body(ApiResponse.error(e.getMessage()));
+		    } catch (BusinessRuleException e) {
+		        return ResponseEntity.badRequest()
+		                .body(ApiResponse.error(e.getMessage()));
+		    } catch (UnauthorizedAccessException e) {
+		        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+		                .body(ApiResponse.error(e.getMessage()));
+		    }
+	    }
 }
