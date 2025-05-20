@@ -14,13 +14,13 @@ export const AdminRoutes: Routes = [
       //       (c) => c.DashboardComponent
       //     ),
       // },
-      // {
-      //   path: 'content-management',
-      //   loadComponent: () =>
-      //     import(
-      //       './components/content-management/content-management.component'
-      //     ).then((c) => c.ContentManagementComponent),
-      // },
+      {
+        path: 'content-management',
+        loadComponent: () =>
+          import(
+            './components/content-management/content-management.component'
+          ).then((c) => c.ContentManagementComponent),
+      },
       {
         path: 'users-management',
         loadComponent: () =>

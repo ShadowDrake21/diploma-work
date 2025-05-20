@@ -1,0 +1,33 @@
+.table-container {
+  padding: 16px;
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+
+    th {
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+    .mat-column-actions {
+      width: 60px;
+      text-align: right;
+    }
+
+    .mat-column-progress {
+      min-width: 150px;
+
+      mat-progress-bar {
+        width: 80%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  mat-paginator {
+    margin-top: 16px;
+    background: transparent;
+  }
+}

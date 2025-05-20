@@ -8,10 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.backend.app.enums.ProjectType;
 import com.backend.app.model.Project;
 
 @Repository
@@ -37,5 +39,20 @@ public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpec
 			SUM(CASE WHEN p.type = 'RESEARCH' THEN 1 ELSE 0 END) as totalResearch)
 			FROM Project p
 		""")
-	Map<String, Long> countProjectsByType();
+	Map<String, Long> getProjectTypeAggregates();
+	
+	@Query("SELECT p.type, COUNT(p) FROM Project p GROUP BY p.type")
+	List<Object[]> getProjectCountsByType();
+
+	@Query("SELECT p.status, COUNT(p) FROM Project p GROUP BY p.status")
+	List<Object[]> getProjectCountsByStatus();
+	
+	@Modifying()
+	@Query("UPDATE Project p SET P.status = :status WHERE p.id IN :ids")
+	int updateStatusForProjects(@Param("ids") List<UUID> ids, @Param("status") String status);
+	
+    long countByType(ProjectType type);
+    long countByStatus(String status);
+    long count();
+
 }
