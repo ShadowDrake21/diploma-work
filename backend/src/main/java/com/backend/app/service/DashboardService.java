@@ -28,7 +28,7 @@ public class DashboardService {
 
     public DashboardMetricsDTO getDashboardMetrics() {
     	try {
-			Map<String, Long> projectCounts = projectRepository.countProjectsByType();
+			Map<String, Long> projectCounts = projectRepository.getProjectTypeAggregates();
 			return buildDashboardMetrics(projectCounts);
 		} catch (Exception e) {
 			log.error("Error while fetching dashboard metrics", e);

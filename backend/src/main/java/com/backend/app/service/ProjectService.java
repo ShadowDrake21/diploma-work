@@ -191,6 +191,10 @@ public class ProjectService {
 			return projectRepository.save(existingProject);
 		});
 	}
+	
+	public int bulkUpdateStatus(List<UUID> ids, String status) {
+		return projectRepository.updateStatusForProjects(ids, status);
+	}
 
 
 	// ========== DELETE OPERATIONS ========== //
@@ -238,12 +242,6 @@ public class ProjectService {
 		Set<Tag> newTags = new HashSet<>(tagRepository.findAllById(tagIds));
 		project.getTags().clear();
 		project.setTags(newTags);
-	}
-
-	private void copyProjectDetails(Project target, Project source) {
-		target.setTitle(source.getTitle());
-		target.setDescription(source.getDescription());
-		target.setProgress(source.getProgress());
 	}
 
 	private void deleteAssociatedFiles(UUID projectId) {

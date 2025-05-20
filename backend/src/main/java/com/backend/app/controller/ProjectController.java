@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.dto.ApiResponse;
+import com.backend.app.dto.CommentDTO;
 import com.backend.app.dto.PaginatedResponse;
 import com.backend.app.dto.PatentDTO;
 import com.backend.app.dto.ProjectDTO;
@@ -32,6 +33,7 @@ import com.backend.app.dto.ProjectSearchCriteria;
 import com.backend.app.dto.PublicationDTO;
 import com.backend.app.dto.ResearchDTO;
 import com.backend.app.enums.ProjectType;
+import com.backend.app.mapper.CommentMapper;
 import com.backend.app.mapper.PatentMapper;
 import com.backend.app.mapper.ProjectMapper;
 import com.backend.app.mapper.PublicationMapper;
@@ -39,6 +41,7 @@ import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.Project;
 import com.backend.app.model.ProjectResponse;
 import com.backend.app.model.User;
+import com.backend.app.service.CommentService;
 import com.backend.app.service.PatentService;
 import com.backend.app.service.ProjectService;
 import com.backend.app.service.PublicationService;
@@ -72,24 +75,23 @@ public class ProjectController {
 	private final ResearchService researchService;
 	private final ResearchMapper researchMapper;
 	private final UserService userService;
-
+	private final CommentService commentService;
+	private final CommentMapper commentMapper;
 
 	@Operation(summary = "Get all projects with pagination")
 	@GetMapping
 	public ResponseEntity<PaginatedResponse<ProjectDTO>> getAllProjects(@ParameterObject Pageable pageable) {
 		log.debug("Fetching al projects");
-		 try {
-		        Page<ProjectDTO> projects = projectService.findAllProjects(pageable)
-		                .map(projectMapper::toDTO);
-		        return ResponseEntity.ok(PaginatedResponse.success(projects));
-		    } catch (Exception e) {
-		        log.error("Error fetching projects: {}", e.getMessage());
-		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-		                .body(PaginatedResponse.error("Failed to fetch projects"));
-		    }
+		try {
+			Page<ProjectDTO> projects = projectService.findAllProjects(pageable).map(projectMapper::toDTO);
+			return ResponseEntity.ok(PaginatedResponse.success(projects));
+		} catch (Exception e) {
+			log.error("Error fetching projects: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(PaginatedResponse.error("Failed to fetch projects"));
+		}
 	}
-	
-	
+
 	@Operation(summary = "Get project by ID")
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse<ProjectDTO>> getProjectById(
@@ -114,14 +116,13 @@ public class ProjectController {
 				log.error("User not found with email: {}", authentication.getName());
 				return new EntityNotFoundException("User not found");
 			});
-			
+
 			projectDTO.setCreatedBy(creator.getId());
-			
+
 			Project createdProject = projectService.createProject(projectDTO, creator.getId());
 			log.info("Created project with ID: {}", createdProject.getId());
-			
-			return ResponseEntity.status(HttpStatus.CREATED)
-					.body(ApiResponse.success(createdProject.getId()));
+
+			return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(createdProject.getId()));
 
 		} catch (EntityNotFoundException e) {
 			log.error("Error creating project: {}", e.getMessage());
@@ -140,11 +141,10 @@ public class ProjectController {
 			@Valid @RequestBody ProjectDTO projectDTO) {
 		log.debug("Updating project with ID: {}", id);
 		try {
-			Project updatedProject = projectService.updateProject(id, projectDTO)
-					.orElseThrow(() -> {
-						log.error("Failed to update project with ID: {}", id);
-						return new EntityNotFoundException("Project not found with id: " + id);
-					});
+			Project updatedProject = projectService.updateProject(id, projectDTO).orElseThrow(() -> {
+				log.error("Failed to update project with ID: {}", id);
+				return new EntityNotFoundException("Project not found with id: " + id);
+			});
 			log.info("Successfully updated project with ID: {}", id);
 			return ResponseEntity.ok(ApiResponse.success(updatedProject.getId()));
 		} catch (EntityNotFoundException e) {
@@ -178,23 +178,24 @@ public class ProjectController {
 		}
 
 	}
-	
+
 	@Operation(summary = "Get projects by creator with pagination")
 	@GetMapping("/creator/{userId}")
 	public ResponseEntity<PaginatedResponse<ProjectDTO>> getProjectsByCreator(
-			@Parameter(description = "ID of the creator user") @PathVariable Long userId, @ParameterObject Pageable pageable) {
+			@Parameter(description = "ID of the creator user") @PathVariable Long userId,
+			@ParameterObject Pageable pageable) {
 		log.debug("Fetching projects for creator with ID: {}", userId);
 		try {
-			Page<ProjectDTO> projects = projectService.findProjectsByCreator(userId, pageable).map(projectMapper::toDTO);
+			Page<ProjectDTO> projects = projectService.findProjectsByCreator(userId, pageable)
+					.map(projectMapper::toDTO);
 			return ResponseEntity.ok(PaginatedResponse.success(projects));
-		}  catch (Exception e) {
-	        log.error("Error fetching projects by creator: {}", e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(PaginatedResponse.error("Failed to fetch projects by creator"));
-	    }
+		} catch (Exception e) {
+			log.error("Error fetching projects by creator: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(PaginatedResponse.error("Failed to fetch projects by creator"));
+		}
 
 	}
-
 
 	@Operation(summary = "Get publication by project ID")
 	@GetMapping("/{id}/publication")
@@ -293,23 +294,23 @@ public class ProjectController {
 					.body(ApiResponse.error("Failed to fetch research"));
 		}
 	}
-	
+
 	@Operation(summary = "Get newest projects")
 	@GetMapping("/newest")
 	public ResponseEntity<PaginatedResponse<ProjectDTO>> getNewestProjects(
-			@Parameter(description = "Number of projects to return") @RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit, @ParameterObject Pageable pageable) {
+			@Parameter(description = "Number of projects to return") @RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit,
+			@ParameterObject Pageable pageable) {
 		log.debug("Fetching {} newest projects", limit);
 
 		try {
 			Page<ProjectDTO> projects = projectService.findNewestProjects(limit, pageable).map(projectMapper::toDTO);
-					
 
 			return ResponseEntity.ok(PaginatedResponse.success(projects));
 		} catch (Exception e) {
-	        log.error("Error fetching newest projects: {}", e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(PaginatedResponse.error("Failed to fetch newest projects"));
-	    }
+			log.error("Error fetching newest projects: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(PaginatedResponse.error("Failed to fetch newest projects"));
+		}
 
 	}
 }

@@ -1,7 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import { PatentDTO } from '@models/patent.model';
+import { ProjectResponse } from '@models/project.model';
+import { PublicationDTO } from '@models/publication.model';
+import { ResearchDTO } from '@models/research.model';
 import { IUser } from '@models/user.model';
 import { AdminInvitation } from '@pages/admin/components/user-management/components/types/invitation-list.types';
 import {
@@ -9,8 +13,9 @@ import {
   AuthResponse,
   RegisterRequest,
 } from '@shared/types/admin.types';
+import { IComment } from '@shared/types/comment.types';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +23,18 @@ import { map, Observable } from 'rxjs';
 export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = BASE_URL + 'admin';
+
+  projects = signal<ProjectResponse[]>([]);
+  publications = signal<PublicationDTO[]>([]);
+  patents = signal<PatentDTO[]>([]);
+  researches = signal<ResearchDTO[]>([]);
+  comments = signal<IComment[]>([]);
+
+  projectsPagination = signal({ page: 0, size: 10, total: 0 });
+  publicationsPagination = signal({ page: 0, size: 10, total: 0 });
+  patentsPagination = signal({ page: 0, size: 10, total: 0 });
+  researchesPagination = signal({ page: 0, size: 10, total: 0 });
+  commentsPagination = signal({ page: 0, size: 10, total: 0 });
 
   inviteAdmin(request: AdminInviteRequest): Observable<ApiResponse<string>> {
     return this.http.post<ApiResponse<string>>(
@@ -123,5 +140,130 @@ export class AdminService {
     return this.http.delete<ApiResponse<void>>(
       `${this.apiUrl}/invitations/${invitationId}`
     );
+  }
+
+  loadAllProjects(
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<ProjectResponse>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http
+      .get<PaginatedResponse<ProjectResponse>>(`${this.apiUrl}/projects`, {
+        params,
+      })
+      .pipe(
+        tap((response) => {
+          this.projects.set(response.data);
+          this.projectsPagination.set({
+            page,
+            size,
+            total: response.totalItems,
+          });
+          return response;
+        })
+      );
+  }
+
+  loadAllPublications(
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<PublicationDTO>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http
+      .get<PaginatedResponse<PublicationDTO>>(`${this.apiUrl}/publications`, {
+        params,
+      })
+      .pipe(
+        tap((response) => {
+          this.publications.set(response.data);
+          this.publicationsPagination.set({
+            page,
+            size,
+            total: response.totalItems,
+          });
+          return response;
+        })
+      );
+  }
+
+  loadAllPatents(
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<PatentDTO>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http
+      .get<PaginatedResponse<PatentDTO>>(`${this.apiUrl}/patents`, {
+        params,
+      })
+      .pipe(
+        tap((response) => {
+          this.patents.set(response.data);
+          this.patentsPagination.set({
+            page,
+            size,
+            total: response.totalItems,
+          });
+          return response;
+        })
+      );
+  }
+
+  loadAllResearches(
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<ResearchDTO>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http
+      .get<PaginatedResponse<ResearchDTO>>(`${this.apiUrl}/researches`, {
+        params,
+      })
+      .pipe(
+        tap((response) => {
+          this.researches.set(response.data);
+          this.researchesPagination.set({
+            page,
+            size,
+            total: response.totalItems,
+          });
+          return response;
+        })
+      );
+  }
+
+  loadAllComments(
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<IComment>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http
+      .get<PaginatedResponse<IComment>>(`${this.apiUrl}/comments`, {
+        params,
+      })
+      .pipe(
+        tap((response) => {
+          this.comments.set(response.data);
+          this.commentsPagination.set({
+            page,
+            size,
+            total: response.totalItems,
+          });
+          return response;
+        })
+      );
   }
 }

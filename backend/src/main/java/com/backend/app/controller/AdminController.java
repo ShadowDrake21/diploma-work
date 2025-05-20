@@ -1,5 +1,6 @@
 package com.backend.app.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,16 +20,32 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.app.dto.AdminInviteRequest;
 import com.backend.app.dto.ApiResponse;
 import com.backend.app.dto.AuthResponse;
+import com.backend.app.dto.CommentDTO;
 import com.backend.app.dto.PaginatedResponse;
+import com.backend.app.dto.PatentDTO;
+import com.backend.app.dto.PublicationDTO;
 import com.backend.app.dto.RegisterRequest;
+import com.backend.app.dto.ResearchDTO;
 import com.backend.app.dto.UserDTO;
 import com.backend.app.exception.BusinessRuleException;
 import com.backend.app.exception.InvalidTokenException;
 import com.backend.app.exception.ResourceAlreadyExistsException;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.exception.UnauthorizedAccessException;
+import com.backend.app.mapper.CommentMapper;
+import com.backend.app.mapper.PatentMapper;
+import com.backend.app.mapper.ProjectMapper;
+import com.backend.app.mapper.PublicationMapper;
+import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.AdminInvitation;
+import com.backend.app.model.ProjectResponse;
 import com.backend.app.service.AdminService;
+import com.backend.app.service.CommentService;
+import com.backend.app.service.PatentService;
+import com.backend.app.service.ProjectService;
+import com.backend.app.service.PublicationService;
+import com.backend.app.service.ResearchService;
+import com.backend.app.service.UserService;
 import com.backend.app.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +64,16 @@ public class AdminController {
 	
 	private final AdminService adminService;
 	private final JwtUtil jwtUtil;
+	private final ProjectService projectService;
+	private final ProjectMapper projectMapper;
+	private final PublicationService publicationService;
+	private final PublicationMapper publicationMapper;
+	private final PatentService patentService;
+	private final PatentMapper patentMapper;
+	private final ResearchService researchService;
+	private final ResearchMapper researchMapper;
+	private final CommentService commentService;
+	private final CommentMapper commentMapper;
 	
 	@Operation(summary = "Get all admin invitations (paginated)", 
 	        description = "List all admin invitations with pagination")
@@ -269,4 +296,42 @@ public class AdminController {
 		                .body(ApiResponse.error(e.getMessage()));
 		    }
 	    }
+	    
+	    @Operation(summary = "Get all projects for admin", description = "Get all projects with full details for admin review")
+		@GetMapping("/projects")
+		public ResponseEntity<PaginatedResponse<ProjectResponse>> getAllProjects(
+				@ParameterObject Pageable pageable) {
+			Page<ProjectResponse> projects = projectService.findAllProjects(pageable).map(projectMapper::toResponse);
+			return ResponseEntity.ok(PaginatedResponse.success(projects));
+		}
+
+		@Operation(summary = "Get all publications for admin")
+		@GetMapping("/publications")
+		public ResponseEntity<PaginatedResponse<PublicationDTO>> getAllPublications(
+				@ParameterObject Pageable pageable) {
+			Page<PublicationDTO> publications = publicationService.findAllPublications(pageable)
+					.map(publicationMapper::toDTO);
+			return ResponseEntity.ok(PaginatedResponse.success(publications));
+		}
+
+		@Operation(summary = "Get all patents for admin")
+		@GetMapping("/patents")
+		public ResponseEntity<PaginatedResponse<PatentDTO>> getAllPatents(@ParameterObject Pageable pageable) {
+			Page<PatentDTO> patents = patentService.findAllPatents(pageable).map(patentMapper::toDTO);
+			return ResponseEntity.ok(PaginatedResponse.success(patents));
+		}
+
+		@Operation(summary = "Get all research projects for admin")
+		@GetMapping("/researches")
+		public ResponseEntity<PaginatedResponse<ResearchDTO>> getAllResearches(@ParameterObject Pageable pageable) {
+			Page<ResearchDTO> researches = researchService.findAllResearches(pageable).map(researchMapper::toDTO);
+			return ResponseEntity.ok(PaginatedResponse.success(researches));
+		}
+
+		@Operation(summary = "Get all comments for admin")
+		@GetMapping("/comments")
+		public ResponseEntity<PaginatedResponse<CommentDTO>> getAllComments(@ParameterObject Pageable pageable) {
+			Page<CommentDTO> comments = commentService.findAllComments(pageable).map(commentMapper::toDTO);
+			return ResponseEntity.ok(PaginatedResponse.success(comments));
+		}
 }
