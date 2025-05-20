@@ -30,6 +30,7 @@ import com.backend.app.dto.PaginatedResponse;
 import com.backend.app.dto.PatentDTO;
 import com.backend.app.dto.ProjectDTO;
 import com.backend.app.dto.ProjectSearchCriteria;
+import com.backend.app.dto.ProjectWithDetailsDTO;
 import com.backend.app.dto.PublicationDTO;
 import com.backend.app.dto.ResearchDTO;
 import com.backend.app.enums.ProjectType;
@@ -313,4 +314,13 @@ public class ProjectController {
 		}
 
 	}
+	
+	@Operation(summary = "Get all projects with their typed details")
+	@GetMapping("/with-details")
+	public ResponseEntity<PaginatedResponse<ProjectWithDetailsDTO<?>>> getAllProjectsWithDetails(
+			@ParameterObject Pageable pageable){
+		Page<ProjectWithDetailsDTO<?>> projects = projectService.findAllProjectsWithDetails(pageable);
+		return ResponseEntity.ok(PaginatedResponse.success(projects));
+	}
+	
 }

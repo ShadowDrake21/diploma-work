@@ -18,6 +18,9 @@ import com.backend.app.model.Project;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpecificationExecutor<Project> {
+	@Query("SELECT p FROM Project p LEFT JOIN FETCH p.publication LEFT JOIN FETCH p.patent LEFT JOIN FETCH p.research")
+	Page<Project> findAllWithDetails(Pageable pageable);
+	
 	@Query("SELECT p FROM Project p JOIN FETCH p.creator WHERE p.creator.id = :userId")
 	List<Project> findProjectsWithCreatorByUserId(@Param("userId") Long userId);
 

@@ -73,3 +73,21 @@ export interface Tag {
   name: string;
   color: string;
 }
+
+export interface ProjectWithDetails {
+  project: ProjectDTO;
+  details: PatentDTO | PublicationDTO | ResearchDTO | null;
+}
+
+export interface ProjectWithPublication {
+  project: ProjectDTO;
+  publication: PublicationDTO;
+}
+export interface ProjectWithPatent {
+  project: ProjectDTO;
+  patent: PatentDTO;
+}
+export interface ProjectWithResearch {
+  project: ProjectDTO;
+  research: ResearchDTO;
+}

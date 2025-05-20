@@ -13,15 +13,25 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.backend.app.dto.PatentDTO;
 import com.backend.app.dto.ProjectDTO;
 import com.backend.app.dto.ProjectSearchCriteria;
+import com.backend.app.dto.ProjectWithDetailsDTO;
+import com.backend.app.dto.PublicationDTO;
+import com.backend.app.dto.ResearchDTO;
+import com.backend.app.mapper.PatentMapper;
 import com.backend.app.mapper.ProjectMapper;
+import com.backend.app.mapper.PublicationMapper;
+import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.FileMetadata;
 import com.backend.app.model.Project;
 import com.backend.app.model.Tag;
 import com.backend.app.model.User;
 import com.backend.app.repository.FileMetadataRepository;
+import com.backend.app.repository.PatentRepository;
 import com.backend.app.repository.ProjectRepository;
+import com.backend.app.repository.PublicationRepository;
+import com.backend.app.repository.ResearchRepository;
 import com.backend.app.repository.TagRepository;
 import com.backend.app.repository.UserRepository;
 
@@ -45,6 +55,12 @@ public class ProjectService {
 	private final TagRepository tagRepository;
 	private final S3Service s3Service;
 	private final FileMetadataRepository fileMetadataRepository;
+	private final PublicationRepository publicationRepository;
+	private final PublicationMapper publicationMapper;
+	private final PatentRepository patentRepository;
+	private final PatentMapper patentMapper;
+	private final ResearchRepository researchRepository;
+	private final ResearchMapper researchMapper;
 	private final ProjectSpecificationService specificationService;
 	private final ProjectMapper projectMapper;
 	private final UserRepository userRepository;
@@ -136,6 +152,41 @@ public class ProjectService {
                 Sort.by(Sort.Direction.DESC, "createdAt")
             )
         );
+	}
+	
+	public Page<ProjectWithDetailsDTO<?>> findAllProjectsWithDetails(Pageable pageable) {
+		Page<Project> projects = projectRepository.findAllWithDetails(pageable);
+		
+		return projects.map(project ->{
+			ProjectDTO projectDTO = projectMapper.toDTO(project);
+			
+			switch (project.getType()) {
+			case PUBLICATION: 
+				
+				PublicationDTO pubDto = publicationRepository.findByProjectId(project.getId())
+						.stream().findFirst().map(publicationMapper::toDTO).orElse(null);
+				return new ProjectWithDetailsDTO<PublicationDTO>(projectDTO, pubDto);
+				
+			case PATENT:
+                PatentDTO patentDto = patentRepository.findByProjectId(project.getId())
+                    .stream()
+                    .findFirst()
+                    .map(patentMapper::toDTO)
+                    .orElse(null);
+                return new ProjectWithDetailsDTO<PatentDTO>(projectDTO, patentDto);
+                
+            case RESEARCH:
+                ResearchDTO researchDto = researchRepository.findByProjectId(project.getId())
+                    .stream()
+                    .findFirst()
+                    .map(researchMapper::toDTO)
+                    .orElse(null);
+                return new ProjectWithDetailsDTO<ResearchDTO>(projectDTO, researchDto);
+                
+            default:
+                return new ProjectWithDetailsDTO<>(projectDTO, null);
+			}
+		});
 	}
 
 	// ========== CREATE OPERATIONS ========== //

@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
 import { PatentDTO } from '@models/patent.model';
-import { ProjectResponse } from '@models/project.model';
+import { ProjectResponse, ProjectWithDetails } from '@models/project.model';
 import { PublicationDTO } from '@models/publication.model';
 import { ResearchDTO } from '@models/research.model';
 import { IUser } from '@models/user.model';
@@ -139,6 +139,22 @@ export class AdminService {
   revokeInvitation(invitationId: number): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
       `${this.apiUrl}/invitations/${invitationId}`
+    );
+  }
+
+  getProjectsWithDetails(
+    page: number = 0,
+    pageSize: number = 10
+  ): Observable<PaginatedResponse<ProjectWithDetails>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<PaginatedResponse<ProjectWithDetails>>(
+      `${this.apiUrl}/with-details`,
+      {
+        ...getAuthHeaders(),
+        params,
+      }
     );
   }
 

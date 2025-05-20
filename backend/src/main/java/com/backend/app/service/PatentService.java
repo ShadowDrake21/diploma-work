@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.model.Patent;
 import com.backend.app.model.PatentCoInventor;
 import com.backend.app.model.Project;
+import com.backend.app.model.Publication;
 import com.backend.app.model.User;
 import com.backend.app.repository.PatentRepository;
 import com.backend.app.repository.ProjectRepository;
@@ -36,6 +39,10 @@ public class PatentService {
 	
 	public List<Patent> findAllPatents(){
 		return patentRepository.findAll();
+	}
+	
+	public Page<Patent> findAllPatents(Pageable pageable) {
+		return patentRepository.findAll(pageable);
 	}
 	
 	public Optional<Patent> findPatentById(UUID id) {
@@ -62,38 +69,6 @@ public class PatentService {
             return patentRepository.save(existing);
         });
     }
-	
-	 private void clearExistingCoInventors(Patent patent) {
-		 log.debug("Clearing {} existing co-inventors for patent {}", 
-			        patent.getCoInventors().size(), patent.getId());
-	        // Create a new list to avoid ConcurrentModificationException
-	        List<PatentCoInventor> coInventorsToRemove = new ArrayList<>(patent.getCoInventors());
-	        coInventorsToRemove.forEach(patent::removeCoInventor);
-	        
-	        // Explicitly flush to ensure deletions are processed
-	        patentRepository.flush();
-	    }
-
-	    private void addNewCoInventors(Patent patent, List<PatentCoInventor> newCoInventors) {
-	    	log.debug("Adding {} new co-inventors to patent {}", 
-	    	        newCoInventors.size(), patent.getId());
-	        if (newCoInventors == null || newCoInventors.isEmpty()) {
-	            return;
-	        }
-
-	        for (PatentCoInventor newCoInventor : newCoInventors) {
-	            // Verify user exists
-	            Long userId = newCoInventor.getUser().getId();
-	            User user = userRepository.findById(userId)
-	                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
-	            
-	            // Create new relationship
-	            PatentCoInventor coInventor = new PatentCoInventor();
-	            coInventor.setPatent(patent);
-	            coInventor.setUser(user);
-	            patent.addCoInventor(coInventor);
-	        }
-	    }
 	
 	@Transactional
 	public Patent createPatent(CreatePatentRequest request) {

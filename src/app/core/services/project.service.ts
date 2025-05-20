@@ -10,6 +10,7 @@ import { ProjectType } from '@shared/enums/categories.enum';
 import {
   CreateProjectRequest,
   ProjectDTO,
+  ProjectWithDetails,
   UpdateProjectRequest,
 } from '@models/project.model';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
@@ -28,7 +29,7 @@ export class ProjectService {
   getAllProjects(
     page: number,
     pageSize: number
-  ): Observable<PaginatedResponse<ProjectDTO[]>>;
+  ): Observable<PaginatedResponse<ProjectDTO>>;
 
   getAllProjects(
     page?: number,
@@ -81,35 +82,6 @@ export class ProjectService {
   getResearchByProjectId(projectId: string): Observable<any> {
     return this.http.get(
       `${this.apiUrl}/${projectId}/research`,
-      getAuthHeaders()
-    );
-  }
-
-  getProjectsByStatus(
-    status: string,
-    page: number = 0,
-    size: number = 10
-  ): Observable<PaginatedResponse<ProjectDTO[]>> {
-    return this.http.get<PaginatedResponse<ProjectDTO[]>>(
-      `${this.apiUrl}/status/${status}?page=${page}&size=${size}`,
-      getAuthHeaders()
-    );
-  }
-
-  bulkUpdateStatus(
-    ids: string[],
-    status: string
-  ): Observable<ApiResponse<number>> {
-    return this.http.patch<ApiResponse<number>>(
-      `${this.apiUrl}/bulk-status`,
-      { ids, status },
-      getAuthHeaders()
-    );
-  }
-
-  getProjectStatistics(): Observable<ApiResponse<ProjectStatistics>> {
-    return this.http.get<ApiResponse<ProjectStatistics>>(
-      `${this.apiUrl}/statistics`,
       getAuthHeaders()
     );
   }
