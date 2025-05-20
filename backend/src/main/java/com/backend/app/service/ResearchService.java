@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import com.backend.app.dto.CreateResearchRequest;
 import com.backend.app.dto.ResearchDTO;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.ResearchMapper;
+import com.backend.app.model.Patent;
 import com.backend.app.model.Project;
 import com.backend.app.model.Research;
 import com.backend.app.model.ResearchParticipant;
@@ -46,6 +49,10 @@ public class ResearchService {
 	
 	public List<Research> findAllResearches(){
 		return researchRepository.findAll();
+	}
+	
+	public Page<Research> findAllResearches(Pageable pageable) {
+		return researchRepository.findAll(pageable);
 	}
 	
 	public Optional<Research> findResearchById(UUID id) {

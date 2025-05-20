@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,7 @@ import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.CommentMapper;
 import com.backend.app.model.Comment;
 import com.backend.app.model.Project;
+import com.backend.app.model.Research;
 import com.backend.app.model.User;
 import com.backend.app.repository.CommentRepository;
 import com.backend.app.repository.ProjectRepository;
@@ -30,6 +33,10 @@ public class CommentService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final CommentMapper commentMapper;
+    
+    public Page<Comment> findAllComments(Pageable pageable) {
+		return commentRepository.findAll(pageable);
+	}
     
     @Transactional(readOnly = true)
     public List<CommentDTO> getCommentsByProjectId(UUID projectId) {

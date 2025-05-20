@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.app.dto.CreatePublicationRequest;
+import com.backend.app.dto.ProjectDTO;
+import com.backend.app.dto.ProjectWithDetailsDTO;
 import com.backend.app.dto.PublicationDTO;
 import com.backend.app.dto.ResponseUserDTO;
 import com.backend.app.exception.ResourceNotFoundException;
@@ -51,6 +55,10 @@ public class PublicationService {
 
 	public List<Publication> findAllPublications() {
 		return publicationRepository.findAll();
+	}
+	
+	public Page<Publication> findAllPublications(Pageable pageable) {
+		return publicationRepository.findAll(pageable);
 	}
 
 	public PublicationDTO findPublicationById(UUID id) {

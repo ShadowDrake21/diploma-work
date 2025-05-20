@@ -21,7 +21,7 @@ export class AttachmentsService {
    * @returns Observable of file metadata array
    */
   getFilesByEntity(
-    entityType: string,
+    entityType: ProjectType,
     entityId: string
   ): Observable<FileMetadataDTO[]> {
     const endpoint = this.buildEndpoint(
