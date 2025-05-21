@@ -1,0 +1,39 @@
+<mat-grid-list>
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Project Type Distribution</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ngx-charts-pie-chart
+          *ngIf="projectDistributionChart$ | async as chartData"
+          [results]="chartData"
+          [labels]="true"
+          [doughnut]="true"
+        >
+        </ngx-charts-pie-chart>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Project Progress</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ngx-charts-bar-vertical
+          *ngIf="projectProgressChart$ | async as chartData"
+          [results]="chartData"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Progress"
+          yAxisLabel="Count"
+        >
+        </ngx-charts-bar-vertical>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>

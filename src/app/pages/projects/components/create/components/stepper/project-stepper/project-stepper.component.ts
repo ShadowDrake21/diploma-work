@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { MatStepperModule } from '@angular/material/stepper';
-import { ProjectFormService } from '@core/services/project-form.service';
+import { ProjectFormService } from '@core/services/project/project-form/project-form.service';
 import { ProjectTypeStepComponent } from '../project-type-step/project-type-step.component';
 import { ProjectGeneralInfoStepComponent } from '../project-general-info-step/project-general-info-step.component';
 import { ProjectWorkInfoStepComponent } from '../project-work-info-step/project-work-info-step.component';

@@ -1,0 +1,49 @@
+<!-- system-analytics.component.html -->
+<mat-grid-list cols="2" rowHeight="400px">
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>System Performance</mat-card-title>
+      </mat-card-header>
+      @if (systemPerformace(); as performance ){
+      <mat-card-content>
+        <div class="metric-grid">
+          <div class="metric-item">
+            <h3>{{ performance.averageResponseTime }}ms</h3>
+            <p>Avg. Response Time</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ performance.uptimePercentage | number : "1.2-2" }}%</h3>
+            <p>Uptime</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ performance.activeConnections }}</h3>
+            <p>Active Connections</p>
+          </div>
+        </div> </mat-card-content
+      >}
+    </mat-card>
+  </mat-grid-tile>
+
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Comment Activity</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ngx-charts-line-chart
+          *ngIf="commentActivityChart$ | async as chartData"
+          [results]="chartData"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Date"
+          yAxisLabel="Activity"
+          [legend]="true"
+        >
+        </ngx-charts-line-chart>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>

@@ -17,7 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { ICreateComment } from '@shared/types/comment.types';
 import { FormsModule } from '@angular/forms';
 import { ProjectDTO } from '@models/project.model';
-import { ProjectDetailsService } from '@core/services/project-details/project-details.service';
+import { ProjectDetailsService } from '@core/services/project/project-details/project-details.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Component({

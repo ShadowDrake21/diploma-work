@@ -11,7 +11,7 @@ import {
 } from '@shared/models/user.model';
 import { getAuthHeaders } from '@shared/utils/auth.utils';
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
-import { ProjectService } from './project.service';
+import { ProjectService } from './project/models/project.service';
 import { ProjectDTO } from '@models/project.model';
 import { ApiResponse } from '@models/api-response.model';
 
