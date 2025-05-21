@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.backend.app.dto.PublicationDTO;
-import com.backend.app.dto.ResponseUserDTO;
-import com.backend.app.dto.UpdatePublicationRequest;
+import com.backend.app.dto.miscellaneous.ResponseUserDTO;
+import com.backend.app.dto.model.PublicationDTO;
+import com.backend.app.dto.request.UpdatePublicationRequest;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.model.Publication;
 import com.backend.app.model.PublicationAuthor;

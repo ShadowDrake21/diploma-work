@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.backend.app.dto.FileMetadataDTO;
+import com.backend.app.dto.model.FileMetadataDTO;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.model.FileMetadata;
 import com.backend.app.repository.FileMetadataRepository;

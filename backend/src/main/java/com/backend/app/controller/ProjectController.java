@@ -24,15 +24,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.dto.ApiResponse;
-import com.backend.app.dto.CommentDTO;
-import com.backend.app.dto.PaginatedResponse;
-import com.backend.app.dto.PatentDTO;
-import com.backend.app.dto.ProjectDTO;
-import com.backend.app.dto.ProjectSearchCriteria;
-import com.backend.app.dto.ProjectWithDetailsDTO;
-import com.backend.app.dto.PublicationDTO;
-import com.backend.app.dto.ResearchDTO;
+import com.backend.app.dto.miscellaneous.ProjectSearchCriteria;
+import com.backend.app.dto.miscellaneous.ProjectWithDetailsDTO;
+import com.backend.app.dto.model.CommentDTO;
+import com.backend.app.dto.model.PatentDTO;
+import com.backend.app.dto.model.ProjectDTO;
+import com.backend.app.dto.model.PublicationDTO;
+import com.backend.app.dto.model.ResearchDTO;
+import com.backend.app.dto.response.ApiResponse;
+import com.backend.app.dto.response.PaginatedResponse;
+import com.backend.app.dto.response.ProjectResponse;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.mapper.CommentMapper;
 import com.backend.app.mapper.PatentMapper;
@@ -40,7 +41,6 @@ import com.backend.app.mapper.ProjectMapper;
 import com.backend.app.mapper.PublicationMapper;
 import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.Project;
-import com.backend.app.model.ProjectResponse;
 import com.backend.app.model.User;
 import com.backend.app.service.CommentService;
 import com.backend.app.service.PatentService;
@@ -76,8 +76,6 @@ public class ProjectController {
 	private final ResearchService researchService;
 	private final ResearchMapper researchMapper;
 	private final UserService userService;
-	private final CommentService commentService;
-	private final CommentMapper commentMapper;
 
 	@Operation(summary = "Get all projects with pagination")
 	@GetMapping

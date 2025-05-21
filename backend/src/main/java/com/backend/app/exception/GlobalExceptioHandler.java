@@ -8,7 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.backend.app.dto.ApiResponse;
+import com.backend.app.dto.response.ApiResponse;
 
 import lombok.extern.slf4j.Slf4j;
 

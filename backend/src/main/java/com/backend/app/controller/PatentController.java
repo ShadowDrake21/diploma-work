@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.backend.app.dto.CreatePatentRequest;
-import com.backend.app.dto.PatentDTO;
+import com.backend.app.dto.create.CreatePatentRequest;
+import com.backend.app.dto.model.PatentDTO;
 import com.backend.app.mapper.PatentMapper;
 import com.backend.app.model.Patent;
 import com.backend.app.service.PatentService;

@@ -16,8 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.backend.app.dto.CreateResearchRequest;
-import com.backend.app.dto.ResearchDTO;
+import com.backend.app.dto.create.CreateResearchRequest;
+import com.backend.app.dto.model.ResearchDTO;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.Patent;

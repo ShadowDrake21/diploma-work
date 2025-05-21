@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.backend.app.dto.DashboardMetricsDTO;
+import com.backend.app.dto.miscellaneous.DashboardMetricsDTO;
 import com.backend.app.repository.PatentRepository;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.PublicationRepository;

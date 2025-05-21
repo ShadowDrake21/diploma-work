@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import com.backend.app.dto.PatentDTO;
-import com.backend.app.dto.UserDTO;
+import com.backend.app.dto.model.PatentDTO;
+import com.backend.app.dto.model.UserDTO;
 import com.backend.app.model.Patent;
 import com.backend.app.model.PatentCoInventor;
 import com.backend.app.model.Project;

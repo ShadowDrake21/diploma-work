@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.app.dto.TagDTO;
+import com.backend.app.dto.model.TagDTO;
 import com.backend.app.mapper.TagMapper;
 import com.backend.app.model.Tag;
 import com.backend.app.repository.TagRepository;

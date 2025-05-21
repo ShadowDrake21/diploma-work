@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.backend.app.dto.ApiResponse;
-import com.backend.app.dto.FileMetadataDTO;
+import com.backend.app.dto.model.FileMetadataDTO;
+import com.backend.app.dto.response.ApiResponse;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.repository.FileMetadataRepository;

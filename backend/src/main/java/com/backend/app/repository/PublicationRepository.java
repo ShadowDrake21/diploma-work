@@ -1,6 +1,7 @@
 package com.backend.app.repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,4 +39,12 @@ public interface PublicationRepository extends JpaRepository<Publication, UUID>,
 	        WHERE p.id = :id
 	        """)
 	Optional<Publication> findByIdWithRelations(@Param("id") UUID id);
+	
+	@Query("SELECT " +
+		       "COUNT(p) as total, " +
+		       "AVG(p.endPage - p.startPage) as avgPages, " +
+		       "(SELECT p2.publicationSource FROM Publication p2 GROUP BY p2.publicationSource ORDER BY COUNT(p2) DESC LIMIT 1) as commonSource, " +
+		       "(SELECT COUNT(p3) FROM Publication p3 WHERE YEAR(p3.publicationDate) = YEAR(CURRENT_DATE)) as yearPublications " +
+		       "FROM Publication p")
+		Map<String, Object> getPublicationMetrics();
 }

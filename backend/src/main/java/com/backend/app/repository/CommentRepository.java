@@ -1,5 +1,6 @@
 package com.backend.app.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,4 +25,11 @@ public interface CommentRepository extends JpaRepository<Comment, UUID>{
 	@Modifying
 	@Query("DELETE FROM Comment c WHERE c.user.id = :userId")
 	void deleteByUserId(@Param("userId") Long userId);
+	
+	@Query("SELECT DATE(c.createdAt) as date, COUNT(c) as count, SUM(c.likes) as likes " +
+		       "FROM Comment c " +
+		       "WHERE DATE(c.createdAt) >= :startDate " +
+		       "GROUP BY DATE(c.createdAt) " +
+		       "ORDER BY DATE(c.createdAt)")
+		List<Object[]> countCommentsByDateRangeGroupedByDate(LocalDate startDate);
 }

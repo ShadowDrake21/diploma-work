@@ -11,10 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.app.dto.AdminInviteRequest;
-import com.backend.app.dto.AuthResponse;
-import com.backend.app.dto.RegisterRequest;
-import com.backend.app.dto.UserDTO;
+import com.backend.app.dto.model.UserDTO;
+import com.backend.app.dto.request.AdminInviteRequest;
+import com.backend.app.dto.request.RegisterRequest;
+import com.backend.app.dto.response.AuthResponse;
 import com.backend.app.enums.Role;
 import com.backend.app.exception.BusinessRuleException;
 import com.backend.app.exception.InvalidTokenException;

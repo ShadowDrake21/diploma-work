@@ -2,8 +2,8 @@ package com.backend.app.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.backend.app.dto.ResponseUserDTO;
-import com.backend.app.dto.UserDTO;
+import com.backend.app.dto.miscellaneous.ResponseUserDTO;
+import com.backend.app.dto.model.UserDTO;
 import com.backend.app.model.User;
 
 @Component

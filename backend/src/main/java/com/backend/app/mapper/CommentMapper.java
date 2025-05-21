@@ -2,7 +2,7 @@ package com.backend.app.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.backend.app.dto.CommentDTO;
+import com.backend.app.dto.model.CommentDTO;
 import com.backend.app.model.Comment;
 import com.backend.app.security.SecurityUtils;
 

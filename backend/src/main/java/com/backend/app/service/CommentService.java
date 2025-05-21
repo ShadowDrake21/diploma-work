@@ -9,8 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.app.dto.CommentDTO;
-import com.backend.app.dto.CreateCommentDTO;
+import com.backend.app.dto.create.CreateCommentDTO;
+import com.backend.app.dto.model.CommentDTO;
 import com.backend.app.exception.AuthorizationException;
 import com.backend.app.exception.BusinessRuleException;
 import com.backend.app.exception.ResourceNotFoundException;

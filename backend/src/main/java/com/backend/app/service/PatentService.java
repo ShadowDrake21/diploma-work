@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.backend.app.dto.CreatePatentRequest;
+import com.backend.app.dto.create.CreatePatentRequest;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.model.Patent;
 import com.backend.app.model.PatentCoInventor;

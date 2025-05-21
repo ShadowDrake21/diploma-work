@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.dto.ApiResponse;
-import com.backend.app.dto.AuthResponse;
-import com.backend.app.dto.LoginRequest;
-import com.backend.app.dto.RegisterRequest;
-import com.backend.app.dto.RequestPasswordResetRequest;
-import com.backend.app.dto.ResetPasswordRequest;
-import com.backend.app.dto.VerifyRequest;
+import com.backend.app.dto.request.LoginRequest;
+import com.backend.app.dto.request.RegisterRequest;
+import com.backend.app.dto.request.RequestPasswordResetRequest;
+import com.backend.app.dto.request.ResetPasswordRequest;
+import com.backend.app.dto.request.VerifyRequest;
+import com.backend.app.dto.response.ApiResponse;
+import com.backend.app.dto.response.AuthResponse;
 import com.backend.app.enums.Role;
 import com.backend.app.model.ActiveToken;
 import com.backend.app.model.User;
@@ -43,7 +43,7 @@ public class AuthController {
 	private final ActiveTokenRepository activeTokenRepository;
 
 	@PostMapping("/login")
-	public ResponseEntity<com.backend.app.dto.ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
+	public ResponseEntity<com.backend.app.dto.response.ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
 		if (request.getEmail() == null || request.getEmail().isEmpty()) {
 			return ResponseEntity.badRequest().body(ApiResponse.error("Email is required."));
 		}

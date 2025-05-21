@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
-import com.backend.app.dto.TagDTO;
+import com.backend.app.dto.model.TagDTO;
 import com.backend.app.model.Tag;
 
 import lombok.extern.slf4j.Slf4j;

@@ -1,5 +1,6 @@
 package com.backend.app.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,4 +27,18 @@ public interface UserRepository extends JpaRepository<User, Long>{
 	
     @Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(concat('%', :query, '%')) OR LOWER(u.email) LIKE LOWER(concat('%', :query, '%'))")
     Page<User> searchUsers(String query, Pageable pageable);
-	}
+    
+    @Query("SELECT DATE(u.createdAt) as date, COUNT(u) as count, " +
+    	       "(SELECT COUNT(DISTINCT at.userId) FROM ActiveToken at WHERE DATE(at.expiry) >= DATE(u.createdAt)) as active " +
+    	       "FROM User u " +
+    	       "WHERE u.createdAt BETWEEN :startDate AND :endDate " +
+    	       "GROUP BY DATE(u.createdAt) " +
+    	       "ORDER BY DATE(u.createdAt)")
+    List<Object[]> countUsersByRegistrationDateBetweenGroupedByDate(LocalDateTime startDate, LocalDateTime endDate);
+    
+    @Query("SELECT u.role, COUNT(u) FROM User u GROUP BY u.role")
+    List<Object[]> countUsersByRole();
+    
+    long countByActiveTrue();
+    
+}

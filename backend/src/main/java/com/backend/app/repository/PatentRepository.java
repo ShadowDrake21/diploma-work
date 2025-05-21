@@ -1,6 +1,7 @@
 package com.backend.app.repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,4 +20,12 @@ public interface PatentRepository extends JpaRepository<Patent, UUID>, JpaSpecif
 	
 	@Query("SELECT p FROM Patent p LEFT JOIN FETCH p.coInventors WHERE p.id = :id")
 	Optional<Patent> findByIdWithConInventors(@Param("id") UUID id);
+	
+	@Query("SELECT " +
+		       "COUNT(p) as total, " +
+		       "AVG(SIZE(p.coInventors)) as avgInventors, " +
+		       "(SELECT p2.issuingAuthority FROM Patent p2 GROUP BY p2.issuingAuthority ORDER BY COUNT(p2) DESC LIMIT 1) as commonAuthority, " +
+		       "(SELECT COUNT(p3) FROM Patent p3 WHERE YEAR(p3.registrationDate) = YEAR(CURRENT_DATE)) as yearPatents " +
+		       "FROM Patent p")
+		Map<String, Object> getPatentMetrics();
 }

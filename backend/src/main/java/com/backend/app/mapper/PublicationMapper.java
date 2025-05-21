@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Component;
 
-import com.backend.app.dto.PublicationDTO;
+import com.backend.app.dto.model.PublicationDTO;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.model.Project;
 import com.backend.app.model.Publication;

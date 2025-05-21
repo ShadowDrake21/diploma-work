@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.backend.app.dto.ResponseUserDTO;
-import com.backend.app.dto.UserDTO;
-import com.backend.app.dto.UserProfileUpdateDTO;
+import com.backend.app.dto.miscellaneous.ResponseUserDTO;
+import com.backend.app.dto.miscellaneous.UserProfileUpdateDTO;
+import com.backend.app.dto.model.UserDTO;
 import com.backend.app.enums.Role;
 import com.backend.app.exception.ResourceAlreadyExistsException;
 import com.backend.app.exception.ResourceNotFoundException;
