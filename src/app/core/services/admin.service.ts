@@ -183,81 +183,6 @@ export class AdminService {
       );
   }
 
-  loadAllPublications(
-    page: number = 0,
-    size: number = 10
-  ): Observable<PaginatedResponse<PublicationDTO>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-
-    return this.http
-      .get<PaginatedResponse<PublicationDTO>>(`${this.apiUrl}/publications`, {
-        params,
-      })
-      .pipe(
-        tap((response) => {
-          this.publications.set(response.data);
-          this.publicationsPagination.set({
-            page,
-            size,
-            total: response.totalItems,
-          });
-          return response;
-        })
-      );
-  }
-
-  loadAllPatents(
-    page: number = 0,
-    size: number = 10
-  ): Observable<PaginatedResponse<PatentDTO>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-
-    return this.http
-      .get<PaginatedResponse<PatentDTO>>(`${this.apiUrl}/patents`, {
-        params,
-      })
-      .pipe(
-        tap((response) => {
-          this.patents.set(response.data);
-          this.patentsPagination.set({
-            page,
-            size,
-            total: response.totalItems,
-          });
-          return response;
-        })
-      );
-  }
-
-  loadAllResearches(
-    page: number = 0,
-    size: number = 10
-  ): Observable<PaginatedResponse<ResearchDTO>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-
-    return this.http
-      .get<PaginatedResponse<ResearchDTO>>(`${this.apiUrl}/researches`, {
-        params,
-      })
-      .pipe(
-        tap((response) => {
-          this.researches.set(response.data);
-          this.researchesPagination.set({
-            page,
-            size,
-            total: response.totalItems,
-          });
-          return response;
-        })
-      );
-  }
-
   loadAllComments(
     page: number = 0,
     size: number = 10
@@ -281,5 +206,11 @@ export class AdminService {
           return response;
         })
       );
+  }
+
+  deleteComment(commentId: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${this.apiUrl}/comments/${commentId}`
+    );
   }
 }

@@ -1,5 +1,7 @@
 package com.backend.app.controller;
 
+import java.util.UUID;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,12 +68,6 @@ public class AdminController {
 	private final JwtUtil jwtUtil;
 	private final ProjectService projectService;
 	private final ProjectMapper projectMapper;
-	private final PublicationService publicationService;
-	private final PublicationMapper publicationMapper;
-	private final PatentService patentService;
-	private final PatentMapper patentMapper;
-	private final ResearchService researchService;
-	private final ResearchMapper researchMapper;
 	private final CommentService commentService;
 	private final CommentMapper commentMapper;
 	
@@ -305,33 +301,29 @@ public class AdminController {
 			return ResponseEntity.ok(PaginatedResponse.success(projects));
 		}
 
-		@Operation(summary = "Get all publications for admin")
-		@GetMapping("/publications")
-		public ResponseEntity<PaginatedResponse<PublicationDTO>> getAllPublications(
-				@ParameterObject Pageable pageable) {
-			Page<PublicationDTO> publications = publicationService.findAllPublications(pageable)
-					.map(publicationMapper::toDTO);
-			return ResponseEntity.ok(PaginatedResponse.success(publications));
-		}
-
-		@Operation(summary = "Get all patents for admin")
-		@GetMapping("/patents")
-		public ResponseEntity<PaginatedResponse<PatentDTO>> getAllPatents(@ParameterObject Pageable pageable) {
-			Page<PatentDTO> patents = patentService.findAllPatents(pageable).map(patentMapper::toDTO);
-			return ResponseEntity.ok(PaginatedResponse.success(patents));
-		}
-
-		@Operation(summary = "Get all research projects for admin")
-		@GetMapping("/researches")
-		public ResponseEntity<PaginatedResponse<ResearchDTO>> getAllResearches(@ParameterObject Pageable pageable) {
-			Page<ResearchDTO> researches = researchService.findAllResearches(pageable).map(researchMapper::toDTO);
-			return ResponseEntity.ok(PaginatedResponse.success(researches));
-		}
-
 		@Operation(summary = "Get all comments for admin")
 		@GetMapping("/comments")
 		public ResponseEntity<PaginatedResponse<CommentDTO>> getAllComments(@ParameterObject Pageable pageable) {
 			Page<CommentDTO> comments = commentService.findAllComments(pageable).map(commentMapper::toDTO);
 			return ResponseEntity.ok(PaginatedResponse.success(comments));
+		}
+		
+		@Operation(summary = "Delete comment (admin only)",
+		        description = "Admin can delete any comment regardless of ownership")
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Comment deleted successfully")
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Comment not found")
+		@DeleteMapping("/comments/{commentId}")
+		public ResponseEntity<ApiResponse<Void>> deleteComment(
+				@PathVariable UUID commentId, Authentication authentication) {
+			try {
+				adminService.deleteComment(commentId, authentication.getName());
+				return ResponseEntity.noContent().build();
+			} catch (ResourceNotFoundException e) {
+		        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+		                .body(ApiResponse.error(e.getMessage()));
+		    } catch (UnauthorizedAccessException e) {
+		        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+		                .body(ApiResponse.error(e.getMessage()));
+		    }
 		}
 }
