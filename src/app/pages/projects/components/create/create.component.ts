@@ -21,10 +21,9 @@ import { types } from '@content/createProject.content';
 import { UserService } from '@core/services/user.service';
 import { map, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProjectSharedService } from '@core/services/project-shared.service';
 import { IUser } from '@shared/models/user.model';
 import { ProjectStepperComponent } from './components/stepper/project-stepper/project-stepper.component';
-import { ProjectLoaderService } from '@core/services/project-creation/project-loader.service';
+import { ProjectLoaderService } from '@core/services/project/project-creation/project-loader.service';
 
 @Component({
   selector: 'project-creation',
@@ -58,7 +57,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   private headerService = inject(HeaderService);
   private userService = inject(UserService);
   private projectLoaderService = inject(ProjectLoaderService);
-  private projectSharedService = inject(ProjectSharedService);
   private cdr = inject(ChangeDetectorRef);
 
   creatorId: number | null = null;
@@ -95,8 +93,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
 
     if (this.projectId) {
       this.loadExistingProject();
-    } else {
-      this.projectSharedService.isProjectCreation = true;
     }
   }
 
@@ -113,7 +109,6 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.loading = false;
-            this.projectSharedService.isProjectCreation = false;
             this.cdr.detectChanges();
           },
           error: (error) => {

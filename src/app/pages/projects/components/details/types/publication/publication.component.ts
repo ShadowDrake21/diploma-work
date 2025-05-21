@@ -1,6 +1,6 @@
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { ProjectService } from '@core/services/project.service';
+import { ProjectService } from '@core/services/project/models/project.service';
 import { Observable } from 'rxjs';
 
 @Component({

@@ -11,11 +11,11 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminService } from '@core/services/admin.service';
 import { AttachmentsService } from '@core/services/attachments.service';
-import { PatentService } from '@core/services/patent.service';
-import { ProjectService } from '@core/services/project.service';
-import { PublicationService } from '@core/services/publication.service';
-import { ResearchService } from '@core/services/research.service';
-import { TagService } from '@core/services/tag.service';
+import { PatentService } from '@core/services/project/models/patent.service';
+import { ProjectService } from '@core/services/project/models/project.service';
+import { PublicationService } from '@core/services/project/models/publication.service';
+import { ResearchService } from '@core/services/project/models/research.service';
+import { TagService } from '@core/services/project/models/tag.service';
 import { FileMetadataDTO } from '@models/file.model';
 import {
   ProjectDTO,
