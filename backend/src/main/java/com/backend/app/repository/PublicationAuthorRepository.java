@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.backend.app.dto.ResponseUserDTO;
+import com.backend.app.dto.miscellaneous.ResponseUserDTO;
 import com.backend.app.model.Publication;
 import com.backend.app.model.PublicationAuthor;
 import com.backend.app.model.User;

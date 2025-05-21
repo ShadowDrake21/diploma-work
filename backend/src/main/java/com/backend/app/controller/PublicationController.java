@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.dto.CreatePublicationRequest;
-import com.backend.app.dto.PublicationDTO;
-import com.backend.app.dto.UpdatePublicationRequest;
+import com.backend.app.dto.create.CreatePublicationRequest;
+import com.backend.app.dto.model.PublicationDTO;
+import com.backend.app.dto.request.UpdatePublicationRequest;
 import com.backend.app.mapper.PublicationMapper;
 import com.backend.app.mapper.UpdatePublicationRequestMapper;
 import com.backend.app.model.Publication;

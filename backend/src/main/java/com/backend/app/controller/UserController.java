@@ -23,12 +23,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.backend.app.dto.ApiResponse;
-import com.backend.app.dto.PaginatedResponse;
-import com.backend.app.dto.ProjectDTO;
-import com.backend.app.dto.ResponseUserDTO;
-import com.backend.app.dto.UserDTO;
-import com.backend.app.dto.UserProfileUpdateDTO;
+import com.backend.app.dto.miscellaneous.ResponseUserDTO;
+import com.backend.app.dto.miscellaneous.UserProfileUpdateDTO;
+import com.backend.app.dto.model.ProjectDTO;
+import com.backend.app.dto.model.UserDTO;
+import com.backend.app.dto.response.ApiResponse;
+import com.backend.app.dto.response.PaginatedResponse;
 import com.backend.app.enums.Role;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.ProjectMapper;

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.backend.app.dto.ResearchDTO;
+import com.backend.app.dto.model.ResearchDTO;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.model.Project;
 import com.backend.app.model.Research;

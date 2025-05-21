@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.dto.ApiResponse;
-import com.backend.app.dto.TagDTO;
+import com.backend.app.dto.model.TagDTO;
+import com.backend.app.dto.response.ApiResponse;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.service.TagService;
 

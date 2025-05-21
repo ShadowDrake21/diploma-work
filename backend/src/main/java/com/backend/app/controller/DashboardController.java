@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.dto.DashboardMetricsDTO;
+import com.backend.app.dto.miscellaneous.DashboardMetricsDTO;
 import com.backend.app.service.DashboardService;
 
 @RestController

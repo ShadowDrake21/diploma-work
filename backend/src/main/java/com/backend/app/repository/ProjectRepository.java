@@ -57,5 +57,7 @@ public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpec
     long countByType(ProjectType type);
     long countByStatus(String status);
     long count();
-
+    
+    @Query("SELECT p.progress, COUNT(p) FROM Project p GROUP BY p.progress ORDER BY p.progress")
+    List<Object[]> getProjectProgressDistribution();
 }

@@ -15,4 +15,7 @@ public interface AdminInvitationRepository extends JpaRepository<AdminInvitation
 	@NonNull
 	Page<AdminInvitation> findAll(@NonNull Pageable pageable);
 	boolean existsByEmailAndCompletedFalseAndRevokedFalse(String email);
+	
+    long countByCompletedFalseAndRevokedFalse();
+
 }

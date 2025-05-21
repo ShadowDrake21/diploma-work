@@ -19,11 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.app.dto.CreatePublicationRequest;
-import com.backend.app.dto.ProjectDTO;
-import com.backend.app.dto.ProjectWithDetailsDTO;
-import com.backend.app.dto.PublicationDTO;
-import com.backend.app.dto.ResponseUserDTO;
+import com.backend.app.dto.create.CreatePublicationRequest;
+import com.backend.app.dto.miscellaneous.ProjectWithDetailsDTO;
+import com.backend.app.dto.miscellaneous.ResponseUserDTO;
+import com.backend.app.dto.model.ProjectDTO;
+import com.backend.app.dto.model.PublicationDTO;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.PublicationMapper;
 import com.backend.app.model.Project;

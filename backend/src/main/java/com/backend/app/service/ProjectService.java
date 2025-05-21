@@ -13,12 +13,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.backend.app.dto.PatentDTO;
-import com.backend.app.dto.ProjectDTO;
-import com.backend.app.dto.ProjectSearchCriteria;
-import com.backend.app.dto.ProjectWithDetailsDTO;
-import com.backend.app.dto.PublicationDTO;
-import com.backend.app.dto.ResearchDTO;
+import com.backend.app.dto.miscellaneous.ProjectSearchCriteria;
+import com.backend.app.dto.miscellaneous.ProjectWithDetailsDTO;
+import com.backend.app.dto.model.PatentDTO;
+import com.backend.app.dto.model.ProjectDTO;
+import com.backend.app.dto.model.PublicationDTO;
+import com.backend.app.dto.model.ResearchDTO;
 import com.backend.app.mapper.PatentMapper;
 import com.backend.app.mapper.ProjectMapper;
 import com.backend.app.mapper.PublicationMapper;

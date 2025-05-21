@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.dto.ApiResponse;
-import com.backend.app.dto.CommentDTO;
-import com.backend.app.dto.CreateCommentDTO;
+import com.backend.app.dto.create.CreateCommentDTO;
+import com.backend.app.dto.model.CommentDTO;
+import com.backend.app.dto.response.ApiResponse;
 import com.backend.app.exception.BusinessRuleException;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.exception.UnauthorizedException;

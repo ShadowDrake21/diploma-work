@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.backend.app.dto.ProjectSearchCriteria;
+import com.backend.app.dto.miscellaneous.ProjectSearchCriteria;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.model.Project;
 import com.backend.app.model.Tag;

@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import com.backend.app.dto.ProjectDTO;
-import com.backend.app.dto.TagDTO;
+import com.backend.app.dto.model.ProjectDTO;
+import com.backend.app.dto.model.TagDTO;
+import com.backend.app.dto.response.ProjectResponse;
 import com.backend.app.model.Project;
-import com.backend.app.model.ProjectResponse;
 import com.backend.app.model.Tag;
 import com.backend.app.model.User;
 import com.backend.app.repository.TagRepository;
