@@ -6,14 +6,14 @@ export const AdminRoutes: Routes = [
     loadComponent: () =>
       import('./admin.component').then((c) => c.AdminComponent),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'users-management' },
-      // {
-      //   path: 'dashboard',
-      //   loadComponent: () =>
-      //     import('./components/dashboard/dashboard.component').then(
-      //       (c) => c.DashboardComponent
-      //     ),
-      // },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./components/dashboard/dashboard.component').then(
+            (c) => c.DashboardComponent
+          ),
+      },
       {
         path: 'content-management',
         loadComponent: () =>

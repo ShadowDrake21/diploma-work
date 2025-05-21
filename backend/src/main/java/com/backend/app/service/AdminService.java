@@ -3,6 +3,7 @@ package com.backend.app.service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import com.backend.app.exception.UnauthorizedAccessException;
 import com.backend.app.mapper.UserMapper;
 import com.backend.app.model.ActiveToken;
 import com.backend.app.model.AdminInvitation;
+import com.backend.app.model.Comment;
 import com.backend.app.model.Project;
 import com.backend.app.model.User;
 import com.backend.app.repository.ActiveTokenRepository;
@@ -283,6 +285,25 @@ public class AdminService {
 		invitation.setRevoked(true);
 		invitation.setRevokedAt(LocalDateTime.now());
 		adminInvitationRepository.save(invitation);
+	}
+	
+	@Transactional
+	public void deleteComment(UUID commentId, String adminEmail) {
+		User admin = userRepository.findByEmail(adminEmail).orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
+		
+		if(admin.getRole() != Role.ADMIN && admin.getRole() != Role.SUPER_ADMIN) {
+			throw new UnauthorizedAccessException("Only admins can perform this action");
+		}
+		
+		Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
+		
+		if(!comment.getReplies().isEmpty()) {
+			commentRepository.deleteAll(comment.getReplies());
+			
+		}
+		
+		commentRepository.delete(comment);
+		log.info("Comment {} deleted by admin {}", commentId, adminEmail);
 	}
 	
 	private User validateAdminAction(String adminEmail, Long targetUserId) {
