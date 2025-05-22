@@ -17,6 +17,8 @@ import { NotificationsComponent } from '@pages/dashboard/components/notification
 import { HeaderComponent } from '@shared/components/header/header.component';
 import { filter } from 'rxjs';
 import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/recent-users.component';
+import { AdminService } from '@core/services/admin.service';
+import { AuthService } from '@core/authentication/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +39,7 @@ import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/r
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
+  private readonly authService = inject(AuthService);
   private observer = inject(BreakpointObserver);
   private router = inject(Router);
 
@@ -49,6 +52,8 @@ export class AppComponent implements OnInit {
   isAuth = true;
   isSettings = false;
   isErrorPages = false;
+
+  isAdmin = false;
 
   ngOnInit() {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
@@ -68,6 +73,8 @@ export class AppComponent implements OnInit {
           event.url.split('/').includes('forbidden') ||
           event.url.split('/').includes('not-found');
       });
+
+    this.isAdmin = this.authService.isAdmin();
   }
 
   toggleMenu() {

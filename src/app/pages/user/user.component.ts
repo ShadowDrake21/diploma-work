@@ -22,6 +22,7 @@ import { catchError, of } from 'rxjs';
 import { ProjectDTO } from '@models/project.model';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { RoleFormatPipe } from '@pipes/role-format.pipe';
 
 @Component({
   selector: 'app-user-profile',
@@ -33,6 +34,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatChipsModule,
     MatPaginatorModule,
     MatProgressSpinner,
+    RoleFormatPipe,
   ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss',

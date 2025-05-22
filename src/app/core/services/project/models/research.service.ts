@@ -7,7 +7,7 @@ import {
   ResearchDTO,
   UpdateResearchRequest,
 } from '@models/research.model';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { Observable } from 'rxjs';
 
 @Injectable({

@@ -24,6 +24,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -86,6 +87,16 @@ public class Project {
 	 @Column(name = "deleted_user_id")
 	 private Long deletedUserId;
 	
+	 
+	 @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	 private Publication publication;
+	 
+	 @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	 private Patent patent;
+	 
+	 @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	 private Research research;
+	 
 	 @Builder
 	    public Project(ProjectType type, String title, String description, int progress) {
 	        this.type = type;

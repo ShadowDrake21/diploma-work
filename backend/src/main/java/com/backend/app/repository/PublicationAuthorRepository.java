@@ -40,7 +40,7 @@ public interface PublicationAuthorRepository extends JpaRepository<PublicationAu
         @Param("publicationId") UUID publicationId,
         @Param("userIds") List<Long> userIds);
 	
-	@Query("SELECT new com.backend.app.dto.ResponseUserDTO(u.id, u.username) " +
+	@Query("SELECT new com.backend.app.dto.miscellaneous.ResponseUserDTO(u.id, u.username) " +
 		       "FROM PublicationAuthor pa JOIN pa.user u WHERE pa.publication = :publication")
 	List<ResponseUserDTO> getAuthorsInfoByPublication(@Param("publication") Publication publication);
 			

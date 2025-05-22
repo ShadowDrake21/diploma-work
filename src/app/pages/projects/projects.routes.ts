@@ -27,6 +27,7 @@ export const ProjectsRoutes: Routes = [
           import('./components/details/details.component').then(
             (c) => c.ProjectDetailsComponent
           ),
+        runGuardsAndResolvers: 'always',
       },
     ],
   },

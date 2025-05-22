@@ -46,17 +46,6 @@ public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpec
 	
 	@Query("SELECT p.type, COUNT(p) FROM Project p GROUP BY p.type")
 	List<Object[]> getProjectCountsByType();
-
-	@Query("SELECT p.status, COUNT(p) FROM Project p GROUP BY p.status")
-	List<Object[]> getProjectCountsByStatus();
-	
-	@Modifying()
-	@Query("UPDATE Project p SET P.status = :status WHERE p.id IN :ids")
-	int updateStatusForProjects(@Param("ids") List<UUID> ids, @Param("status") String status);
-	
-    long countByType(ProjectType type);
-    long countByStatus(String status);
-    long count();
     
     @Query("SELECT p.progress, COUNT(p) FROM Project p GROUP BY p.progress ORDER BY p.progress")
     List<Object[]> getProjectProgressDistribution();

@@ -9,7 +9,7 @@ import {
   IUpdateUserProfile,
   IUser,
 } from '@shared/models/user.model';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ProjectService } from './project/models/project.service';
 import { ProjectDTO } from '@models/project.model';

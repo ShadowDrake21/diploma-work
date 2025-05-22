@@ -242,11 +242,6 @@ public class ProjectService {
 			return projectRepository.save(existingProject);
 		});
 	}
-	
-	public int bulkUpdateStatus(List<UUID> ids, String status) {
-		return projectRepository.updateStatusForProjects(ids, status);
-	}
-
 
 	// ========== DELETE OPERATIONS ========== //
 

@@ -8,7 +8,7 @@ import {
   TagDTO,
   TagListApiResponse,
 } from '@models/tag.model';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { map, Observable } from 'rxjs';
 
 @Injectable({

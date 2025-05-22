@@ -11,19 +11,19 @@
         </p>
         <p class="user-content__info-item">
           <span class="user-content__info-item__span">Role:</span>
-          {{ user()?.role }}
+          {{ user()?.role | roleFormat }}
         </p>
         <p class="user-content__info-item">
           <span class="user-content__info-item__span">Affiliation:</span>
           {{ user()?.affiliation }}
         </p>
       </div>
-      <div class="user-content__btns">
+      <!-- <div class="user-content__btns">
         <button mat-button class="user-content__btns-item">
           Send a message
         </button>
         <button mat-button class="user-content__btns-item">Follow</button>
-      </div>
+      </div> -->
       <ul class="user-content__metric-list">
         @for (item of userMetrics(); track $index) {
         <li class="user-content__metric-list__item">
