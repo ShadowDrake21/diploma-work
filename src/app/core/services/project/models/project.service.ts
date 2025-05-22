@@ -13,7 +13,7 @@ import {
   ProjectWithDetails,
   UpdateProjectRequest,
 } from '@models/project.model';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
 import { ProjectStatistics } from '@models/project-statistics';
 

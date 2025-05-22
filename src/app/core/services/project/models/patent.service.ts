@@ -8,7 +8,7 @@ import {
   PatentDTO,
   UpdatePatentRequest,
 } from '@models/patent.model';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { Observable } from 'rxjs';
 
 @Injectable({

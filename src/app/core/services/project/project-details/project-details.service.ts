@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, OnDestroy } from '@angular/core';
 import { AttachmentsService } from '../../attachments.service';
 import { CommentService } from '../../comment.service';
 import { ProjectService } from '../models/project.service';
@@ -16,17 +16,19 @@ import {
   startWith,
   Subject,
   switchMap,
+  takeUntil,
   tap,
   throwError,
 } from 'rxjs';
 import { IComment, ICreateComment } from '@shared/types/comment.types';
+import { ProjectType } from '@shared/enums/categories.enum';
 
 // COMMENTS!!!! (BUG FIXING)
 
 @Injectable({
   providedIn: 'root',
 })
-export class ProjectDetailsService {
+export class ProjectDetailsService implements OnDestroy {
   private projectService = inject(ProjectService);
   private attachmentsService = inject(AttachmentsService);
   private commentService = inject(CommentService);
@@ -36,25 +38,28 @@ export class ProjectDetailsService {
   private _commentsLoading = new BehaviorSubject<boolean>(false);
 
   private _project = new BehaviorSubject<ProjectDTO | undefined>(undefined);
-  project$ = this._project.asObservable();
   private _tags = new BehaviorSubject<any[]>([]);
-  tags$ = this._tags.asObservable();
   private _attachments = new BehaviorSubject<any[]>([]);
-  attachments$ = this._attachments.asObservable();
-  private _comments = new BehaviorSubject<IComment[]>([]); // New BehaviorSubject for comments
-  comments$ = this._comments.asObservable(); // Expose as observable
+  private _comments = new BehaviorSubject<IComment[]>([]);
 
-  publication$!: Observable<any>;
-  patent$!: Observable<any>;
-  research$!: Observable<any>;
+  project$ = this._project.asObservable();
+  tags$ = this._tags.asObservable();
+  attachments$ = this._attachments.asObservable();
+  comments$ = this._comments.asObservable(); // Expose as observable
   commentsLoading$ = this._commentsLoading.asObservable();
 
+  publication$: Observable<any> = of(null);
+  patent$: Observable<any> = of(null);
+  research$: Observable<any> = of(null);
+
+  private destroyed$ = new Subject<void>();
   private currentProjectId: string | null = null;
 
   constructor() {
     this.commentActions$
       .pipe(
         startWith('refresh'),
+        takeUntil(this.destroyed$),
         switchMap(() => {
           if (!this.currentProjectId) return of([]);
           this._commentsLoading.next(true);
@@ -76,31 +81,32 @@ export class ProjectDetailsService {
   }
 
   loadProjectDetails(projectId: string): void {
+    this.resetState();
     console.log('Loading project details for ID:', projectId);
     this.currentProjectId = projectId;
-    this.project$ = this.projectService.getProjectById(projectId).pipe(
-      map((res) => res.data),
-      tap((project) => {
-        if (project) {
-          console.log('Project details loaded:', project);
+    this.projectService
+      .getProjectById(projectId)
+      .pipe(
+        tap((res) => {
+          const project = res.data;
           this._project.next(project);
-          this.loadTags(project.tagIds);
-          this.loadAttachments(project.type, project.id);
-          this.loadSpecificProjectData(project.type, projectId);
-          this.refreshComments();
-        }
-      }),
-      catchError((error) => {
-        console.error('Error loading project:', error);
-        this._project.next(undefined);
-        return of(undefined);
-      })
-    );
 
-    this.project$.subscribe((project) => {
-      console.log('Project details subscription triggered');
-      console.log('Project details:', project);
-    });
+          if (project) {
+            console.log('Project details loaded:', project);
+            this._project.next(project);
+            this.loadTags(project.tagIds);
+            this.loadAttachments(project.type, project.id);
+            this.loadSpecificProjectData(project.type, projectId);
+            this.refreshComments();
+          }
+        }),
+        catchError((error) => {
+          console.error('Error loading project:', error);
+          this._project.next(undefined);
+          return of(undefined);
+        })
+      )
+      .subscribe();
   }
 
   private loadTags(tagIds: string[] | undefined): void {
@@ -117,7 +123,10 @@ export class ProjectDetailsService {
     });
   }
 
-  private loadAttachments(type: string | undefined, projectId: string): void {
+  private loadAttachments(
+    type: ProjectType | undefined,
+    projectId: string
+  ): void {
     if (!type) {
       this._attachments.next([]);
       return;
@@ -260,6 +269,17 @@ export class ProjectDetailsService {
     return this.projectService.deleteProject(projectId);
   }
 
+  resetState(): void {
+    this._project.next(undefined);
+    this._tags.next([]);
+    this._attachments.next([]);
+    this._comments.next([]);
+    this.currentProjectId = null;
+    this.publication$ = of(null);
+    this.patent$ = of(null);
+    this.research$ = of(null);
+  }
+
   private findCommentWithReplies(
     comments: IComment[],
     commentId: string
@@ -274,5 +294,10 @@ export class ProjectDetailsService {
       }
     }
     return null;
+  }
+
+  ngOnDestroy() {
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 }

@@ -25,6 +25,7 @@ import com.backend.app.mapper.UserMapper;
 import com.backend.app.model.ActiveToken;
 import com.backend.app.model.AdminInvitation;
 import com.backend.app.model.Comment;
+import com.backend.app.model.FileMetadata;
 import com.backend.app.model.Project;
 import com.backend.app.model.User;
 import com.backend.app.repository.ActiveTokenRepository;
@@ -223,7 +224,9 @@ public class AdminService {
 	    revokeUserSessions(userId);
 		handleUserProjects(userId);
 		commentRepository.deleteByUserId(userId);
-		fileMetadataRepository.deleteByUserId(userId);
+
+//		List<FileMetadata> userFiles = fileMetadataRepository.findByEntityId(userId);
+//		after the user deletion files should be moved somewhere to be still available
 		
 		userRepository.delete(targetUser);
 	    log.info("User {} permanently deleted by admin {}", userId, currentAdminEmail);

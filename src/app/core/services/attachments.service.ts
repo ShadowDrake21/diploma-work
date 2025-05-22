@@ -4,7 +4,7 @@ import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse } from '@models/api-response.model';
 import { FileMetadataDTO } from '@models/file.model';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { catchError, filter, forkJoin, map, Observable, of } from 'rxjs';
 
 @Injectable({

@@ -1,5 +1,6 @@
 <div class="profile-projects">
-  <h4 class="profile-projects__title">My projects</h4>
+  <h4 class="profile-projects__title">My {{ type().toLowerCase() }}</h4>
+  @if(projects().length > 0) {
   <div class="profile-projects__container">
     @if(isFiltered()) {
     <profile-filter-panel (filtersApplied)="filters.emit($event)" />
@@ -21,4 +22,7 @@
     </mat-paginator>
     }
   </div>
+  } @else {
+  <p class="profile-projects__empty">No {{ type().toLowerCase() }} found.</p>
+  }
 </div>

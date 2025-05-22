@@ -75,17 +75,14 @@ export class UsersComponent {
   );
 
   constructor() {
-    effect(
-      () => {
-        const query = this.searchQuery$();
-        untracked(() => {
-          this.searchQuery.set(query || '');
-          this.currentPage.set(0);
-          this.loadUsers();
-        });
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const query = this.searchQuery$();
+      untracked(() => {
+        this.searchQuery.set(query || '');
+        this.currentPage.set(0);
+        this.loadUsers();
+      });
+    });
   }
 
   private loadUsers(): void {

@@ -14,7 +14,7 @@ import {
   RegisterRequest,
 } from '@shared/types/admin.types';
 import { IComment } from '@shared/types/comment.types';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { map, Observable, tap } from 'rxjs';
 
 @Injectable({

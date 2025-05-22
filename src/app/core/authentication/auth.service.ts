@@ -13,6 +13,7 @@ import {
 } from '@shared/types/auth.types';
 import { ApiResponse } from '@models/api-response.model';
 import { IJwtPayload } from '@shared/types/jwt.types';
+import { UserRole } from '@shared/enums/user.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +27,8 @@ export class AuthService {
   public currentUser!: Observable<IJwtPayload | null>;
 
   constructor() {
+    this.currentUserSub = new BehaviorSubject<IJwtPayload | null>(null);
+    this.currentUser = this.currentUserSub.asObservable();
     this.initializeAuthState();
   }
 
@@ -154,5 +157,24 @@ export class AuthService {
         this.router.navigate(['/authentication/sign-in']);
       },
     });
+  }
+
+  public isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    console.log(
+      'user',
+      user,
+      user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN
+    );
+    return user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN;
+  }
+
+  public isSuperAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === UserRole.SUPER_ADMIN;
+  }
+
+  public getUserRole(): UserRole | null {
+    return this.currentUserSub.value?.role || null;
   }
 }

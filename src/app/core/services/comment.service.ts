@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse } from '@models/api-response.model';
 import { IComment, ICreateComment } from '@shared/types/comment.types';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable({

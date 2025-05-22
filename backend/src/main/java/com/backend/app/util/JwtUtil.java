@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.backend.app.exception.JwtConfigurationException;
+import com.backend.app.repository.UserRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -22,11 +23,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
+	private final UserRepository userRepository;
     private static final String AUTH_HEADER_PREFIX = "Bearer ";
 	private static final String USER_ID_CLAIM = "userId";
 	private static final String SUBJECT_CLAIM = "sub";
@@ -78,6 +82,7 @@ public class JwtUtil {
 		 Map<String, Object> claims = new HashMap<>();
 	        claims.put(SUBJECT_CLAIM, email);
 	        claims.put(USER_ID_CLAIM, userId);  
+	        claims.put("role", userRepository.findById(userId).get().getRole().name());
 	        
 	        Date now = new Date();
 	        Date expiration = new Date(now.getTime() + (rememberMe ? rememberMeExpirationTime : expirationTime));

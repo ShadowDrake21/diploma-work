@@ -32,7 +32,4 @@ public interface FileMetadataRepository extends JpaRepository<FileMetadata, UUID
 	    @Query("DELETE FROM FileMetadata f WHERE f.entityType = :entityType AND f.entityId = :entityId AND f.fileName = :fileName")
 	void deleteByEntityTypeAndEntityIdAndFileName(@Param("entityType") ProjectType entityType, @Param("entityId") UUID entityId, @Param("fileName") String fileName);
 	 
-	 @Modifying
-		@Query("DELETE FROM FileMetadata f WHERE f.user.id = :userId")
-	 void deleteByUserId(@Param("userId") Long userId);
 }

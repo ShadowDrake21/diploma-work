@@ -10,6 +10,6 @@ import com.backend.app.model.ActiveToken;
 public interface ActiveTokenRepository extends JpaRepository<ActiveToken, String>{
 	List<ActiveToken> findByUserId(Long userId);
 	void deleteByToken(String token);
-	void deleteByUser(Long userId);
+	void deleteByUserId(Long userId);
 	List<ActiveToken> findByExpiryBefore(Instant expiry);
 }

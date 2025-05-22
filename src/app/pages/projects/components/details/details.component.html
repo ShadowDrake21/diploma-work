@@ -26,8 +26,11 @@
         mat-flat-button
         class="details-header__btns-item"
         (click)="onDelete()"
+        [disabled]="deleteLoading()"
       >
-        Delete <mat-icon>delete</mat-icon>
+        @if (!deleteLoading()) {
+        <ng-container> Delete <mat-icon>delete</mat-icon> </ng-container>
+        } @else { Deleting... }
       </button>
       <button mat-flat-button class="details-header__btns-item">
         Share <mat-icon>share</mat-icon>
@@ -67,8 +70,8 @@
     <p class="error-message">{{ errorMessage() }}</p>
     }
     <ul class="details-attachments__list">
-      @if (attachments()) { @for (attachment of attachments(); track attachment)
-      {
+      @if (attachments()) { @for (attachment of attachments(); track
+      attachment.id) {
       <li class="details-attachments__list-item">
         <h5 class="details-attachments__list-item__title">
           {{ attachment.fileName | truncateText : 20 }}
@@ -94,7 +97,7 @@
   <div class="details-attachments">
     <h3 class="details-attachments__title">Project tags:</h3>
     <ul class="details-attachments__list">
-      @if(tags() ) { @for (tag of tags()!; track tag) {
+      @if(tags() ) { @for (tag of tags()!; track tag.id) {
       <li class="details-attachments__list-item">
         <button mat-flat-button class="details-attachments__list-item__btn">
           {{ tag.name }}
@@ -129,7 +132,7 @@
     } @else {
     <div class="comments-list">
       @if(comments() && comments()!.length > 0) { @for (comment of comments()!;
-      track comment) {
+      track comment.id) {
       <shared-comment
         [comment]="comment"
         (like)="onCommentLikeToggle($event)"
@@ -186,4 +189,6 @@
 </div>
 } @else if (errorMessage()) {
 <p class="error-message">{{ errorMessage() }}</p>
+} @else {
+<p>No project data available</p>
 }

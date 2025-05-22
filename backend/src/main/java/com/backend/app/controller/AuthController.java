@@ -22,6 +22,7 @@ import com.backend.app.model.ActiveToken;
 import com.backend.app.model.User;
 import com.backend.app.repository.ActiveTokenRepository;
 import com.backend.app.security.TokenBlacklist;
+import com.backend.app.service.AuthService;
 import com.backend.app.service.PasswordResetService;
 import com.backend.app.service.UserService;
 import com.backend.app.util.JwtUtil;
@@ -41,6 +42,7 @@ public class AuthController {
 	private final PasswordResetService passwordResetService;
 	private final TokenBlacklist tokenBlacklist;
 	private final ActiveTokenRepository activeTokenRepository;
+	private final AuthService authService;
 
 	@PostMapping("/login")
 	public ResponseEntity<com.backend.app.dto.response.ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
@@ -145,7 +147,7 @@ public class AuthController {
 			
 			if(token != null) {
 				tokenBlacklist.addToBlacklist(token);
-				activeTokenRepository.deleteByToken(token);
+				authService.revokeToken(token);
 			}
 			return ResponseEntity.ok(ApiResponse.success("Logged out successfully!"));
 		} catch (Exception e) {

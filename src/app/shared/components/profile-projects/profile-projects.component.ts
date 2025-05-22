@@ -22,6 +22,7 @@ export class ProfileProjectsComponent {
   pageSize = input(8);
   currentPage = input(0);
   isFiltered = input(true);
+  type = input<string>('projects');
 
   filters = output<any>();
   pageChange = output<PageEvent>();
