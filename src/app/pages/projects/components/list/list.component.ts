@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FilterPanelComponent } from '../../../../shared/components/filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '../../../../shared/components/project-card/project-card.component';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -8,6 +15,7 @@ import { ProjectSearchFilters } from '@shared/types/search.types';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { JsonPipe } from '@angular/common';
+import { HeaderService } from '@core/services/header.service';
 
 @Component({
   selector: 'projects-list',
@@ -23,6 +31,7 @@ import { JsonPipe } from '@angular/common';
 })
 export class ListProjectsComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
+  private readonly headerService = inject(HeaderService);
 
   projects = signal<ProjectDTO[]>([]);
   isLoading = signal(false);

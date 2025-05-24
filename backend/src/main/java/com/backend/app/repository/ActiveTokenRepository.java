@@ -12,4 +12,5 @@ public interface ActiveTokenRepository extends JpaRepository<ActiveToken, String
 	void deleteByToken(String token);
 	void deleteByUserId(Long userId);
 	List<ActiveToken> findByExpiryBefore(Instant expiry);
+	List<ActiveToken> findByExpiryAfter(Instant expiry);
 }

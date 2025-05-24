@@ -15,6 +15,7 @@
       ></mat-progress-bar>
     </div>
     <div class="details-header__btns">
+      @if(isCurrentUserOwner()) {
       <button
         mat-flat-button
         class="details-header__btns-item"
@@ -32,6 +33,7 @@
         <ng-container> Delete <mat-icon>delete</mat-icon> </ng-container>
         } @else { Deleting... }
       </button>
+      }
       <button mat-flat-button class="details-header__btns-item">
         Share <mat-icon>share</mat-icon>
       </button>

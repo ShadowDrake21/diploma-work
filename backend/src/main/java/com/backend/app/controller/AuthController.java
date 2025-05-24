@@ -24,6 +24,7 @@ import com.backend.app.repository.ActiveTokenRepository;
 import com.backend.app.security.TokenBlacklist;
 import com.backend.app.service.AuthService;
 import com.backend.app.service.PasswordResetService;
+import com.backend.app.service.UserLoginService;
 import com.backend.app.service.UserService;
 import com.backend.app.util.JwtUtil;
 
@@ -43,9 +44,10 @@ public class AuthController {
 	private final TokenBlacklist tokenBlacklist;
 	private final ActiveTokenRepository activeTokenRepository;
 	private final AuthService authService;
+	private final UserLoginService userLoginService;
 
 	@PostMapping("/login")
-	public ResponseEntity<com.backend.app.dto.response.ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
+	public ResponseEntity<com.backend.app.dto.response.ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
 		if (request.getEmail() == null || request.getEmail().isEmpty()) {
 			return ResponseEntity.badRequest().body(ApiResponse.error("Email is required."));
 		}
@@ -64,6 +66,7 @@ public class AuthController {
 			User user = optionalUser.get();
 			String token = jwtUtil.generateToken(user.getEmail(), user.getId(), request.isRememberMe());
 			
+			userLoginService.recordUserLogin(user, httpRequest);
 			ActiveToken activeToken = ActiveToken.builder().token(token).userId(user.getId())
 					.expiry(Instant.now().plusMillis(request.isRememberMe() ? 
 							jwtUtil.getRememberMeExpirationTime() : jwtUtil.getExpirationTime())).build();

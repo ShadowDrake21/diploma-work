@@ -16,6 +16,7 @@ import { UserStatusChipComponent } from '../utils/user-status-chip/user-status-c
 import { MatMenuModule } from '@angular/material/menu';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { AdminInviteDialogComponent } from '../dialogs/admin-invite-dialog/admin-invite-dialog.component';
+import { RecentUsersComponent } from './components/recent-users/recent-users.component';
 
 @Component({
   selector: 'app-user-list',
@@ -30,6 +31,7 @@ import { AdminInviteDialogComponent } from '../dialogs/admin-invite-dialog/admin
     MatMenuModule,
     UserRoleChipComponent,
     UserStatusChipComponent,
+    RecentUsersComponent,
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',

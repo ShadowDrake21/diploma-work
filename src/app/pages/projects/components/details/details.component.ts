@@ -21,6 +21,7 @@ import { ProjectDetailsService } from '@core/services/project/project-details/pr
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ConfirmationDialogComponent } from './components/dialogs/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '@core/authentication/auth.service';
 
 @Component({
   selector: 'project-details',
@@ -47,6 +48,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly headerService = inject(HeaderService);
   private readonly projectDetailsService = inject(ProjectDetailsService);
+  private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
 
   // Signals
@@ -58,6 +60,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   readonly replyingToCommentId = signal<string | null>(null);
   readonly replyContent = signal('');
   readonly deleteLoading = signal(false);
+  readonly isCurrentUserOwner = signal(false);
 
   readonly project = toSignal(this.projectDetailsService.project$);
   readonly publication = toSignal(this.projectDetailsService.publication$);
@@ -88,7 +91,12 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
     const sub = this.projectDetailsService.project$.pipe().subscribe({
       next: (project) => {
-        this.updateHeader(project);
+        if (project) {
+          this.updateHeader(project);
+          const currentUserId = this.authService.getCurrentUserId();
+          this.isCurrentUserOwner.set(currentUserId === project.createdBy);
+        }
+        this.projectLoading.set(false);
       },
       error: (err) => {
         console.error('Error loading project:', err);
@@ -106,8 +114,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         project.type.charAt(0).toUpperCase() +
         project.type.slice(1).toLowerCase();
       this.headerService.setTitle(`${capitalizedType}: ${project.title}`);
-    } else {
-      this.headerService.setTitle('Project Details');
     }
   }
 

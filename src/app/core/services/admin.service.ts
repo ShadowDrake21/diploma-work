@@ -16,6 +16,7 @@ import {
 import { IComment } from '@shared/types/comment.types';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import { map, Observable, tap } from 'rxjs';
+import { UserLogin } from '@models/user-login.model';
 
 @Injectable({
   providedIn: 'root',
@@ -211,6 +212,20 @@ export class AdminService {
   deleteComment(commentId: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
       `${this.apiUrl}/comments/${commentId}`
+    );
+  }
+
+  getRecentLogins(count: number = 10): Observable<ApiResponse<UserLogin[]>> {
+    return this.http.get<ApiResponse<UserLogin[]>>(
+      `${this.apiUrl}/recent-logins?count=${count}`,
+      getAuthHeaders()
+    );
+  }
+
+  getLoginStats(hours: number = 24): Observable<ApiResponse<number>> {
+    return this.http.get<ApiResponse<number>>(
+      `${this.apiUrl}/login-stats?hours=${hours}`,
+      getAuthHeaders()
     );
   }
 }

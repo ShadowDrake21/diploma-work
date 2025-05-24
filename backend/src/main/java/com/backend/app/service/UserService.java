@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +21,10 @@ import com.backend.app.enums.Role;
 import com.backend.app.exception.ResourceAlreadyExistsException;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.UserMapper;
+import com.backend.app.model.ActiveToken;
 import com.backend.app.model.Project;
 import com.backend.app.model.User;
+import com.backend.app.repository.ActiveTokenRepository;
 import com.backend.app.repository.UserRepository;
 import com.backend.app.util.CreationUtils;
 
@@ -41,6 +44,7 @@ public class UserService {
 	private final PatentService patentService;
 	private final ResearchService researchService;
 	private final PasswordEncoder passwordEncoder;
+	private final ActiveTokenRepository activeTokenRepository;
 
 	@Transactional
 	public void savePendingUser(String username, String email, String password, Role role) {
@@ -228,6 +232,18 @@ public class UserService {
 	            user.setTokenExpiration(null);
 	        });
 	        userRepository.saveAll(users);
+	    }
+	    
+	    @Transactional(readOnly = true)
+	    public List<User> findRecentlyActiveUsers (Instant cutoff, int count) {
+	    	List<Long> activeUserIds = activeTokenRepository.findByExpiryAfter(cutoff)
+	                .stream()
+	                .map(ActiveToken::getUserId)
+	                .distinct()
+	                .limit(count)
+	                .collect(Collectors.toList());
+	        
+	        return userRepository.findAllById(activeUserIds);
 	    }
 
 	private String extractFileNameFromUrl(String url) {

@@ -14,6 +14,7 @@ import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ProjectService } from './project/models/project.service';
 import { ProjectDTO } from '@models/project.model';
 import { ApiResponse } from '@models/api-response.model';
+import { UserLogin } from '@models/user-login.model';
 
 @Injectable({
   providedIn: 'root',
@@ -172,6 +173,16 @@ export class UserService {
           })
         );
       })
+    );
+  }
+
+  getRecentlyActiveUsers(
+    minutes: number = 50,
+    count: number = 10
+  ): Observable<ApiResponse<IUser[]>> {
+    return this.http.get<ApiResponse<IUser[]>>(
+      `${this.apiUrl}/recently-active?minutes=${minutes}&count=${count}`,
+      getAuthHeaders()
     );
   }
 

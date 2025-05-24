@@ -13,7 +13,8 @@ export type ProjectDTO = {
   createdAt: string;
   updatedAt: string;
   tagIds: string[];
-  creator: IUser;
+  createdBy: number;
+  deletedUserId?: number;
   publication?: PublicationDTO;
   patent?: PatentDTO;
   research?: ResearchDTO;
@@ -22,16 +23,6 @@ export type ProjectDTO = {
 interface Publication {
   source?: string;
   doiIsbn?: string;
-}
-
-interface Patent {
-  registrationNumber?: string;
-  issuingAuthority?: string;
-}
-
-interface Research {
-  budget?: number;
-  fundingSource?: string;
 }
 
 export type CreateProjectRequest = {

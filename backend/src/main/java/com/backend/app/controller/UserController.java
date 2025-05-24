@@ -1,5 +1,7 @@
 package com.backend.app.controller;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,14 +29,18 @@ import com.backend.app.dto.miscellaneous.ResponseUserDTO;
 import com.backend.app.dto.miscellaneous.UserProfileUpdateDTO;
 import com.backend.app.dto.model.ProjectDTO;
 import com.backend.app.dto.model.UserDTO;
+import com.backend.app.dto.model.UserLoginDTO;
 import com.backend.app.dto.response.ApiResponse;
 import com.backend.app.dto.response.PaginatedResponse;
 import com.backend.app.enums.Role;
 import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.ProjectMapper;
+import com.backend.app.mapper.UserMapper;
 import com.backend.app.model.Project;
 import com.backend.app.model.User;
+import com.backend.app.model.UserLogin;
 import com.backend.app.service.ProjectService;
+import com.backend.app.service.UserLoginService;
 import com.backend.app.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,6 +63,7 @@ public class UserController {
 	private final UserService userService;
 	private final ProjectService projectService;
 	private final ProjectMapper projectMapper;
+	private final UserMapper userMapper;
 
 	@Operation(summary = "Get all users (paginated)")
 	@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved users")
@@ -339,6 +346,23 @@ public class UserController {
 			log.error("Error deleting user with ID: {}", id, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(ApiResponse.error("Error deleting user"));
+		}
+	}
+	
+	
+	@Operation(summary = "Get recently active users")
+	@GetMapping("/recent-active-users")
+	public ResponseEntity<ApiResponse<List<UserDTO>>> getRecentlyActiveUsers (
+			@RequestParam(defaultValue = "15") int minutes, @RequestParam(defaultValue = "10") int count) {
+		try {
+			Instant cutoff = Instant.now().minus(minutes,ChronoUnit.MINUTES);
+			List<User> activeUsers = userService.findRecentlyActiveUsers(cutoff, count);
+			List<UserDTO> userDTOs = activeUsers.stream().map(userMapper::mapToDTO).collect(Collectors.toList());
+			return ResponseEntity.ok(ApiResponse.success(userDTOs));
+			} catch (Exception e) {
+				log.error("Error fetching recently active users", e);
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                .body(ApiResponse.error("Error fetching active users"));
 		}
 	}
 }
