@@ -40,7 +40,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   styleUrl: './profile.component.scss',
   providers: [provideNativeDateAdapter()],
 })
-export class ProfileComponent implements OnInit, OnDestroy {
+export class ProfileComponent {
   private readonly headerService = inject(HeaderService);
   private readonly userService = inject(UserService);
 
@@ -51,17 +51,4 @@ export class ProfileComponent implements OnInit, OnDestroy {
   );
 
   private subscription!: Subscription;
-
-  ngOnInit(): void {
-    this.subscription = this.userService.getCurrentUser().subscribe({
-      next: (response) =>
-        this.headerService.setTitle(`User ${response.data.username}`),
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
 }

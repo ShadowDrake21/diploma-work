@@ -9,10 +9,26 @@
       }
     </ul>
   </div>
+  <div class="dashboard__actions">
+    <a
+      mat-raised-button
+      class="dashboard__actions-link"
+      routerLink="/projects/create"
+      ><span class="dashboard__actions-link__text">Add Project</span></a
+    >
+    <a
+      class="dashboard__actions-link"
+      [routerLink]="['/projects/list']"
+      [queryParams]="{ mode: 'mine' }"
+      ><span class="dashboard__actions-link__text">View My Projects</span></a
+    >
+  </div>
   <div class="dashboard-content">
-    <dashboard-filter-sidebar />
+    <!-- <dashboard-filter-sidebar /> -->
     <div class="dashboard-content__inner">
-      <h3 class="dashboard-recent-project__title">Останні проєкти</h3>
+      <h3 class="dashboard-recent-project__title" style="text-align: center">
+        Останні проєкти
+      </h3>
       <ul class="dashboard-recent-project__list">
         @for (item of newestProjects; track $index) {
         <li class="dashboard-recent-project__list-item">

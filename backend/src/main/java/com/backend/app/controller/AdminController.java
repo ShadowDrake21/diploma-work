@@ -1,5 +1,6 @@
 package com.backend.app.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springdoc.core.annotations.ParameterObject;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.dto.model.CommentDTO;
 import com.backend.app.dto.model.UserDTO;
+import com.backend.app.dto.model.UserLoginDTO;
 import com.backend.app.dto.request.AdminInviteRequest;
 import com.backend.app.dto.request.RegisterRequest;
 import com.backend.app.dto.response.ApiResponse;
@@ -38,6 +40,7 @@ import com.backend.app.model.AdminInvitation;
 import com.backend.app.service.AdminService;
 import com.backend.app.service.CommentService;
 import com.backend.app.service.ProjectService;
+import com.backend.app.service.UserLoginService;
 import com.backend.app.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,6 +63,7 @@ public class AdminController {
 	private final ProjectMapper projectMapper;
 	private final CommentService commentService;
 	private final CommentMapper commentMapper;
+	private final UserLoginService userLoginService;
 	
 	@Operation(summary = "Get all admin invitations (paginated)", 
 	        description = "List all admin invitations with pagination")
@@ -316,4 +320,21 @@ public class AdminController {
 		                .body(ApiResponse.error(e.getMessage()));
 		    }
 		}
+		
+		@GetMapping("/recent-logins")
+		public ResponseEntity<ApiResponse<List<UserLoginDTO>>> getRecentLogins(
+	            @RequestParam(defaultValue = "10") int count) {
+	        List<UserLoginDTO> recentLogins = userLoginService.getRecentLogins(count);
+	        return ResponseEntity.ok(ApiResponse.success(recentLogins));
+	    }
+		
+		@GetMapping("/login-stats")
+		public ResponseEntity<ApiResponse<Long>> getRecentLoginCount(
+	            @RequestParam(defaultValue = "24") int hours) {
+			 long loginCount = userLoginService.getRecentLoginCount(hours);
+		        return ResponseEntity.ok(ApiResponse.success(loginCount));
+
+		}
+		
+		
 }

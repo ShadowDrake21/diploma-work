@@ -12,6 +12,7 @@ import { DashboardService } from '@core/services/dashboard.service';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { ProjectDTO } from '@models/project.model';
 import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +24,8 @@ import { FilterSidebarComponent } from './components/filter-sidebar/filter-sideb
     MetricCardItemComponent,
     ProjectCardComponent,
     FrequentLinksComponent,
-    FilterSidebarComponent,
+    RouterLink,
+    // FilterSidebarComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -71,25 +73,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
             title: 'Total Products',
             value: metrics.totalProjects.toString(),
             icon: 'category',
-            link: '/products',
+            link: '/projects',
           },
           {
             title: 'Total Publications',
             value: metrics.totalPublications.toString(),
             icon: 'description',
-            link: '/publications',
+            link: '/projects',
           },
           {
             title: 'Total Patents',
             value: metrics.totalPatents.toString(),
             icon: 'gavel',
-            link: '/patents',
+            link: '/projects',
           },
           {
             title: 'Total Research Projects',
             value: metrics.totalResearch.toString(),
             icon: 'science',
-            link: '/research-projects',
+            link: '/projects',
           },
           {
             title: 'Total Users',
