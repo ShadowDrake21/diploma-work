@@ -307,9 +307,7 @@ public class UserController {
 			@Parameter(description = "Sort by field") @RequestParam(defaultValue = DEFAULT_SORT_BY) String sortBy) {
 		try {
 			Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-			Page<UserDTO> usersPage = query== null || query.trim().isEmpty() 
-					? userService.getAllUsers(pageable) 
-							: userService.searchUsers(query, pageable);
+			Page<UserDTO> usersPage = userService.searchUsers(query, pageable);
 			return ResponseEntity.ok(PaginatedResponse.success(usersPage));
 		} catch (Exception e) {
 			log.error("Error searching users with query: {}", query, e);

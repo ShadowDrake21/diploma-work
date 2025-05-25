@@ -2,19 +2,19 @@
   <div class="profile__top">
     @if (user()) {
     <profile-avatar
-      [avatarUrl]="user()?.avatarUrl ?? ''"
-      [isLoading]="isLoading()"
-      (avatarUpload)="onAvatarUpload($event)"
+      [user]="user()!"
+      (updateSuccess)="handleAvatarSucess($event)"
+      (updateFailure)="handleAvatarFailure()"
     />
 
     @if(!editMode()) {
-    <profile-view [user]="user()!" (edit)="onEdit()" />
+    <profile-view [user]="user()!" (edit)="editMode.set(true)" />
     } @else {
     <profile-edit
       [user]="user()!"
       [isLoading]="isLoading()"
       (save)="onSave($event)"
-      (cancel)="onCancel()"
+      (cancel)="editMode.set(false)"
     />
     } } @else {
     <div class="profile-loading">

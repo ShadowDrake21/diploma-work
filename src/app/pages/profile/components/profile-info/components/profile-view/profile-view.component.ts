@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { IUser } from '@models/user.model';
+import { IUser, SocialLink } from '@models/user.model';
 
 @Component({
   selector: 'profile-view',
@@ -13,6 +13,10 @@ export class ProfileViewComponent {
   user = input.required<IUser>();
   edit = output<void>();
 
+  get socialLinks(): SocialLink[] {
+    if (!this.user().socialLinks) return [];
+    return this.user().socialLinks || [];
+  }
   onEdit(): void {
     this.edit.emit();
   }

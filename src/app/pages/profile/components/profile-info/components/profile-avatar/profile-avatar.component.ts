@@ -1,5 +1,6 @@
 import {
   Component,
+  effect,
   ElementRef,
   EventEmitter,
   inject,
@@ -15,6 +16,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { UserService } from '@core/services/user.service';
+import { currentUserSig } from '@core/shared/shared-signals';
+import { IUser } from '@models/user.model';
 
 @Component({
   selector: 'profile-avatar',
@@ -23,37 +27,38 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
   styleUrl: './profile-avatar.component.scss',
 })
 export class ProfileAvatarComponent implements OnDestroy {
-  private readonly sanitizer = inject(DomSanitizer);
+  private readonly userService = inject(UserService);
 
   fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
-  avatarUrl = input<string | null>(null);
-  isLoading = input<boolean>(false);
-  avatarUpload = output<File>();
+  // Inputs
+  user = input<IUser | null>(null);
+  isLoading = signal<boolean>(false);
 
-  readonly selectedImagePreview = signal<SafeUrl | null>(null);
+  // Outputs
+  updateSuccess = output<IUser>();
+  updateFailure = output<void>();
+
+  // Internal signals
+  readonly previewUrl = signal<string | null>(null);
   readonly errorMessage = signal('');
-  readonly temporaryAvatarUrl = signal<SafeUrl | null>(null);
-
-  readonly displayAvatarUrl = () => {
-    return this.temporaryAvatarUrl() || this.avatarUrl();
-  };
+  readonly showPreview = signal(false);
+  readonly selectedFile = signal<File | null>(null);
 
   onUploadClick(): void {
     this.fileInput()?.nativeElement?.click();
   }
 
   onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.[0]) return;
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
 
-    const file = input.files[0];
-    this.validateAndPreviewFile(file);
+    this.validateFile(file);
   }
 
-  private validateAndPreviewFile(file: File): void {
+  private validateFile(file: File): void {
     this.errorMessage.set('');
-    this.errorMessage.set('');
+    this.selectedFile.set(file);
 
     if (file.size > 5 * 1024 * 1024) {
       this.errorMessage.set('File must be smaller than 5MB');
@@ -67,41 +72,68 @@ export class ProfileAvatarComponent implements OnDestroy {
       return;
     }
 
-    this.createImagePreview(file);
+    this.createPreview(file);
+    this.showPreview.set(true);
   }
 
-  private createImagePreview(file: File): void {
+  private createPreview(file: File): void {
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
-      if (e.target?.result) {
-        this.selectedImagePreview.set(
-          this.sanitizer.bypassSecurityTrustUrl(e.target.result as string)
-        );
-      }
+      this.previewUrl.set(e.target?.result as string);
     };
     reader.readAsDataURL(file);
   }
 
-  confirmUpload(): void {
-    if (!this.selectedImagePreview() || !this.fileInput()) return;
+  onAvatarChanged(): void {
+    this.isLoading.set(true);
 
-    // Get the file from the input again
-    const file = this.fileInput()?.nativeElement.files?.[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      this.temporaryAvatarUrl.set(
-        this.sanitizer.bypassSecurityTrustUrl(objectUrl)
-      );
+    if (!this.selectedFile()) {
+      this.errorMessage.set('No file selected');
+      this.isLoading.set(false);
+      return;
+    }
 
-      this.avatarUpload.emit(file);
-      this.selectedImagePreview.set(null);
+    this.userService.updateUserAvatar(this.selectedFile()!).subscribe({
+      next: (response) => {
+        const newAvatarUrl = response.data.avatarUrl;
+        const currentUser = this.user();
+        if (currentUser) {
+          this.updateSuccess.emit({
+            ...currentUser,
+            avatarUrl: newAvatarUrl,
+          });
+          this.resetUploadState();
+        }
+      },
+      error: (error) => {
+        console.error('Avatar upload failed:', error);
+        this.updateFailure.emit();
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  cancelUpload(): void {
+    this.resetUploadState();
+  }
+
+  private resetUploadState(): void {
+    this.showPreview.set(false);
+    this.previewUrl.set(null);
+    this.selectedFile.set(null);
+    this.errorMessage.set('');
+    this.resetFileInput();
+  }
+
+  private resetFileInput(): void {
+    if (this.fileInput()?.nativeElement) {
       this.fileInput()!.nativeElement.value = '';
     }
   }
 
   ngOnDestroy(): void {
-    if (this.temporaryAvatarUrl()) {
-      URL.revokeObjectURL(this.temporaryAvatarUrl() as string);
-    }
+    this.resetUploadState();
   }
 }

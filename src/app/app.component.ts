@@ -19,6 +19,8 @@ import { filter } from 'rxjs';
 import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/recent-users.component';
 import { AdminService } from '@core/services/admin.service';
 import { AuthService } from '@core/authentication/auth.service';
+import { UserService } from '@core/services/user.service';
+import { currentUserSig } from '@core/shared/shared-signals';
 
 @Component({
   selector: 'app-root',
@@ -40,6 +42,7 @@ import { AuthService } from '@core/authentication/auth.service';
 })
 export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   private observer = inject(BreakpointObserver);
   private router = inject(Router);
 
@@ -54,6 +57,7 @@ export class AppComponent implements OnInit {
   isErrorPages = false;
 
   isAdmin = false;
+  isLoggedIn = this.authService.isAuthenticated();
 
   ngOnInit() {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
@@ -73,6 +77,12 @@ export class AppComponent implements OnInit {
           event.url.split('/').includes('forbidden') ||
           event.url.split('/').includes('not-found');
       });
+
+    if (this.isLoggedIn) {
+      this.userService
+        .getCurrentUser()
+        .subscribe(() => console.log('User data loaded'));
+    }
 
     this.isAdmin = this.authService.isAdmin();
   }

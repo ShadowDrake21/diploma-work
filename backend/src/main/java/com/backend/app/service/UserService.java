@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -170,6 +171,16 @@ public class UserService {
 		if(query == null || query.trim().isEmpty()) {
 			return userRepository.findAll(pageable).map(userMapper::mapToDTO);
 		}
+		
+		String[] terms = query.trim().toLowerCase().split("\\s+");
+		
+		if(terms.length > 1) {
+			Optional<User> exactEmailMatch = userRepository.findByEmail(query.trim());
+			if(exactEmailMatch.isPresent()) {
+				return new PageImpl<>(List.of(exactEmailMatch.get()), pageable, 1)
+						.map(userMapper::mapToDTO);
+			}
+ 		}
 		return userRepository.searchUsers(query.trim(), pageable).map(userMapper::mapToDTO);
 	}
 
@@ -203,7 +214,7 @@ public class UserService {
 	@Transactional
 	public UserDTO updateUserProfile(Long id, UserProfileUpdateDTO updateDTO) {
 		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
+		
 		if (updateDTO.getDateOfBirth() != null) {
 			user.setDateOfBirth(updateDTO.getDateOfBirth());
 		}
@@ -215,6 +226,9 @@ public class UserService {
 		}
 		if (updateDTO.getPhoneNumber() != null) {
 			user.setPhoneNumber(updateDTO.getPhoneNumber());
+		}
+		if(updateDTO.getSocialLinks() != null) {
+			user.setSocialLinks(userMapper.mapSocialLinksToEntity(updateDTO.getSocialLinks()));
 		}
 
 		return userMapper.mapToDTO(userRepository.save(user));

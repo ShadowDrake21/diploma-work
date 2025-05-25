@@ -13,6 +13,7 @@ import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { ProjectDTO } from '@models/project.model';
 import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
 import { RouterLink } from '@angular/router';
+import { OnlineUsersComponent } from './components/online-users/online-users.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,6 +26,7 @@ import { RouterLink } from '@angular/router';
     ProjectCardComponent,
     FrequentLinksComponent,
     RouterLink,
+    OnlineUsersComponent,
     // FilterSidebarComponent,
   ],
   templateUrl: './dashboard.component.html',
