@@ -21,6 +21,20 @@
       Phone: {{ user().phoneNumber || "Not provided" }}
     </p>
 
+    @if (socialLinks.length>0) {
+    <div>
+      <h3>Social Links</h3>
+      @for (link of socialLinks; track $index) {
+      <p class="profile__info-text">
+        {{ link.name || "Link " + ($index + 1) }}:
+        <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{
+          link.url
+        }}</a>
+      </p>
+      }
+    </div>
+    }
+
     <button
       mat-flat-button
       color="primary"

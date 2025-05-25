@@ -19,6 +19,7 @@ export interface IUser {
   active: boolean;
   createdAt?: string | Date;
   verified?: boolean;
+  socialLinks?: SocialLink[];
 }
 
 export interface ICreateUser {
@@ -39,9 +40,15 @@ export interface IUpdateUserProfile {
   userType?: UserType;
   universityGroup?: string;
   avatarUrl?: string;
+  socialLinks?: SocialLink[];
 }
 
 export interface ResponseUserDTO {
   id: number;
   username: string;
+}
+
+export interface SocialLink {
+  url: string;
+  name: string;
 }

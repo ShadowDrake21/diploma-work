@@ -104,11 +104,8 @@ public class User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
     
-    @PrePersist
-    @PreUpdate
-    protected void validateRole() {
-    	if(this.role == Role.SUPER_ADMIN) {
-    		throw new SecurityException("Super admin accounts can only be created via database initialization");
-    	}
-    }
+    @ElementCollection
+    @CollectionTable(name = "user_social_links", joinColumns = @JoinColumn(name = "user_id"))
+    @Builder.Default
+    private Set<SocialLink> socialLinks = new HashSet<>();
 }

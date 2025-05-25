@@ -9,11 +9,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { UserService } from '@core/services/user.service';
-import { interval, switchMap } from 'rxjs';
+import { catchError, interval, of, startWith, switchMap } from 'rxjs';
 import { UserCardComponent } from '../../../../shared/components/user-card/user-card.component';
 
 @Component({
-  selector: 'app-online-users',
+  selector: 'dashboard-online-users',
   imports: [
     CommonModule,
     MatCardModule,
@@ -33,12 +33,20 @@ export class OnlineUsersComponent {
 
   activeUsers = toSignal(
     interval(60000).pipe(
-      switchMap(() => this.userService.getRecentlyActiveUsers())
-    )
+      startWith(null),
+      switchMap(() => this.userService.getRecentlyActiveUsers()),
+      catchError((error) => {
+        console.error('Error fetching active users: ', error);
+        return of(null);
+      })
+    ),
+    { initialValue: null }
   );
 
   refreshActiveUsers() {
-    this.activeUsers = toSignal(this.userService.getRecentlyActiveUsers());
+    this.activeUsers = toSignal(this.userService.getRecentlyActiveUsers(), {
+      initialValue: null,
+    });
   }
 
   displayedColumns: string[] = ['username', 'email', 'lastActive'];

@@ -1,5 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { HeaderService } from '@core/services/header.service';
+import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,7 +14,7 @@ import { FrequentLinksComponent } from '@shared/components/frequent-links/freque
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/user.service';
-import { map, Subscription } from 'rxjs';
+import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -41,7 +40,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
   providers: [provideNativeDateAdapter()],
 })
 export class ProfileComponent {
-  private readonly headerService = inject(HeaderService);
   private readonly userService = inject(UserService);
 
   myProjects = toSignal(
@@ -49,6 +47,4 @@ export class ProfileComponent {
       .getCurrentUserProjects()
       .pipe(map((response) => response.data))
   );
-
-  private subscription!: Subscription;
 }

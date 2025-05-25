@@ -3,7 +3,9 @@ package com.backend.app.dto.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
+import com.backend.app.dto.miscellaneous.SocialLinkDTO;
 import com.backend.app.enums.Role;
 
 import jakarta.validation.constraints.Email;
@@ -76,4 +78,6 @@ public class UserDTO {
     private boolean active;
     
     private LocalDateTime createdAt;
+    
+    private Set<SocialLinkDTO> socialLinks;
 }

@@ -10,7 +10,7 @@
       <div class="user-card__content-body__part">
         <p class="user-card__content-body__part-item">
           <span class="user-card__content-subtitle">Role:</span>
-          {{ user().role }}
+          {{ user().role | roleFormat }}
         </p>
 
         <p class="user-card__content-body__part-item">

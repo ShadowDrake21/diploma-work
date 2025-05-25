@@ -1,6 +1,7 @@
 package com.backend.app.dto.miscellaneous;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,6 +25,9 @@ public class UserProfileUpdateDTO {
 	
 	@JsonProperty("phoneNumber")
 	private String phoneNumber;
+	
+	@JsonProperty("socialLinks")
+	private Set<SocialLinkDTO> socialLinks;
 	
 	@Override
 	public String toString() {

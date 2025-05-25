@@ -6,14 +6,17 @@
     (change)="onFileSelected($event)"
     style="display: none"
   />
-  @if (selectedImagePreview()) {
+
+  @if (previewUrl() || user()?.avatarUrl) {
   <img
     class="avatar-image"
-    [src]="selectedImagePreview()"
-    alt="Profile preview"
+    [src]="previewUrl() || user()?.avatarUrl"
+    alt="Profile image"
   />
   } @else {
-  <img class="avatar-image" [src]="displayAvatarUrl()" alt="Profile image" />
+  <div class="avatar-placeholder">
+    <mat-icon>account_circle</mat-icon>
+  </div>
   }
 
   <button
@@ -25,23 +28,23 @@
     <mat-icon>photo_camera</mat-icon>
   </button>
 
-  @if (selectedImagePreview()) {
+  @if (showPreview() && !isLoading()) {
   <div class="avatar-actions">
     <button
       mat-flat-button
       color="primary"
-      (click)="confirmUpload()"
-      [disabled]="isLoading()"
+      (click)="onAvatarChanged()"
+      [disabled]="isLoading() || !selectedFile()"
     >
-      @if (isLoading()) {
-      <mat-spinner diameter="20"></mat-spinner>
-      } @else { Confirm Upload}
+      Upload
     </button>
-    <button mat-button (click)="selectedImagePreview.set(null)">
+    <button mat-button (click)="cancelUpload()">
       <mat-icon>cancel</mat-icon> Cancel
     </button>
   </div>
   } @if (errorMessage()) {
   <div class="error-message">{{ errorMessage() }}</div>
+  } @if (isLoading()) {
+  <mat-spinner diameter="32"></mat-spinner>
   }
 </div>

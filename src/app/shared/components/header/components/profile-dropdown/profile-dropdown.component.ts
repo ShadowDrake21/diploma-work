@@ -12,6 +12,8 @@ import { map } from 'rxjs';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { profileMenuItems } from '../../content/header.content';
+import { currentUserSig } from '@core/shared/shared-signals';
+import { DEFAULT_AVATAR_URL } from '@core/constants/default-variables';
 
 @Component({
   selector: 'app-profile-dropdown',
@@ -33,9 +35,7 @@ export class ProfileDropdownComponent {
   private readonly userService = inject(UserService);
 
   readonly isProfileOpened = signal(false);
-  readonly currentUser = toSignal(
-    this.userService.getCurrentUser().pipe(map((user) => user.data))
-  );
+  readonly currentUser = currentUserSig.asReadonly();
 
   faUser = faUser;
 
@@ -55,9 +55,6 @@ export class ProfileDropdownComponent {
   }
 
   getAvatarUrl(): string {
-    return (
-      this.currentUser()?.avatarUrl ||
-      'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'
-    );
+    return this.currentUser()?.avatarUrl || DEFAULT_AVATAR_URL;
   }
 }

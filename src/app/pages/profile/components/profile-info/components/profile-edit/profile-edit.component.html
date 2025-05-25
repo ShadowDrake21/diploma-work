@@ -35,6 +35,44 @@
       <input matInput formControlName="universityGroup" />
     </mat-form-field>
     }
+    <div class="social-links-section">
+      <h3>Social Links</h3>
+
+      <div class="social-link-input">
+        <mat-form-field appearance="outline">
+          <mat-label>Add Social Link</mat-label>
+          <input
+            matInput
+            [(ngModel)]="newLink"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="https://example.com"
+          />
+        </mat-form-field>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addSocialLink()"
+          type="button"
+        >
+          Add
+        </button>
+      </div>
+
+      <div class="social-links-list" formArrayName="socialLinks">
+        @for (link of socialLinksArray.controls; track $index; let i = $index) {
+        <div class="social-link-item" [formGroupName]="i">
+          <mat-form-field appearance="outline">
+            <mat-label>Link Name</mat-label>
+            <input matInput formControlName="name" placeholder="Link name" />
+          </mat-form-field>
+          <span class="link-url">{{ link.get("url")?.value }}</span>
+          <button mat-icon-button type="button" (click)="removeSocialLink(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+        }
+      </div>
+    </div>
   </div>
   <div class="profile__form-actions">
     <button

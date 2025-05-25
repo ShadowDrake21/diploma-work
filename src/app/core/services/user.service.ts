@@ -10,11 +10,12 @@ import {
   IUser,
 } from '@shared/models/user.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ProjectService } from './project/models/project.service';
 import { ProjectDTO } from '@models/project.model';
 import { ApiResponse } from '@models/api-response.model';
 import { UserLogin } from '@models/user-login.model';
+import { currentUserSig } from '@core/shared/shared-signals';
 
 @Injectable({
   providedIn: 'root',
@@ -92,10 +93,9 @@ export class UserService {
   }
 
   public getCurrentUser(): Observable<ApiResponse<IUser>> {
-    return this.http.get<ApiResponse<IUser>>(
-      `${this.apiUrl}/me`,
-      getAuthHeaders()
-    );
+    return this.http
+      .get<ApiResponse<IUser>>(`${this.apiUrl}/me`, getAuthHeaders())
+      .pipe(tap((response) => currentUserSig.set(response.data)));
   }
 
   public updateUserProfile(
@@ -141,7 +141,9 @@ export class UserService {
     sort = 'createdAt,desc'
   ): Observable<PageResponse<IUser>> {
     return this.http.get<PageResponse<IUser>>(
-      `${this.apiUrl}/search?query=${query}&page=${page}&size=${size}&sort=${sort}`,
+      `${this.apiUrl}/search?query=${encodeURIComponent(
+        query
+      )}&page=${page}&size=${size}&sort=${sort}`,
       getAuthHeaders()
     );
   }
@@ -181,7 +183,7 @@ export class UserService {
     count: number = 10
   ): Observable<ApiResponse<IUser[]>> {
     return this.http.get<ApiResponse<IUser[]>>(
-      `${this.apiUrl}/recently-active?minutes=${minutes}&count=${count}`,
+      `${this.apiUrl}/recent-active-users?minutes=${minutes}&count=${count}`,
       getAuthHeaders()
     );
   }
