@@ -1,5 +1,6 @@
 package com.backend.app.service.analytics;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +27,16 @@ public class UserAnalyticsService {
 			endDate = LocalDate.now();
 		}
 		
-		return userRepository.countUsersByRegistrationDateBetweenGroupedByDate(startDate.atStartOfDay(), endDate.atTime(23,59,59))
-				.stream().map(result -> new UserGrowthDTO(
-						  ((java.sql.Date) result[0]).toLocalDate(),
-			                ((Number) result[1]).longValue(),
-			                ((Number) result[2]).longValue()
-			                )).collect(Collectors.toList());
+		List<Object[]> results = userRepository.getRegistrationCountsByDate(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
+		
+		return results.stream().map(result ->
+		{
+			LocalDate date = ((Date)result[0]).toLocalDate();
+			 Long count = ((Number) result[1]).longValue();
+		        Long active = userRepository.countActiveUsersOnDate(date);
+		        return new UserGrowthDTO(date, count, active); 
+				
+		}).collect(Collectors.toList());
 	}
 	
 	 public Map<Role, Long> getUserRoleDistribution() {

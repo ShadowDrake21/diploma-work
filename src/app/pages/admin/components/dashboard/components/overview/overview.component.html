@@ -1,3 +1,4 @@
+@if (systemOverview()) {
 <mat-grid-list cols="2" rowHeight="400px">
   <mat-grid-tile>
     <mat-card>
@@ -44,8 +45,10 @@
         <mat-card-title>User Growth</mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        @if (userGrowthChart$ | async; as chartData) {
+
         <ngx-charts-line-chart
-          *ngIf="userGrowthChart$ | async as chartData"
+          *ngIf="chartData.length"
           [results]="chartData"
           [xAxis]="true"
           [yAxis]="true"
@@ -53,8 +56,12 @@
           [showYAxisLabel]="true"
           xAxisLabel="Date"
           yAxisLabel="New Users"
+          [scheme]="'cool'"
+          [animations]="true"
         >
         </ngx-charts-line-chart>
+        <div *ngIf="!chartData.length"></div>
+        }
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
@@ -64,14 +71,19 @@
         <mat-card-title>Project Distribution</mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        @if (projectDistributionChart$ | async; as chartData) {
         <ngx-charts-pie-chart
-          *ngIf="projectDistributionChart$ | async as chartData"
           [results]="chartData"
           [labels]="true"
           [doughnut]="true"
-        >
-        </ngx-charts-pie-chart>
+          [scheme]="'vivid'"
+          [animations]="true"
+        ></ngx-charts-pie-chart>
+        } @else {
+        <mat-spinner diameter="40"></mat-spinner>
+        }
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
+}
