@@ -5,10 +5,17 @@ import { AnalyticsService } from '@core/services/analytics.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-overview',
-  imports: [MatGridListModule, MatCardModule, MatIconModule, NgxChartsModule],
+  imports: [
+    MatGridListModule,
+    MatCardModule,
+    MatIconModule,
+    NgxChartsModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.scss',
 })
@@ -21,27 +28,35 @@ export class OverviewComponent {
     this.analyticsService.projectDistribution
   );
 
+  ngOnInit() {
+    this.analyticsService.getSystemOverview().subscribe();
+    this.analyticsService.getUserGrowth().subscribe();
+    this.analyticsService.getProjectDistribution().subscribe();
+  }
+
   userGrowthChart$ = this.userGrowth$.pipe(
     map((data) => [
       {
         name: 'User Growth',
         series: data.map((item) => ({
-          name: item.date.toLocaleDateString(),
-          value: item.newUsers,
+          name: item?.date ? new Date(item.date).toLocaleDateString() : 'N/A',
+          value: item?.newUsers || 0,
         })),
       },
-    ])
+    ]),
+    catchError(() => of([]))
   );
 
   projectDistributionChart$ = this.projectDistribution$.pipe(
-    map((data) =>
-      data
-        ? [
-            { name: 'Publications', value: data.publicationCount },
-            { name: 'Patents', value: data.patentCount },
-            { name: 'Research Projects', value: data.researchCount },
-          ]
-        : []
-    )
+    map((data) => {
+      if (!data) return [];
+
+      return [
+        { name: 'Publications', value: data.publicationCount || 0 },
+        { name: 'Patents', value: data.patentCount || 0 },
+        { name: 'Research', value: data.researchCount || 0 },
+      ].filter((item) => item.value > 0);
+    }),
+    catchError(() => of([]))
   );
 }

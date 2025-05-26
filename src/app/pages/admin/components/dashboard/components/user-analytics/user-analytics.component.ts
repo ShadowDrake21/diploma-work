@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { map } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 
 @Component({
   selector: 'app-user-analytics',
@@ -32,17 +32,26 @@ export class UserAnalyticsComponent {
       {
         name: 'New Users',
         series: data.map((item) => ({
-          name: item.date.toLocaleDateString(),
+          name: new Date(item.date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          }),
           value: item.newUsers,
         })),
       },
       {
         name: 'Active Users',
         series: data.map((item) => ({
-          name: item.date.toLocaleDateString(),
+          name: new Date(item.date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          }),
           value: item.activeUsers,
         })),
       },
-    ])
+    ]),
+    catchError(() => of([]))
   );
 }

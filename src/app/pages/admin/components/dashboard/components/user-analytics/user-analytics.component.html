@@ -24,9 +24,10 @@
         <mat-datepicker #endPicker></mat-datepicker>
       </mat-form-field>
     </div>
+    @if(userGrowthChart$ | async; as userGrowthChart){
     <ngx-charts-line-chart
-      *ngIf="userGrowthChart$ | async as chartData"
-      [results]="chartData"
+      *ngIf="userGrowthChart.length"
+      [results]="userGrowthChart"
       [xAxis]="true"
       [yAxis]="true"
       [showXAxisLabel]="true"
@@ -35,5 +36,9 @@
       yAxisLabel="Users"
       [legend]="true"
     ></ngx-charts-line-chart>
+    <div *ngIf="!userGrowthChart.length" class="no-data">
+      No user growth data available
+    </div>
+    }
   </mat-card-content>
 </mat-card>
