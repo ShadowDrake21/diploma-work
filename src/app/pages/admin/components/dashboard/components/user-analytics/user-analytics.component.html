@@ -6,7 +6,11 @@
     <div class="filter-row">
       <mat-form-field>
         <mat-label>Start Date</mat-label>
-        <input matInput [matDatepicker]="startPicker" />
+        <input
+          matInput
+          [matDatepicker]="startPicker"
+          (dateChange)="onStartDateChange($event.value)"
+        />
         <mat-datepicker-toggle
           matSuffix
           [for]="startPicker"
@@ -16,7 +20,11 @@
 
       <mat-form-field>
         <mat-label>End Date</mat-label>
-        <input matInput [matDatepicker]="endPicker" />
+        <input
+          matInput
+          [matDatepicker]="endPicker"
+          (dateChange)="onEndDateChange($event.value)"
+        />
         <mat-datepicker-toggle
           matSuffix
           [for]="endPicker"

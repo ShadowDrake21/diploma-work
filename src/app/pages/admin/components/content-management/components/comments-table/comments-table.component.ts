@@ -9,7 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { AdminService } from '@core/services/admin.service';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { IComment } from '@shared/types/comment.types';
+import { IComment } from '@models/comment.types';
 import { ConfirmDialogComponent } from '@pages/admin/components/user-management/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BaseFormComponent } from '../../../../../../shared/abstract/base-form/base-form.component';

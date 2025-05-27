@@ -14,7 +14,7 @@ import { finalize, Subscription } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { MatButtonModule } from '@angular/material/button';
-import { ICreateComment } from '@shared/types/comment.types';
+import { ICreateComment } from '@models/comment.types';
 import { FormsModule } from '@angular/forms';
 import { ProjectDTO } from '@models/project.model';
 import { ProjectDetailsService } from '@core/services/project/project-details/project-details.service';
@@ -22,6 +22,10 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ConfirmationDialogComponent } from './components/dialogs/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
+import { ProjectCommentsComponent } from './components/project-comments/project-comments.component';
+import { ProjectCommentService } from '@core/services/project/project-details/comments/project-comment.service';
+import { ProjectAttachmentService } from '@core/services/project/project-details/attachments/project-attachment.service';
+import { ProjectTagService } from '@core/services/project/project-details/tags/project-tag.service';
 
 @Component({
   selector: 'project-details',
@@ -39,6 +43,7 @@ import { AuthService } from '@core/authentication/auth.service';
     MatButtonModule,
     FormsModule,
     MatProgressBarModule,
+    ProjectCommentsComponent,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
@@ -50,25 +55,20 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private readonly projectDetailsService = inject(ProjectDetailsService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
+  private readonly projectCommentService = inject(ProjectCommentService);
+  private readonly projectAttachmentService = inject(ProjectAttachmentService);
+  private readonly projectTagService = inject(ProjectTagService);
 
   // Signals
   readonly workId = signal<string | null>(null);
   readonly projectLoading = signal(false);
-  readonly commentsLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  readonly newCommentContent = signal('');
-  readonly replyingToCommentId = signal<string | null>(null);
-  readonly replyContent = signal('');
   readonly deleteLoading = signal(false);
   readonly isCurrentUserOwner = signal(false);
 
   readonly project = toSignal(this.projectDetailsService.project$);
-  readonly publication = toSignal(this.projectDetailsService.publication$);
-  readonly patent = toSignal(this.projectDetailsService.patent$);
-  readonly research = toSignal(this.projectDetailsService.research$);
-  readonly comments = toSignal(this.projectDetailsService.comments$);
-  readonly attachments = toSignal(this.projectDetailsService.attachments$);
-  readonly tags = toSignal(this.projectDetailsService.tags$);
+  readonly attachments = toSignal(this.projectAttachmentService.attachments$);
+  readonly tags = toSignal(this.projectTagService.tags$);
 
   readonly getStatusOnProgess = getStatusOnProgess;
 
@@ -95,6 +95,13 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
           this.updateHeader(project);
           const currentUserId = this.authService.getCurrentUserId();
           this.isCurrentUserOwner.set(currentUserId === project.createdBy);
+
+          this.projectCommentService.refreshComments(project.id);
+          this.projectTagService.loadTags(project.tagIds);
+          this.projectAttachmentService.loadAttachments(
+            project.type,
+            project.id
+          );
         }
         this.projectLoading.set(false);
       },
@@ -156,79 +163,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
 
     this.subscriptions.push(sub);
-  }
-
-  postComment() {
-    if (!this.workId() || !this.newCommentContent().trim()) return;
-
-    const comment: ICreateComment = {
-      content: this.newCommentContent(),
-      projectId: this.workId()!,
-      parentCommentId: this.replyingToCommentId()! || undefined,
-    };
-
-    this.projectDetailsService.postComment(comment, () => {
-      this.newCommentContent.set('');
-      this.replyingToCommentId.set(null);
-    });
-  }
-
-  postReply(parentCommentId: string) {
-    if (!this.replyContent().trim()) return;
-
-    const comment: ICreateComment = {
-      content: this.replyContent(),
-      projectId: this.workId()!,
-      parentCommentId,
-    };
-
-    this.projectDetailsService.postComment(comment, () => {
-      this.replyContent.set('');
-    });
-  }
-
-  onCommentLikeToggle([action, commentId]: ['like' | 'unlike', string]): void {
-    const serviceCall =
-      action === 'like'
-        ? this.projectDetailsService.likeComment(commentId)
-        : this.projectDetailsService.unlikeComment(commentId);
-
-    serviceCall.subscribe({
-      error: (err) => console.error(`Error ${action} comment:`, err),
-    });
-  }
-
-  onCommentEdit(commentId: string, newContent: string): void {
-    this.commentsLoading.set(true);
-    const sub = this.projectDetailsService
-      .updateComment(commentId, newContent)
-      .pipe(finalize(() => this.commentsLoading.set(false)))
-      .subscribe({
-        error: (err) => console.error('Error updating comment:', err),
-      });
-
-    this.subscriptions.push(sub);
-  }
-
-  onCommentDelete(commentId: string): void {
-    this.commentsLoading.set(true);
-    const sub = this.projectDetailsService
-      .deleteComment(commentId)
-      .pipe(finalize(() => this.commentsLoading.set(false)))
-      .subscribe({
-        error: (err) => console.error('Error deleting comment:', err),
-      });
-
-    this.subscriptions.push(sub);
-  }
-
-  startReply(commentId: string) {
-    this.replyingToCommentId.set(commentId);
-  }
-
-  cancelReply() {
-    this.replyingToCommentId.set(null);
-    this.replyContent.set('');
   }
 
   ngOnDestroy() {

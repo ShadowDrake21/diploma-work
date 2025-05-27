@@ -1,12 +1,15 @@
-export interface IComment {
+export interface ICommentUser {
+  userId: number;
+  userName: string;
+  userAvatarUrl: string | null;
+}
+
+export interface IComment extends ICommentUser {
   id: string;
   content: string;
   createdAt: string;
   updatedAt: string;
   likes: number;
-  userId: number;
-  userName: string;
-  userAvatarUrl: string;
   projectId: string;
   parentCommentId?: string;
   isLikedByCurrentUser: boolean;

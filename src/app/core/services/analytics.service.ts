@@ -41,10 +41,13 @@ export class AnalyticsService {
       );
   }
 
-  getUserGrowth(startDate?: Date, endDate?: Date): Observable<UserGrowthDTO[]> {
+  getUserGrowth(
+    startDate?: string,
+    endDate?: string
+  ): Observable<UserGrowthDTO[]> {
     let params = new HttpParams();
-    if (startDate) params = params.set('startDate', startDate.toISOString());
-    if (endDate) params = params.set('endDate', endDate.toISOString());
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
 
     return this.http
       .get<ApiResponse<UserGrowthDTO[]>>(`${this.apiUrl}/users/growth`, {

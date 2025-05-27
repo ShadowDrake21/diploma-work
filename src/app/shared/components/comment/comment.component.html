@@ -14,7 +14,7 @@
   </div>
 
   <div class="comment-content">
-    @if (!isEditing) {
+    @if (!isEditing()) {
     <p>{{ comment().content }}</p>
     } @else {
     <textarea

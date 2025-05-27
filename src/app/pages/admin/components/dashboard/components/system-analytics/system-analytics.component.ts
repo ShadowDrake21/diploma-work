@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon } from '@angular/material/icon';
 import { AnalyticsService } from '@core/services/analytics.service';
+import { safeToLocaleDateString } from '@shared/utils/date.utils';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { map } from 'rxjs';
 
@@ -42,34 +43,19 @@ export class SystemAnalyticsComponent implements OnInit {
       {
         name: 'Comments',
         series: data.map((item) => ({
-          name: this.safeToLocaleDateString(item.date),
+          name: safeToLocaleDateString(item.date),
           value: item.newComments,
         })),
       },
       {
         name: 'Likes',
         series: data.map((item) => ({
-          name: this.safeToLocaleDateString(item.date),
+          name: safeToLocaleDateString(item.date),
           value: item.likes,
         })),
       },
     ])
   );
-
-  private safeToLocaleDateString(date: any): string {
-    try {
-      const dateObj = new Date(date);
-      return isNaN(dateObj.getTime())
-        ? 'Invalid Date'
-        : dateObj.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          });
-    } catch (error) {
-      return 'Invalid Date';
-    }
-  }
 
   ngOnInit() {
     this.analyticsService.getSystemPerformance().subscribe();

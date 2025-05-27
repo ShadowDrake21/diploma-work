@@ -13,7 +13,7 @@ import {
   AuthResponse,
   RegisterRequest,
 } from '@shared/types/admin.types';
-import { IComment } from '@shared/types/comment.types';
+import { IComment } from '@models/comment.types';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import { map, Observable, tap } from 'rxjs';
 import { UserLogin } from '@models/user-login.model';
