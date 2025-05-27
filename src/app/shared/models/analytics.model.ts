@@ -54,6 +54,12 @@ export interface SystemPerformanceDTO {
   averageResponseTime: number;
   uptimePercentage: number;
   activeConnections: number;
+  memoryUsage: number;
+  cpuUsage: number;
+  activeDbConnections: number;
+  idleDbConnections: number;
+  maxDbConnections: number;
+  threadCount: number;
 }
 
 export interface ChartSeries {

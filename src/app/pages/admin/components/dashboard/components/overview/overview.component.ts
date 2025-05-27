@@ -7,9 +7,11 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { catchError, map, of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgIf } from '@angular/common';
 @Component({
   selector: 'app-overview',
   imports: [
+    NgIf,
     MatGridListModule,
     MatCardModule,
     MatIconModule,
@@ -35,28 +37,28 @@ export class OverviewComponent {
   }
 
   userGrowthChart$ = this.userGrowth$.pipe(
-    map((data) => [
-      {
-        name: 'User Growth',
-        series: data.map((item) => ({
-          name: item?.date ? new Date(item.date).toLocaleDateString() : 'N/A',
-          value: item?.newUsers || 0,
-        })),
-      },
-    ]),
-    catchError(() => of([]))
+    map((data) => ({
+      name: 'User Growth',
+      series: (data || []).map((item) => ({
+        name: item?.date ? new Date(item.date).toLocaleDateString() : 'N/A',
+        value: item?.newUsers || 0,
+      })),
+    })),
+    catchError(() => of({ name: 'User Growth', series: [] }))
   );
 
   projectDistributionChart$ = this.projectDistribution$.pipe(
-    map((data) => {
-      if (!data) return [];
-
-      return [
-        { name: 'Publications', value: data.publicationCount || 0 },
-        { name: 'Patents', value: data.patentCount || 0 },
-        { name: 'Research', value: data.researchCount || 0 },
-      ].filter((item) => item.value > 0);
-    }),
-    catchError(() => of([]))
+    map((data) =>
+      [
+        { name: 'Publications', value: data?.publicationCount || 0 },
+        { name: 'Patents', value: data?.patentCount || 0 },
+        { name: 'Research', value: data?.researchCount || 0 },
+      ].filter((item) => item.value >= 0)
+    ),
+    catchError(() => [])
   );
+
+  hasData(data: { value: number }[]): boolean {
+    return data?.some((item) => item.value > 0) ?? false;
+  }
 }

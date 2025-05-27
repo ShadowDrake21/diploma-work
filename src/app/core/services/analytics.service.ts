@@ -114,6 +114,13 @@ export class AnalyticsService {
         }
       )
       .pipe(
+        map((response) => ({
+          ...response,
+          data: response.data.map((item) => ({
+            ...item,
+            date: new Date(item.date),
+          })),
+        })),
         tap((response) => this.commentActivity.set(response.data)),
         map((response) => response.data)
       );
