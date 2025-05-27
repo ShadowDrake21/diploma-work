@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse } from '@models/api-response.model';
-import { IComment, ICreateComment } from '@shared/types/comment.types';
+import { IComment, ICreateComment } from '@models/comment.types';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import { catchError, Observable, throwError } from 'rxjs';
 
