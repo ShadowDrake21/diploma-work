@@ -1,5 +1,4 @@
-@if (researchFunding() && publicationMetrics() && patentMetrics()) {
-
+@if (researchFunding() || publicationMetrics() || patentMetrics()) {
 <mat-grid-list cols="2" rowHeight="300px">
   <mat-grid-tile>
     <mat-card>
@@ -27,6 +26,8 @@
           </div>
         </div>
       </mat-card-content>
+      } @else {
+      <mat-spinner diameter="40"></mat-spinner>
       }
     </mat-card>
   </mat-grid-tile>
@@ -35,7 +36,8 @@
       <mat-card-header>
         <mat-card-title>Publication Metrics</mat-card-title>
       </mat-card-header>
-      <mat-card-content *ngIf="publicationMetrics() as metrics">
+      @if(publicationMetrics(); as metrics) {
+      <mat-card-content>
         <div class="metric-grid">
           <div class="metric-item">
             <h3>{{ metrics.totalPublications }}</h3>
@@ -53,8 +55,10 @@
             <h3>{{ metrics.mostCommonSource }}</h3>
             <p>Top Source</p>
           </div>
-        </div>
-      </mat-card-content>
+        </div> </mat-card-content
+      >} @else {
+      <mat-spinner diameter="40"></mat-spinner>
+      }
     </mat-card>
   </mat-grid-tile>
 
@@ -63,7 +67,8 @@
       <mat-card-header>
         <mat-card-title>Patent Metrics</mat-card-title>
       </mat-card-header>
-      <mat-card-content *ngIf="patentMetrics() as metrics">
+      @if(patentMetrics(); as metrics){
+      <mat-card-content>
         <div class="metric-grid">
           <div class="metric-item">
             <h3>{{ metrics.totalPatents }}</h3>
@@ -83,7 +88,12 @@
           </div>
         </div>
       </mat-card-content>
+      }@else {
+      <mat-spinner diameter="40"></mat-spinner>
+      }
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
+} @else {
+<mat-spinner></mat-spinner>
 }

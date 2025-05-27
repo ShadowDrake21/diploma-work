@@ -10,7 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SystemPerformanceDTO {
-	private int averageResponseTime; 
-    private double uptimePercentage;
-    private long activeConnections;
+	 private double averageResponseTime;
+	    private double uptimePercentage;
+	    private long activeConnections;
+	    private double memoryUsage; 
+	    private double cpuUsage; 
+	    private int activeDbConnections;
+	    private int idleDbConnections;
+	    private int maxDbConnections;
+	    private int threadCount;
 }

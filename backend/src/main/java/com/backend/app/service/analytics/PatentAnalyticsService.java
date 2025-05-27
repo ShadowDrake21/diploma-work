@@ -18,10 +18,10 @@ public class PatentAnalyticsService {
         Map<String, Object> metrics = patentRepository.getPatentMetrics();
         
         return PatentMetricsDTO.builder()
-                .totalPatents((Long) metrics.get("total"))
-                .averageInventors((Double) metrics.get("avgInventors"))
-                .mostCommonAuthority((String) metrics.get("commonAuthority"))
-                .patentsThisYear((Long) metrics.get("yearPatents"))
+                .totalPatents(metrics.get("total") != null ? (Long) metrics.get("total") : 0L)
+                .averageInventors(metrics.get("avgInventors") != null ? (Double) metrics.get("avgInventors") : 0.0)
+                .mostCommonAuthority(metrics.get("commonAuthority") != null ? (String) metrics.get("commonAuthority") : "N/A")
+                .patentsThisYear(metrics.get("yearPatents") != null ? (Long) metrics.get("yearPatents") : 0L)
                 .build();
     }
 }
