@@ -76,7 +76,7 @@ public class ProjectService {
 	 * @return List of all projects ordered by creation date (newest first)
 	 */
 	public Page<Project> findAllProjects(Pageable pageable) {
-		return projectRepository.findAll(PageRequest.of(pageable.getPageNumber(),
+		return projectRepository.findAllWithCreator(PageRequest.of(pageable.getPageNumber(),
 				pageable.getPageSize(),
 				Sort.by(Sort.Direction.DESC, "createdAt")));
 	}

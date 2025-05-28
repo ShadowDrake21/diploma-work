@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import com.backend.app.dto.miscellaneous.CreatorDTO;
 import com.backend.app.dto.model.ProjectDTO;
 import com.backend.app.dto.model.TagDTO;
 import com.backend.app.dto.response.ProjectResponse;
@@ -51,6 +52,7 @@ public class ProjectMapper {
 	                    .updatedAt(project.getUpdatedAt())
 	                    .tagIds(getTagIds(project))
 	                    .createdBy(getCreatorId(project))
+	                    .creator(mapCreatorToDTO(project.getCreator()))
 	                    .build();
 		} catch (Exception e) {
 			log.error("Error mapping Project to DTO", e);
@@ -107,6 +109,18 @@ public class ProjectMapper {
             log.error("Error mapping Project to Response", e);
             throw new ValidationException("Error mapping project response");
 		}
+	}
+	
+	private CreatorDTO mapCreatorToDTO(User creator) {
+	    if (creator == null) {
+	        return null;
+	    }
+	    return CreatorDTO.builder()
+	            .id(creator.getId())
+	            .username(creator.getUsername())
+	            .email(creator.getEmail())
+	            .avatarUrl(creator.getAvatarUrl())
+	            .build();
 	}
 	
 	private Set<UUID> getTagIds(Project project) {

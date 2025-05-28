@@ -15,6 +15,7 @@ import { PatentFormService } from './patent-form.service';
 import { ProjectFormCoreService } from './project-form-core.service';
 import { PublicationFormService } from './publication-form.service';
 import { ResearchFormService } from './research-form.service';
+import { GeneralInformationForm } from '@shared/types/forms/project-form.types';
 
 @Injectable({
   providedIn: 'root',
@@ -80,7 +81,7 @@ export class ProjectFormService extends ProjectFormCoreService {
 
   submitForm(
     typeForm: FormGroup,
-    generalInfoForm: FormGroup,
+    generalInfoForm: FormGroup<GeneralInformationForm>,
     workForm: FormGroup | null,
     projectId: string | null,
     creatorId: number | null,
