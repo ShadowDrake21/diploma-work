@@ -25,6 +25,7 @@ public class CommentMapper {
                 .userName(comment.getUser().getUsername())
                 .userAvatarUrl(comment.getUser().getAvatarUrl())
                 .projectId(comment.getProject().getId())
+                .projectTitle(comment.getProject().getTitle())
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .isLikedByCurrentUser(isLiked)
                 .build();

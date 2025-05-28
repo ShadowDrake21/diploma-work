@@ -37,7 +37,7 @@ public class EmailService {
 	}
 	
 	public void sendAdminInvite(String email, String token) {
-		String inviteLink = String.format("http://localhost:4200/register/admin?token=%s&email=%s", token, email);
+		String inviteLink = String.format("http://localhost:4200/authentication/admin-sign-up?token=%s&email=%s", token, email);
 		
 		SimpleMailMessage message = createEmailMessage(email,
 		        "Admin Account Invitation",

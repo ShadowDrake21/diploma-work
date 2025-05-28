@@ -34,9 +34,7 @@ public class JwtUtil {
     private static final String AUTH_HEADER_PREFIX = "Bearer ";
 	private static final String USER_ID_CLAIM = "userId";
 	private static final String SUBJECT_CLAIM = "sub";
-	
-	private static final long ADMIN_INVITE_EXPIRATION = 24 * 60 * 60 * 1000;
-	
+		
 	@Value("${jwt.secret}")
 	private String secretKey;
 	
@@ -111,22 +109,6 @@ public class JwtUtil {
             log.warn("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
-	}
-	
-	public String generateAdminInviteToken(String email) {
-		return Jwts.builder().setSubject(email).setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + ADMIN_INVITE_EXPIRATION))
-				.signWith(getSigningKey()).compact();
-	}
-	
-	public boolean validateAdminInviteToken(String token, String expectedEmail) {
-		try {
-			Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
-			
-			return claims.getSubject().equals(expectedEmail) && !claims.getExpiration().before(new Date());
-		} catch (Exception e) {
-			return false;
-		}
 	}
 	
 	public String extractUsername(String token) {

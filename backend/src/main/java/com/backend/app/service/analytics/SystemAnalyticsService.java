@@ -5,21 +5,16 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import com.backend.app.dto.analytics.SystemOverviewDTO;
 import com.backend.app.dto.analytics.SystemPerformanceDTO;
 import com.backend.app.repository.ActiveTokenRepository;
-import com.backend.app.repository.AdminInvitationRepository;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.UserRepository;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 public class SystemAnalyticsService {
 	private final UserRepository userRepository;
 	 private final ProjectRepository projectRepository;
-	    private final AdminInvitationRepository adminInvitationRepository;
 	    private final ActiveTokenRepository activeTokenRepository;
 	    
 	    private final MeterRegistry meterRegistry;
-	    private final ServletWebServerApplicationContext serverContext;
-	    private final PlatformTransactionManager transactionManager;
 	    private final DataSource dataSource;
 	    
 	    public SystemOverviewDTO getSystemOverview() {
@@ -50,7 +42,6 @@ public class SystemAnalyticsService {
 	    		.activeUsers(activeUsers)
 	    		.totalProjects(totalProjects)
 	    		.activeSessions(activeSessions)
-	    		.pendingAdminInvitations(adminInvitationRepository.countByCompletedFalseAndRevokedFalse())
 	    		.build();
 	    }
 	    

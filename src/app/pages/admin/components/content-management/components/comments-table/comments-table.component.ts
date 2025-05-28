@@ -39,7 +39,7 @@ export class CommentsTableComponent implements OnInit {
   displayedColumns: string[] = [
     'content',
     'author',
-    'projectId',
+    'projectTitle',
     'likes',
     'createdAt',
     'actions',
@@ -49,7 +49,7 @@ export class CommentsTableComponent implements OnInit {
   isLoading = signal<boolean>(false);
   totalItems = signal<number>(0);
   pageSize = signal<number>(10);
-  currentPage = signal<number>(1);
+  currentPage = signal<number>(0);
 
   ngOnInit(): void {
     this.loadComments();

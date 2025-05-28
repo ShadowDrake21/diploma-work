@@ -15,8 +15,11 @@ import { UserRoleChipComponent } from '../utils/user-role-chip/user-role-chip.co
 import { UserStatusChipComponent } from '../utils/user-status-chip/user-status-chip.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
-import { AdminInviteDialogComponent } from '../dialogs/admin-invite-dialog/admin-invite-dialog.component';
 import { RecentUsersComponent } from './components/recent-users/recent-users.component';
+import { SortingDirection } from '@shared/enums/sorting.enum';
+import { RoleFormatPipe } from '@pipes/role-format.pipe';
+import { currentUserSig } from '@core/shared/shared-signals';
+import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 
 @Component({
   selector: 'app-user-list',
@@ -32,6 +35,8 @@ import { RecentUsersComponent } from './components/recent-users/recent-users.com
     UserRoleChipComponent,
     UserStatusChipComponent,
     RecentUsersComponent,
+    RoleFormatPipe,
+    IsCurrentUserPipe,
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
@@ -50,7 +55,7 @@ export class UserListComponent {
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
   sortField = signal<string>('id');
-  sortDirection = signal<'asc' | 'desc'>('asc');
+  sortDirection = signal<SortingDirection>(SortingDirection.ASC);
 
   displayedColumns = computed(() => [
     'id',
@@ -77,7 +82,8 @@ export class UserListComponent {
       .getAllUsers(
         this.currentPage(),
         this.pageSize(),
-        `${this.sortField()},${this.sortDirection()}`
+        this.sortField(),
+        this.sortDirection()
       )
       .subscribe({
         next: (response) => {
@@ -103,7 +109,9 @@ export class UserListComponent {
 
   onSortChange(sortState: Sort): void {
     this.sortField.set(sortState.active);
-    this.sortDirection.set(sortState.direction as 'asc' | 'desc');
+    this.sortDirection.set(
+      sortState.direction.toString().toUpperCase() as SortingDirection
+    );
     this.currentPage.set(0);
   }
 
@@ -246,20 +254,7 @@ export class UserListComponent {
     });
   }
 
-  openInviteDialog(): void {
-    const dialogRef = this.dialog.open(AdminInviteDialogComponent, {
-      width: '500px',
-      disableClose: true,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadUsers();
-      }
-    });
-  }
-
   viewUserDetails(user: IUser): void {
-    this.router.navigate(['/admin/users', user.id]);
+    this.router.navigate(['/admin/users-management/users', user.id]);
   }
 }

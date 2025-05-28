@@ -11,6 +11,7 @@ export interface IComment extends ICommentUser {
   updatedAt: string;
   likes: number;
   projectId: string;
+  projectTitle: string;
   parentCommentId?: string;
   isLikedByCurrentUser: boolean;
   replies?: IComment[];

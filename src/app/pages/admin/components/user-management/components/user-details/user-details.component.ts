@@ -21,6 +21,8 @@ import { UserRoleChipComponent } from '../utils/user-role-chip/user-role-chip.co
 import { UserStatusChipComponent } from '../utils/user-status-chip/user-status-chip.component';
 import { ProjectsComponent } from '../../../../../projects/projects.component';
 import { ProfileProjectsComponent } from '../../../../../../shared/components/profile-projects/profile-projects.component';
+import { currentUserSig } from '@core/shared/shared-signals';
+import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 
 @Component({
   selector: 'app-user-details',
@@ -37,6 +39,7 @@ import { ProfileProjectsComponent } from '../../../../../../shared/components/pr
     UserStatusChipComponent,
     ProjectsComponent,
     ProfileProjectsComponent,
+    IsCurrentUserPipe,
   ],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss',
@@ -58,32 +61,7 @@ export class UserDetailsComponent implements OnInit {
   readonly UserRole = UserRole;
 
   ngOnInit(): void {
-    this.route.params
-      .pipe(
-        tap(() => {
-          this.isLoading.set(true);
-          this.error.set(null);
-        }),
-        switchMap((params) => {
-          const userId = +params['id'];
-          return this.userService.getFullUserById(userId);
-        })
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.user.set(response.data);
-            this.loadUserProjects();
-          } else {
-            this.error.set(response.message || 'Failed to load user');
-          }
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          this.error.set(err.message || 'Failed to load user');
-          this.isLoading.set(false);
-        },
-      });
+    this.loadUserData();
   }
 
   private loadUserData(): void {
@@ -186,12 +164,20 @@ export class UserDetailsComponent implements OnInit {
   }
 
   async reactivateUser(): Promise<void> {
-    await this.executeUserAction(
-      () => this.adminService.reactivateUser(this.user()!.id),
-      { ...this.user()!, active: true },
-      'User reactivated successfully',
-      'Failed to reactivate user'
+    const confirmed = await this.showConfirmation(
+      'Reactivate User',
+      `Are you sure you want to reactivate ${this.user()?.username}?`,
+      'Deactivate'
     );
+
+    if (confirmed) {
+      await this.executeUserAction(
+        () => this.adminService.reactivateUser(this.user()!.id),
+        { ...this.user()!, active: true },
+        'User reactivated successfully',
+        'Failed to reactivate user'
+      );
+    }
   }
 
   async deleteUser(): Promise<void> {
@@ -255,6 +241,6 @@ export class UserDetailsComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/admin/users']);
+    this.router.navigate(['/admin/users-management/users']);
   }
 }

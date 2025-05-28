@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, Input } from '@angular/core';
 import { MatChipsModule } from '@angular/material/chips';
+import { RoleFormatPipe } from '@pipes/role-format.pipe';
 import { UserRole } from '@shared/enums/user.enum';
 
 @Component({
   selector: 'app-user-role-chip',
-  imports: [CommonModule, MatChipsModule],
+  imports: [CommonModule, MatChipsModule, RoleFormatPipe],
   template: `
-    <mat-chip [color]="getColor()"> {{ role() | titlecase }} </mat-chip>
+    <mat-chip [color]="getColor()">
+      {{ role() | titlecase | roleFormat }}
+    </mat-chip>
   `,
   styles: ``,
 })

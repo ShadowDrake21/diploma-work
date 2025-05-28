@@ -19,6 +19,7 @@ import { ProjectType } from '@shared/enums/categories.enum';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ProjectSearchFilters } from '@shared/types/search.types';
 import { ProjectStatus } from '@shared/enums/project.enums';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'profile-filter-panel',
@@ -37,6 +38,7 @@ import { ProjectStatus } from '@shared/enums/project.enums';
   ],
   templateUrl: './filter-panel.component.html',
   styleUrl: './filter-panel.component.scss',
+  providers: [provideNativeDateAdapter()],
 })
 export class FilterPanelComponent implements OnInit {
   private fb = inject(FormBuilder);
