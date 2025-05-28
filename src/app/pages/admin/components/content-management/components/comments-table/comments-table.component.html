@@ -22,10 +22,10 @@
         </div>
       </td>
     </ng-container>
-    <ng-container matColumnDef="projectId">
+    <ng-container matColumnDef="projectTitle">
       <th mat-header-cell *matHeaderCellDef>Project</th>
       <td mat-cell *matCellDef="let comment">
-        {{ comment.projectId | truncateText : 10 }}
+        {{ comment.projectTitle | truncateText : 10 }}
       </td>
     </ng-container>
     <ng-container matColumnDef="likes">

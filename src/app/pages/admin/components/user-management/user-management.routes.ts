@@ -20,22 +20,13 @@ export const UserManagementRoutes: Routes = [
         data: { title: 'User Management' },
       },
       {
-        path: ':id',
+        path: 'users/:id',
         loadComponent: () =>
           import('./components/user-details/user-details.component').then(
             (c) => c.UserDetailsComponent
           ),
         canActivate: [adminGuard],
         data: { title: 'User Details' },
-      },
-      {
-        path: 'invitations',
-        loadComponent: () =>
-          import('./components/invitation-list/invitation-list.component').then(
-            (c) => c.InvitationListComponent
-          ),
-        canActivate: [adminGuard],
-        data: { title: 'Admin Invitations' },
       },
     ],
   },

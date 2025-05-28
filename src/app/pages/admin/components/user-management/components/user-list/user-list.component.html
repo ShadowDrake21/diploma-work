@@ -1,15 +1,6 @@
 <div class="user-container">
   <div class="header">
     <h1>User Management</h1>
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="openInviteDialog()"
-      aria-label="Invite new admin"
-    >
-      <mat-icon>person_add</mat-icon>
-      Invite Admin
-    </button>
   </div>
 
   @if(isLoading()){
@@ -104,7 +95,6 @@
           >
             <mat-icon>more_vert</mat-icon>
           </button>
-
           <mat-menu #menu="matMenu">
             <button
               mat-menu-item
@@ -115,7 +105,7 @@
               <span>View Details</span>
             </button>
 
-            @if (user.role === 'USER') {
+            @if(!(user.id | isCurrentUser)){ @if (user.role === 'USER') {
             <button
               mat-menu-item
               (click)="promoteUser(user)"
@@ -133,10 +123,7 @@
               <mat-icon>arrow_downward</mat-icon>
               <span>Demote to User</span>
             </button>
-            }
-
-            <!-- Activate/Deactivate -->
-            @if (user.active) {
+            } @if (user.active) {
             <button
               mat-menu-item
               (click)="deactivateUser(user)"
@@ -164,6 +151,7 @@
               <mat-icon color="warn">delete</mat-icon>
               <span class="warn-text">Delete</span>
             </button>
+            }
           </mat-menu>
         </td>
       </ng-container>

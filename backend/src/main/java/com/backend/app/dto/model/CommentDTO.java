@@ -25,6 +25,7 @@ public class CommentDTO {
 	 private String userName;
 	 private String userAvatarUrl;
 	 private UUID projectId;
+	 private String projectTitle;
 	 private UUID parentCommentId;
 	 private List<CommentDTO> replies;	 
 	 private boolean isLikedByCurrentUser;

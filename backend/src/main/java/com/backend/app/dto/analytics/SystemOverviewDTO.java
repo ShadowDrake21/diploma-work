@@ -14,5 +14,4 @@ public class SystemOverviewDTO {
 	    private long activeUsers;
 	    private long totalProjects;
 	    private long activeSessions;
-	    private long pendingAdminInvitations;
 }

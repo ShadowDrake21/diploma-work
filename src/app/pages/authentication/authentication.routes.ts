@@ -1,7 +1,4 @@
 import { Routes } from '@angular/router';
-import { adminInviteGuard } from '@core/guards/admin-invite.guard';
-import { adminSignUpCompleteGuard } from '@core/guards/admin-sign-up-complete.guard';
-import { notAuthGuard } from '@core/guards/not-auth.guard';
 
 export const AuthenticationRoutes: Routes = [
   {
@@ -43,14 +40,6 @@ export const AuthenticationRoutes: Routes = [
           import('./components/recover-password/recover-password.module').then(
             (m) => m.RecoverPasswordModule
           ),
-      },
-      {
-        path: 'admin-sign-up',
-        loadChildren: () =>
-          import('./components/admin-sign-up/admin-sign-up.component').then(
-            (m) => m.AdminSignUpComponent
-          ),
-        canActivate: [notAuthGuard, adminInviteGuard, adminSignUpCompleteGuard],
       },
     ],
   },

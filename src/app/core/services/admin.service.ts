@@ -7,16 +7,12 @@ import { ProjectResponse, ProjectWithDetails } from '@models/project.model';
 import { PublicationDTO } from '@models/publication.model';
 import { ResearchDTO } from '@models/research.model';
 import { IUser } from '@models/user.model';
-import { AdminInvitation } from '@pages/admin/components/user-management/components/types/invitation-list.types';
-import {
-  AdminInviteRequest,
-  AuthResponse,
-  RegisterRequest,
-} from '@shared/types/admin.types';
+
 import { IComment } from '@models/comment.types';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { map, Observable, tap } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
 import { UserLogin } from '@models/user-login.model';
+import { SortingDirection } from '@shared/enums/sorting.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -37,34 +33,17 @@ export class AdminService {
   researchesPagination = signal({ page: 0, size: 10, total: 0 });
   commentsPagination = signal({ page: 0, size: 10, total: 0 });
 
-  inviteAdmin(request: AdminInviteRequest): Observable<ApiResponse<string>> {
-    return this.http.post<ApiResponse<string>>(
-      `${this.apiUrl}/invite`,
-      request
-    );
-  }
-
-  completeAdminRegistration(
-    token: string,
-    request: RegisterRequest
-  ): Observable<ApiResponse<AuthResponse>> {
-    const params = new HttpParams().set('token', token);
-    return this.http.post<ApiResponse<AuthResponse>>(
-      `${this.apiUrl}/complete-registration`,
-      request,
-      { params }
-    );
-  }
-
   getAllUsers(
     page: number = 0,
     size: number = 10,
-    sortBy: string = 'id'
+    sortBy: string = 'id',
+    direction: SortingDirection = SortingDirection.ASC
   ): Observable<PaginatedResponse<IUser>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
-      .set('sortBy', sortBy);
+      .set('sortBy', sortBy)
+      .set('direction', direction);
 
     return this.http.get<PaginatedResponse<IUser>>(`${this.apiUrl}/users`, {
       params,
@@ -102,44 +81,6 @@ export class AdminService {
     return this.http.post<ApiResponse<void>>(
       `${this.apiUrl}/users/${userId}/reactivate`,
       {}
-    );
-  }
-
-  validateAdminInviteToken(token: string, email: string): Observable<boolean> {
-    const params = new HttpParams().set('token', token).set('email', email);
-
-    return this.http
-      .get<ApiResponse<{ isValid: boolean }>>(
-        `${this.apiUrl}/validate-invite-token`,
-        { params }
-      )
-      .pipe(map((response) => response.data?.isValid ?? false));
-  }
-
-  getAdminInvitations(
-    page: number = 0,
-    size: number = 10
-  ): Observable<PaginatedResponse<AdminInvitation>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-
-    return this.http.get<PaginatedResponse<AdminInvitation>>(
-      `${this.apiUrl}/invitations`,
-      { params }
-    );
-  }
-
-  resendInvitation(invitationId: number): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(
-      `${this.apiUrl}/invitations/${invitationId}/resend`,
-      {}
-    );
-  }
-
-  revokeInvitation(invitationId: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(
-      `${this.apiUrl}/invitations/${invitationId}`
     );
   }
 
