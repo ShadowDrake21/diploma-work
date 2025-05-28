@@ -22,6 +22,8 @@ import {
   SignInFormValues,
 } from '@shared/types/forms/auth-form.types';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { switchMap } from 'rxjs';
+import { UserStore } from '@core/services/stores/user-store.service';
 
 @Component({
   selector: 'auth-sign-in',
@@ -40,11 +42,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrl: './sign-in.component.scss',
 })
 export class SignInComponent implements OnInit {
-  destroyRef = inject(DestroyRef);
-
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly userStore = inject(UserStore);
 
   protected signInForm = new FormGroup<SignInForm>({
     email: new FormControl('', {
@@ -91,6 +93,7 @@ export class SignInComponent implements OnInit {
 
     this.authService
       .login(this.signInForm.value as SignInFormValues)
+      .pipe(switchMap(() => this.userStore.loadCurrentUser()))
       .subscribe({
         next: () => {
           this.router.navigate(['/']);

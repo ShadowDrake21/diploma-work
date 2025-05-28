@@ -1,7 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, map, Observable, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import {
   IAuthResponse,
@@ -14,13 +22,17 @@ import {
 import { ApiResponse } from '@models/api-response.model';
 import { IJwtPayload } from '@shared/types/jwt.types';
 import { UserRole } from '@shared/enums/user.enum';
+import { UserService } from '@core/services/user.service';
+import { currentUserSig } from '@core/shared/shared-signals';
+import { UserStore } from '@core/services/stores/user-store.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+
   private apiUrl = 'http://localhost:8080/api/auth';
 
   private currentUserSub!: BehaviorSubject<IJwtPayload | null>;
@@ -91,9 +103,12 @@ export class AuthService {
             storage.setItem('authToken', response.data.authToken);
 
             const decoded = this.decodeToken(response.data.authToken);
-            if (decoded) {
-              this.currentUserSub.next(decoded);
+            if (!decoded) {
+              this.clearAuthData();
+              throw new Error('Invalid token');
             }
+
+            this.currentUserSub.next(decoded);
           }
         }),
         map((response) => response.data)
@@ -147,16 +162,20 @@ export class AuthService {
 
   public logout() {
     this.http.post<ApiResponse<string>>(`${this.apiUrl}/logout`, {}).subscribe({
-      next: (response) => {
-        this.clearAuthData();
-        this.router.navigate(['/authentication/sign-in']);
-      },
-      error: (error) => {
-        console.error('Logout error', error);
-        this.clearAuthData();
-        this.router.navigate(['/authentication/sign-in']);
-      },
+      next: () => this.handleLogoutSuccess(),
+      error: (error) => this.hadnleLogoutError(error),
     });
+  }
+
+  private handleLogoutSuccess(): void {
+    this.clearAuthData();
+    this.router.navigate(['/authentication/sign-in']);
+  }
+
+  private hadnleLogoutError(error: any): void {
+    console.error('Logout error', error);
+    this.clearAuthData();
+    this.router.navigate(['/authentication/sign-in']);
   }
 
   public isAdmin(): boolean {

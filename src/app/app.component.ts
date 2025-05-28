@@ -21,6 +21,7 @@ import { AdminService } from '@core/services/admin.service';
 import { AuthService } from '@core/authentication/auth.service';
 import { UserService } from '@core/services/user.service';
 import { currentUserSig } from '@core/shared/shared-signals';
+import { UserStore } from '@core/services/stores/user-store.service';
 
 @Component({
   selector: 'app-root',
@@ -42,7 +43,7 @@ import { currentUserSig } from '@core/shared/shared-signals';
 })
 export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
+  private readonly userStore = inject(UserStore);
   private observer = inject(BreakpointObserver);
   private router = inject(Router);
 
@@ -78,10 +79,11 @@ export class AppComponent implements OnInit {
           event.url.split('/').includes('not-found');
       });
 
-    if (this.isLoggedIn) {
-      this.userService
-        .getCurrentUser()
-        .subscribe(() => console.log('User data loaded'));
+    if (this.authService.isAuthenticated()) {
+      const rememberMe = !!localStorage.getItem('authToken');
+      this.userStore.setRememberMe(rememberMe);
+
+      this.userStore.loadCurrentUser().subscribe();
     }
 
     this.isAdmin = this.authService.isAdmin();
