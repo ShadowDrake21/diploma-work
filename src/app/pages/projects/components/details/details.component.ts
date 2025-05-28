@@ -19,7 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { ProjectDTO } from '@models/project.model';
 import { ProjectDetailsService } from '@core/services/project/project-details/project-details.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ConfirmationDialogComponent } from './components/dialogs/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../../shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
 import { ProjectCommentsComponent } from './components/project-comments/project-comments.component';

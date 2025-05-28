@@ -28,7 +28,5 @@ import {
   styleUrl: './confirmation-dialog.component.scss',
 })
 export class ConfirmationDialogComponent {
-  private dialogRef = MatDialogRef<ConfirmationDialogComponent>;
-
   constructor(@Inject(MAT_DIALOG_DATA) public data: { message: string }) {}
 }

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   Inject,
   inject,
   OnInit,
@@ -23,10 +24,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSliderModule } from '@angular/material/slider';
+import { MatSliderModule, MatSliderThumb } from '@angular/material/slider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AttachmentsService } from '@core/services/attachments.service';
-import { FileHandlerService } from '@core/services/file-handler.service';
+import { FileHandlerService } from '@core/services/files/file-handler.service';
 import { ProjectFormService } from '@core/services/project/project-form/project-form.service';
 import { TagService } from '@core/services/project/models/tag.service';
 import { FileMetadataDTO } from '@models/file.model';
@@ -34,6 +35,9 @@ import { ProjectDTO, UpdateProjectRequest } from '@models/project.model';
 import { Tag } from '@models/tag.model';
 import { FileSizePipe } from '@pipes/file-size.pipe';
 import { finalize } from 'rxjs';
+import { FileHandlerFacadeService } from '@core/services/files/file-handler-facade.service';
+import { FileUploadListComponent } from '../../../../../../../projects/components/create/components/project-general-information/components/file-upload-list/file-upload-list.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-project-edit-modal',
@@ -53,17 +57,20 @@ import { finalize } from 'rxjs';
     MatTooltipModule,
     MatListModule,
     MatProgressSpinnerModule,
+    MatSliderThumb,
     FileSizePipe,
+    FileUploadListComponent,
   ],
   templateUrl: './project-edit-modal.component.html',
   styleUrl: './project-edit-modal.component.scss',
 })
 export class ProjectEditModalComponent implements OnInit {
-  private tagService = inject(TagService);
-  private attachmentsService = inject(AttachmentsService);
-  private fileHandlerService = inject(FileHandlerService);
-  private dialogRef = inject(MatDialogRef<ProjectEditModalComponent>);
-  private projectFormService = inject(ProjectFormService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly tagService = inject(TagService);
+  private readonly attachmentsService = inject(AttachmentsService);
+  private readonly fileHandler = inject(FileHandlerFacadeService);
+  private readonly dialogRef = inject(MatDialogRef<ProjectEditModalComponent>);
+  private readonly projectFormService = inject(ProjectFormService);
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { project: ProjectDTO }) {
     this.projectFormService.patchGeneralInformationForm(
@@ -73,15 +80,30 @@ export class ProjectEditModalComponent implements OnInit {
   }
 
   projectForm = this.projectFormService.createGeneralInfoForm();
-  allTags: WritableSignal<Tag[]> = signal([]);
-  attachments: WritableSignal<FileMetadataDTO[]> = signal([]);
+  allTags = signal<Tag[]>([]);
   isLoading = signal(false);
-  isUploading = signal(false);
-  uploadProgress = signal(0);
 
   ngOnInit(): void {
     this.loadTags();
     this.loadAttachments();
+    this.setupFormListeners();
+  }
+
+  private setupFormListeners(): void {
+    // Listen to tags changes
+    this.projectForm.controls.tags.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((tags) => {
+        console.log('Tags changed:', tags);
+        // You can add additional logic here when tags change
+      });
+
+    // Optionally listen to other form changes
+    this.projectForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((values) => {
+        console.log('Form values changed:', values);
+      });
   }
 
   private loadTags() {
@@ -94,46 +116,26 @@ export class ProjectEditModalComponent implements OnInit {
     this.attachmentsService
       .getFilesByEntity(this.data.project.type, this.data.project.id)
       .subscribe((attachments) => {
-        this.attachments.set(attachments);
+        this.fileHandler.initialize(attachments);
       });
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.isUploading.set(true);
-      this.uploadProgress.set(0);
-
-      this.fileHandlerService
-        .uploadFiles(
-          this.data.project.type,
-          this.data.project.id,
-          Array.from(input.files)
-        )
-        .pipe(finalize(() => this.isUploading.set(false)))
-        .subscribe({
-          next: (result) => {
-            this.uploadProgress.set(result.progress);
-            if (result.files.length > 0) {
-              this.attachments.update((current) => [
-                ...current,
-                ...result.files,
-              ]);
-            }
-          },
-          error: (error) => console.error('Upload failed:', error),
-        });
-    }
+  onFilesSelected(files: File[]): void {
+    this.fileHandler.onFilesSelected(files);
   }
 
-  removeAttachment(index: number): void {
-    const file = this.attachments()[index];
-    this.fileHandlerService.deleteFile(file).subscribe({
-      next: () => {
-        this.attachments.update((current) =>
-          current.filter((_, i) => i !== index)
-        );
-      },
+  uploadFiles(): void {
+    this.fileHandler
+      .uploadFiles(this.data.project.type, this.data.project.id)
+      .subscribe({
+        next: (result) => this.fileHandler.handleUploadSuccess(result.files),
+
+        error: (error) => console.error('Upload failed:', error),
+      });
+  }
+
+  removeFile(index: number, isPending: boolean): void {
+    this.fileHandler.removeFile(index, isPending).subscribe({
       error: (error) => console.error('Error deleting file:', error),
     });
   }
@@ -149,16 +151,50 @@ export class ProjectEditModalComponent implements OnInit {
     const formValue = this.projectForm.value;
 
     const updateData: UpdateProjectRequest = {
-      title: formValue.title,
-      description: formValue.description,
-      tagIds: formValue.tags,
-      progress: formValue.progress,
+      title: formValue.title || '',
+      description: formValue.description || '',
+      tagIds: formValue.tags || [],
+      progress: formValue.progress || 0,
     };
 
-    this.dialogRef.close(updateData);
+    if (this.pendingFiles.length > 0) {
+      this.fileHandler
+        .uploadFiles(this.data.project.type, this.data.project.id)
+        .pipe(
+          finalize(() => {
+            this.isLoading.set(false);
+            if (!this.fileHandler.isUploading()) {
+              this.dialogRef.close(updateData);
+            }
+          })
+        )
+        .subscribe({
+          next: (result) => this.fileHandler.handleUploadSuccess(result.files),
+          error: (error) => {
+            console.error('Upload failed:', error);
+            this.dialogRef.close(updateData);
+          },
+        });
+    } else {
+      this.isLoading.set(false);
+      this.dialogRef.close(updateData);
+    }
   }
 
   onCancel(): void {
     this.dialogRef.close();
+  }
+
+  get uploadedFiles(): FileMetadataDTO[] {
+    return this.fileHandler.uploadedFiles();
+  }
+  get pendingFiles(): File[] {
+    return this.fileHandler.pendingFiles();
+  }
+  get isUploading(): boolean {
+    return this.fileHandler.isUploading();
+  }
+  get uploadProgress(): number {
+    return this.fileHandler.uploadProgress();
   }
 }

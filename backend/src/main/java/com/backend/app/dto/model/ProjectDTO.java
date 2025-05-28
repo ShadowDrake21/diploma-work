@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.backend.app.dto.miscellaneous.CreatorDTO;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.model.Project;
 import com.backend.app.model.Tag;
@@ -53,9 +54,12 @@ public class ProjectDTO {
 	@Builder.Default
 	private Set<UUID> tagIds =  Set.of();
 	
+	@NotNull(message = "Creator ID is required")
     private Long createdBy;
     
     private Long deletedUserId;
+    
+    private CreatorDTO creator;
 
 	public ProjectDTO fromEntity(Project project) {
 		if (project == null) {

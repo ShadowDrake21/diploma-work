@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FileMetadataDTO } from '@models/file.model';
 import { ResponseUserDTO } from '@models/user.model';
 import { ProjectType } from '@shared/enums/categories.enum';
+import { GeneralInformationForm } from '@shared/types/forms/project-form.types';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
 
 @Injectable({
@@ -21,7 +22,7 @@ export class ProjectFormCoreService implements OnDestroy {
     });
   }
 
-  createGeneralInfoForm(): FormGroup {
+  createGeneralInfoForm(): FormGroup<GeneralInformationForm> {
     return new FormGroup({
       title: new FormControl<string>('', [Validators.required]),
       description: new FormControl<string>('', [Validators.required]),

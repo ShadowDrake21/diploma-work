@@ -6,7 +6,6 @@ import {
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,16 +17,15 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSliderModule } from '@angular/material/slider';
 import { TagService } from '@core/services/project/models/tag.service';
-import { finalize, tap } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { FileMetadataDTO } from '@models/file.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ActivatedRoute } from '@angular/router';
-import { FileHandlerService } from '@core/services/file-handler.service';
 import { GeneralInformationForm } from '@shared/types/forms/project-form.types';
 import { FileUploadListComponent } from './components/file-upload-list/file-upload-list.component';
+import { FileHandlerFacadeService } from '@core/services/files/file-handler-facade.service';
 
 @Component({
   selector: 'create-project-general-information',
@@ -52,7 +50,7 @@ import { FileUploadListComponent } from './components/file-upload-list/file-uplo
 })
 export class ProjectGeneralInformationComponent implements OnInit {
   private tagService = inject(TagService);
-  private fileHandler = inject(FileHandlerService);
+  private fileHandler = inject(FileHandlerFacadeService);
   private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
@@ -61,62 +59,16 @@ export class ProjectGeneralInformationComponent implements OnInit {
   entityType = input.required<ProjectType | null | undefined>();
   existingFiles = input.required<FileMetadataDTO[] | null | undefined>();
 
-  // State
   readonly tags$ = this.tagService.getAllTags();
-  readonly uploadProgress = signal(0);
-  readonly isUploading = signal(false);
-  readonly uploadedFiles = signal<FileMetadataDTO[]>([]);
-  readonly pendingFiles = signal<File[]>([]);
 
   ngOnInit(): void {
-    this.updateAttachmentsList();
-
-    this.generalInformationForm()
-      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.updateAttachmentsList());
-  }
-
-  private updateAttachmentsList(): void {
-    const currentAttachments =
-      this.generalInformationForm().controls.attachments.value || [];
-
-    this.uploadedFiles.set(
-      currentAttachments.filter(
-        (file): file is FileMetadataDTO => !this.isFile(file)
-      )
-    );
-
-    this.pendingFiles.set(
-      currentAttachments.filter((file): file is File => this.isFile(file))
-    );
+    this.fileHandler.initialize(this.existingFiles() || []);
+    this.updateFormControl({ emitEvent: false });
   }
 
   onFilesSelected(files: File[]): void {
-    const uniqueNewFiles = this.filterDuplicateFiles(files);
-
-    if (uniqueNewFiles.length === 0) return;
-
-    this.pendingFiles.update((files) => [...files, ...uniqueNewFiles]);
+    this.fileHandler.onFilesSelected(files);
     this.updateFormControl();
-  }
-
-  private updateFormControl(): void {
-    this.generalInformationForm().controls.attachments.setValue([
-      ...this.uploadedFiles(),
-      ...this.pendingFiles(),
-    ]);
-  }
-
-  private filterDuplicateFiles(newFiles: File[]): File[] {
-    const currentFiles = [...this.uploadedFiles(), ...this.pendingFiles()];
-
-    const existingFileKeys = new Set(
-      currentFiles.map((file) => this.getFileKey(file))
-    );
-
-    return newFiles.filter(
-      (file) => !existingFileKeys.has(this.getFileKey(file))
-    );
   }
 
   compareTags(tagId1: string, tagId2: string): boolean {
@@ -124,102 +76,55 @@ export class ProjectGeneralInformationComponent implements OnInit {
   }
 
   uploadFiles(): void {
-    const filesToUpload = this.pendingFiles();
     const entityType = this.entityType();
     const entityId = this.getEntityId();
 
-    if (!filesToUpload.length || !entityType || !entityId) {
+    if (!entityType || !entityId) {
       console.warn('Cannot upload files - no files or entity type.');
       return;
     }
 
-    this.isUploading.set(true);
-    this.uploadProgress.set(0);
-
-    const uniqueFiles = this.filterDuplicateFilesBeforeUpload(filesToUpload);
-
-    const skippedCount = filesToUpload.length - uniqueFiles.length;
-    if (skippedCount > 0) {
-      console.log(`Skipped ${skippedCount} duplicate files by name.`);
-    }
-
-    if (uniqueFiles.length === 0) {
-      this.isUploading.set(false);
-      return;
-    }
-
-    this.fileHandler
-      .uploadFiles(entityType, entityId, filesToUpload)
-      .pipe(
-        tap(({ progress }) => {
-          this.uploadProgress.set(progress);
-        }),
-        finalize(() => {
-          this.isUploading.set(false);
-        })
-      )
-      .subscribe({
-        next: ({ files }) => {
-          if (files && files.length > 0) {
-            this.pendingFiles.update((currentPending) =>
-              currentPending.filter(
-                (pendingFile) =>
-                  !uniqueFiles.some((uf) => uf.name === pendingFile.name)
-              )
-            );
-
-            this.uploadedFiles.update((currentUploaded) => [
-              ...currentUploaded,
-              ...files,
-            ]);
-            this.updateFormControl();
-            this.cdr.detectChanges();
-          }
-        },
-        error: (error) => {
-          console.error('Upload failed:', error);
-        },
-      });
+    this.fileHandler.uploadFiles(entityType, entityId).subscribe({
+      next: ({ files }) => {
+        this.fileHandler.handleUploadSuccess(files);
+        this.updateFormControl();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Upload failed:', error);
+      },
+    });
   }
 
   removeFile(index: number, isPending: boolean): void {
-    if (isPending) {
-      this.pendingFiles.update((files) => files.filter((_, i) => i !== index));
-    } else {
-      const file = this.uploadedFiles()[index];
-
-      this.fileHandler.deleteFile(file).subscribe({
-        next: () => {
-          this.uploadedFiles.update((files) =>
-            files.filter((_, i) => i !== index)
-          );
-          this.updateFormControl();
-        },
-        error: (err) => console.error('Error deleting file:', err),
-      });
-    }
-    this.updateFormControl();
+    this.fileHandler.removeFile(index, isPending).subscribe({
+      next: () => this.updateFormControl(),
+      error: (error) => console.error('Error removing file:', error),
+    });
   }
 
-  isFile(file: any): file is File {
-    return file instanceof File;
+  get uploadedFiles(): FileMetadataDTO[] {
+    return this.fileHandler.uploadedFiles();
+  }
+  get pendingFiles(): File[] {
+    return this.fileHandler.pendingFiles();
+  }
+  get isUploading(): boolean {
+    return this.fileHandler.isUploading();
+  }
+  get uploadProgress(): number {
+    return this.fileHandler.uploadProgress();
+  }
+
+  private updateFormControl(options?: { emitEvent: boolean }): void {
+    const { uploaded, pending } = this.fileHandler.getFiles();
+    this.generalInformationForm().controls.attachments.setValue(
+      [...uploaded, ...pending],
+      options
+    );
   }
 
   private getEntityId(): string {
     return this.route.snapshot.queryParamMap.get('id') || '';
-  }
-
-  private getFileKey(file: File | FileMetadataDTO): string {
-    return this.isFile(file) ? file.name : file.fileName;
-  }
-
-  private filterDuplicateFilesBeforeUpload(files: File[]): File[] {
-    const existingFileNames = new Set(
-      this.uploadedFiles().map((file) => file.fileName)
-    );
-
-    return files.filter((file) => {
-      return !existingFileNames.has(file.name);
-    });
   }
 }

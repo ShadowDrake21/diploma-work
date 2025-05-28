@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { AttachmentsService } from './attachments.service';
+import { AttachmentsService } from '../attachments.service';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { FileMetadataDTO } from '@models/file.model';

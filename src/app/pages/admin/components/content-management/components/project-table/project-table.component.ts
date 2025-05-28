@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -31,6 +31,9 @@ import { ProjectType } from '@shared/enums/categories.enum';
 import { Pagination } from '@shared/types/util.types';
 import { ProjectEditModalComponent } from './components/project-edit-modal/project-edit-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ProjectFormService } from '@core/services/project/project-form/project-form.service';
+import { FormControl, FormGroup } from '@angular/forms';
+import { ConfirmationDialogComponent } from '@shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-project-table',
@@ -47,15 +50,16 @@ import { MatDialog } from '@angular/material/dialog';
     FileSizePipe,
     DatePipe,
     TruncateTextPipe,
+    TitleCasePipe,
   ],
   templateUrl: './project-table.component.html',
   styleUrl: './project-table.component.scss',
 })
 export class ProjectTableComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
-  private readonly tagService = inject(TagService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly dialog = inject(MatDialog);
+  private readonly submissionService = inject(ProjectFormService);
 
   projects = signal<
     (ProjectDTO & { tags?: Tag[]; attachments?: FileMetadataDTO[] })[]
@@ -65,7 +69,6 @@ export class ProjectTableComponent implements OnInit {
     'type',
     'description',
     'progress',
-    'tags',
     'attachments',
     'creator',
     'createdAt',
@@ -89,7 +92,6 @@ export class ProjectTableComponent implements OnInit {
         const projects = response.data;
 
         projects.forEach((project) => {
-          this.loadTagsForProject(project);
           this.loadAttachmentsForProject(project);
         });
 
@@ -101,24 +103,14 @@ export class ProjectTableComponent implements OnInit {
       });
   }
 
-  private loadTagsForProject(project: ProjectDTO & { tags?: Tag[] }) {
-    if (project.tagIds?.length) {
-      this.tagService.getAllTags().subscribe((tags) => {
-        project.tags = tags.filter((tag) => project.tagIds?.includes(tag.id));
-      });
-    }
-  }
-
   private loadAttachmentsForProject(
     project: ProjectDTO & { attachments?: FileMetadataDTO[] }
   ) {
-    if (project.attachments) {
-      this.attachmentsService
-        .getFilesByEntity(project.type, project.id)
-        .subscribe((attachments) => {
-          project.attachments = attachments;
-        });
-    }
+    this.attachmentsService
+      .getFilesByEntity(project.type, project.id)
+      .subscribe((attachments) => {
+        project.attachments = attachments;
+      });
   }
 
   onPageChange(event: PageEvent) {
@@ -152,18 +144,47 @@ export class ProjectTableComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.projectService.updateProject(project.id, result).subscribe({
-          next: () => this.loadProjects(),
-          error: (error) => console.error('Error updating project:', error),
-        });
+        this.submissionService
+          .submitForm(
+            new FormGroup({
+              type: new FormControl(project.type),
+            }),
+            new FormGroup({
+              title: new FormControl(result.title),
+              description: new FormControl(result.description),
+              progress: new FormControl(result.progress),
+              tags: new FormControl(result.tagIds),
+              attachments: new FormControl(result.attachments || []),
+            }),
+            null,
+            project.id,
+            project.createdBy,
+            []
+          )
+          .subscribe({
+            next: () => this.loadProjects(),
+            error: (error) => console.error('Error updating project:', error),
+          });
       }
     });
   }
 
   deleteProject(id: string) {
-    this.projectService.deleteProject(id).subscribe({
-      next: () => this.loadProjects(),
-      error: (error) => console.error('Error deleting project:', error),
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        message:
+          'Ви впевнені, що хочете видалити цей проєкт? Цю дію не можна скасувати.',
+        // Are you sure you want to delete this project? This action cannot be undone.
+      },
+    });
+    const sub = dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.projectService.deleteProject(id).subscribe({
+          next: () => this.loadProjects(),
+          error: (error) => console.error('Error deleting project:', error),
+        });
+      }
     });
   }
 }

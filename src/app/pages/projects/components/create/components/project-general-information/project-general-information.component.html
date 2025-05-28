@@ -40,10 +40,10 @@
   </mat-form-field>
 
   <general-information-file-upload-list
-    [uploadedFiles]="uploadedFiles()"
-    [pendingFiles]="pendingFiles()"
-    [isUploading]="isUploading()"
-    [uploadProgress]="uploadProgress()"
+    [uploadedFiles]="uploadedFiles"
+    [pendingFiles]="pendingFiles"
+    [isUploading]="isUploading"
+    [uploadProgress]="uploadProgress"
     (uploadRequested)="uploadFiles()"
     (filesSelected)="onFilesSelected($event)"
     (removeFile)="removeFile($event.index, $event.isPending)"

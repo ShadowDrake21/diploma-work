@@ -53,21 +53,29 @@ export class ProjectDataService extends ProjectDataCoreService {
   ): Observable<any> {
     return this.projectService.updateProject(projectId, projectData).pipe(
       switchMap(() => {
-        const operations = [
-          this.updateTypedProject(projectId, projectData.type!, formValues),
-        ];
+        if (
+          formValues.patent ||
+          formValues.publication ||
+          formValues.research
+        ) {
+          const operations = [
+            this.updateTypedProject(projectId, projectData.type!, formValues),
+          ];
 
-        if (attachments.length > 0) {
-          operations.push(
-            this.attachmentsService.updateFiles(
-              projectData.type as ProjectType,
-              projectId,
-              attachments
-            )
-          );
+          if (attachments.length > 0) {
+            operations.push(
+              this.attachmentsService.updateFiles(
+                projectData.type as ProjectType,
+                projectId,
+                attachments
+              )
+            );
+          }
+
+          return forkJoin(operations);
+        } else {
+          return of(null);
         }
-
-        return forkJoin(operations);
       })
     );
   }

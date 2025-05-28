@@ -1,0 +1,16 @@
+<nav class="admin-nav">
+  <ul>
+    @for (item of navItems; track $index) {
+    <li>
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <mat-icon [fontIcon]="item.icon" />
+        {{ item.label }}
+      </a>
+    </li>
+    }
+  </ul>
+</nav>
