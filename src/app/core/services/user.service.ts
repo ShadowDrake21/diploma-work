@@ -93,9 +93,10 @@ export class UserService {
   }
 
   public getCurrentUser(): Observable<ApiResponse<IUser>> {
-    return this.http
-      .get<ApiResponse<IUser>>(`${this.apiUrl}/me`, getAuthHeaders())
-      .pipe(tap((response) => currentUserSig.set(response.data)));
+    return this.http.get<ApiResponse<IUser>>(
+      `${this.apiUrl}/me`,
+      getAuthHeaders()
+    );
   }
 
   public updateUserProfile(
