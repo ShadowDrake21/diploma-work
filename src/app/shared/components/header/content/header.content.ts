@@ -6,14 +6,4 @@ export const profileMenuItems: IProfile[] = [
     link: '/my-profile',
     icon: 'account_circle',
   },
-  {
-    title: 'My comments',
-    link: '/my-comments',
-    icon: 'comment',
-  },
-  {
-    title: 'Settings',
-    link: '/settings',
-    icon: 'settings',
-  },
 ];

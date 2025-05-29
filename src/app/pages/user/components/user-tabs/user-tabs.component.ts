@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { ProfileProjectsComponent } from '../../../../shared/components/profile-projects/profile-projects.component';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { catchError, of } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';

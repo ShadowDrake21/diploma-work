@@ -6,7 +6,7 @@ import {
 } from '@angular/common';
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { ProjectService } from '@core/services/project/models/project.service';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { ResearchDTO } from '@models/research.model';
 import { forkJoin, map, Observable, Subscription } from 'rxjs';
 

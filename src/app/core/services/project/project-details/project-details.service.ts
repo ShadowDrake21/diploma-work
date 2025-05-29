@@ -23,7 +23,7 @@ import {
 import { IComment, ICommentUser, ICreateComment } from '@models/comment.types';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { AuthService } from '@core/authentication/auth.service';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { currentUserSig } from '@core/shared/shared-signals';
 
 // COMMENTS!!!! (BUG FIXING)

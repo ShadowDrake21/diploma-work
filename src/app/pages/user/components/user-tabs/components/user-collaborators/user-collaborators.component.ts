@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { IUser } from '@shared/models/user.model';
 import { catchError, map, of } from 'rxjs';

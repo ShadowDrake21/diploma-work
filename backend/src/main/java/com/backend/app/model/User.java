@@ -101,6 +101,10 @@ public class User {
     @Builder.Default
     private boolean active = true;
     
+    
+    @Column(name="last_active")
+    private LocalDateTime lastActive;
+    
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
     

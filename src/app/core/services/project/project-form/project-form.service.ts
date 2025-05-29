@@ -7,7 +7,7 @@ import {
 import { ProjectType } from '@shared/enums/categories.enum';
 import { finalize, map, Observable } from 'rxjs';
 import { ProjectDataService } from '../../project/project-data/project-data.service';
-import { UserService } from '../../user.service';
+import { UserService } from '../../users/user.service';
 import { PublicationDTO } from '@models/publication.model';
 import { PatentDTO } from '@models/patent.model';
 import { TypedProjectFormValues } from '@shared/types/services/project-data.types';

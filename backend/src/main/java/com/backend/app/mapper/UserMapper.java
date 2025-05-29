@@ -35,6 +35,7 @@ public class UserMapper {
 	                .affiliation(user.getAffiliation())
 	                .active(user.isActive())
 	                .createdAt(user.getCreatedAt())
+	                .lastActive(user.getLastActive())
 	                .socialLinks(mapSocialLinksToDTO(user.getSocialLinks()))
 	                .build();
     }
@@ -71,6 +72,7 @@ public class UserMapper {
 	                .researchCount(userDTO.getResearchCount())
 	                .affiliation(userDTO.getAffiliation())
 	                .active(userDTO.isActive())
+	                .lastActive(userDTO.getLastActive())
 	                .socialLinks(mapSocialLinksToEntity(userDTO.getSocialLinks()))
 	                .build();
 	    }

@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +21,8 @@ public interface CommentRepository extends JpaRepository<Comment, UUID>{
 	List<Comment> findRepliesByParentId(@Param("parentId") UUID parentId);
 	
 	List<Comment> findByProject(Project project);
+	
+	Page<Comment> findByUserId(Long userId, Pageable pageable);
 	
 	long countByProjectId(UUID projectId);
 	

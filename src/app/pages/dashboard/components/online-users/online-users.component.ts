@@ -8,9 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { catchError, interval, of, startWith, switchMap } from 'rxjs';
 import { UserCardComponent } from '../../../../shared/components/user-card/user-card.component';
+import { RecentUsersService } from '@core/services/users/recent-users.service';
 
 @Component({
   selector: 'dashboard-online-users',
@@ -29,25 +30,13 @@ import { UserCardComponent } from '../../../../shared/components/user-card/user-
   styleUrl: './online-users.component.scss',
 })
 export class OnlineUsersComponent {
-  private readonly userService = inject(UserService);
+  private readonly recentUsersService = inject(RecentUsersService);
 
-  activeUsers = toSignal(
-    interval(60000).pipe(
-      startWith(null),
-      switchMap(() => this.userService.getRecentlyActiveUsers()),
-      catchError((error) => {
-        console.error('Error fetching active users: ', error);
-        return of(null);
-      })
-    ),
-    { initialValue: null }
-  );
-
-  refreshActiveUsers() {
-    this.activeUsers = toSignal(this.userService.getRecentlyActiveUsers(), {
-      initialValue: null,
-    });
+  get activeUsers() {
+    return this.recentUsersService.activeUsers()?.data || [];
   }
 
-  displayedColumns: string[] = ['username', 'email', 'lastActive'];
+  refreshActiveUsers() {
+    this.recentUsersService.refreshActiveUsers();
+  }
 }

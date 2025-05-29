@@ -16,6 +16,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { JsonPipe } from '@angular/common';
 import { HeaderService } from '@core/services/header.service';
+import { ProjectsQuickLinksComponent } from '../../../../shared/components/projects-quick-links/projects-quick-links.component';
 
 @Component({
   selector: 'projects-list',
@@ -24,6 +25,7 @@ import { HeaderService } from '@core/services/header.service';
     ProjectCardComponent,
     MatPaginatorModule,
     MatProgressSpinnerModule,
+    ProjectsQuickLinksComponent,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
