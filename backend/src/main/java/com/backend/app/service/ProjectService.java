@@ -108,6 +108,12 @@ public class ProjectService {
 		Specification<Project> spec = specificationService.buildSpecification(criteria);
 		return projectRepository.findAll(spec, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt")));
 	}
+	
+	public Page<Project> searchUserProjects(Long userId, ProjectSearchCriteria criteria, Pageable pageable) {
+		Assert.notNull(userId, "User ID must not be null");
+		Specification<Project> spec = specificationService.buildSpecification(criteria).and((root, query, cb) -> cb.equal(root.get("creator").get("id"), userId));
+		return projectRepository.findAll(spec, pageable);
+		}
 
 	/**
 	 * Finds projects associated with a specific user.

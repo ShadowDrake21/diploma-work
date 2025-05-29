@@ -5,22 +5,32 @@
     (filtersReset)="onFiltersReset()"
   />
   @if (isLoading()) {
-  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  <div class="loading-spinner">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  </div>
+  } @else { @if(isEmptyState()) {
+  <div class="empty-state">
+    <p>
+      @if(isMineMode) { You don't have any projects matching your criteria }
+      @else { No projects found matching your criteria }
+    </p>
+  </div>
   } @else {
   <div class="list__projects">
-    @for (project of projects(); track $index) {
+    @for (project of projects(); track project.id) {
     <shared-project-card [project]="project" />
     }
   </div>
   @if(showPagination()) {
   <mat-paginator
-    [length]="totalElements()"
+    [length]="totalItems()"
     [pageSize]="pageSize()"
     [pageIndex]="currentPage()"
     [pageSizeOptions]="[5, 10, 20, 50]"
     (page)="onPageChange($event)"
     aria-label="Select page"
+    class="projects-paginator"
   >
   </mat-paginator>
-  } }
+  } }}
 </div>

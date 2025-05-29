@@ -1,6 +1,5 @@
 @let allUsers = allUsers$ | async;
 
-{{ publicationsForm().value | json }}
 <form [formGroup]="publicationsForm()" class="project-publication__form">
   <mat-form-field>
     <mat-label>Authors</mat-label>

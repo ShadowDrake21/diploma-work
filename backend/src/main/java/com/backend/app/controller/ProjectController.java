@@ -219,7 +219,7 @@ public class ProjectController {
 
 	@Operation(summary = "Search projects with filters")
 	@GetMapping("/search")
-	public ResponseEntity<ApiResponse<Page<ProjectResponse>>> searchProject(
+	public ResponseEntity<PaginatedResponse<ProjectResponse>> searchProject(
 			@Parameter(description = "Search term") @RequestParam(required = false) String search,
 			@Parameter(description = "Comma-separated list of project types") @RequestParam(required = false) List<ProjectType> types,
 			@Parameter(description = "Comma-separated list of tag IDs") @RequestParam(required = false) List<UUID> tags,
@@ -244,11 +244,11 @@ public class ProjectController {
 			Page<ProjectResponse> response = projectService.searchProjects(criteria, pageable)
 					.map(projectMapper::toResponse);
 			log.info("Found {} projects matching search criteria", response.getTotalElements());
-			return ResponseEntity.ok(ApiResponse.success(response));
+			return ResponseEntity.ok(PaginatedResponse.success(response));
 		} catch (Exception e) {
 			log.error("Error searching projects: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("Failed to search projects"));
+					.body(PaginatedResponse.error("Failed to search projects"));
 		}
 
 	}
@@ -312,13 +312,44 @@ public class ProjectController {
 		}
 
 	}
-	
+
+	@Operation(summary = "Get projects by current authenticated user with filters")
+	@GetMapping("/mine")
+	public ResponseEntity<PaginatedResponse<ProjectDTO>> getMyProjects(
+	        @Parameter(description = "Search term") @RequestParam(required = false) String search,
+	        @Parameter(description = "Comma-separated list of project types") @RequestParam(required = false) List<ProjectType> types,
+	        @Parameter(description = "Comma-separated list of tag IDs") @RequestParam(required = false) List<UUID> tags,
+	        @Parameter(description = "Start date filter") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+	        @Parameter(description = "End date filter") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+	        @Parameter(description = "Minimum progress (0-100)") @RequestParam(defaultValue = "0") @Min(0) @Max(100) int progressMin,
+	        @Parameter(description = "Maximum progress (0-100)") @RequestParam(defaultValue = "100") @Min(0) @Max(100) int progressMax,
+	        @ParameterObject Pageable pageable,
+	        Authentication authentication) {
+	    log.debug("Fetching filtered projects for current user");
+	    try {
+	        User user = userService.getUserByEmail(authentication.getName())
+	                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+	        
+	        ProjectSearchCriteria criteria = new ProjectSearchCriteria(
+	                search, types, tags, startDate, endDate, 
+	                progressMin, progressMax, null, null, null, null, null, null, null);
+	        
+	        Page<ProjectDTO> projects = projectService.searchUserProjects(user.getId(), criteria, pageable)
+	                .map(projectMapper::toDTO);
+	        return ResponseEntity.ok(PaginatedResponse.success(projects));
+	    } catch (Exception e) {
+	        log.error("Error fetching user's projects: {}", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(PaginatedResponse.error("Failed to fetch user's projects"));
+	    }
+	}
+
 	@Operation(summary = "Get all projects with their typed details")
 	@GetMapping("/with-details")
 	public ResponseEntity<PaginatedResponse<ProjectWithDetailsDTO<?>>> getAllProjectsWithDetails(
-			@ParameterObject Pageable pageable){
+			@ParameterObject Pageable pageable) {
 		Page<ProjectWithDetailsDTO<?>> projects = projectService.findAllProjectsWithDetails(pageable);
 		return ResponseEntity.ok(PaginatedResponse.success(projects));
 	}
-	
+
 }

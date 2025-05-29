@@ -49,15 +49,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadMetrics();
   }
 
-  // recentProjects = [
-  //   ...recentProjectContent,
-  //   ...recentProjectContent.splice(0, 5),
-  // ];
-
   subscriptions: Subscription[] = [];
 
   loadNewsestProjects() {
-    const subscription = this.projectService.getNewestProjects(6).subscribe({
+    const subscription = this.projectService.getNewestProjects(7).subscribe({
       next: (projects) => {
         this.newestProjects = projects.data;
       },

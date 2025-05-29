@@ -85,8 +85,13 @@ export class ProjectStepperComponent {
         this.formService.creatorId,
         newFiles
       )
-      .subscribe((response) => {
-        this.router.navigate(['/projects', response[0].projectId]);
+      .subscribe({
+        next: (response) => {
+          this.router.navigate(['/projects', response[0].projectId]);
+        },
+        error: (error) => {
+          // this.showErrorToast(error.message);
+        },
       });
   }
 
