@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ProjectFormService } from '../project-form/project-form.service';
 import { FormGroup } from '@angular/forms';
-import { finalize, Observable, tap } from 'rxjs';
+import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +29,12 @@ export class ProjectSubmissionService {
         newFiles
       )
       .pipe(
+        catchError((error) => {
+          console.error('Submission erorr:', error);
+          return throwError(
+            () => new Error('Failed to submit project. Please try again.')
+          );
+        }),
         finalize(() => {
           this.projectFormService.loading.next(false);
         })

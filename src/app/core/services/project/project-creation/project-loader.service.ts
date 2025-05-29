@@ -47,6 +47,16 @@ export class ProjectLoaderService {
       )
     );
   }
+
+  clearAllForms(): void {
+    this.typeForm.reset();
+    this.generalInformationForm.reset();
+    this.publicationsForm.reset();
+    this.patentsForm.reset();
+    this.researchesForm.reset();
+    this.typeForm.enable();
+  }
+
   private loadProjectTypeData(
     projectId: string,
     type: ProjectType

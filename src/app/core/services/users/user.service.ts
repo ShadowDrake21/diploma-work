@@ -181,7 +181,7 @@ export class UserService {
 
   getRecentlyActiveUsers(
     minutes: number = 50,
-    count: number = 10
+    count: number = 7
   ): Observable<ApiResponse<IUser[]>> {
     return this.http.get<ApiResponse<IUser[]>>(
       `${this.apiUrl}/recent-active-users?minutes=${minutes}&count=${count}`,

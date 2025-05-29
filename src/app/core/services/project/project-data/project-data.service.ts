@@ -3,7 +3,14 @@ import {
   CreateProjectRequest,
   UpdateProjectRequest,
 } from '@models/project.model';
-import { forkJoin, Observable, of, switchMap } from 'rxjs';
+import {
+  catchError,
+  forkJoin,
+  Observable,
+  of,
+  switchMap,
+  throwError,
+} from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { TypedProjectFormValues } from '@shared/types/services/project-data.types';
 import { ProjectDataCoreService } from './project-data-core.service';
@@ -40,7 +47,14 @@ export class ProjectDataService extends ProjectDataCoreService {
             )
           );
         }
-        return forkJoin(operations);
+        return forkJoin(operations).pipe(
+          catchError((error) => {
+            console.error('Transaction failed, rolling back', error);
+            return this.projectService
+              .deleteProject(projectId)
+              .pipe(switchMap(() => throwError(() => error)));
+          })
+        );
       })
     );
   }
@@ -51,31 +65,50 @@ export class ProjectDataService extends ProjectDataCoreService {
     attachments: File[],
     formValues: TypedProjectFormValues
   ): Observable<any> {
-    return this.projectService.updateProject(projectId, projectData).pipe(
-      switchMap(() => {
-        if (
-          formValues.patent ||
-          formValues.publication ||
-          formValues.research
-        ) {
-          const operations = [
-            this.updateTypedProject(projectId, projectData.type!, formValues),
-          ];
+    return this.projectService.getProjectById(projectId).pipe(
+      switchMap((originalProject) => {
+        const originalData = originalProject.data;
 
-          if (attachments.length > 0) {
-            operations.push(
-              this.attachmentsService.updateFiles(
-                projectData.type as ProjectType,
-                projectId,
-                attachments
-              )
+        return this.projectService.updateProject(projectId, projectData).pipe(
+          switchMap(() => {
+            if (
+              !formValues.patent &&
+              !formValues.publication &&
+              !formValues.research
+            ) {
+              return of(null);
+            }
+
+            const operations = [
+              this.updateTypedProject(projectId, projectData.type!, formValues),
+            ];
+
+            if (attachments.length > 0) {
+              operations.push(
+                this.attachmentsService.updateFiles(
+                  projectData.type as ProjectType,
+                  projectId,
+                  attachments
+                )
+              );
+            }
+
+            return forkJoin(operations).pipe(
+              catchError((error) => {
+                console.error('Transaction failed, rolling back', error);
+                return this.projectService
+                  .updateProject(projectId, {
+                    title: originalData.title,
+                    description: originalData.description,
+                    type: originalData.type,
+                    progress: originalData.progress,
+                    tagIds: originalData.tagIds,
+                  })
+                  .pipe(switchMap(() => throwError(() => error)));
+              })
             );
-          }
-
-          return forkJoin(operations);
-        } else {
-          return of(null);
-        }
+          })
+        );
       })
     );
   }

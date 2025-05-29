@@ -90,29 +90,45 @@ export class ProjectService {
     request: CreateProjectRequest
   ): Observable<ApiResponse<string>> {
     console.log('Creating project with request:', request);
-    return this.http.post<ApiResponse<string>>(
-      this.apiUrl,
-      request,
-      getAuthHeaders()
-    );
+    return this.http
+      .post<ApiResponse<string>>(this.apiUrl, request, getAuthHeaders())
+      .pipe(
+        catchError((error) => {
+          console.error('Failed to create project', error);
+          return throwError(() => new Error('Failed to create project'));
+        })
+      );
   }
 
   updateProject(
     id: string,
     request: UpdateProjectRequest
   ): Observable<ApiResponse<string>> {
-    return this.http.put<ApiResponse<string>>(
-      `${this.apiUrl}/${id}`,
-      request,
-      getAuthHeaders()
-    );
+    return this.http
+      .put<ApiResponse<string>>(
+        `${this.apiUrl}/${id}`,
+        request,
+        getAuthHeaders()
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Failed to update project', error);
+          return throwError(() => new Error('Failed to update project'));
+        })
+      );
   }
 
   deleteProject(id: string): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(
-      `${this.apiUrl}/${id}`,
-      getAuthHeaders()
-    );
+    return this.http
+      .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .pipe(
+        catchError((error) => {
+          console.error('Failed to delete project during rollback', error);
+          return throwError(
+            () => new Error('Failed to delete project during rollback')
+          );
+        })
+      );
   }
 
   getTypedProjectsByProjectId<T>(
@@ -134,12 +150,12 @@ export class ProjectService {
   searchProjects(
     filters: ProjectSearchFilters,
     page: number = 0,
-    pageSize: number = 10
-  ): Observable<ApiResponse<ProjectSearchResponse>> {
-    const params = this.buildSearchParams(filters, page, pageSize);
+    size: number = 10
+  ): Observable<PaginatedResponse<ProjectDTO>> {
+    let params = this.buildSearchParams(filters, page, size);
 
     return this.http
-      .get<ApiResponse<ProjectSearchResponse>>(`${this.apiUrl}/search`, {
+      .get<PaginatedResponse<ProjectDTO>>(`${this.apiUrl}/search`, {
         params,
         ...getAuthHeaders(),
       })
@@ -153,6 +169,35 @@ export class ProjectService {
     );
   }
 
+  getMyProjects(
+    filters: ProjectSearchFilters = {},
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<ProjectDTO>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (filters.search) params = params.set('search', filters.search);
+    if (filters.types?.length)
+      params = params.set('types', filters.types.join(','));
+    if (filters.tags?.length)
+      params = params.set('tags', filters.tags.join(','));
+    if (filters.startDate) params = params.set('startDate', filters.startDate);
+    if (filters.endDate) params = params.set('endDate', filters.endDate);
+    if (filters.progressMin !== undefined)
+      params = params.set('progressMin', filters.progressMin.toString());
+    if (filters.progressMax !== undefined)
+      params = params.set('progressMax', filters.progressMax.toString());
+
+    return this.http
+      .get<PaginatedResponse<ProjectDTO>>(`${this.apiUrl}/mine`, {
+        params,
+        ...getAuthHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
+
   private handleError(error: any): Observable<never> {
     console.error('An error occurred:', error);
     return throwError(
@@ -163,11 +208,11 @@ export class ProjectService {
   private buildSearchParams(
     filters: ProjectSearchFilters,
     page: number,
-    pageSize: number
+    size: number
   ): HttpParams {
     let params = new HttpParams()
       .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
+      .set('size', size.toString());
 
     if (filters.search) params = params.set('search', filters.search);
     if (filters.publicationSource)

@@ -5,7 +5,7 @@ import {
   UpdateProjectRequest,
 } from '@models/project.model';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { finalize, map, Observable } from 'rxjs';
+import { catchError, finalize, map, Observable, throwError } from 'rxjs';
 import { ProjectDataService } from '../../project/project-data/project-data.service';
 import { UserService } from '../../users/user.service';
 import { PublicationDTO } from '@models/publication.model';
@@ -113,7 +113,13 @@ export class ProjectFormService extends ProjectFormCoreService {
           attachments,
           formValues
         );
-    return operation.pipe(finalize(() => this.loading.next(false)));
+    return operation.pipe(
+      finalize(() => this.loading.next(false)),
+      catchError((error) => {
+        console.error('Transaction failed: ', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   private buildProjectRequest(
