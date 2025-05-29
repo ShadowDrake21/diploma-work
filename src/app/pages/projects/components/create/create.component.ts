@@ -18,7 +18,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { types } from '@content/createProject.content';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { map, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IUser } from '@shared/models/user.model';

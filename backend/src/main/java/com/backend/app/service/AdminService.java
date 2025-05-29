@@ -113,6 +113,9 @@ public class AdminService {
 		if(targetUser.getRole() == Role.ADMIN && !isSuperAdmin(currentAdmin)) {
 			throw new UnauthorizedAccessException("Only super admins can deactivate other admins");
 		}
+		if(targetUser.getRole() == Role.SUPER_ADMIN) {
+			throw new UnauthorizedAccessException("No one can deactivate super admin");
+		}
 		
 		targetUser.setActive(false);
 		targetUser.setDeletedAt(LocalDateTime.now());
@@ -132,7 +135,10 @@ public class AdminService {
 	    if (targetUser.getRole() == Role.ADMIN && !isSuperAdmin(currentAdmin)) {
 	        throw new UnauthorizedAccessException("Only super admins can delete other admins");
 	    }
-		
+	    if(targetUser.getRole() == Role.SUPER_ADMIN) {
+			throw new UnauthorizedAccessException("No one can delete super admin");
+		}
+	    
 	    revokeUserSessions(userId);
 		handleUserProjects(userId);
 		commentRepository.deleteByUserId(userId);

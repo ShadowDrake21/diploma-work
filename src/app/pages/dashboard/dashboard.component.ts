@@ -14,6 +14,7 @@ import { ProjectDTO } from '@models/project.model';
 import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
 import { RouterLink } from '@angular/router';
 import { OnlineUsersComponent } from './components/online-users/online-users.component';
+import { ProjectsQuickLinksComponent } from '../../shared/components/projects-quick-links/projects-quick-links.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,7 +28,7 @@ import { OnlineUsersComponent } from './components/online-users/online-users.com
     FrequentLinksComponent,
     RouterLink,
     OnlineUsersComponent,
-    // FilterSidebarComponent,
+    ProjectsQuickLinksComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

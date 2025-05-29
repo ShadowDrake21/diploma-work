@@ -17,7 +17,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { TabsComponent } from './components/user-tabs/user-tabs.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { catchError, of } from 'rxjs';
 import { ProjectDTO } from '@models/project.model';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';

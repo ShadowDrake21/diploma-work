@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, signal, ViewChild } from '@angular/core';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { IUpdateUserProfile, IUser } from '@models/user.model';

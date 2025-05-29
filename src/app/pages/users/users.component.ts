@@ -18,7 +18,7 @@ import { MatListModule } from '@angular/material/list';
 import { UserCardComponent } from '../../shared/components/user-card/user-card.component';
 import { IUser } from '@shared/models/user.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PageResponse } from '@shared/types/generics.types';

@@ -19,7 +19,6 @@ import { filter } from 'rxjs';
 import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/recent-users.component';
 import { AdminService } from '@core/services/admin.service';
 import { AuthService } from '@core/authentication/auth.service';
-import { UserService } from '@core/services/user.service';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { UserStore } from '@core/services/stores/user-store.service';
 

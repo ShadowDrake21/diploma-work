@@ -73,6 +73,9 @@ public class AuthController {
 			activeTokenRepository.save(activeToken);
 			
 			AuthResponse authResponse = new AuthResponse("Login successful!", token);
+			
+			userService.updateLastActive(user.getId());
+			
 			return ResponseEntity.ok(ApiResponse.success(authResponse));
 		} catch (Exception e) {
 			log.error("Login error: ", e);

@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { ApiResponse } from '@models/api-response.model';
+import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
 import { IComment, ICreateComment } from '@models/comment.types';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import { catchError, Observable, throwError } from 'rxjs';
@@ -68,6 +68,19 @@ export class CommentService {
       `${this.apiUrl}/${commentId}/like`,
       getAuthHeaders()
     );
+  }
+
+  getCommentsByUserId(
+    userId: number,
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<IComment>> {
+    return this.http
+      .get<PaginatedResponse<IComment>>(
+        `${this.apiUrl}/user/${userId}?page=${page}&size=${size}`,
+        getAuthHeaders()
+      )
+      .pipe(catchError(this.handleError));
   }
 
   private handleError(error: any): Observable<never> {

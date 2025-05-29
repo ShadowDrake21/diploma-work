@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { AdminService } from '@core/services/admin.service';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 
 @Component({
   selector: 'admin-recent-users',

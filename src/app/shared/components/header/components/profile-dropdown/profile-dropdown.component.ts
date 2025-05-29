@@ -6,7 +6,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 import { AuthService } from '@core/authentication/auth.service';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { MatDivider } from '@angular/material/divider';

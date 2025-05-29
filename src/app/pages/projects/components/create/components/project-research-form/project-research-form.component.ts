@@ -16,7 +16,7 @@ import {
   BaseFormInputs,
   ResearchFormGroup,
 } from '@shared/types/forms/project-form.types';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 
 @Component({
   selector: 'create-project-research-form',

@@ -8,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { ProjectDTO } from '@models/project.model';
 import { IUser } from '@models/user.model';
 import { firstValueFrom, switchMap, tap } from 'rxjs';

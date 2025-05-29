@@ -14,7 +14,7 @@ import {
   BaseFormInputs,
   PublicationFormGroup,
 } from '@shared/types/forms/project-form.types';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/users/user.service';
 import { AuthorNamePipe } from '@pipes/author-name.pipe';
 
 @Component({

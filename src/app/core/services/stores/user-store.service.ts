@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { UserService } from '../user.service';
+import { UserService } from '../users/user.service';
 import { map, of, tap } from 'rxjs';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { AuthService } from '@core/authentication/auth.service';

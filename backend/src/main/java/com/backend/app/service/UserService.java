@@ -1,6 +1,7 @@
 package com.backend.app.service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -237,6 +238,13 @@ public class UserService {
 	    public List<User> findExpiredResetTokens() {
 	        return userRepository.findExpiredResetTokens();
 	    }
+	 
+	 @Transactional
+	 public void updateLastActive(Long userId) {
+		 User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found")); 
+		 user.setLastActive(LocalDateTime.now());
+		 userRepository.save(user);
+	 }
 
 	    @Transactional
 	    public void clearExpiredResetTokens() {

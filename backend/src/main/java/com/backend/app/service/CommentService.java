@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.app.dto.create.CreateCommentDTO;
 import com.backend.app.dto.model.CommentDTO;
+import com.backend.app.dto.response.PaginatedResponse;
 import com.backend.app.exception.AuthorizationException;
 import com.backend.app.exception.BusinessRuleException;
 import com.backend.app.exception.ResourceNotFoundException;
@@ -42,6 +43,11 @@ public class CommentService {
     public List<CommentDTO> getCommentsByProjectId(UUID projectId) {
     	return commentRepository.findByProjectIdAndParentCommentIsNull(projectId).stream().map(
     			this::mapCommentWithReplies).collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public Page<CommentDTO> getCommentsByUserId(Long userId, Pageable pageable) {
+    	return commentRepository.findByUserId(userId, pageable).map(commentMapper::toDTO);    	
     }
     
     @Transactional(readOnly = true)
