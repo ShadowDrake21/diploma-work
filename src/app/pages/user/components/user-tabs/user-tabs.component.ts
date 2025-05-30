@@ -14,9 +14,10 @@ import { catchError, of } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 import { ProjectDTO } from '@models/project.model';
-import { IUser } from '@models/user.model';
+import { IUser, SocialLink } from '@models/user.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
+import { ContactInformationComponent } from './components/contact-information/contact-information.component';
 
 @Component({
   selector: 'user-tabs',
@@ -25,6 +26,7 @@ import { PageEvent } from '@angular/material/paginator';
     MatTab,
     ProfileProjectsComponent,
     UserCollaboratorsComponent,
+    ContactInformationComponent,
   ],
   templateUrl: './user-tabs.component.html',
   styleUrl: './user-tabs.component.scss',
@@ -59,12 +61,6 @@ export class TabsComponent {
         (p: ProjectDTO) => p.type === ProjectType.RESEARCH
       ) || []
   );
-
-  socialLinks = [
-    { url: 'www.x.com', name: 'X (formerly Twitter)' },
-    { url: 'www.instagram.com', name: 'Instagram' },
-    { url: 'www.linkedin.com', name: 'LinkedIn' },
-  ];
 
   constructor() {
     effect(() => {

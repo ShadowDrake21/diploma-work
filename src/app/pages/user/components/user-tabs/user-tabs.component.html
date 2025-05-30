@@ -9,7 +9,7 @@
       type="publications"
     />
   </mat-tab>
-  <!-- Patents Tab -->
+
   <mat-tab label="Patents">
     <shared-profile-projects
       [projects]="patents()"
@@ -21,7 +21,6 @@
     />
   </mat-tab>
 
-  <!-- Research Projects Tab -->
   <mat-tab label="Research Projects">
     <shared-profile-projects
       [projects]="researches()"
@@ -33,22 +32,11 @@
     />
   </mat-tab>
 
-  <!-- Collaborators Tab -->
   <mat-tab label="Collaborators">
     <user-collaborators [userId]="user().id" />
   </mat-tab>
 
-  <!-- Contact Information Tab -->
   <mat-tab label="Contact information">
-    <p><span>Email:</span> {{ user().email }}</p>
-    <p><span>Phone:</span> {{ user().phoneNumber }}</p>
-    <ul>
-      <h4>Social Links</h4>
-      @for (link of socialLinks; track link.url) {
-      <li>
-        <a [href]="'https://' + link.url" target="_blank">{{ link.name }}</a>
-      </li>
-      }
-    </ul>
+    <user-contact-information [user]="user()" />
   </mat-tab>
 </mat-tab-group>

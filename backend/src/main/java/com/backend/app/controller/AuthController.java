@@ -1,8 +1,10 @@
 package com.backend.app.controller;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +30,7 @@ import com.backend.app.service.UserLoginService;
 import com.backend.app.service.UserService;
 import com.backend.app.util.JwtUtil;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +50,8 @@ public class AuthController {
 	private final UserLoginService userLoginService;
 
 	@PostMapping("/login")
-	public ResponseEntity<com.backend.app.dto.response.ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+	public ResponseEntity<com.backend.app.dto.response.ApiResponse<AuthResponse>> login(
+			@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
 		if (request.getEmail() == null || request.getEmail().isEmpty()) {
 			return ResponseEntity.badRequest().body(ApiResponse.error("Email is required."));
 		}
@@ -65,17 +69,18 @@ public class AuthController {
 
 			User user = optionalUser.get();
 			String token = jwtUtil.generateToken(user.getEmail(), user.getId(), request.isRememberMe());
-			
+
 			userLoginService.recordUserLogin(user, httpRequest);
 			ActiveToken activeToken = ActiveToken.builder().token(token).userId(user.getId())
-					.expiry(Instant.now().plusMillis(request.isRememberMe() ? 
-							jwtUtil.getRememberMeExpirationTime() : jwtUtil.getExpirationTime())).build();
+					.expiry(Instant.now().plusMillis(request.isRememberMe() ? jwtUtil.getRememberMeExpirationTime()
+							: jwtUtil.getExpirationTime()))
+					.build();
 			activeTokenRepository.save(activeToken);
-			
+
 			AuthResponse authResponse = new AuthResponse("Login successful!", token);
-			
+
 			userService.updateLastActive(user.getId());
-			
+
 			return ResponseEntity.ok(ApiResponse.success(authResponse));
 		} catch (Exception e) {
 			log.error("Login error: ", e);
@@ -108,14 +113,11 @@ public class AuthController {
 				.orElseThrow(() -> new RuntimeException("User not found after verification"));
 
 		String token = jwtUtil.generateToken(user.getEmail(), user.getId());
-		
-		ActiveToken activeToken = ActiveToken.builder()
-	            .token(token)
-	            .userId(user.getId())
-	            .expiry(Instant.now().plusMillis(jwtUtil.getExpirationTime()))
-	            .build();
-	    activeTokenRepository.save(activeToken);
-	    
+
+		ActiveToken activeToken = ActiveToken.builder().token(token).userId(user.getId())
+				.expiry(Instant.now().plusMillis(jwtUtil.getExpirationTime())).build();
+		activeTokenRepository.save(activeToken);
+
 		AuthResponse authResponse = new AuthResponse("User verified successfully!", token);
 		return ResponseEntity.ok(ApiResponse.success(authResponse));
 	}
@@ -145,20 +147,63 @@ public class AuthController {
 
 		return ResponseEntity.ok(ApiResponse.success("Password updated successfully!"));
 	}
-	
+
+	@PostMapping("/refresh-token")
+	public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(HttpServletRequest request, @RequestBody Map<String, Boolean> requestBody) {
+		 boolean rememberMe = requestBody != null ? 
+			        requestBody.getOrDefault("rememberMe", false) : false;
+		try {
+			String token = jwtUtil.extractJwtFromRequest(request);
+
+			if (token == null || tokenBlacklist.isBlacklisted(token)) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+						.body(ApiResponse.error("Invalid or expired token"));
+			}
+
+			Claims claims = jwtUtil.parseToken(token).getBody();
+			
+			boolean isAutoProlonged = request.getHeader("X-Auto-Prolong") != null;
+	        if (isAutoProlonged) {
+	            rememberMe = jwtUtil.isRememberMeToken(claims);
+	        }
+	        
+			Long userId = claims.get("userId", Long.class);
+			String email = claims.getSubject();
+
+			tokenBlacklist.addToBlacklist(token);
+			authService.revokeToken(token);
+
+			String newToken = jwtUtil.generateToken(email, userId, rememberMe);
+
+			ActiveToken activeToken = ActiveToken.builder().token(newToken).userId(userId)
+					.expiry(Instant.now().plusMillis(rememberMe ? jwtUtil.getRememberMeExpirationTime() : jwtUtil.getExpirationTime())).build();
+			activeTokenRepository.save(activeToken);
+
+			AuthResponse authResponse = new AuthResponse(
+		            isAutoProlonged ? "Session prolonged" : "Token refreshed successfully", 
+		            newToken
+		        );
+			return ResponseEntity.ok(ApiResponse.success(authResponse));
+		} catch (Exception e) {
+			log.error("Token refresh error: ", e);
+			return ResponseEntity.internalServerError()
+					.body(ApiResponse.error("An error occurred while refreshing token"));
+		}
+	}
+
 	@PostMapping("/logout")
 	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request) {
 		try {
 			String token = jwtUtil.extractJwtFromRequest(request);
-			
-			if(token != null) {
+
+			if (token != null) {
 				tokenBlacklist.addToBlacklist(token);
 				authService.revokeToken(token);
 			}
 			return ResponseEntity.ok(ApiResponse.success("Logged out successfully!"));
 		} catch (Exception e) {
-			 log.error("Logout error: ", e);
-	            return ResponseEntity.internalServerError().body(ApiResponse.error("An error occurred while logging out."));
+			log.error("Logout error: ", e);
+			return ResponseEntity.internalServerError().body(ApiResponse.error("An error occurred while logging out."));
 		}
 	}
 }

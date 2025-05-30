@@ -15,6 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import com.backend.app.util.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -22,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 	private final TokenBlacklist tokenBlacklist;
-
+	private final JwtUtil jwtUtil;
+	
 	private static final String[] PUBLIC_ENDPOINTS = { "/api/auth/**" };
 	private static final String[] AUTHENTICATED_ENDPOINTS = { "/api/comments/**" };
 	private static final String FRONTEND_ORIGIN = "http://localhost:4200";
@@ -30,7 +33,7 @@ public class SecurityConfig {
 
 	@Bean
 	JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter(tokenBlacklist);
+		return new JwtAuthenticationFilter(tokenBlacklist, jwtUtil);
 	}
 
 	@Bean
