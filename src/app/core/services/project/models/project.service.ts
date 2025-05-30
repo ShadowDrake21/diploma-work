@@ -178,17 +178,7 @@ export class ProjectService {
       .set('page', page.toString())
       .set('size', size.toString());
 
-    if (filters.search) params = params.set('search', filters.search);
-    if (filters.types?.length)
-      params = params.set('types', filters.types.join(','));
-    if (filters.tags?.length)
-      params = params.set('tags', filters.tags.join(','));
-    if (filters.startDate) params = params.set('startDate', filters.startDate);
-    if (filters.endDate) params = params.set('endDate', filters.endDate);
-    if (filters.progressMin !== undefined)
-      params = params.set('progressMin', filters.progressMin.toString());
-    if (filters.progressMax !== undefined)
-      params = params.set('progressMax', filters.progressMax.toString());
+    params = this.setFilterProjectParams(filters, params);
 
     return this.http
       .get<PaginatedResponse<ProjectDTO>>(`${this.apiUrl}/mine`, {
@@ -247,4 +237,23 @@ export class ProjectService {
 
     return params;
   }
+
+  private setFilterProjectParams = (
+    filters: ProjectSearchFilters,
+    params: HttpParams
+  ): HttpParams => {
+    if (filters.search) params = params.set('search', filters.search);
+    if (filters.types?.length)
+      params = params.set('types', filters.types.join(','));
+    if (filters.tags?.length)
+      params = params.set('tags', filters.tags.join(','));
+    if (filters.startDate) params = params.set('startDate', filters.startDate);
+    if (filters.endDate) params = params.set('endDate', filters.endDate);
+    if (filters.progressMin !== undefined)
+      params = params.set('progressMin', filters.progressMin.toString());
+    if (filters.progressMax !== undefined)
+      params = params.set('progressMax', filters.progressMax.toString());
+
+    return params;
+  };
 }
