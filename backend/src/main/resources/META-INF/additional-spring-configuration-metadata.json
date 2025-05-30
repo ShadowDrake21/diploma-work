@@ -38,5 +38,10 @@
     "name": "jwt.remember-me-expiration",
     "type": "java.lang.String",
     "description": "A description for 'jwt.remember-me-expiration'"
+  },
+  {
+    "name": "jwt.session-prolongation-threshold",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.session-prolongation-threshold'"
   }
 ]}

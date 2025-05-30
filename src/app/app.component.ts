@@ -21,6 +21,7 @@ import { AdminService } from '@core/services/admin.service';
 import { AuthService } from '@core/authentication/auth.service';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { UserStore } from '@core/services/stores/user-store.service';
+import { SessionWarningComponent } from '@shared/components/dialogs/session-warning/session-warning.component';
 
 @Component({
   selector: 'app-root',
@@ -34,6 +35,7 @@ import { UserStore } from '@core/services/stores/user-store.service';
     NotificationsComponent,
     RecentUsersComponent,
     FooterComponent,
+    SessionWarningComponent,
     NgStyle,
     RouterLink,
   ],

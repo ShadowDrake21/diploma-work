@@ -45,7 +45,7 @@ export class CommentComponent {
   readonly editedContent = signal('');
 
   readonly currentUserId = toSignal(
-    this.authService.currentUser.pipe(map((user) => user?.userId))
+    this.authService.currentUser$.pipe(map((user) => user?.userId))
   );
 
   readonly isCurrentUserComment = computed(() => {

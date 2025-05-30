@@ -119,8 +119,15 @@ public class JwtUtil {
 		return parseToken(token).getBody().get(USER_ID_CLAIM, Long.class);
 	}
 	
-	private Jws<Claims> parseToken(String token) {
+	public Jws<Claims> parseToken(String token) {
 		return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
 
+	}
+	public boolean isRememberMeToken(Claims claims) {
+	    Date expiration = claims.getExpiration();
+	    Date now = new Date();
+	    long tokenLifetime = expiration.getTime() - now.getTime();
+	    
+	    return tokenLifetime > (7 * 24 * 60 * 60 * 1000); 
 	}
 }

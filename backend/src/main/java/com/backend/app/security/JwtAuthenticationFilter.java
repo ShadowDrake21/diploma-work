@@ -17,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.backend.app.util.JwtUtil;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -36,9 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String USER_ID_CLAIM = "userId";
     
     private final TokenBlacklist tokenBlacklist;
+    private final JwtUtil jwtUtil;
 
 	@Value("${jwt.secret}")
 	private String jwtSecretKey;
+	
+	@Value("${jwt.session-prolongation-threshold}")
+	private long sessionProlongationThreshold;
     
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request, 
@@ -55,9 +61,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				}
 				
 				Claims claims = validateAndParseJwt(jwt);
-				 if (isRememberMeToken(claims)) {
-	                    log.debug("Processing Remember Me token for user: {}", claims.getSubject());
-	                }
+			
+				 
+				 if(shouldProlongSession(claims)) {
+					 String newToken = prolongToken(jwt, claims);
+					 response.setHeader("X-New-Token", newToken);
+					 response.setHeader("X-Auto-Prolong", "true");
+					 }
 				 
 				authenticateRequest(claims);
 			}
@@ -71,6 +81,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             sendUnauthorizedError(response, "Invalid or expired token");
         }
 		
+	}
+	
+	private boolean shouldProlongSession(Claims claims) {
+		if(isRememberMeToken(claims)) {
+			return false;
+		}
+		
+		Date expiration = claims.getExpiration();
+		long timeLeft = expiration.getTime() - System.currentTimeMillis();
+		
+		return timeLeft > 0 && timeLeft < sessionProlongationThreshold;
+	}
+	
+	private String prolongToken(String oldToken, Claims claims) {
+		tokenBlacklist.addToBlacklist(oldToken);
+		
+		Long userId = claims.get(USER_ID_CLAIM, Long.class);
+		String email = claims.getSubject();
+		boolean rememberMe = isRememberMeToken(claims);
+		
+		return jwtUtil.generateToken(email, userId, rememberMe);
 	}
 	
 	 private String extractJwtFromRequest(HttpServletRequest request) {
