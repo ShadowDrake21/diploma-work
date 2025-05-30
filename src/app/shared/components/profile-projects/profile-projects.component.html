@@ -3,7 +3,10 @@
   @if(projects().length > 0) {
   <div class="profile-projects__container">
     @if(isFiltered()) {
-    <profile-filter-panel (filtersApplied)="filters.emit($event)" />
+    <profile-filter-panel
+      (filtersApplied)="onFiltersApplied($event)"
+      (filtersReset)="onFiltersReset()"
+    />
     }
     <div class="profile-projects__list">
       @for (project of paginatedProjects(); track $index) {
@@ -23,6 +26,11 @@
     }
   </div>
   } @else {
-  <p class="profile-projects__empty">No {{ type().toLowerCase() }} found.</p>
+  <div>
+    <p class="profile-projects__empty">No {{ type().toLowerCase() }} found.</p>
+    @if(isFiltered()) {
+    <button mat-button (click)="onFiltersReset()">Reset filtration</button>
+    }
+  </div>
   }
 </div>

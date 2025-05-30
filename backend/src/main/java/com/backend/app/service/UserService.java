@@ -2,6 +2,7 @@ package com.backend.app.service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -55,8 +56,8 @@ public class UserService {
 		}
 
 		User user = User.builder().username(username).email(email).password(passwordEncoder.encode(password)).role(role)
-				.verificationCode(emailService.generateVerificationCode()).avatarUrl(CreationUtils.getDefaultAvatarUrl())
-				.build();
+				.verificationCode(emailService.generateVerificationCode())
+				.avatarUrl(CreationUtils.getDefaultAvatarUrl()).build();
 		userRepository.save(user);
 
 		emailService.sendVerificationCode(email, user.getVerificationCode());
@@ -86,8 +87,9 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public UserDTO getUserById(Long id) {
-		return userRepository.findById(id).map(userMapper::mapToDTO).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-		
+		return userRepository.findById(id).map(userMapper::mapToDTO)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
 	}
 
 	@Transactional(readOnly = true)
@@ -122,7 +124,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public Set<UserDTO> getUserCollaborators(Long userId) {
+	public Page<UserDTO> getUserCollaborators(Long userId, Pageable pageable) {
 		Set<User> collaborators = new HashSet<User>();
 
 		List<Project> projects = projectService.findProjectsByUserId(userId);
@@ -164,24 +166,40 @@ public class UserService {
 			}
 		}
 
-		return collaborators.stream().map(userMapper::mapToDTO).collect(Collectors.toSet());
+		List<User> collaboratorList = new ArrayList<>(collaborators);
+
+		if (collaboratorList.isEmpty()) {
+			return Page.empty(pageable);
+		}
+
+		int start = (int) pageable.getOffset();
+		int end = Math.min((start + pageable.getPageSize()), collaboratorList.size());
+
+		if (start > end) {
+			start = 0;
+			end = Math.min(pageable.getPageSize(), collaboratorList.size());
+		}
+
+		List<User> pageContent = collaboratorList.subList(start, end);
+
+		return new PageImpl<>(pageContent.stream().map(userMapper::mapToDTO).collect(Collectors.toList()), pageable,
+				collaboratorList.size());
 	}
 
 	@Transactional(readOnly = true)
 	public Page<UserDTO> searchUsers(String query, Pageable pageable) {
-		if(query == null || query.trim().isEmpty()) {
+		if (query == null || query.trim().isEmpty()) {
 			return userRepository.findAll(pageable).map(userMapper::mapToDTO);
 		}
-		
+
 		String[] terms = query.trim().toLowerCase().split("\\s+");
-		
-		if(terms.length > 1) {
+
+		if (terms.length > 1) {
 			Optional<User> exactEmailMatch = userRepository.findByEmail(query.trim());
-			if(exactEmailMatch.isPresent()) {
-				return new PageImpl<>(List.of(exactEmailMatch.get()), pageable, 1)
-						.map(userMapper::mapToDTO);
+			if (exactEmailMatch.isPresent()) {
+				return new PageImpl<>(List.of(exactEmailMatch.get()), pageable, 1).map(userMapper::mapToDTO);
 			}
- 		}
+		}
 		return userRepository.searchUsers(query.trim(), pageable).map(userMapper::mapToDTO);
 	}
 
@@ -215,7 +233,7 @@ public class UserService {
 	@Transactional
 	public UserDTO updateUserProfile(Long id, UserProfileUpdateDTO updateDTO) {
 		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-		
+
 		if (updateDTO.getDateOfBirth() != null) {
 			user.setDateOfBirth(updateDTO.getDateOfBirth());
 		}
@@ -228,49 +246,45 @@ public class UserService {
 		if (updateDTO.getPhoneNumber() != null) {
 			user.setPhoneNumber(updateDTO.getPhoneNumber());
 		}
-		if(updateDTO.getSocialLinks() != null) {
+		if (updateDTO.getSocialLinks() != null) {
 			user.setSocialLinks(userMapper.mapSocialLinksToEntity(updateDTO.getSocialLinks()));
 		}
 
 		return userMapper.mapToDTO(userRepository.save(user));
 	}
-	 @Transactional(readOnly = true)
-	    public List<User> findExpiredResetTokens() {
-	        return userRepository.findExpiredResetTokens();
-	    }
-	 
-	 @Transactional
-	 public void updateLastActive(Long userId) {
-		 User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found")); 
-		 user.setLastActive(LocalDateTime.now());
-		 userRepository.save(user);
-	 }
 
-	    @Transactional
-	    public void clearExpiredResetTokens() {
-	        List<User> users = findExpiredResetTokens();
-	        users.forEach(user -> {
-	            user.setResetToken(null);
-	            user.setTokenExpiration(null);
-	        });
-	        userRepository.saveAll(users);
-	    }
-	    
-	    @Transactional(readOnly = true)
-	    public List<User> findRecentlyActiveUsers (Instant cutoff, int count) {
-	    	List<Long> activeUserIds = activeTokenRepository.findByExpiryAfter(cutoff)
-	                .stream()
-	                .map(ActiveToken::getUserId)
-	                .distinct()
-	                .limit(count)
-	                .collect(Collectors.toList());
-	        
-	        return userRepository.findAllById(activeUserIds);
-	    }
+	@Transactional(readOnly = true)
+	public List<User> findExpiredResetTokens() {
+		return userRepository.findExpiredResetTokens();
+	}
+
+	@Transactional
+	public void updateLastActive(Long userId) {
+		User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		user.setLastActive(LocalDateTime.now());
+		userRepository.save(user);
+	}
+
+	@Transactional
+	public void clearExpiredResetTokens() {
+		List<User> users = findExpiredResetTokens();
+		users.forEach(user -> {
+			user.setResetToken(null);
+			user.setTokenExpiration(null);
+		});
+		userRepository.saveAll(users);
+	}
+
+	@Transactional(readOnly = true)
+	public List<User> findRecentlyActiveUsers(Instant cutoff, int count) {
+		List<Long> activeUserIds = activeTokenRepository.findByExpiryAfter(cutoff).stream().map(ActiveToken::getUserId)
+				.distinct().limit(count).collect(Collectors.toList());
+
+		return userRepository.findAllById(activeUserIds);
+	}
 
 	private String extractFileNameFromUrl(String url) {
 		return url.substring(url.lastIndexOf("/") + 1);
 	}
 
-	
 }

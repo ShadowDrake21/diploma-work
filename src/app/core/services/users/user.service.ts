@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ProjectType } from '@shared/enums/categories.enum';
@@ -13,9 +13,7 @@ import { getAuthHeaders } from '@core/utils/auth.utils';
 import { forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ProjectService } from '../project/models/project.service';
 import { ProjectDTO } from '@models/project.model';
-import { ApiResponse } from '@models/api-response.model';
-import { UserLogin } from '@models/user-login.model';
-import { currentUserSig } from '@core/shared/shared-signals';
+import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -128,13 +126,6 @@ export class UserService {
     );
   }
 
-  public getCurrentUserProjects(): Observable<ApiResponse<ProjectDTO[]>> {
-    return this.http.get<ApiResponse<ProjectDTO[]>>(
-      `${this.apiUrl}/me/projects`,
-      getAuthHeaders()
-    );
-  }
-
   public searchUsers(
     query: string,
     page: number = 0,
@@ -190,10 +181,12 @@ export class UserService {
   }
 
   public getUserCollaborators(
-    userId: number
-  ): Observable<ApiResponse<IUser[]>> {
-    return this.http.get<ApiResponse<IUser[]>>(
-      `${this.apiUrl}/${userId}/collaborators`,
+    userId: number,
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<IUser>> {
+    return this.http.get<PaginatedResponse<IUser>>(
+      `${this.apiUrl}/${userId}/collaborators?page=${page}&size=${size}`,
       getAuthHeaders()
     );
   }

@@ -3,6 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { RouterLink } from '@angular/router';
 import { CommentService } from '@core/services/comment.service';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { PaginatedResponse } from '@models/api-response.model';
@@ -10,7 +11,7 @@ import { IComment } from '@models/comment.types';
 
 @Component({
   selector: 'profile-my-comments',
-  imports: [MatPaginatorModule, DatePipe, MatCardModule],
+  imports: [MatPaginatorModule, DatePipe, MatCardModule, RouterLink],
   templateUrl: './my-comments.component.html',
   styleUrl: './my-comments.component.scss',
 })

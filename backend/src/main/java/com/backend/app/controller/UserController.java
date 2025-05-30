@@ -319,14 +319,18 @@ public class UserController {
 	@Operation(summary = "Get user's collaborators")
 	@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved collaborators")
 	@GetMapping("/{userId}/collaborators")
-	public ResponseEntity<ApiResponse<Set<UserDTO>>> getUserCollaborators(@PathVariable Long userId) {
+	public ResponseEntity<PaginatedResponse<UserDTO>> getUserCollaborators(@PathVariable Long userId,
+			@Parameter(description = "Page number") @RequestParam(defaultValue = DEFAULT_PAGE_NUMBER) int page,
+	        @Parameter(description = "Page size") @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size,
+	        @Parameter(description = "Sort by field") @RequestParam(defaultValue = DEFAULT_SORT_BY) String sortBy) {
 		try {
-			Set<UserDTO> collaborators = userService.getUserCollaborators(userId);
-			return ResponseEntity.ok(ApiResponse.success(collaborators));
+			Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+			Page<UserDTO> collaboratorsPage = userService.getUserCollaborators(userId, pageable);
+			return ResponseEntity.ok(PaginatedResponse.success(collaboratorsPage));
 		} catch (Exception e) {
 			log.error("Error fetching collaborators for user ID: {}", userId, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ApiResponse.error("Error fetching collaborators"));
+					.body(PaginatedResponse.error("Error fetching collaborators"));
 		}
 	}
 
