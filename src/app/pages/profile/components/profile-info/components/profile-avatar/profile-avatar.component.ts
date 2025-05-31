@@ -95,14 +95,16 @@ export class ProfileAvatarComponent implements OnDestroy {
 
     this.userService.updateUserAvatar(this.selectedFile()!).subscribe({
       next: (response) => {
-        const newAvatarUrl = response.data.avatarUrl;
-        const currentUser = this.user();
-        if (currentUser) {
-          this.updateSuccess.emit({
-            ...currentUser,
-            avatarUrl: newAvatarUrl,
-          });
-          this.resetUploadState();
+        if (response.data) {
+          const newAvatarUrl = response.data.avatarUrl;
+          const currentUser = this.user();
+          if (currentUser) {
+            this.updateSuccess.emit({
+              ...currentUser,
+              avatarUrl: newAvatarUrl,
+            });
+            this.resetUploadState();
+          }
         }
       },
       error: (error) => {

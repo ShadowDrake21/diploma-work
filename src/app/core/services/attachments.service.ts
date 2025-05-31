@@ -155,7 +155,7 @@ export class AttachmentsService {
   ): Observable<ApiResponse<string[]>> {
     const uploadObservables = files.map((file) =>
       this.uploadFile(file, entityType, entityId).pipe(
-        map((response) => response.data),
+        map((response) => response.data!),
         catchError(() => of(null))
       )
     );

@@ -47,7 +47,7 @@ export class ProjectPublicationFormComponent
   ngOnInit(): void {
     this.allUsers$ = this.userService
       .getAllUsers()
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => response.data!));
   }
 
   compareAuthors = (id1: string, id2: string) => this.compareIds(id1, id2);

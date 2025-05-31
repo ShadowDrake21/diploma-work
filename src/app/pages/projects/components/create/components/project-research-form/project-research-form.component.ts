@@ -52,7 +52,7 @@ export class ProjectResearchFormComponent
   ngOnInit(): void {
     this.allUsers$ = this.userService
       .getAllUsers()
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => response.data!));
 
     console.log('researchProjectsForm', this.researchProjectsForm());
   }

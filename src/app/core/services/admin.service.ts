@@ -114,7 +114,7 @@ export class AdminService {
       })
       .pipe(
         tap((response) => {
-          this.projects.set(response.data);
+          this.projects.set(response.data!);
           this.projectsPagination.set({
             page,
             size,
@@ -139,7 +139,7 @@ export class AdminService {
       })
       .pipe(
         tap((response) => {
-          this.comments.set(response.data);
+          this.comments.set(response.data!);
           this.commentsPagination.set({
             page,
             size,

@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadNewsestProjects() {
     const subscription = this.projectService.getNewestProjects(7).subscribe({
       next: (projects) => {
-        this.newestProjects = projects.data;
+        this.newestProjects = projects.data!;
       },
       error: (error) => {
         console.error('Error fetching newest projects:', error);

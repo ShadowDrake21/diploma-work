@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ControllerAdvice
-public class GlobalExceptioHandler {
+public class GlobalExceptionHandler {
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
 		 log.error("Resource not found: {}", ex.getMessage());
@@ -55,5 +55,11 @@ public class GlobalExceptioHandler {
 	        return ResponseEntity
 	                .status(HttpStatus.INTERNAL_SERVER_ERROR)
 	                .body(ApiResponse.error("An unexpected error occurred"));
+	}
+	
+	@ExceptionHandler(RateLimitExceededException.class)
+	public ResponseEntity<ApiResponse<String>> handleRateLimitExceeded(RateLimitExceededException ex) {
+		return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS) .header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()))
+	            .body(ApiResponse.error(ex.getMessage(), "RATE_LIMIT_EXCEEDED"));
 	}
 }
