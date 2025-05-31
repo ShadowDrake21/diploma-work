@@ -31,9 +31,9 @@ export class ProjectDataCoreService {
   ): Observable<ProjectWithAttachments> {
     return this.getProjectById(projectId).pipe(
       switchMap((projectResponse) => {
-        return this.getAttachments(projectResponse.data.type, projectId).pipe(
+        return this.getAttachments(projectResponse.data!.type, projectId).pipe(
           map((attachments) => ({
-            project: projectResponse.data,
+            project: projectResponse.data!,
             attachments,
           }))
         );

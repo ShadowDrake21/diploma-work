@@ -76,7 +76,7 @@ export class ProfileInfoComponent implements OnDestroy {
   private loadUser(): void {
     this.subscriptions.push(
       this.userService.getCurrentUser().subscribe({
-        next: (response) => this.user.set(response.data),
+        next: (response) => this.user.set(response.data!),
         error: () => this.showMessage('Failed to load user profile'),
       })
     );

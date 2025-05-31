@@ -51,13 +51,13 @@ export class UserStore {
     return this.userService.getCurrentUser().pipe(
       tap((response) => {
         if (response.success) {
-          currentUserSig.set(response.data);
-          this.persistUser(response.data);
+          currentUserSig.set(response.data!);
+          this.persistUser(response.data!);
           this._isLoaded.set(true);
         }
         this._isLoading.set(false);
       }),
-      map((response) => response.data)
+      map((response) => response.data!)
     );
   }
 

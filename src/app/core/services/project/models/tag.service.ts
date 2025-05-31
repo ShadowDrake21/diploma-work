@@ -21,25 +21,25 @@ export class TagService {
   getAllTags(): Observable<Tag[]> {
     return this.http
       .get<TagListApiResponse>(`${this.apiUrl}`, getAuthHeaders())
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => response.data!));
   }
 
   getTagById(id: string): Observable<Tag> {
     return this.http
       .get<TagApiResponse>(`${this.apiUrl}/${id}`, getAuthHeaders())
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => response.data!));
   }
 
   createTag(tag: TagDTO): Observable<Tag> {
     return this.http
       .post<TagApiResponse>(`${this.apiUrl}`, tag, getAuthHeaders())
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => response.data!));
   }
 
   updateTag(id: string, tag: any): Observable<Tag> {
     return this.http
       .put<TagApiResponse>(`${this.apiUrl}/${id}`, tag, getAuthHeaders())
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => response.data!));
   }
 
   deleteTag(id: string): Observable<void> {

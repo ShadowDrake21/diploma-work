@@ -1,4 +1,4 @@
-package com.backend.app.security;
+package com.backend.app.filter;
 
 import java.io.IOException;
 import java.security.Key;
@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.backend.app.security.TokenBlacklist;
 import com.backend.app.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;

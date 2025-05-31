@@ -89,7 +89,7 @@ export class ProjectTableComponent implements OnInit {
     this.projectService
       .getAllProjects(this.pagination().page, this.pagination().size)
       .subscribe((response) => {
-        const projects = response.data;
+        const projects = response.data!;
 
         projects.forEach((project) => {
           this.loadAttachmentsForProject(project);
