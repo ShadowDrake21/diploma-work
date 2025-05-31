@@ -33,7 +33,7 @@ export class ProjectDataService extends ProjectDataCoreService {
   ): Observable<any> {
     return this.projectService.createProject(projectData).pipe(
       switchMap((projectResponse) => {
-        const projectId = projectResponse.data;
+        const projectId = projectResponse.data!;
         const operations = [
           this.createTypedProject(projectId, projectData.type, formValues),
         ];
@@ -67,7 +67,7 @@ export class ProjectDataService extends ProjectDataCoreService {
   ): Observable<any> {
     return this.projectService.getProjectById(projectId).pipe(
       switchMap((originalProject) => {
-        const originalData = originalProject.data;
+        const originalData = originalProject.data!;
 
         return this.projectService.updateProject(projectId, projectData).pipe(
           switchMap(() => {

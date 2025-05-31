@@ -113,7 +113,7 @@ export class UserProfileComponent implements OnInit {
         })
       )
       .subscribe((user) => {
-        if (user) {
+        if (user && user.data) {
           this.user.set(user.data);
           this.headerService.setTitle(`User: ${user.data.username}`);
           this.loadUserProjects();

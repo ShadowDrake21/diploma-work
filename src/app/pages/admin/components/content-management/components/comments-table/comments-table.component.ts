@@ -61,7 +61,7 @@ export class CommentsTableComponent implements OnInit {
       .loadAllComments(this.currentPage(), this.pageSize())
       .subscribe({
         next: (response) => {
-          this.comments.set(response.data);
+          this.comments.set(response.data!);
           this.totalItems.set(response.totalItems);
           this.isLoading.set(false);
         },

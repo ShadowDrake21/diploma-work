@@ -103,7 +103,7 @@ export class UserDetailsComponent implements OnInit {
     this.userService.getUserProjects(userId).subscribe({
       next: (response) => {
         if (response.success) {
-          this.userProjects.set(response.data);
+          this.userProjects.set(response.data!);
         }
       },
       error: (err) => console.error('Failed to load user projects', err),

@@ -1,4 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpStatusCode,
+} from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -10,6 +14,7 @@ import {
   Subject,
   switchMap,
   tap,
+  throwError,
 } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import {
@@ -120,33 +125,61 @@ export class AuthService {
         tap((response) =>
           this.handleLoginResponse(response, credentials.rememberMe)
         ),
-        map((response) => response.data),
-        catchError((error) => {
-          this.clearAuthData();
-          throw error;
-        })
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
       );
   }
 
   public register(userData: IRegisterRequest): Observable<string> {
     return this.http
       .post<ApiResponse<string>>(`${this.apiUrl}/register`, userData)
-      .pipe(map((response) => response.data));
+      .pipe(
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
+      );
   }
 
   public verifyUser(verifyData: IVerifyRequest): Observable<IAuthResponse> {
     return this.http
       .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/verify`, verifyData)
       .pipe(
-        tap((response) => this.handleLoginResponse(response, true)), // Default to remember after verification
-        map((response) => response.data)
+        tap((response) => this.handleLoginResponse(response, true)),
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
       );
   }
 
   public logout(): void {
     this.http.post<ApiResponse<string>>(`${this.apiUrl}/logout`, {}).subscribe({
       next: () => this.handleLogoutSuccess(),
-      error: (error) => this.handleLogoutError(error),
+      error: (error) => {
+        console.error('Logout error:', error);
+        this.handleLogoutSuccess();
+      },
     });
   }
 
@@ -161,7 +194,15 @@ export class AuthService {
       })
       .pipe(
         tap((response) => this.handleRefreshResponse(response)),
-        map((response) => response.data?.authToken || null),
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data?.authToken || null;
+        }),
         catchError((error) => {
           console.error('Token refresh failed:', error);
           this.tokenRefreshedSubject.next(null);
@@ -179,7 +220,7 @@ export class AuthService {
     if (!decoded || this.isTokenExpired(decoded)) return of(null);
 
     const timeLeft = this.getTokenTimeLeft(decoded);
-    const refreshThreshold = 15 * 60 * 1000; // 15 minutes
+    const refreshThreshold = 15 * 60 * 1000;
 
     if (timeLeft > refreshThreshold) return of(token);
 
@@ -189,7 +230,7 @@ export class AuthService {
         error: () => this.handleRefreshError(timeLeft),
       }),
       switchMap((newToken) => of(newToken || token)),
-      catchError(() => of(token)) // Fallback to original token
+      catchError(() => of(token))
     );
   }
 
@@ -203,13 +244,75 @@ export class AuthService {
         `${this.apiUrl}/request-password-reset`,
         request
       )
-      .pipe(map((response) => response.data));
+      .pipe(
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
+      );
   }
 
   public resetPassword(request: IResetPasswordRequest): Observable<string> {
     return this.http
       .post<ApiResponse<string>>(`${this.apiUrl}/reset-password`, request)
-      .pipe(map((response) => response.data));
+      .pipe(
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
+      );
+  }
+
+  /* ------------------------- Error Handling ------------------------- */
+
+  private handleAuthError(error: any): Observable<never> {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === HttpStatusCode.TooManyRequests) {
+        const retryAfter = error.headers.get('Retry-After') || '60';
+        const message = `Too many requests. Please try again after ${retryAfter} seconds.`;
+        return throwError(() =>
+          this.createApplicationError(message, 'RATE_LIMIT_EXCEEDED')
+        );
+      }
+      if (error.error?.message) {
+        return throwError(() =>
+          this.createApplicationError(
+            error.error.message,
+            error.error.errorCode || 'SERVER_ERROR'
+          )
+        );
+      }
+    }
+
+    if (error instanceof ApplicationError) {
+      return throwError(() => error);
+    }
+
+    return throwError(() =>
+      this.createApplicationError(
+        'An unexpected error occurred',
+        'SERVER_ERROR'
+      )
+    );
+  }
+
+  private createApplicationError(
+    message: string,
+    code?: string
+  ): ApplicationError {
+    return new ApplicationError(message, code);
   }
 
   /* ------------------------- Private Helpers ------------------------- */
@@ -301,5 +404,13 @@ export class AuthService {
 
   private getTokenTimeLeft(decodedToken: IJwtPayload): number {
     return decodedToken.exp * 1000 - Date.now();
+  }
+}
+
+class ApplicationError extends Error {
+  constructor(message: string, public readonly code?: string) {
+    super(message);
+    this.name = 'ApplicationError';
+    Object.setPrototypeOf(this, ApplicationError.prototype);
   }
 }

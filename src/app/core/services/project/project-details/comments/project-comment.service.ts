@@ -40,7 +40,7 @@ export class ProjectCommentService {
     this.commentService
       .getCommentsByProjectId(projectId)
       .pipe(
-        map((response) => this.transformComments(response.data)),
+        map((response) => this.transformComments(response.data!)),
         catchError((error) => {
           console.error('Error fetching comments:', error);
           return of(this._comments.value);
@@ -57,7 +57,7 @@ export class ProjectCommentService {
       return throwError(() => new Error('User not authenticated'));
 
     return this.commentService.createComment(comment).pipe(
-      map((res) => res.data),
+      map((res) => res.data!),
       tap(() => this.refreshComments(comment.projectId)),
       catchError((error) => {
         console.error('Error posting comment:', error);
@@ -76,7 +76,7 @@ export class ProjectCommentService {
 
   updateComment(commentId: string, newContent: string): Observable<IComment> {
     return this.commentService.updateComment(commentId, newContent).pipe(
-      map((res) => res.data),
+      map((res) => res.data!),
       tap(() => this.refreshComments(this.currentProjectId!)),
       catchError((error) => {
         console.error('Error updating comment:', error);
@@ -142,7 +142,7 @@ export class ProjectCommentService {
     this.updateCommentLikeState(commentId, like);
 
     return serviceCall.pipe(
-      map((res) => res.data),
+      map((res) => res.data!),
       catchError((err) => {
         this.updateCommentLikeState(commentId, !like); // Revert on error
         return throwError(() => err);

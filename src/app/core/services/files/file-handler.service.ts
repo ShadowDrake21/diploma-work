@@ -51,12 +51,12 @@ export class FileHandlerService {
     entityId: string,
     files: File[]
   ): UploadResult {
-    if (!response.success || !response.data.length) {
+    if (!response.success || !response.data!.length) {
       return this.createEmptyResult();
     }
 
-    const uploadedFiles = response.data
-      .map((url, index) =>
+    const uploadedFiles = response
+      .data!.map((url, index) =>
         url
           ? this.createFileMetadata(url, entityType, entityId, files[index])
           : null

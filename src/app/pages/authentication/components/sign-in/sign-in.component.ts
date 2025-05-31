@@ -90,6 +90,7 @@ export class SignInComponent implements OnInit {
 
   onSubmit() {
     if (this.signInForm.invalid) return;
+    this.isLoading.set(true);
 
     this.authService
       .login(this.signInForm.value as SignInFormValues)
@@ -102,15 +103,9 @@ export class SignInComponent implements OnInit {
           });
         },
         error: (error) => {
-          this.isLoading.set(false);
           console.error('Login failed', error);
-          this.snackBar.open(
-            error.error?.message || 'Помилка входу.Спробуйте ще раз',
-            'Закрити',
-            {
-              duration: 5000,
-            }
-          );
+          this.isLoading.set(false);
+          this.snackBar.open(error.message, 'Закрити', { duration: 5000 });
         },
         complete: () => this.isLoading.set(false),
       });

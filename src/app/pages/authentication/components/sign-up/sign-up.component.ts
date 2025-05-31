@@ -19,6 +19,7 @@ import {
   SignUpForm,
 } from '@shared/types/forms/auth-form.types';
 import { UserRole } from '@shared/enums/user.enum';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'auth-sign-up',
@@ -37,6 +38,7 @@ export class SignUpComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly snackBar = inject(MatSnackBar);
 
   protected signUpForm = new FormGroup<SignUpForm>(
     {
@@ -120,7 +122,15 @@ export class SignUpComponent implements OnInit {
           });
         },
         error: (error) => {
-          console.error('Registration failed', error);
+          if (error.error?.errorCode === 'EMAIL_IN_USE') {
+            this.signUpForm.controls.email.setErrors({ emailInUse: true });
+            this.errorMessages.email.set(error.error.message); // Use backend message
+          } else if (error.error?.errorCode === 'WEAK_PASSWORD') {
+            this.signUpForm.controls.password.setErrors({ weakPassword: true });
+            this.errorMessages.password.set(error.error.message); // Use backend message
+          } else {
+            this.snackBar.open(error.message, 'Закрити', { duration: 5000 });
+          }
         },
       });
   }
