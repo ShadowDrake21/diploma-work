@@ -36,8 +36,8 @@ export class AnalyticsService {
     return this.http
       .get<ApiResponse<SystemOverviewDTO>>(`${this.apiUrl}/overview`)
       .pipe(
-        tap((response) => this.systemOverview.set(response.data)),
-        map((response) => response.data)
+        tap((response) => this.systemOverview.set(response.data!)),
+        map((response) => response.data!)
       );
   }
 
@@ -54,8 +54,8 @@ export class AnalyticsService {
         params,
       })
       .pipe(
-        tap((response) => this.userGrowth.set(response.data)),
-        map((response) => response.data)
+        tap((response) => this.userGrowth.set(response.data!)),
+        map((response) => response.data!)
       );
   }
 
@@ -65,8 +65,8 @@ export class AnalyticsService {
         `${this.apiUrl}/projects/distribution`
       )
       .pipe(
-        tap((response) => this.projectDistribution.set(response.data)),
-        map((response) => response.data)
+        tap((response) => this.projectDistribution.set(response.data!)),
+        map((response) => response.data!)
       );
   }
 
@@ -76,8 +76,8 @@ export class AnalyticsService {
         `${this.apiUrl}/projects/progress`
       )
       .pipe(
-        tap((response) => this.projectProgress.set(response.data)),
-        map((response) => response.data)
+        tap((response) => this.projectProgress.set(response.data!)),
+        map((response) => response.data!)
       );
   }
 
@@ -85,8 +85,8 @@ export class AnalyticsService {
     return this.http
       .get<ApiResponse<PublicationMetricsDTO>>(`${this.apiUrl}/publications`)
       .pipe(
-        tap((response) => this.publicationMetrics.set(response.data)),
-        map((response) => response.data)
+        tap((response) => this.publicationMetrics.set(response.data!)),
+        map((response) => response.data!)
       );
   }
 
@@ -94,8 +94,8 @@ export class AnalyticsService {
     return this.http
       .get<ApiResponse<PatentMetricsDTO>>(`${this.apiUrl}/patents`)
       .pipe(
-        tap((response) => this.patentMetrics.set(response.data)),
-        map((response) => response.data)
+        tap((response) => this.patentMetrics.set(response.data!)),
+        map((response) => response.data!)
       );
   }
 
@@ -103,8 +103,8 @@ export class AnalyticsService {
     return this.http
       .get<ApiResponse<ResearchFundingDTO>>(`${this.apiUrl}/research/funding`)
       .pipe(
-        tap((response) => this.researchFunding.set(response.data)),
-        map((response) => response.data)
+        tap((response) => this.researchFunding.set(response.data!)),
+        map((response) => response.data!)
       );
   }
 
@@ -119,13 +119,13 @@ export class AnalyticsService {
       .pipe(
         map((response) => ({
           ...response,
-          data: response.data.map((item) => ({
+          data: response.data!.map((item) => ({
             ...item,
             date: new Date(item.date),
           })),
         })),
         tap((response) => this.commentActivity.set(response.data)),
-        map((response) => response.data)
+        map((response) => response.data!)
       );
   }
 
@@ -135,8 +135,8 @@ export class AnalyticsService {
         `${this.apiUrl}/system/performance`
       )
       .pipe(
-        tap((response) => this.systemPerformance.set(response.data)),
-        map((response) => response.data)
+        tap((response) => this.systemPerformance.set(response.data!)),
+        map((response) => response.data!)
       );
   }
 

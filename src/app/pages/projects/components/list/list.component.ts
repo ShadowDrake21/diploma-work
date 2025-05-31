@@ -88,7 +88,7 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
 
     return loader$.pipe(
       map((projects) => {
-        this.projects.set(projects.data);
+        this.projects.set(projects.data!);
         this.totalItems.set(projects.totalItems);
       }),
       catchError((err) => {

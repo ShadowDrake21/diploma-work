@@ -35,7 +35,7 @@ export class ProjectFormService extends ProjectFormCoreService {
         .pipe(map((result) => result.data))
         .subscribe({
           next: (user) => {
-            if (user.id) {
+            if (user && user.id) {
               this.creatorId = +user.id;
             }
           },

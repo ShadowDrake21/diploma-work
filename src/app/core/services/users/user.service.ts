@@ -144,7 +144,7 @@ export class UserService {
     return this.getUserProjects(userId).pipe(
       switchMap((projects) => {
         return forkJoin(
-          projects.data.map((project) => {
+          projects.data!.map((project) => {
             if (project.type === ProjectType.PUBLICATION) {
               return this.projectService
                 .getPublicationByProjectId(project.id)

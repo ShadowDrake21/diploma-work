@@ -47,7 +47,7 @@ export class UserCollaboratorsComponent {
         )
       )
       .subscribe((response) => {
-        this.collaborators.set(response.data);
+        this.collaborators.set(response.data!);
         this.totalItems.set(response.totalItems);
       });
   }

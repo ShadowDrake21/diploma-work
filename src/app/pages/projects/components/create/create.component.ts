@@ -85,7 +85,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.userService
         .getCurrentUser()
-        .pipe(map((result) => result.data))
+        .pipe(map((result) => result.data!))
         .subscribe((user: IUser) => {
           this.creatorId = +user.id;
         })

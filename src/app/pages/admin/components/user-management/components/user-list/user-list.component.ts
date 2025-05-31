@@ -88,7 +88,7 @@ export class UserListComponent {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.users.set(response.data);
+            this.users.set(response.data!);
             this.totalItems.set(response.totalItems);
           } else {
             this.error.set(response.message || 'Failed to load users');

@@ -47,7 +47,7 @@ export class ProjectPatentFormComponent
   ngOnInit(): void {
     this.allUsers$ = this.userService
       .getAllUsers()
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => response.data!));
 
     this.allUsers$.subscribe((users) => {
       console.log('ProjectPatentFormComponent allUsers', users);
