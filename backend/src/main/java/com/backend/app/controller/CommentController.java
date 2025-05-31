@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.app.controller.codes.CommentCodes;
+import com.backend.app.controller.messages.CommentMessages;
 import com.backend.app.dto.create.CreateCommentDTO;
 import com.backend.app.dto.model.CommentDTO;
 import com.backend.app.dto.response.ApiResponse;
@@ -44,86 +46,204 @@ public class CommentController {
 
 	@GetMapping("/project/{projectId}")
 	public ResponseEntity<ApiResponse<List<CommentDTO>>> getCommentsByProjectId(@PathVariable UUID projectId) {
-		List<CommentDTO> comments = commentService.getCommentsByProjectId(projectId);
-		return ResponseEntity.ok(ApiResponse.success(comments));
+		 try {
+	            List<CommentDTO> comments = commentService.getCommentsByProjectId(projectId);
+	            return ResponseEntity.ok(ApiResponse.success(
+	                comments,
+	                CommentMessages.getMessage(CommentCodes.COMMENTS_FETCHED),CommentCodes.COMMENTS_FETCHED));
+	        } catch (ResourceNotFoundException e) {
+	            log.warn("Project not found: {}", projectId);
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(ApiResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.PROJECT_NOT_FOUND),
+	                    CommentCodes.PROJECT_NOT_FOUND));
+	        } catch (Exception e) {
+	            log.error("Error fetching comments for project: {}", projectId, e);
+	            return ResponseEntity.internalServerError()
+	                .body(ApiResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.SERVER_ERROR),
+	                    CommentCodes.SERVER_ERROR));
+	        }
 	}
 	
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<PaginatedResponse<CommentDTO>> getCommentsByUserId( @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-		try {
-			Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-			Page<CommentDTO> comments = commentService.getCommentsByUserId(userId, pageable);
-			return ResponseEntity.ok(PaginatedResponse.success(comments));
-		} catch (Exception e) {
-			log.error("Error fetching paginated users", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(PaginatedResponse.error("Error fetching users"));
-		}
+		 try {
+	            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+	            Page<CommentDTO> comments = commentService.getCommentsByUserId(userId, pageable);
+	            return ResponseEntity.ok(PaginatedResponse.success(
+	                comments,
+	                CommentMessages.getMessage(CommentCodes.USER_COMMENTS_FETCHED),CommentCodes.USER_COMMENTS_FETCHED));
+	        } catch (ResourceNotFoundException e) {
+	            log.warn("User not found: {}", userId);
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(PaginatedResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.USER_NOT_FOUND),
+	                    CommentCodes.USER_NOT_FOUND));
+	        } catch (Exception e) {
+	            log.error("Error fetching comments for user: {}", userId, e);
+	            return ResponseEntity.internalServerError()
+	                .body(PaginatedResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.SERVER_ERROR),
+	                    CommentCodes.SERVER_ERROR));
+	        }
 	}
 
 	@PostMapping
 	public ResponseEntity<ApiResponse<CommentDTO>> createComment(@RequestBody CreateCommentDTO createCommentDTO) {
-		Long userId = getAuthenticatedUserId().orElseThrow(() -> new UnauthorizedException("Authentication required"));
-
-		try {
-			CommentDTO commentDTO = commentService.createComment(createCommentDTO, userId);
-			return ResponseEntity.ok(ApiResponse.success(commentDTO));
-		} catch (ResourceNotFoundException e) {
-			throw new ResourceNotFoundException(e.getMessage());
-		} catch (BusinessRuleException e) {
-			throw new BusinessRuleException(e.getMessage());
-		}
+	        try {
+	        	Long userId = getAuthenticatedUserId()
+	    	            .orElseThrow(() -> new UnauthorizedException(CommentMessages.getMessage(CommentCodes.AUTH_REQUIRED)));
+	            CommentDTO commentDTO = commentService.createComment(createCommentDTO, userId);
+	            return ResponseEntity.ok(ApiResponse.success(
+	                commentDTO,
+	                CommentMessages.getMessage(CommentCodes.COMMENT_CREATED),CommentCodes.COMMENT_CREATED));
+	        } catch (ResourceNotFoundException e) {
+	            log.warn("Resource not found while creating comment: {}", e.getMessage());
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(ApiResponse.error(
+	                    e.getMessage(),
+	                    CommentCodes.RESOURCE_NOT_FOUND));
+	        } catch (BusinessRuleException e) {
+	            log.warn("Business rule violation while creating comment: {}", e.getMessage());
+	            return ResponseEntity.badRequest()
+	                .body(ApiResponse.error(
+	                    e.getMessage(),
+	                    CommentCodes.BUSINESS_RULE_VIOLATION));
+	        } catch (Exception e) {
+	            log.error("Error creating comment: ", e);
+	            return ResponseEntity.internalServerError()
+	                .body(ApiResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.SERVER_ERROR),
+	                    CommentCodes.SERVER_ERROR));
+	        }
 	}
 
 	@PutMapping("/{commentId}")
 	public ResponseEntity<ApiResponse<CommentDTO>> updateComment(@PathVariable UUID commentId,
 			@RequestBody String content) {
-		Long userId = getAuthenticatedUserId().orElseThrow(() -> new UnauthorizedException("Authentication required"));
 
-		CommentDTO commentDTO = commentService.updateComment(commentId, content, userId);
-		return ResponseEntity.ok(ApiResponse.success(commentDTO));
+	        try {
+	        	Long userId = getAuthenticatedUserId()
+	        			.orElseThrow(() -> new UnauthorizedException(CommentMessages.getMessage(CommentCodes.AUTH_REQUIRED)));
+	            CommentDTO commentDTO = commentService.updateComment(commentId, content, userId);
+	            return ResponseEntity.ok(ApiResponse.success(
+	                commentDTO,
+	                CommentMessages.getMessage(CommentCodes.COMMENT_UPDATED),CommentCodes.COMMENT_UPDATED));
+	        } catch (ResourceNotFoundException e) {
+	            log.warn("Comment not found for update: {}", commentId);
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(ApiResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.COMMENT_NOT_FOUND),
+	                    CommentCodes.COMMENT_NOT_FOUND));
+	        } catch (UnauthorizedException e) {
+	            log.warn("Unauthorized update attempt on comment: {}", commentId);
+	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	                .body(ApiResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.ACCESS_DENIED),
+	                    CommentCodes.ACCESS_DENIED));
+	        } catch (Exception e) {
+	            log.error("Error updating comment: {}", commentId, e);
+	            return ResponseEntity.internalServerError()
+	                .body(ApiResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.SERVER_ERROR),
+	                    CommentCodes.SERVER_ERROR));
+	        }
 	}
 
 	@DeleteMapping("/{commentId}")
 	public ResponseEntity<ApiResponse<Void>> deleteComment(@PathVariable UUID commentId) {
-		Long userId = getAuthenticatedUserId().orElseThrow(() -> new UnauthorizedException("Authentication required"));
 
-		commentService.deleteComment(commentId, userId);
-		return ResponseEntity.ok(ApiResponse.success(null));
+		        try {
+		        	Long userId = getAuthenticatedUserId()
+		        			.orElseThrow(() -> new UnauthorizedException(CommentMessages.getMessage(CommentCodes.AUTH_REQUIRED)));
+		            commentService.deleteComment(commentId, userId);
+		            return ResponseEntity.ok(ApiResponse.success(
+		                null,
+		                CommentMessages.getMessage(CommentCodes.COMMENT_DELETED),CommentCodes.COMMENT_DELETED));
+		        } catch (ResourceNotFoundException e) {
+		            log.warn("Comment not found for deletion: {}", commentId);
+		            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+		                .body(ApiResponse.error(
+		                    CommentMessages.getMessage(CommentCodes.COMMENT_NOT_FOUND),
+		                    CommentCodes.COMMENT_NOT_FOUND));
+		        } catch (UnauthorizedException e) {
+		            log.warn("Unauthorized deletion attempt on comment: {}", commentId);
+		            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+		                .body(ApiResponse.error(
+		                    CommentMessages.getMessage(CommentCodes.ACCESS_DENIED),
+		                    CommentCodes.ACCESS_DENIED));
+		        } catch (Exception e) {
+		            log.error("Error deleting comment: {}", commentId, e);
+		            return ResponseEntity.internalServerError()
+		                .body(ApiResponse.error(
+		                    CommentMessages.getMessage(CommentCodes.SERVER_ERROR),
+		                    CommentCodes.SERVER_ERROR));
+		        }
 	}
 
 	@PostMapping("/{commentId}/like")
 	public ResponseEntity<ApiResponse<CommentDTO>> likeComment(@PathVariable UUID commentId) {
-		Long userId = getAuthenticatedUserId().orElseThrow(() -> new UnauthorizedException("Authentication required"));
 
-		try {
-			CommentDTO commentDTO = commentService.likeComment(commentId, userId);
-			return ResponseEntity.ok(ApiResponse.success(commentDTO));
-		} catch (ResourceNotFoundException e) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                .body(ApiResponse.error(e.getMessage()));
-	    } catch (BusinessRuleException e) {
-	        return ResponseEntity.badRequest()
-	                .body(ApiResponse.error(e.getMessage()));
-	    }
+		        try {
+		        	Long userId = getAuthenticatedUserId()
+		        			.orElseThrow(() -> new UnauthorizedException(CommentMessages.getMessage(CommentCodes.AUTH_REQUIRED)));
+		            CommentDTO commentDTO = commentService.likeComment(commentId, userId);
+		            return ResponseEntity.ok(ApiResponse.success(
+		                commentDTO,
+		                CommentMessages.getMessage(CommentCodes.COMMENT_LIKED),CommentCodes.COMMENT_LIKED));
+		        } catch (ResourceNotFoundException e) {
+		            log.warn("Comment not found for like: {}", commentId);
+		            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+		                .body(ApiResponse.error(
+		                    CommentMessages.getMessage(CommentCodes.COMMENT_NOT_FOUND),
+		                    CommentCodes.COMMENT_NOT_FOUND));
+		        } catch (BusinessRuleException e) {
+		            log.warn("Business rule violation while liking comment: {}", e.getMessage());
+		            return ResponseEntity.badRequest()
+		                .body(ApiResponse.error(
+		                    e.getMessage(),
+		                    CommentCodes.BUSINESS_RULE_VIOLATION));
+		        } catch (Exception e) {
+		            log.error("Error liking comment: {}", commentId, e);
+		            return ResponseEntity.internalServerError()
+		                .body(ApiResponse.error(
+		                    CommentMessages.getMessage(CommentCodes.SERVER_ERROR),
+		                    CommentCodes.SERVER_ERROR));
+		        }
 	}
 	
 	@DeleteMapping("/{commentId}/like")
 	public ResponseEntity<ApiResponse<CommentDTO>> removeLike(@PathVariable UUID commentId) {
-		Long userId = getAuthenticatedUserId().orElseThrow(() -> new UnauthorizedException("Authentication required"));
 
-		try {
-			CommentDTO commentDTO = commentService.unlikeComment(commentId, userId);
-			return ResponseEntity.ok(ApiResponse.success(commentDTO));
-		} catch (ResourceNotFoundException e) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                .body(ApiResponse.error(e.getMessage()));
-	    } catch (BusinessRuleException e) {
-	        return ResponseEntity.badRequest()
-	                .body(ApiResponse.error(e.getMessage()));
-	    }
+	        try {
+	        	Long userId = getAuthenticatedUserId()
+	        			.orElseThrow(() -> new UnauthorizedException(CommentMessages.getMessage(CommentCodes.AUTH_REQUIRED)));
+	            CommentDTO commentDTO = commentService.unlikeComment(commentId, userId);
+	            return ResponseEntity.ok(ApiResponse.success(
+	                commentDTO,
+	                CommentMessages.getMessage(CommentCodes.COMMENT_UNLIKED),CommentCodes.COMMENT_UNLIKED));
+	        } catch (ResourceNotFoundException e) {
+	            log.warn("Comment not found for unlike: {}", commentId);
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(ApiResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.COMMENT_NOT_FOUND),
+	                    CommentCodes.COMMENT_NOT_FOUND));
+	        } catch (BusinessRuleException e) {
+	            log.warn("Business rule violation while unliking comment: {}", e.getMessage());
+	            return ResponseEntity.badRequest()
+	                .body(ApiResponse.error(
+	                    e.getMessage(),
+	                    CommentCodes.BUSINESS_RULE_VIOLATION));
+	        } catch (Exception e) {
+	            log.error("Error unliking comment: {}", commentId, e);
+	            return ResponseEntity.internalServerError()
+	                .body(ApiResponse.error(
+	                    CommentMessages.getMessage(CommentCodes.SERVER_ERROR),
+	                    CommentCodes.SERVER_ERROR));
+	        }
 	}
 
 	private Optional<Long> getAuthenticatedUserId() {
