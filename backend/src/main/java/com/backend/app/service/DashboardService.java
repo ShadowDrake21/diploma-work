@@ -2,13 +2,11 @@ package com.backend.app.service;
 
 import java.util.Map;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.dto.miscellaneous.DashboardMetricsDTO;
-import com.backend.app.repository.PatentRepository;
 import com.backend.app.repository.ProjectRepository;
-import com.backend.app.repository.PublicationRepository;
-import com.backend.app.repository.ResearchRepository;
 import com.backend.app.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,22 +25,31 @@ public class DashboardService {
     private final UserRepository userRepository;
 
     public DashboardMetricsDTO getDashboardMetrics() {
-    	try {
-			Map<String, Long> projectCounts = projectRepository.getProjectTypeAggregates();
-			return buildDashboardMetrics(projectCounts);
-		} catch (Exception e) {
-			log.error("Error while fetching dashboard metrics", e);
-            return buildDefaultDashboardMetrics();
-		}
+    	 try {
+             Map<String, Long> projectCounts = projectRepository.getProjectTypeAggregates();
+             return buildDashboardMetrics(projectCounts);
+         } catch (DataAccessException e) {
+             log.error("Database error while fetching dashboard metrics: {}", e.getMessage());
+             return buildDefaultDashboardMetrics();
+         } catch (Exception e) {
+             log.error("Unexpected error while fetching dashboard metrics", e);
+             return buildDefaultDashboardMetrics();
+         }
     }
     
     private DashboardMetricsDTO buildDashboardMetrics(Map<String, Long> projectCounts) {
-    	return DashboardMetricsDTO.builder().totalProjects(getSafeLongValue(projectCounts, TOTAL_PROJECTS_KEY))
-                .totalPublications(getSafeLongValue(projectCounts, TOTAL_PUBLICATIONS_KEY))
-                .totalPatents(getSafeLongValue(projectCounts, TOTAL_PATENTS_KEY))
-                .totalResearch(getSafeLongValue(projectCounts, TOTAL_RESEARCH_KEY))
-                .totalUsers(userRepository.count())
-                .build();
+    	try {
+    		return DashboardMetricsDTO.builder().totalProjects(getSafeLongValue(projectCounts, TOTAL_PROJECTS_KEY))
+                    .totalPublications(getSafeLongValue(projectCounts, TOTAL_PUBLICATIONS_KEY))
+                    .totalPatents(getSafeLongValue(projectCounts, TOTAL_PATENTS_KEY))
+                    .totalResearch(getSafeLongValue(projectCounts, TOTAL_RESEARCH_KEY))
+                    .totalUsers(userRepository.count())
+                    .build();
+		} catch (Exception e) {
+			log.error("Error while building dashboard metrics", e);
+			return buildDefaultDashboardMetrics();
+		}
+    	
     }
     
     private DashboardMetricsDTO buildDefaultDashboardMetrics() {
