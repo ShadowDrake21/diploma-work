@@ -11,13 +11,17 @@ import {
 } from '@models/project.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
-import { handleServiceError } from '@core/utils/error-handler.utils';
+import { ErrorHandlerService } from '@core/services/utils/error-handler.service';
+import { ResearchDTO } from '@models/research.model';
+import { PatentDTO } from '@models/patent.model';
+import { PublicationDTO } from '@models/publication.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectService {
   private http = inject(HttpClient);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private apiUrl = BASE_URL + 'projects';
 
   getAllProjects(): Observable<ApiResponse<ProjectDTO[]>>;
@@ -48,7 +52,7 @@ export class ProjectService {
       )
       .pipe(
         catchError((error) =>
-          handleServiceError(error, 'Failed to load projects')
+          this.errorHandler.handleServiceError(error, 'Failed to load projects')
         )
       );
   }
@@ -58,17 +62,25 @@ export class ProjectService {
       .get<ApiResponse<ProjectDTO>>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          handleServiceError(error, `Failed to load project with ID ${id}`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to load project with ID ${id}`
+          )
         )
       );
   }
 
-  getPublicationByProjectId(projectId: string): Observable<any> {
+  getPublicationByProjectId(
+    projectId: string
+  ): Observable<ApiResponse<PublicationDTO>> {
     return this.http
-      .get(`${this.apiUrl}/${projectId}/publication`, getAuthHeaders())
+      .get<ApiResponse<PublicationDTO>>(
+        `${this.apiUrl}/${projectId}/publication`,
+        getAuthHeaders()
+      )
       .pipe(
         catchError((error) =>
-          handleServiceError(
+          this.errorHandler.handleServiceError(
             error,
             `Failed to load publication with ID ${projectId}`
           )
@@ -76,12 +88,15 @@ export class ProjectService {
       );
   }
 
-  getPatentByProjectId(projectId: string): Observable<any> {
+  getPatentByProjectId(projectId: string): Observable<ApiResponse<PatentDTO>> {
     return this.http
-      .get(`${this.apiUrl}/${projectId}/patent`, getAuthHeaders())
+      .get<ApiResponse<PatentDTO>>(
+        `${this.apiUrl}/${projectId}/patent`,
+        getAuthHeaders()
+      )
       .pipe(
         catchError((error) =>
-          handleServiceError(
+          this.errorHandler.handleServiceError(
             error,
             `Failed to load patent with ID ${projectId}`
           )
@@ -89,12 +104,17 @@ export class ProjectService {
       );
   }
 
-  getResearchByProjectId(projectId: string): Observable<any> {
+  getResearchByProjectId(
+    projectId: string
+  ): Observable<ApiResponse<ResearchDTO>> {
     return this.http
-      .get(`${this.apiUrl}/${projectId}/research`, getAuthHeaders())
+      .get<ApiResponse<ResearchDTO>>(
+        `${this.apiUrl}/${projectId}/research`,
+        getAuthHeaders()
+      )
       .pipe(
         catchError((error) =>
-          handleServiceError(
+          this.errorHandler.handleServiceError(
             error,
             `Failed to load research with ID ${projectId}`
           )
@@ -110,7 +130,10 @@ export class ProjectService {
       .post<ApiResponse<string>>(this.apiUrl, request, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          handleServiceError(error, `Failed to create project`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to create project`
+          )
         )
       );
   }
@@ -127,7 +150,10 @@ export class ProjectService {
       )
       .pipe(
         catchError((error) =>
-          handleServiceError(error, `Failed to update project with ID ${id}`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to update project with ID ${id}`
+          )
         )
       );
   }
@@ -137,7 +163,10 @@ export class ProjectService {
       .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          handleServiceError(error, `Failed to delete project with ID ${id}`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to delete project with ID ${id}`
+          )
         )
       );
   }
@@ -159,7 +188,7 @@ export class ProjectService {
       )
       .pipe(
         catchError((error) =>
-          handleServiceError(
+          this.errorHandler.handleServiceError(
             error,
             this.getTypeSpecificErrorMessage(type, projectId)
           )
@@ -181,7 +210,10 @@ export class ProjectService {
       })
       .pipe(
         catchError((error) =>
-          handleServiceError(error, `Failed to search projects`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to search projects`
+          )
         )
       );
   }
@@ -194,7 +226,10 @@ export class ProjectService {
       )
       .pipe(
         catchError((error) =>
-          handleServiceError(error, `Failed to load newest projects`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to load newest projects`
+          )
         )
       );
   }
@@ -217,7 +252,10 @@ export class ProjectService {
       })
       .pipe(
         catchError((error) =>
-          handleServiceError(error, `Failed to load current user's projects`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to load current user's projects`
+          )
         )
       );
   }
