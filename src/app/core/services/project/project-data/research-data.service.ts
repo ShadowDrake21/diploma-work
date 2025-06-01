@@ -2,12 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { ProjectDataCoreService } from './project-data-core.service';
 import { ResearchService } from '../models/research.service';
 import { TypedProjectFormValues } from '@shared/types/services/project-data.types';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import {
   CreateResearchRequest,
   UpdateResearchRequest,
 } from '@models/research.model';
 import { statuses } from '@content/createProject.content';
+import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,22 +20,38 @@ export class ResearchDataService extends ProjectDataCoreService {
     projectId: string,
     formValues: TypedProjectFormValues
   ): Observable<any> {
-    return this.researchService.create(
-      this.buildCreateRequest(projectId, formValues.research)
-    );
+    try {
+      const request = this.buildCreateRequest(projectId, formValues.research);
+      return this.researchService
+        .create(request)
+        .pipe((error) => this.handleResearchError(error, 'create'));
+    } catch (error) {
+      return this.handleBuildError(error as Error);
+    }
   }
 
   update(
     projectId: string,
     formValues: TypedProjectFormValues
   ): Observable<any> {
-    const typedProjectId = formValues.research?.id;
-    if (!typedProjectId) throw new Error('Research ID is required for update');
+    try {
+      const typedProjectId = formValues.research?.id;
+      if (!typedProjectId) {
+        throw new Error('Research ID is required for update');
+      }
 
-    return this.researchService.update(
-      typedProjectId,
-      this.buildUpdateRequest(projectId, formValues.research, typedProjectId)
-    );
+      const request = this.buildUpdateRequest(
+        projectId,
+        formValues.research,
+        typedProjectId
+      );
+
+      return this.researchService
+        .update(typedProjectId, request)
+        .pipe((error) => this.handleResearchError(error, 'update'));
+    } catch (error) {
+      return this.handleBuildError(error as Error);
+    }
   }
 
   private buildCreateRequest(
@@ -59,5 +76,25 @@ export class ResearchDataService extends ProjectDataCoreService {
   ): UpdateResearchRequest {
     const baseRequest = this.buildCreateRequest(projectId, formValue);
     return { ...baseRequest, id };
+  }
+
+  private handleResearchError(
+    error: any,
+    operation: string
+  ): Observable<never> {
+    const message =
+      operation === 'create'
+        ? 'Failed to create research record'
+        : 'Failed to update research record';
+
+    this.notificationService.showError(message);
+    console.error(`Research ${operation} error:`, error);
+    return throwError(() => error);
+  }
+
+  private handleBuildError(error: Error): Observable<never> {
+    this.notificationService.showError(error.message);
+    console.error('Research request build error:', error);
+    return throwError(() => error);
   }
 }

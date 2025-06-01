@@ -17,6 +17,7 @@ import { ProjectDataCoreService } from './project-data-core.service';
 import { PublicationDataService } from './publication-data.service';
 import { PatentDataService } from './patent-data.service';
 import { ResearchDataService } from './research-data.service';
+import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -40,22 +41,23 @@ export class ProjectDataService extends ProjectDataCoreService {
 
         if (attachments.length > 0) {
           operations.push(
-            this.attachmentsService.uploadFiles(
-              projectData.type,
-              projectId,
-              attachments
-            )
+            this.attachmentsService
+              .uploadFiles(projectData.type, projectId, attachments)
+              .pipe(
+                catchError((error) =>
+                  this.handleAttachmentError(error, 'upload')
+                )
+              )
           );
         }
         return forkJoin(operations).pipe(
           catchError((error) => {
             console.error('Transaction failed, rolling back', error);
-            return this.projectService
-              .deleteProject(projectId)
-              .pipe(switchMap(() => throwError(() => error)));
+            return this.rollbackCreate(projectId, error);
           })
         );
-      })
+      }),
+      catchError((error) => this.handleProjectError(error, 'create'))
     );
   }
 
@@ -85,31 +87,31 @@ export class ProjectDataService extends ProjectDataCoreService {
 
             if (attachments.length > 0) {
               operations.push(
-                this.attachmentsService.updateFiles(
-                  projectData.type as ProjectType,
-                  projectId,
-                  attachments
-                )
+                this.attachmentsService
+                  .updateFiles(
+                    projectData.type as ProjectType,
+                    projectId,
+                    attachments
+                  )
+                  .pipe(
+                    catchError((error) =>
+                      this.handleAttachmentError(error, 'update')
+                    )
+                  )
               );
             }
 
             return forkJoin(operations).pipe(
               catchError((error) => {
                 console.error('Transaction failed, rolling back', error);
-                return this.projectService
-                  .updateProject(projectId, {
-                    title: originalData.title,
-                    description: originalData.description,
-                    type: originalData.type,
-                    progress: originalData.progress,
-                    tagIds: originalData.tagIds,
-                  })
-                  .pipe(switchMap(() => throwError(() => error)));
+                return this.rollbackUpdate(projectId, originalData, error);
               })
             );
-          })
+          }),
+          catchError((error) => this.handleProjectError(error, 'update'))
         );
-      })
+      }),
+      catchError((error) => this.handleProjectError(error, 'fetch'))
     );
   }
 
@@ -146,6 +148,85 @@ export class ProjectDataService extends ProjectDataCoreService {
       default:
         console.error('Invalid project type');
         return of(null);
+    }
+  }
+
+  private rollbackCreate(projectId: string, error: any): Observable<never> {
+    this.notificationService.showError(
+      'Failed to complete project creation. Rolling back...'
+    );
+    return this.projectService.deleteProject(projectId).pipe(
+      switchMap(() => throwError(() => error)),
+      catchError((rollbackError) => {
+        console.error('Rollback failed:', rollbackError);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  private rollbackUpdate(
+    projectId: string,
+    originalData: any,
+    error: any
+  ): Observable<never> {
+    this.notificationService.showError(
+      'Failed to complete project update. Rolling back...'
+    );
+    return this.projectService
+      .updateProject(projectId, {
+        title: originalData.title,
+        description: originalData.description,
+        type: originalData.type,
+        progress: originalData.progress,
+        tagIds: originalData.tagIds,
+      })
+      .pipe(
+        switchMap(() => throwError(() => error)),
+        catchError((rollbackError) => {
+          console.error('Rollback failed:', rollbackError);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  override handleProjectError(
+    error: any,
+    operation: string
+  ): Observable<never> {
+    const message = this.getProjectErrorMessage(operation, error);
+    this.notificationService.showError(message);
+    console.error(`Project ${operation} error:`, error);
+    return throwError(() => error);
+  }
+
+  override handleAttachmentError(
+    error: any,
+    operation: string
+  ): Observable<never> {
+    const message =
+      operation === 'upload'
+        ? 'Failed to upload attachments'
+        : 'Failed to update attachments';
+
+    this.notificationService.showError(message);
+    console.error(`Attachment ${operation} error:`, error);
+    return throwError(() => error);
+  }
+
+  override getProjectErrorMessage(operation: string, error: any): string {
+    switch (operation) {
+      case 'create':
+        return error.status === 409
+          ? 'A project with this title already exists'
+          : 'Failed to create project';
+      case 'update':
+        return error.status === 403
+          ? 'You do not have permission to update this project'
+          : 'Failed to update project';
+      case 'fetch':
+        return 'Failed to load project data';
+      default:
+        return 'An error occurred';
     }
   }
 }

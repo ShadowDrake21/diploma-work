@@ -9,15 +9,16 @@ import {
   UpdatePatentRequest,
 } from '@models/patent.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
+import { ErrorHandlerService } from '@core/services/utils/error-handler.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PatentService {
   private readonly http = inject(HttpClient);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly apiUrl = BASE_URL + 'patents';
-
   /**
    * Get all patents without pagination
    * @returns Observable of all patent data
@@ -50,12 +51,19 @@ export class PatentService {
         .set('pageSize', pageSize.toString());
     }
 
-    return this.http.get<
-      ApiResponse<PatentDTO[]> | PaginatedResponse<PatentDTO>
-    >(this.apiUrl, {
-      ...getAuthHeaders(),
-      params,
-    });
+    return this.http
+      .get<ApiResponse<PatentDTO[]> | PaginatedResponse<PatentDTO>>(
+        this.apiUrl,
+        {
+          ...getAuthHeaders(),
+          params,
+        }
+      )
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(error, `Failed to load patents`)
+        )
+      );
   }
 
   /**
@@ -64,10 +72,39 @@ export class PatentService {
    * @returns Observable of patent data
    */
   getPatentById(id: string): Observable<ApiResponse<PatentDTO>> {
-    return this.http.get<ApiResponse<PatentDTO>>(
-      `${this.apiUrl}/${id}`,
-      getAuthHeaders()
-    );
+    return this.http
+      .get<ApiResponse<PatentDTO>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to load patent with ID ${id}`
+          )
+        )
+      );
+  }
+
+  /**
+   * Get co-inventors of a patent
+   * @param patentId Patent ID
+   * @returns Observable of co-inventor list
+   */
+  getPatentCoInventors(
+    patentId: string
+  ): Observable<ApiResponse<PatentCoInventorDTO[]>> {
+    return this.http
+      .get<ApiResponse<PatentCoInventorDTO[]>>(
+        `${this.apiUrl}/${patentId}/co-inventors`,
+        getAuthHeaders()
+      )
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to load co-inventors for patent ${patentId}`
+          )
+        )
+      );
   }
 
   /**
@@ -78,11 +115,17 @@ export class PatentService {
   createPatent(
     patentData: CreatePatentRequest
   ): Observable<ApiResponse<PatentDTO>> {
-    return this.http.post<ApiResponse<PatentDTO>>(
-      `${this.apiUrl}`,
-      patentData,
-      getAuthHeaders()
-    );
+    return this.http
+      .post<ApiResponse<PatentDTO>>(
+        `${this.apiUrl}`,
+        patentData,
+        getAuthHeaders()
+      )
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(error, `Failed to create patent`)
+        )
+      );
   }
 
   /**
@@ -96,11 +139,20 @@ export class PatentService {
     patentData: UpdatePatentRequest
   ): Observable<ApiResponse<PatentDTO>> {
     console.log('Updating patent with ID:', id);
-    return this.http.put<ApiResponse<PatentDTO>>(
-      `${this.apiUrl}/${id}`,
-      patentData,
-      getAuthHeaders()
-    );
+    return this.http
+      .put<ApiResponse<PatentDTO>>(
+        `${this.apiUrl}/${id}`,
+        patentData,
+        getAuthHeaders()
+      )
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to update patent with ID ${id}`
+          )
+        )
+      );
   }
 
   /**
@@ -109,23 +161,15 @@ export class PatentService {
    * @returns Observable of void
    */
   deletePatent(id: string): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(
-      `${this.apiUrl}/${id}`,
-      getAuthHeaders()
-    );
-  }
-
-  /**
-   * Get co-inventors of a patent
-   * @param patentId Patent ID
-   * @returns Observable of co-inventor list
-   */
-  getPatentCoInventors(
-    patentId: string
-  ): Observable<ApiResponse<PatentCoInventorDTO[]>> {
-    return this.http.get<ApiResponse<PatentCoInventorDTO[]>>(
-      `${this.apiUrl}/${patentId}/co-inventors`,
-      getAuthHeaders()
-    );
+    return this.http
+      .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to delete patent with ID ${id}`
+          )
+        )
+      );
   }
 }

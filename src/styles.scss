@@ -239,3 +239,35 @@ html {
     clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
   }
 }
+
+.notification-success {
+  background-color: #4caf50 !important; // Green
+  color: white !important;
+}
+
+.notification-error {
+  background-color: #f44336 !important; // Red
+  color: white !important;
+}
+
+.notification-warning {
+  background-color: #ff9800 !important; // Orange
+  color: white !important;
+}
+
+.notification-info {
+  background-color: #2196f3 !important; // Blue
+  color: white !important;
+}
+
+// Snackbar custom styling
+.mat-snack-bar-container {
+  &.notification-success,
+  &.notification-error,
+  &.notification-warning,
+  &.notification-info {
+    .mat-simple-snackbar-action {
+      color: white;
+    }
+  }
+}
