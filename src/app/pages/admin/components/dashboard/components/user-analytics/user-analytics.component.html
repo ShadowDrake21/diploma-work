@@ -32,10 +32,11 @@
         <mat-datepicker #endPicker></mat-datepicker>
       </mat-form-field>
     </div>
-    @if(userGrowthChart$ | async; as userGrowthChart){
+
+    @if(userGrowthChart$ | async; as chartData){ @if(chartData.length &&
+    chartData[0].series.length) {
     <ngx-charts-line-chart
-      *ngIf="userGrowthChart.length"
-      [results]="userGrowthChart"
+      [results]="chartData"
       [xAxis]="true"
       [yAxis]="true"
       [showXAxisLabel]="true"
@@ -43,10 +44,13 @@
       xAxisLabel="Date"
       yAxisLabel="Users"
       [legend]="true"
+      scheme="cool"
+      [animations]="true"
     ></ngx-charts-line-chart>
-    <div *ngIf="!userGrowthChart.length" class="no-data">
-      No user growth data available
-    </div>
+    } @else {
+    <div class="no-data">No user data available for selected period</div>
+    } } @else {
+    <mat-spinner diameter="40"></mat-spinner>
     }
   </mat-card-content>
 </mat-card>

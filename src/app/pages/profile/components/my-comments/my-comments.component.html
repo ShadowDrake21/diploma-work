@@ -1,7 +1,7 @@
 <section class="comments-section">
   <h2>My Comments</h2>
 
-  @if(comments().data.length) { @for(comment of comments().data; track
+  @if(comments().data!.length) { @for(comment of comments().data; track
   comment.id) {
   <mat-card class="comment-card">
     <mat-card-content

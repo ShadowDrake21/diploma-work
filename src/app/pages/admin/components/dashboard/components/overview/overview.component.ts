@@ -8,6 +8,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { catchError, map, of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
+import { OverviewHasDataPipe } from '@pipes/overview-has-data.pipe';
 @Component({
   selector: 'app-overview',
   imports: [
@@ -17,6 +18,7 @@ import { NgIf } from '@angular/common';
     MatIconModule,
     NgxChartsModule,
     MatProgressSpinnerModule,
+    OverviewHasDataPipe,
   ],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.scss',
@@ -25,10 +27,8 @@ export class OverviewComponent {
   private readonly analyticsService = inject(AnalyticsService);
 
   systemOverview = this.analyticsService.systemOverview;
-  userGrowth$ = toObservable(this.analyticsService.userGrowth);
-  projectDistribution$ = toObservable(
-    this.analyticsService.projectDistribution
-  );
+  userGrowth = this.analyticsService.userGrowth;
+  projectDistribution = this.analyticsService.projectDistribution;
 
   ngOnInit() {
     this.analyticsService.getSystemOverview().subscribe();
@@ -36,7 +36,7 @@ export class OverviewComponent {
     this.analyticsService.getProjectDistribution().subscribe();
   }
 
-  userGrowthChart$ = this.userGrowth$.pipe(
+  userGrowthChart$ = toObservable(this.userGrowth).pipe(
     map((data) => ({
       name: 'User Growth',
       series: (data || []).map((item) => ({
@@ -47,7 +47,7 @@ export class OverviewComponent {
     catchError(() => of({ name: 'User Growth', series: [] }))
   );
 
-  projectDistributionChart$ = this.projectDistribution$.pipe(
+  projectDistributionChart$ = toObservable(this.projectDistribution).pipe(
     map((data) =>
       [
         { name: 'Publications', value: data?.publicationCount || 0 },
@@ -57,8 +57,4 @@ export class OverviewComponent {
     ),
     catchError(() => [])
   );
-
-  hasData(data: { value: number }[]): boolean {
-    return data?.some((item) => item.value > 0) ?? false;
-  }
 }
