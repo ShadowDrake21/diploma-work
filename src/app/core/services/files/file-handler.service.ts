@@ -5,6 +5,7 @@ import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { FileMetadataDTO } from '@models/file.model';
 import { format } from 'date-fns';
 import { ApiResponse } from '@models/api-response.model';
+import { NotificationService } from '../notification.service';
 
 interface UploadResult {
   progress: number;
@@ -16,6 +17,7 @@ interface UploadResult {
 })
 export class FileHandlerService {
   private readonly attachmentsService = inject(AttachmentsService);
+  private readonly notificationService = inject(NotificationService);
   private readonly completeProgress = 100;
 
   uploadFiles(
@@ -24,24 +26,62 @@ export class FileHandlerService {
     files: File[]
   ): Observable<UploadResult> {
     if (!files.length) {
+      this.notificationService.showWarning('No files provided for upload');
       return of(this.createEmptyResult());
+    }
+
+    if (!this.validateFilesBeforeUpload(files)) {
+      const error = new Error('One of more files are invalid');
+      this.notificationService.showError('Invalid file(s) detected');
+      return throwError(() => error);
     }
 
     return this.attachmentsService
       .uploadFiles(entityType, entityId, files)
       .pipe(
-        map((response) =>
-          this.handleUploadResponse(response, entityType, entityId, files)
-        ),
-        catchError((error) => this.handleUploadError(error))
+        map((response) => {
+          if (!response.success) {
+            throw new Error(response.message || 'Upload failed');
+          }
+          return this.handleUploadResponse(
+            response,
+            entityType,
+            entityId,
+            files
+          );
+        }),
+        catchError((error) => this.handleUploadError(error, files.length))
       );
   }
 
   deleteFile(file: FileMetadataDTO): Observable<ApiResponse<string>> {
-    return this.attachmentsService.deleteFile(
-      file.entityType.toString().toLowerCase(),
-      file.entityId,
-      file.fileName
+    if (!file?.fileName) {
+      const error = new Error('Invalid file reference');
+      this.notificationService.showError('Invalid file');
+      return throwError(() => error);
+    }
+
+    return this.attachmentsService
+      .deleteFile(
+        file.entityType.toString().toLowerCase(),
+        file.entityId,
+        file.fileName
+      )
+      .pipe(
+        catchError((error) => {
+          this.notificationService.showError('Failed to delete file');
+          console.error('Delete file error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  private validateFilesBeforeUpload(files: File[]): boolean {
+    const maxSize = 20 * 1024 * 1024;
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+
+    return files.every(
+      (file) => file.size <= maxSize && allowedTypes.includes(file.type)
     );
   }
 
@@ -51,10 +91,6 @@ export class FileHandlerService {
     entityId: string,
     files: File[]
   ): UploadResult {
-    if (!response.success || !response.data!.length) {
-      return this.createEmptyResult();
-    }
-
     const uploadedFiles = response
       .data!.map((url, index) =>
         url
@@ -62,10 +98,38 @@ export class FileHandlerService {
           : null
       )
       .filter((file): file is FileMetadataDTO => file !== null);
+
+    if (uploadedFiles.length !== files.length) {
+      console.warn('Some files failed to upload');
+    }
+
     return {
       progress: this.completeProgress,
       files: uploadedFiles,
     };
+  }
+
+  private handleUploadError(
+    error: any,
+    fileCount: number
+  ): Observable<UploadResult> {
+    const errorMessage = this.getUploadErrorMessage(error, fileCount);
+    this.notificationService.showError(errorMessage);
+    console.error('File upload error:', error);
+    return throwError(() => error);
+  }
+
+  private getUploadErrorMessage(error: any, fileCount: number): string {
+    if (error.status === 413) {
+      return 'File size exceeds maximum limit';
+    }
+    if (error.status === 415) {
+      return 'Unsupported file type';
+    }
+    if (fileCount > 1) {
+      return 'Failed to upload some files';
+    }
+    return 'Failed to upload file';
   }
 
   private createFileMetadata(
@@ -84,11 +148,6 @@ export class FileHandlerService {
       fileSize: file.size,
       checksum: '',
     };
-  }
-
-  private handleUploadError(error: unknown): Observable<UploadResult> {
-    console.error('Upload error:', error);
-    return of(this.createEmptyResult());
   }
 
   private createEmptyResult(): UploadResult {
