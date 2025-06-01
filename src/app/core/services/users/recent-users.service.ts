@@ -1,20 +1,31 @@
 import { inject, Injectable } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { interval, startWith, switchMap, catchError, of } from 'rxjs';
+import {
+  interval,
+  startWith,
+  switchMap,
+  catchError,
+  of,
+  Observable,
+} from 'rxjs';
 import { UserService } from './user.service';
+import { NotificationService } from '../notification.service';
+import { ApiResponse } from '@models/api-response.model';
+import { IUser } from '@models/user.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecentUsersService {
   private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   activeUsers = toSignal(
     interval(60000).pipe(
       startWith(null),
-      switchMap(() => this.userService.getRecentlyActiveUsers()),
+      switchMap(() => this.getActiveUsersWithHandling()),
       catchError((error) => {
-        console.error('Error fetching active users: ', error);
+        this.handleActiveUsersError(error);
         return of(null);
       })
     ),
@@ -22,8 +33,36 @@ export class RecentUsersService {
   );
 
   refreshActiveUsers() {
-    this.activeUsers = toSignal(this.userService.getRecentlyActiveUsers(), {
-      initialValue: null,
-    });
+    this.activeUsers = toSignal(
+      this.getActiveUsersWithHandling().pipe(
+        catchError((error) => {
+          this.handleActiveUsersError(error);
+          return of(null);
+        })
+      ),
+      {
+        initialValue: null,
+      }
+    );
+  }
+
+  private getActiveUsersWithHandling(): Observable<ApiResponse<
+    IUser[]
+  > | null> {
+    return this.userService.getRecentlyActiveUsers().pipe(
+      catchError((error) => {
+        this.handleActiveUsersError(error);
+        return of(null);
+      })
+    );
+  }
+
+  private handleActiveUsersError(error: any): void {
+    console.error('Error fetching active users:', error);
+    this.notificationService.showError(
+      error.status === 403
+        ? 'You do not have permission to view active users'
+        : 'Failed to load active users'
+    );
   }
 }
