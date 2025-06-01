@@ -1,3 +1,5 @@
+@if(projectDistribution() || projectProgress()){
+
 <mat-grid-list cols="2" rowHeight="400px">
   <mat-grid-tile>
     <mat-card>
@@ -5,15 +7,20 @@
         <mat-card-title>Project Type Distribution</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if ((projectDistributionChart$ | async)?.length; as chartData) {
+        @if (projectDistributionChart$ | async; as chartData) { @if
+        (chartData.length) {
         <ngx-charts-pie-chart
           [results]="chartData"
           [labels]="true"
           [doughnut]="true"
+          scheme="vivid"
+          [animations]="true"
         >
-        </ngx-charts-pie-chart>
-        } @else{
-        <p>No distribution data are available</p>
+        </ngx-charts-pie-chart
+        >}@else{
+        <div>No distribution data available</div>
+        } } @else {
+        <mat-spinner diameter="40"></mat-spinner>
         }
       </mat-card-content>
     </mat-card>
@@ -25,9 +32,9 @@
         <mat-card-title>Project Progress</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if ((projectProgressChart$ | async)?.length; as chartData) {
+        @if (projectProgressChart$ | async; as chartData) { @if
+        (chartData.length) {
         <ngx-charts-bar-vertical
-          *ngIf="projectProgressChart$ | async as chartData"
           [results]="chartData"
           [xAxis]="true"
           [yAxis]="true"
@@ -35,12 +42,21 @@
           [showYAxisLabel]="true"
           xAxisLabel="Progress"
           yAxisLabel="Count"
+          scheme="cool"
+          [animations]="true"
         >
         </ngx-charts-bar-vertical>
         } @else {
-        <p>No progress data available</p>
+        <div class="no-data">No progress data available</div>
+        } } @else {
+        <mat-spinner diameter="40"></mat-spinner>
         }
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
+} @else {
+<div class="loading-container">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+}

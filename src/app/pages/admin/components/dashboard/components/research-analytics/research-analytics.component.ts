@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
@@ -12,6 +13,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     MatGridListModule,
     NgxChartsModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   templateUrl: './research-analytics.component.html',
   styleUrl: './research-analytics.component.scss',

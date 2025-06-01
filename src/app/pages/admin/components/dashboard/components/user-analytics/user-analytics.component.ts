@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { safeToLocaleDateString } from '@shared/utils/date.utils';
@@ -19,6 +20,7 @@ import { catchError, combineLatest, map, of, switchMap } from 'rxjs';
     MatSelectModule,
     MatDatepickerModule,
     NgxChartsModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './user-analytics.component.html',
   styleUrl: './user-analytics.component.scss',
@@ -29,8 +31,6 @@ export class UserAnalyticsComponent {
   startDate = signal<Date | null>(null);
   endDate = signal<Date | null>(null);
 
-  userGrowth$ = toObservable(this.analyticsService.userGrowth);
-
   userGrowthChart$ = combineLatest([
     toObservable(this.startDate),
     toObservable(this.endDate),
@@ -38,20 +38,22 @@ export class UserAnalyticsComponent {
     switchMap(([startDate, endDate]) => {
       const start = startDate ? this.formatDate(startDate) : undefined;
       const end = endDate ? this.formatDate(endDate) : undefined;
-      return this.analyticsService.getUserGrowth(start, end);
+      return this.analyticsService
+        .getUserGrowth(start, end)
+        .pipe(catchError(() => of([])));
     }),
 
     map((data) => [
       {
         name: 'New Users',
-        series: data.map((item) => ({
+        series: data!.map((item) => ({
           name: safeToLocaleDateString(item.date),
           value: item.newUsers,
         })),
       },
       {
         name: 'Active Users',
-        series: data.map((item) => ({
+        series: data!.map((item) => ({
           name: safeToLocaleDateString(item.date),
           value: item.activeUsers,
         })),
@@ -68,9 +70,10 @@ export class UserAnalyticsComponent {
   }
 
   private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    // const year = date.getFullYear();
+    // const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    // const day = date.getDate().toString().padStart(2, '0');
+    // return `${year}-${month}-${day}`;
+    return date.toISOString().split('T')[0];
   }
 }

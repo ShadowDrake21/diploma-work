@@ -1,61 +1,48 @@
-import { Component, inject, signal, Signal } from '@angular/core';
+import { Component, inject, OnInit, signal, Signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AnalyticsService } from '@core/services/analytics.service';
-import {
-  ProjectDistribution,
-  ProjectProgressItem,
-} from '@shared/types/analytics.types';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { catchError, map, of } from 'rxjs';
 
 @Component({
   selector: 'app-project-analytics',
-  imports: [MatCardModule, MatGridListModule, NgxChartsModule],
+  imports: [
+    MatCardModule,
+    MatGridListModule,
+    NgxChartsModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './project-analytics.component.html',
   styleUrl: './project-analytics.component.scss',
 })
-export class ProjectAnalyticsComponent {
+export class ProjectAnalyticsComponent implements OnInit {
   private readonly analyticsService = inject(AnalyticsService);
 
-  projectDistribution$ = toObservable(
-    this.analyticsService.projectDistribution ??
-      signal({
-        publicationCount: 0,
-        patentCount: 0,
-        researchCount: 0,
-      })
-  );
-  projectProgress$ = toObservable(
-    this.analyticsService.projectProgress ?? signal([])
-  );
+  projectDistribution = this.analyticsService.projectDistribution;
+  projectProgress = this.analyticsService.projectProgress;
 
-  projectDistributionChart$ = this.projectDistribution$.pipe(
+  projectDistributionChart$ = toObservable(this.projectDistribution).pipe(
     map((data) => {
-      const safeData = {
-        publicationCount: data?.publicationCount ?? 0,
-        patentCount: data?.patentCount ?? 0,
-        researchCount: data?.researchCount ?? 0,
-      };
-
       return [
-        { name: 'Publications', value: safeData.publicationCount },
-        { name: 'Patents', value: safeData.patentCount },
-        { name: 'Research', value: safeData.researchCount },
+        { name: 'Publications', value: data?.publicationCount || 0 },
+        { name: 'Patents', value: data?.patentCount || 0 },
+        { name: 'Research', value: data?.researchCount || 0 },
       ].filter((item) => item.value > 0);
     }),
     catchError(() => of([]))
   );
 
-  projectProgressChart$ = this.projectProgress$.pipe(
+  projectProgressChart$ = toObservable(this.projectProgress).pipe(
     map((data) => {
       if (!data || !Array.isArray(data)) return [];
 
       const series = data
-        .filter((item) => item != null) // Filter out null/undefined items
+        .filter((item) => item != null)
         .map((item) => ({
-          name: `${Math.max(0, Math.min(100, item.progress ?? 0))}%`, // Ensure progress is 0-100
+          name: `${Math.max(0, Math.min(100, item.progress ?? 0))}%`,
           value: item.count ?? 0,
         }));
 
@@ -63,4 +50,9 @@ export class ProjectAnalyticsComponent {
     }),
     catchError(() => of([]))
   );
+
+  ngOnInit() {
+    this.analyticsService.getProjectDistribution().subscribe();
+    this.analyticsService.getProjectProgress().subscribe();
+  }
 }
