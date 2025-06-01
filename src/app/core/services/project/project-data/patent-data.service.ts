@@ -3,7 +3,8 @@ import { ProjectDataCoreService } from './project-data-core.service';
 import { CreatePatentRequest, UpdatePatentRequest } from '@models/patent.model';
 import { PatentService } from '../models/patent.service';
 import { TypedProjectFormValues } from '@shared/types/services/project-data.types';
-import { Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
+import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,22 +16,52 @@ export class PatentDataService extends ProjectDataCoreService {
     projectId: string,
     formValues: TypedProjectFormValues
   ): Observable<any> {
-    return this.patentService.createPatent(
-      this.buildCreateRequest(projectId, formValues.patent)
-    );
+    try {
+      const request = this.buildCreateRequest(projectId, formValues.patent);
+      return this.patentService
+        .createPatent(request)
+        .pipe(catchError((error) => this.handlePatentError(error, 'create')));
+    } catch (error) {
+      return this.handleBuildError(error as Error);
+    }
   }
 
   update(
     projectId: string,
     formValues: TypedProjectFormValues
   ): Observable<any> {
-    const typedProjectId = formValues.patent?.id;
-    if (!typedProjectId) throw new Error('Patent ID is required for update');
+    try {
+      const typedProjectId = formValues.patent?.id;
+      if (!typedProjectId) throw new Error('Patent ID is required for update');
 
-    return this.patentService.updatePatent(
-      typedProjectId,
-      this.buildUpdateRequest(projectId, formValues.patent, typedProjectId)
-    );
+      const request = this.buildUpdateRequest(
+        projectId,
+        formValues.patent,
+        typedProjectId
+      );
+      return this.patentService
+        .updatePatent(typedProjectId, request)
+        .pipe(catchError((error) => this.handlePatentError(error, 'update')));
+    } catch (error) {
+      return this.handleBuildError(error as Error);
+    }
+  }
+
+  private handlePatentError(error: any, operation: string): Observable<never> {
+    const message =
+      operation === 'create'
+        ? 'Failed to create patent record'
+        : 'Failed to update patent record';
+
+    this.notificationService.showError(message);
+    console.error(`Patent ${operation} error:`, error);
+    return throwError(() => error);
+  }
+
+  private handleBuildError(error: Error): Observable<never> {
+    this.notificationService.showError(error.message);
+    console.error('Patent request build error:', error);
+    return throwError(() => error);
   }
 
   private buildCreateRequest(

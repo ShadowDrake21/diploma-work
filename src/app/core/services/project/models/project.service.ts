@@ -1,21 +1,17 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import {
-  ProjectSearchFilters,
-  ProjectSearchResponse,
-} from '@shared/types/search.types';
-import { catchError, Observable, of, throwError } from 'rxjs';
+import { ProjectSearchFilters } from '@shared/types/search.types';
+import { catchError, Observable } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import {
   CreateProjectRequest,
   ProjectDTO,
-  ProjectWithDetails,
   UpdateProjectRequest,
 } from '@models/project.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
-import { ProjectStatistics } from '@models/project-statistics';
+import { handleServiceError } from '@core/utils/error-handler.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -42,48 +38,68 @@ export class ProjectService {
         .set('page', page.toString())
         .set('pageSize', pageSize.toString());
     }
-    return this.http.get<
-      ApiResponse<ProjectDTO[]> | PaginatedResponse<ProjectDTO[]>
-    >(this.apiUrl, {
-      ...getAuthHeaders(),
-      params,
-    });
+    return this.http
+      .get<ApiResponse<ProjectDTO[]> | PaginatedResponse<ProjectDTO[]>>(
+        this.apiUrl,
+        {
+          ...getAuthHeaders(),
+          params,
+        }
+      )
+      .pipe(
+        catchError((error) =>
+          handleServiceError(error, 'Failed to load projects')
+        )
+      );
   }
 
   getProjectById(id: string): Observable<ApiResponse<ProjectDTO>> {
-    return this.http.get<ApiResponse<ProjectDTO>>(
-      `${this.apiUrl}/${id}`,
-      getAuthHeaders()
-    );
+    return this.http
+      .get<ApiResponse<ProjectDTO>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .pipe(
+        catchError((error) =>
+          handleServiceError(error, `Failed to load project with ID ${id}`)
+        )
+      );
   }
 
   getPublicationByProjectId(projectId: string): Observable<any> {
-    return this.http.get(
-      `${this.apiUrl}/${projectId}/publication`,
-      getAuthHeaders()
-    );
+    return this.http
+      .get(`${this.apiUrl}/${projectId}/publication`, getAuthHeaders())
+      .pipe(
+        catchError((error) =>
+          handleServiceError(
+            error,
+            `Failed to load publication with ID ${projectId}`
+          )
+        )
+      );
   }
 
   getPatentByProjectId(projectId: string): Observable<any> {
     return this.http
       .get(`${this.apiUrl}/${projectId}/patent`, getAuthHeaders())
       .pipe(
-        catchError((error) => {
-          console.error('Error fetching patent:', error);
-          return of({
-            success: false,
-            message: 'Failed to fetch patent',
-            data: null,
-          });
-        })
+        catchError((error) =>
+          handleServiceError(
+            error,
+            `Failed to load patent with ID ${projectId}`
+          )
+        )
       );
   }
 
   getResearchByProjectId(projectId: string): Observable<any> {
-    return this.http.get(
-      `${this.apiUrl}/${projectId}/research`,
-      getAuthHeaders()
-    );
+    return this.http
+      .get(`${this.apiUrl}/${projectId}/research`, getAuthHeaders())
+      .pipe(
+        catchError((error) =>
+          handleServiceError(
+            error,
+            `Failed to load research with ID ${projectId}`
+          )
+        )
+      );
   }
 
   createProject(
@@ -93,10 +109,9 @@ export class ProjectService {
     return this.http
       .post<ApiResponse<string>>(this.apiUrl, request, getAuthHeaders())
       .pipe(
-        catchError((error) => {
-          console.error('Failed to create project', error);
-          return throwError(() => new Error('Failed to create project'));
-        })
+        catchError((error) =>
+          handleServiceError(error, `Failed to create project`)
+        )
       );
   }
 
@@ -111,10 +126,9 @@ export class ProjectService {
         getAuthHeaders()
       )
       .pipe(
-        catchError((error) => {
-          console.error('Failed to update project', error);
-          return throwError(() => new Error('Failed to update project'));
-        })
+        catchError((error) =>
+          handleServiceError(error, `Failed to update project with ID ${id}`)
+        )
       );
   }
 
@@ -122,12 +136,9 @@ export class ProjectService {
     return this.http
       .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
-        catchError((error) => {
-          console.error('Failed to delete project during rollback', error);
-          return throwError(
-            () => new Error('Failed to delete project during rollback')
-          );
-        })
+        catchError((error) =>
+          handleServiceError(error, `Failed to delete project with ID ${id}`)
+        )
       );
   }
 
@@ -141,10 +152,19 @@ export class ProjectService {
       [ProjectType.RESEARCH]: 'research',
     };
 
-    return this.http.get<ApiResponse<T>>(
-      `${this.apiUrl}/${projectId}/${endpointMap[type]}`,
-      getAuthHeaders()
-    );
+    return this.http
+      .get<ApiResponse<T>>(
+        `${this.apiUrl}/${projectId}/${endpointMap[type]}`,
+        getAuthHeaders()
+      )
+      .pipe(
+        catchError((error) =>
+          handleServiceError(
+            error,
+            this.getTypeSpecificErrorMessage(type, projectId)
+          )
+        )
+      );
   }
 
   searchProjects(
@@ -159,14 +179,24 @@ export class ProjectService {
         params,
         ...getAuthHeaders(),
       })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        catchError((error) =>
+          handleServiceError(error, `Failed to search projects`)
+        )
+      );
   }
 
   getNewestProjects(limit: number = 10): Observable<ApiResponse<ProjectDTO[]>> {
-    return this.http.get<ApiResponse<ProjectDTO[]>>(
-      `${this.apiUrl}/newest?limit=${limit}`,
-      getAuthHeaders()
-    );
+    return this.http
+      .get<ApiResponse<ProjectDTO[]>>(
+        `${this.apiUrl}/newest?limit=${limit}`,
+        getAuthHeaders()
+      )
+      .pipe(
+        catchError((error) =>
+          handleServiceError(error, `Failed to load newest projects`)
+        )
+      );
   }
 
   getMyProjects(
@@ -185,14 +215,11 @@ export class ProjectService {
         params,
         ...getAuthHeaders(),
       })
-      .pipe(catchError(this.handleError));
-  }
-
-  private handleError(error: any): Observable<never> {
-    console.error('An error occurred:', error);
-    return throwError(
-      () => new Error('Something went wrong; please try again later.')
-    );
+      .pipe(
+        catchError((error) =>
+          handleServiceError(error, `Failed to load current user's projects`)
+        )
+      );
   }
 
   private buildSearchParams(
@@ -256,4 +283,16 @@ export class ProjectService {
 
     return params;
   };
+
+  private getTypeSpecificErrorMessage(
+    type: ProjectType,
+    projectId: string
+  ): string {
+    const typeNames = {
+      [ProjectType.PUBLICATION]: 'publication',
+      [ProjectType.PATENT]: 'patent',
+      [ProjectType.RESEARCH]: 'research',
+    };
+    return `Could not retrieve ${typeNames[type]} data for project ${projectId}`;
+  }
 }

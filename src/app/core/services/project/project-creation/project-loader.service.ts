@@ -3,11 +3,20 @@ import { ProjectDataService } from '../project-data/project-data.service';
 import { ProjectFormService } from '../project-form/project-form.service';
 import { ProjectService } from '../models/project.service';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { map, Observable, of, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 import { ApiResponse } from '@models/api-response.model';
 import { PublicationDTO } from '@models/publication.model';
 import { PatentDTO } from '@models/patent.model';
 import { ResearchDTO } from '@models/research.model';
+import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +25,7 @@ export class ProjectLoaderService {
   private projectDataService = inject(ProjectDataService);
   private projectFormService = inject(ProjectFormService);
   private projectService = inject(ProjectService);
+  private notificationService = inject(NotificationService);
 
   // Forms
   typeForm = this.projectFormService.createTypeForm();
@@ -31,30 +41,48 @@ export class ProjectLoaderService {
   loadProject(projectId: string): Observable<any> {
     return this.projectDataService.getProjectWithAttachments(projectId).pipe(
       tap(({ project, attachments }) => {
-        this.projectFormService.patchTypeForm(this.typeForm, project.type);
-        this.typeForm.disable();
+        try {
+          this.projectFormService.patchTypeForm(this.typeForm, project.type);
+          this.typeForm.disable();
 
-        this.projectFormService.patchGeneralInformationForm(
-          this.generalInformationForm,
-          { ...project, attachments: attachments || [] }
-        );
-
-        return project;
+          this.projectFormService.patchGeneralInformationForm(
+            this.generalInformationForm,
+            { ...project, attachments: attachments || [] }
+          );
+        } catch (error) {
+          this.handleFormError('Failed to patch form data', error);
+          throw error;
+        }
       }),
       map(({ project }) => project.type),
       switchMap((type: ProjectType) =>
-        this.loadProjectTypeData(projectId, type)
-      )
+        this.loadProjectTypeData(projectId, type).pipe(
+          catchError((error) => {
+            this.notificationService.showError(
+              'Failed to load project type data'
+            );
+            return throwError(() => error);
+          })
+        )
+      ),
+      catchError((error) => {
+        this.notificationService.showError('Failed to load project data');
+        return throwError(() => error);
+      })
     );
   }
 
   clearAllForms(): void {
-    this.typeForm.reset();
-    this.generalInformationForm.reset();
-    this.publicationsForm.reset();
-    this.patentsForm.reset();
-    this.researchesForm.reset();
-    this.typeForm.enable();
+    try {
+      this.typeForm.reset();
+      this.generalInformationForm.reset();
+      this.publicationsForm.reset();
+      this.patentsForm.reset();
+      this.researchesForm.reset();
+      this.typeForm.enable();
+    } catch (error) {
+      this.handleFormError('Failed to clear forms', error);
+    }
   }
 
   private loadProjectTypeData(
@@ -65,35 +93,69 @@ export class ProjectLoaderService {
       case ProjectType.PUBLICATION:
         return this.projectService.getPublicationByProjectId(projectId).pipe(
           tap((publication: ApiResponse<PublicationDTO>) => {
-            this.projectFormService.patchSpecificForm(
-              this.publicationsForm,
-              publication.data,
-              ProjectType.PUBLICATION
+            try {
+              this.projectFormService.patchSpecificForm(
+                this.publicationsForm,
+                publication.data,
+                ProjectType.PUBLICATION
+              );
+            } catch (error) {
+              this.handleFormError('Failed to patch publication form', error);
+              throw error;
+            }
+          }),
+          catchError((error) => {
+            this.notificationService.showError(
+              'Failed to load publication data'
             );
+            return throwError(() => error);
           })
         );
       case ProjectType.PATENT:
         return this.projectService.getPatentByProjectId(projectId).pipe(
           tap((patent: ApiResponse<PatentDTO>) => {
-            this.projectFormService.patchSpecificForm(
-              this.patentsForm,
-              patent.data,
-              ProjectType.PATENT
-            );
+            try {
+              this.projectFormService.patchSpecificForm(
+                this.patentsForm,
+                patent.data,
+                ProjectType.PATENT
+              );
+            } catch (error) {
+              this.handleFormError('Failed to patch patent form', error);
+              throw error;
+            }
+          }),
+          catchError((error) => {
+            this.notificationService.showError('Failed to load patent data');
+            return throwError(() => error);
           })
         );
       case ProjectType.RESEARCH:
         return this.projectService.getResearchByProjectId(projectId).pipe(
           tap((research: ApiResponse<ResearchDTO>) => {
-            this.projectFormService.patchSpecificForm(
-              this.researchesForm,
-              research.data,
-              ProjectType.RESEARCH
-            );
+            try {
+              this.projectFormService.patchSpecificForm(
+                this.researchesForm,
+                research.data,
+                ProjectType.RESEARCH
+              );
+            } catch (error) {
+              this.handleFormError('Failed to patch research form', error);
+              throw error;
+            }
+          }),
+          catchError((error) => {
+            this.notificationService.showError('Failed to load research data');
+            return throwError(() => error);
           })
         );
       default:
         return of(null);
     }
+  }
+
+  private handleFormError(message: string, error: any): void {
+    console.error(message, error);
+    this.notificationService.showError(message);
   }
 }
