@@ -8,12 +8,26 @@
       mat-icon-button
       (click)="refreshAll()"
       matTooltip="Refresh all data"
+      [disabled]="loading"
     >
       <mat-icon>refresh</mat-icon>
     </button>
   </mat-card-header>
 
+  @if(loading){
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
   <mat-card-content>
+    @if(error){
+    <div class="error-message">
+      <span>{{ error }}</span>
+      <button mat-icon-button (click)="dismissError()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    }
+
     <mat-tab-group>
       <mat-tab label="Overview">
         <app-overview />
@@ -21,9 +35,6 @@
       <mat-tab label="User Analytics">
         <app-user-analytics />
       </mat-tab>
-      <!-- <mat-tab label="Project Analytics">
-        <app-project-analytics />
-      </mat-tab> -->
       <mat-tab label="Research Analytics">
         <app-research-analytics />
       </mat-tab>

@@ -1,5 +1,28 @@
-@if (systemPerformance() || commentActivity()) {
-
+@if (error()) {
+<div class="error-container">
+  <mat-card appearance="outlined" class="error-card">
+    <mat-card-header>
+      <mat-card-title>Error Loading Analytics</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="error-content">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="retry()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+} @else if (loading()) {
+<div class="loading-container">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+} @else { @if (systemPerformance() || commentActivity()) {
 <mat-grid-list cols="2" rowHeight="400px">
   <mat-grid-tile>
     <mat-card>
@@ -140,7 +163,8 @@
   </mat-grid-tile>
 </mat-grid-list>
 } } @else {
-<div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
+<div class="no-data-container">
+  <mat-icon>info</mat-icon>
+  <p>No analytics data available</p>
 </div>
-}
+} }
