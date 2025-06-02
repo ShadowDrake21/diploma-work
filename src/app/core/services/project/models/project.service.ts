@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ProjectSearchFilters } from '@shared/types/search.types';
-import { catchError, Observable } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import {
   CreateProjectRequest,
@@ -104,15 +104,14 @@ export class ProjectService {
       );
   }
 
-  getResearchByProjectId(
-    projectId: string
-  ): Observable<ApiResponse<ResearchDTO>> {
+  getResearchByProjectId(projectId: string): Observable<ResearchDTO> {
     return this.http
       .get<ApiResponse<ResearchDTO>>(
         `${this.apiUrl}/${projectId}/research`,
         getAuthHeaders()
       )
       .pipe(
+        map((response) => response.data!),
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,

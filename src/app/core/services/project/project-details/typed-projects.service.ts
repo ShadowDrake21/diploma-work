@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { ProjectService } from '../models/project.service';
 import { NotificationService } from '@core/services/notification.service';
 import { ProjectType } from '@shared/enums/categories.enum';
@@ -15,9 +15,7 @@ export class TypedProjectsService {
   private readonly projectService = inject(ProjectService);
   private readonly notificationService = inject(NotificationService);
 
-  getPublication(
-    projectId: string
-  ): Observable<ApiResponse<PublicationDTO> | null> {
+  getPublication(projectId: string): Observable<PublicationDTO | null> {
     return this.projectService.getPublicationByProjectId(projectId).pipe(
       catchError((error) => {
         console.error('Error loading publication:', error);
@@ -25,21 +23,23 @@ export class TypedProjectsService {
           'Failed to load publication details'
         );
         return of(null);
-      })
+      }),
+      map((response) => response?.data || null)
     );
   }
 
-  getPatent(projectId: string): Observable<ApiResponse<PatentDTO> | null> {
+  getPatent(projectId: string): Observable<PatentDTO | null> {
     return this.projectService.getPatentByProjectId(projectId).pipe(
       catchError((error) => {
         console.error('Error loading patent:', error);
         this.notificationService.showError('Failed to load patent details');
         return of(null);
-      })
+      }),
+      map((response) => response?.data || null)
     );
   }
 
-  getResearch(projectId: string): Observable<ApiResponse<ResearchDTO> | null> {
+  getResearch(projectId: string): Observable<ResearchDTO | null> {
     return this.projectService.getResearchByProjectId(projectId).pipe(
       catchError((error) => {
         console.error('Error loading research:', error);
