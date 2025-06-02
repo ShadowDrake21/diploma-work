@@ -1,35 +1,61 @@
-@let coInventors = coInventors$ | async; @let patentResponse = patent$ | async;
-@let patent = patentResponse?.data; @if ( patent) {
+html @if (loading()) {
+<div class="loading-spinner">
+  <!-- Add your loading spinner component here -->
+  <p>Loading patent details...</p>
+</div>
+} @else if (error()) {
+<div class="error-message">
+  <p>{{ error() }}</p>
+  <button (click)="retry()">Retry</button>
+</div>
+} @else if ( patent()) {
 <div class="patent">
   <div class="patent__section">
     <h4 class="patent__section-title">Primary author</h4>
     <!-- TODO: Link -->
     <p class="patent__section-text">
-      {{ patent?.primaryAuthor.username }}
+      {{ patent()?.primaryAuthor?.username || "Not specified" }}
     </p>
   </div>
 
   <div class="patent__coinventors patent__section">
     <h4 class="patent__section-title">Co-inventors</h4>
+    @if (coInventors() && coInventors().length > 0) {
+
     <ul class="patent__coinventors-list">
-      @for (coInventor of coInventors; track coInventor) {
-      <li class="patent__coinventors-list__item">{{ coInventor.username }}</li>
+      @for (coInventor of coInventors(); track coInventor) {
+      <li class="patent__coinventors-list__item">
+        {{ coInventor?.username || "Unknown" }}
+      </li>
       }
     </ul>
+    }@else {
+    <p class="patent__section-text">No co-inventors specified</p>
+    }
   </div>
   <div class="patent__section">
     <h4 class="patent__section-title">Registration number</h4>
-    <p class="patent__section-text">{{ patent?.registrationNumber }}</p>
+    <p class="patent__section-text">
+      {{ patent()?.registrationNumber || "Not specified" }}
+    </p>
   </div>
   <div class="patent__section">
     <h4 class="patent__section-title">Registration date</h4>
     <p class="patent__section-text">
-      {{ patent?.registrationDate | date : "mediumDate" }}
+      @if (patent()?.registrationDate) {
+      {{ patent()?.registrationDate | date : "mediumDate" }}
+      } @else { Not specified }
     </p>
   </div>
   <div class="patent__section">
     <h4 class="patent__section-title">Issuing authority</h4>
-    <p class="patent__section-text">{{ patent?.issuingAuthority }}</p>
+    <p class="patent__section-text">
+      {{ patent()?.issuingAuthority || "Not specified" }}
+    </p>
   </div>
+</div>
+} @else {
+<div class="no-data">
+  <p>No patent details available</p>
 </div>
 }

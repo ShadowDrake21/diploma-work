@@ -1,7 +1,8 @@
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
+import { NotificationService } from '@core/services/notification.service';
 import { ProjectService } from '@core/services/project/models/project.service';
-import { Observable } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'details-publication',
@@ -11,13 +12,26 @@ import { Observable } from 'rxjs';
 })
 export class PublicationComponent implements OnInit {
   private projectService = inject(ProjectService);
+  private notificationService = inject(NotificationService);
 
   @Input({ required: true })
   id!: string;
 
   publication$!: Observable<any>;
+  error = false;
 
   ngOnInit(): void {
-    this.publication$ = this.projectService.getPublicationByProjectId(this.id!);
+    this.publication$ = this.projectService
+      .getPublicationByProjectId(this.id)
+      .pipe(
+        catchError((error) => {
+          this.error = true;
+          this.notificationService.showError(
+            'Failed to load publication details'
+          );
+          console.error('Publication load error:', error);
+          return of(null);
+        })
+      );
   }
 }

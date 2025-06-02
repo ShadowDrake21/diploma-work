@@ -25,6 +25,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'projects-list',
@@ -42,6 +43,7 @@ import {
 export class ListProjectsComponent implements OnInit, OnDestroy {
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
+  private readonly notificationService = inject(NotificationService);
 
   projects = signal<ProjectDTO[]>([]);
   isLoading = signal(false);
@@ -52,26 +54,22 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
   filters = signal<ProjectSearchFilters>({});
 
   showPagination = computed(() => this.totalItems() > 0);
-
   isEmptyState = computed(
     () => this.projects().length === 0 && !this.isLoading()
+  );
+  isMineMode = computed(
+    () => this.route.snapshot.queryParamMap.get('mode') === 'mine'
   );
 
   private readonly subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
-    this.subscriptions.push(
-      this.route.queryParamMap
-        .pipe(
-          tap(() => this.currentPage.set(0)),
-          switchMap((params) => this.loadProjects(params.get('mode')))
-        )
-        .subscribe()
-    );
+    this.loadProjectsBasedOnRoute();
   }
 
   private loadProjects(mode: string | null): Observable<void> {
     this.isLoading.set(true);
+    this.projects.set([]);
 
     const loader$ =
       mode === 'mine'
@@ -87,17 +85,19 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
           );
 
     return loader$.pipe(
-      map((projects) => {
-        this.projects.set(projects.data!);
-        this.totalItems.set(projects.totalItems);
+      map((response) => {
+        if (!response.data) {
+          throw new Error('No project data received');
+        }
+        this.projects.set(response.data);
+        this.totalItems.set(response.totalItems);
       }),
-      catchError((err) => {
-        console.error(
-          `Error loading ${mode === 'mine' ? 'my' : 'all'} projects:`,
-          err
-        );
-        this.projects.set([]);
-        this.totalItems.set(0);
+      catchError((error) => {
+        const errorMessage = this.isMineMode()
+          ? 'Failed to load your projects'
+          : 'Failed to load projects';
+        this.notificationService.showError(errorMessage);
+        console.error('Project loading error:', error);
         return of();
       }),
       tap(() => this.isLoading.set(false))
@@ -123,15 +123,14 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
   }
 
   private loadProjectsBasedOnRoute(): void {
-    this.subscriptions.push(
-      this.route.queryParamMap
-        .pipe(switchMap((params) => this.loadProjects(params.get('mode'))))
-        .subscribe()
-    );
-  }
+    const sub = this.route.queryParamMap
+      .pipe(
+        tap(() => this.currentPage.set(0)),
+        switchMap((params) => this.loadProjects(params.get('mode')))
+      )
+      .subscribe();
 
-  get isMineMode(): boolean {
-    return this.route.snapshot.queryParamMap.get('mode') === 'mine';
+    this.subscriptions.push(sub);
   }
 
   ngOnDestroy(): void {
