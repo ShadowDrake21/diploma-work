@@ -1,9 +1,25 @@
-@if (systemOverview() || userGrowth() || projectDistribution()) {
+@if (error()) {
+<div class="error-state">
+  <mat-icon>error_outline</mat-icon>
+  <p>{{ error() }}</p>
+  <button mat-button (click)="loadData()">
+    <mat-icon>refresh</mat-icon>
+    Try Again
+  </button>
+</div>
+} @else if (loading()) {
+<div class="loading-container">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+} @else if (systemOverview() || userGrowth() || projectDistribution()) {
 <mat-grid-list cols="2" rowHeight="400px">
   <mat-grid-tile>
     <mat-card>
       <mat-card-header>
         <mat-card-title>System Overview</mat-card-title>
+        <button mat-icon-button (click)="refreshData()">
+          <mat-icon>refresh</mat-icon>
+        </button>
       </mat-card-header>
       @if (systemOverview(); as overview) {
       <mat-card-content>
@@ -100,7 +116,12 @@
   </mat-grid-tile>
 </mat-grid-list>
 }@else {
-<div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
+<div class="empty-state">
+  <mat-icon>info</mat-icon>
+  <p>No data available</p>
+  <button mat-button (click)="loadData()">
+    <mat-icon>refresh</mat-icon>
+    Load Data
+  </button>
 </div>
 }

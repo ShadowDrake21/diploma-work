@@ -6,7 +6,6 @@ import {
   inject,
   OnInit,
   signal,
-  WritableSignal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +26,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule, MatSliderThumb } from '@angular/material/slider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AttachmentsService } from '@core/services/attachments.service';
-import { FileHandlerService } from '@core/services/files/file-handler.service';
 import { ProjectFormService } from '@core/services/project/project-form/project-form.service';
 import { TagService } from '@core/services/project/models/tag.service';
 import { FileMetadataDTO } from '@models/file.model';
@@ -38,6 +36,7 @@ import { finalize } from 'rxjs';
 import { FileHandlerFacadeService } from '@core/services/files/file-handler-facade.service';
 import { FileUploadListComponent } from '../../../../../../../projects/components/create/components/project-general-information/components/file-upload-list/file-upload-list.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-project-edit-modal',
@@ -71,6 +70,7 @@ export class ProjectEditModalComponent implements OnInit {
   private readonly fileHandler = inject(FileHandlerFacadeService);
   private readonly dialogRef = inject(MatDialogRef<ProjectEditModalComponent>);
   private readonly projectFormService = inject(ProjectFormService);
+  private readonly notificationService = inject(NotificationService);
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { project: ProjectDTO }) {
     this.projectFormService.patchGeneralInformationForm(
@@ -82,6 +82,11 @@ export class ProjectEditModalComponent implements OnInit {
   projectForm = this.projectFormService.createGeneralInfoForm();
   allTags = signal<Tag[]>([]);
   isLoading = signal(false);
+  errorState = signal({
+    tags: false,
+    attachments: false,
+    submit: false,
+  });
 
   ngOnInit(): void {
     this.loadTags();
@@ -90,64 +95,111 @@ export class ProjectEditModalComponent implements OnInit {
   }
 
   private setupFormListeners(): void {
-    // Listen to tags changes
     this.projectForm.controls.tags.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((tags) => {
-        console.log('Tags changed:', tags);
-        // You can add additional logic here when tags change
+      .subscribe({
+        next: (tags) => console.log('Tags changed:', tags),
+        error: (error) => {
+          console.error('Error in tags value changes:', error);
+          this.errorState.update((state) => ({ ...state, tags: true }));
+        },
       });
 
-    // Optionally listen to other form changes
     this.projectForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((values) => {
-        console.log('Form values changed:', values);
+      .subscribe({
+        next: (values) => console.log('Form values changed:', values),
+        error: (error) => {
+          console.error('Error in form value changes:', error);
+          this.errorState.update((state) => ({ ...state, submit: true }));
+        },
       });
   }
 
   private loadTags() {
-    this.tagService.getAllTags().subscribe((tags) => {
-      this.allTags.set(tags);
-    });
+    this.tagService
+      .getAllTags()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (tags) => {
+          this.allTags.set(tags);
+        },
+        error: (error) => {
+          console.error('Error loading tags:', error);
+          this.notificationService.showError('Failed to load tags');
+          this.errorState.update((state) => ({ ...state, tags: true }));
+        },
+      });
   }
 
   private loadAttachments(): void {
     this.attachmentsService
       .getFilesByEntity(this.data.project.type, this.data.project.id)
-      .subscribe((attachments) => {
-        this.fileHandler.initialize(attachments);
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (attachments) => {
+          this.fileHandler.initialize(attachments);
+        },
+        error: (error) => {
+          console.error('Error loading attachments:', error);
+          this.notificationService.showError('Failed to load attachments');
+          this.errorState.update((state) => ({ ...state, attachments: true }));
+        },
       });
   }
 
   onFilesSelected(files: File[]): void {
-    this.fileHandler.onFilesSelected(files);
+    try {
+      this.fileHandler.onFilesSelected(files);
+    } catch (error) {
+      console.error('Error selecting files:', error);
+      this.notificationService.showError('Failed to select files');
+    }
   }
 
   uploadFiles(): void {
     this.fileHandler
       .uploadFiles(this.data.project.type, this.data.project.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (result) => this.fileHandler.handleUploadSuccess(result.files),
+        next: (result) => {
+          this.fileHandler.handleUploadSuccess(result.files);
+          this.notificationService.showSuccess('Files uploaded successfully');
+        },
 
-        error: (error) => console.error('Upload failed:', error),
+        error: (error) => {
+          console.error('Upload failed:', error);
+          this.notificationService.showError(
+            error.status === 413
+              ? 'File size exceeds limit'
+              : 'Failed to upload files'
+          );
+        },
       });
   }
 
   removeFile(index: number, isPending: boolean): void {
-    this.fileHandler.removeFile(index, isPending).subscribe({
-      error: (error) => console.error('Error deleting file:', error),
-    });
-  }
-
-  compareTags(tag1: string, tag2: string): boolean {
-    return tag1 === tag2;
+    this.fileHandler
+      .removeFile(index, isPending)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () =>
+          this.notificationService.showSuccess('File removed successfully'),
+        error: (error) => {
+          console.error('Error deleting file:', error);
+          this.notificationService.showError('Failed to remove file');
+        },
+      });
   }
 
   onSubmit(): void {
-    if (this.projectForm.invalid) return;
+    if (this.projectForm.invalid) {
+      this.notificationService.showError('Please fill all required fields');
+      return;
+    }
 
     this.isLoading.set(true);
+    this.errorState.update((state) => ({ ...state, submit: false }));
     const formValue = this.projectForm.value;
 
     const updateData: UpdateProjectRequest = {
@@ -157,32 +209,46 @@ export class ProjectEditModalComponent implements OnInit {
       progress: formValue.progress || 0,
     };
 
+    const handleFinalize = () => {
+      this.isLoading.set(false);
+      if (!this.fileHandler.isUploading()) {
+        this.dialogRef.close(updateData);
+      }
+    };
+
     if (this.pendingFiles.length > 0) {
       this.fileHandler
         .uploadFiles(this.data.project.type, this.data.project.id)
-        .pipe(
-          finalize(() => {
-            this.isLoading.set(false);
-            if (!this.fileHandler.isUploading()) {
-              this.dialogRef.close(updateData);
-            }
-          })
-        )
+        .pipe(takeUntilDestroyed(this.destroyRef), finalize(handleFinalize))
         .subscribe({
-          next: (result) => this.fileHandler.handleUploadSuccess(result.files),
+          next: (result) => {
+            this.fileHandler.handleUploadSuccess(result.files);
+            this.notificationService.showSuccess(
+              'Project uploaded successfully'
+            );
+          },
           error: (error) => {
             console.error('Upload failed:', error);
-            this.dialogRef.close(updateData);
+            this.notificationService.showError(
+              error.status === 413
+                ? 'File size exceeds limit'
+                : 'Failed to upload files'
+            );
+            this.errorState.update((state) => ({ ...state, submit: true }));
           },
         });
     } else {
-      this.isLoading.set(false);
-      this.dialogRef.close(updateData);
+      this.notificationService.showSuccess('Project updated successfully');
+      handleFinalize();
     }
   }
 
   onCancel(): void {
     this.dialogRef.close();
+  }
+
+  compareTags(tag1: string, tag2: string): boolean {
+    return tag1 === tag2;
   }
 
   get uploadedFiles(): FileMetadataDTO[] {

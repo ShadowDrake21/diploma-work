@@ -33,8 +33,17 @@
       </mat-form-field>
     </div>
 
-    @if(userGrowthChart$ | async; as chartData){ @if(chartData.length &&
-    chartData[0].series.length) {
+    @if (error()) {
+    <div class="error-message">
+      <mat-icon color="warn">error_outline</mat-icon>
+      {{ error() }}
+    </div>
+    } @if (loading()) {
+    <div class="loading-spinner">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+    } @else { @if(userGrowthChart$ | async; as chartData){ @if(chartData.length
+    && chartData[0].series.length) {
     <ngx-charts-line-chart
       [results]="chartData"
       [xAxis]="true"
@@ -47,10 +56,8 @@
       scheme="cool"
       [animations]="true"
     ></ngx-charts-line-chart>
-    } @else {
+    } @else if (!error()) {
     <div class="no-data">No user data available for selected period</div>
-    } } @else {
-    <mat-spinner diameter="40"></mat-spinner>
-    }
+    }} }
   </mat-card-content>
 </mat-card>
