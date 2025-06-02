@@ -4,14 +4,15 @@ import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
 import { IComment, ICreateComment } from '@models/comment.types';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CommentService {
   private http = inject(HttpClient);
-
+  private readonly notificationService = inject(NotificationService);
   private apiUrl = BASE_URL + 'comments';
 
   getCommentsByProjectId(
@@ -22,13 +23,24 @@ export class CommentService {
         `${this.apiUrl}/project/${projectId}`,
         getAuthHeaders()
       )
-      .pipe(catchError(this.handleError));
+      .pipe(
+        catchError((error) =>
+          this.handleError(error, 'Failed to load comments')
+        )
+      );
   }
 
   createComment(comment: ICreateComment): Observable<ApiResponse<IComment>> {
     return this.http
       .post<ApiResponse<IComment>>(this.apiUrl, comment, getAuthHeaders())
-      .pipe(catchError(this.handleError));
+      .pipe(
+        tap(() =>
+          this.notificationService.showSuccess('Comment created successfully')
+        ),
+        catchError((error) =>
+          this.handleError(error, 'Failed to create comment')
+        )
+      );
   }
 
   updateComment(
@@ -41,7 +53,14 @@ export class CommentService {
         content,
         getAuthHeaders()
       )
-      .pipe(catchError(this.handleError));
+      .pipe(
+        tap(() =>
+          this.notificationService.showSuccess('Comment updated successfully')
+        ),
+        catchError((error) =>
+          this.handleError(error, 'Failed to update comment')
+        )
+      );
   }
 
   deleteComment(commentId: string): Observable<ApiResponse<void>> {
@@ -50,7 +69,14 @@ export class CommentService {
         `${this.apiUrl}/${commentId}`,
         getAuthHeaders()
       )
-      .pipe(catchError(this.handleError));
+      .pipe(
+        tap(() =>
+          this.notificationService.showSuccess('Comment deleted successfully')
+        ),
+        catchError((error) =>
+          this.handleError(error, 'Failed to delete comment')
+        )
+      );
   }
 
   likeComment(commentId: string): Observable<ApiResponse<IComment>> {
@@ -60,14 +86,24 @@ export class CommentService {
         null,
         getAuthHeaders()
       )
-      .pipe(catchError(this.handleError));
+      .pipe(
+        tap(() => this.notificationService.showSuccess('Comment liked')),
+        catchError((error) => this.handleError(error, 'Failed to like comment'))
+      );
   }
 
   unlikeComment(commentId: string): Observable<ApiResponse<IComment>> {
-    return this.http.delete<ApiResponse<IComment>>(
-      `${this.apiUrl}/${commentId}/like`,
-      getAuthHeaders()
-    );
+    return this.http
+      .delete<ApiResponse<IComment>>(
+        `${this.apiUrl}/${commentId}/like`,
+        getAuthHeaders()
+      )
+      .pipe(
+        tap(() =>
+          this.notificationService.showSuccess('Removed like from comment')
+        ),
+        catchError((error) => this.handleError(error, 'Failed to remove like'))
+      );
   }
 
   getCommentsByUserId(
@@ -75,21 +111,39 @@ export class CommentService {
     page: number = 0,
     size: number = 10
   ): Observable<PaginatedResponse<IComment>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
     return this.http
-      .get<PaginatedResponse<IComment>>(
-        `${this.apiUrl}/user/${userId}?page=${page}&size=${size}`,
-        getAuthHeaders()
-      )
-      .pipe(catchError(this.handleError));
+      .get<PaginatedResponse<IComment>>(`${this.apiUrl}/user/${userId}`, {
+        ...getAuthHeaders(),
+        params,
+      })
+      .pipe(
+        catchError((error) =>
+          this.handleError(error, 'Failed to load user comments')
+        )
+      );
   }
 
-  private handleError(error: any): Observable<never> {
-    let errorMessage = 'An unknown error occurred!';
-    if (error.error?.message) {
+  private handleError(error: any, defaultMessage: string): Observable<never> {
+    let errorMessage = defaultMessage;
+
+    if (error.status === 401) {
+      errorMessage = 'Please log in to perform this action';
+    } else if (error.status === 403) {
+      errorMessage = 'You are not authorized for this action';
+    } else if (error.status === 404) {
+      errorMessage = 'Comment not found';
+    } else if (error.error?.message) {
       errorMessage = error.error.message;
     } else if (error.message) {
       errorMessage = error.message;
     }
+
+    this.notificationService.showError(errorMessage);
+    console.error('CommentService error:', error);
     return throwError(() => new Error(errorMessage));
   }
 }
