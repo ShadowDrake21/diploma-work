@@ -1,4 +1,12 @@
-<button mat-button class="recent-project" (click)="openDialog()">
+<button
+  mat-button
+  class="recent-project"
+  (click)="openDialog()"
+  [disabled]="isOpening"
+>
+  @if (isOpening) {
+  <mat-spinner diameter="20"></mat-spinner>
+  }
   <p class="recent-project__text">
     {{ project().projectTitle }} {{ project().deadline }}
   </p>

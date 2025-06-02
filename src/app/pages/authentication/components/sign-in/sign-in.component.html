@@ -5,6 +5,12 @@
       Раді знову Вас бачити! Введіть дані до авторизації
     </h3>
   </div>
+  @if (formError()) {
+  <div class="sign-in__error">
+    <mat-icon>error</mat-icon>
+    <span>{{ formError() }}</span>
+  </div>
+  }
   <form class="sign-in__form" [formGroup]="signInForm" (ngSubmit)="onSubmit()">
     <mat-form-field class="sign-in__form-field">
       <mat-label>E-mail</mat-label>

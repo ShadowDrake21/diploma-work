@@ -1,4 +1,9 @@
 <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile__form">
+  @if (formError()) {
+  <div class="form-error">
+    <mat-error>{{ formError() }}</mat-error>
+  </div>
+  }
   <div class="profile__form-fields">
     <mat-form-field appearance="outline">
       <mat-label>Phone Number</mat-label>
@@ -7,9 +12,12 @@
         formControlName="phoneNumber"
         placeholder="+1 234-567-8901"
       />
-      @if (profileForm.get('phoneNumber')?.hasError('pattern')) {
+      @if (profileForm.get('phoneNumber')?.invalid &&
+      (profileForm.get('phoneNumber')?.dirty ||
+      profileForm.get('phoneNumber')?.touched)) { @if
+      (profileForm.get('phoneNumber')?.hasError('pattern')) {
       <mat-error>Please enter a valid phone number</mat-error>
-      }
+      } }
     </mat-form-field>
 
     <mat-form-field appearance="outline">
@@ -27,12 +35,26 @@
         <mat-option value="researcher">Researcher</mat-option>
         <mat-option value="staff">Staff</mat-option>
       </mat-select>
+      @if (profileForm.get('userType')?.invalid &&
+      (profileForm.get('userType')?.dirty ||
+      profileForm.get('userType')?.touched)) {
+      <mat-error>Please select a user type</mat-error>
+      }
     </mat-form-field>
 
     @if (profileForm.value.userType === 'student') {
     <mat-form-field appearance="outline">
       <mat-label>University Group</mat-label>
-      <input matInput formControlName="universityGroup" />
+      <input
+        matInput
+        formControlName="universityGroup"
+        [required]="profileForm.value.userType === 'student'"
+      />
+      @if (profileForm.get('universityGroup')?.invalid &&
+      (profileForm.get('universityGroup')?.dirty ||
+      profileForm.get('universityGroup')?.touched)) {
+      <mat-error>University group is required for students</mat-error>
+      }
     </mat-form-field>
     }
     <div class="social-links-section">
@@ -64,6 +86,10 @@
           <mat-form-field appearance="outline">
             <mat-label>Link Name</mat-label>
             <input matInput formControlName="name" placeholder="Link name" />
+            @if (link.get('name')?.invalid && (link.get('name')?.dirty ||
+            link.get('name')?.touched)) {
+            <mat-error>Name is required</mat-error>
+            }
           </mat-form-field>
           <span class="link-url">{{ link.get("url")?.value }}</span>
           <button mat-icon-button type="button" (click)="removeSocialLink(i)">

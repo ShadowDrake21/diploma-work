@@ -26,7 +26,7 @@ export class RecentUsersService {
       switchMap(() => this.getActiveUsersWithHandling()),
       catchError((error) => {
         this.handleActiveUsersError(error);
-        return of(null);
+        return of({ error: this.createErrorObject(error) });
       })
     ),
     { initialValue: null }
@@ -37,7 +37,7 @@ export class RecentUsersService {
       this.getActiveUsersWithHandling().pipe(
         catchError((error) => {
           this.handleActiveUsersError(error);
-          return of(null);
+          return of({ error: this.createErrorObject(error) });
         })
       ),
       {
@@ -64,5 +64,14 @@ export class RecentUsersService {
         ? 'You do not have permission to view active users'
         : 'Failed to load active users'
     );
+  }
+
+  private createErrorObject(error: any): { message: string } {
+    return {
+      message:
+        error.status === 403
+          ? 'You do not have permission to view active users'
+          : 'Failed to load active users',
+    };
   }
 }

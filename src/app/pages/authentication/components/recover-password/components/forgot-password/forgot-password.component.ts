@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import {
   FormControl,
   FormsModule,
@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@core/authentication/auth.service';
 import { ErrorMatcher } from '@shared/utils/errorMatcher.utils';
 import { CustomButtonComponent } from '../../../../../../shared/components/custom-button/custom-button.component';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -30,9 +31,10 @@ import { CustomButtonComponent } from '../../../../../../shared/components/custo
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
 })
-export class ForgotPasswordComponent {
-  private router = inject(Router);
-  private authService = inject(AuthService);
+export class ForgotPasswordComponent implements OnDestroy {
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(NotificationService);
 
   readonly emailControl = new FormControl('', [
     Validators.required,
@@ -42,9 +44,12 @@ export class ForgotPasswordComponent {
   readonly matcher = new ErrorMatcher();
   readonly isLoading = signal(false);
   readonly isSuccess = signal(false);
+  readonly cooldown = signal(0);
+  private cooldownInterval: any;
 
   onSubmit() {
     if (this.emailControl.invalid || !this.emailControl.value) {
+      this.emailControl.markAsTouched();
       return;
     }
 
@@ -55,17 +60,54 @@ export class ForgotPasswordComponent {
       .subscribe({
         next: (response) => {
           console.log(response);
-          this.isSuccess.set(true);
-          this.isLoading.set(false);
+          this.startCooldownTimer(60);
+          this.notificationService.showSuccess(
+            'Password reset link sent to your email'
+          );
         },
         error: (error) => {
-          console.error('Request password failed', error);
+          this.handleRequestError(error);
+        },
+        complete: () => {
           this.isLoading.set(false);
         },
       });
   }
 
+  private handleRequestError(error: any): void {
+    console.error('Password reset request failed:', error);
+
+    let errorMessage = 'Failed to send password reset link';
+    if (error?.code === 'USER_NOT_FOUND') {
+      errorMessage = 'No account found with this email';
+    } else if (error?.status === 429) {
+      errorMessage = 'Too many requests. Please try again later.';
+      this.startCooldownTimer(error.headers?.get('Retry-After') || 60);
+    }
+
+    this.notificationService.showError(errorMessage);
+  }
+
+  private startCooldownTimer(seconds: number): void {
+    this.cooldown.set(seconds);
+    clearInterval(this.cooldownInterval);
+
+    this.cooldownInterval = setInterval(() => {
+      this.cooldown.update((value) => {
+        if (value <= 1) {
+          clearInterval(this.cooldownInterval);
+          return 0;
+        }
+        return value - 1;
+      });
+    }, 1000);
+  }
+
   goToSignIn() {
     this.router.navigate(['/authentication/sign-in']);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.cooldownInterval);
   }
 }

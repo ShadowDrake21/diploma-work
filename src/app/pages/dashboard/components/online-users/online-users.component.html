@@ -2,7 +2,21 @@
   <h3 class="dashboard-recent-project__title" style="text-align: center">
     Останні активні користувачі
   </h3>
-  @if (activeUsers; as users) { @for (user of users; track user.id) {
+  @if (isLoading()) {
+  <mat-spinner diameter="40"></mat-spinner>
+  } @else if (error()) {
+  <mat-card class="error-card">
+    <mat-card-content>
+      {{ error() }}
+      <button mat-button color="primary" (click)="refreshActiveUsers()">
+        <mat-icon>refresh</mat-icon> Спробувати знову
+      </button>
+    </mat-card-content>
+  </mat-card>
+  } @else { @if (activeUsers && activeUsers.length > 0) { @for (user of
+  activeUsers; track user.id) {
   <shared-user-card [user]="user" />
-  } }
+  } }@else {
+  <p class="no-users-message">Немає активних користувачів</p>
+  }}
 </div>

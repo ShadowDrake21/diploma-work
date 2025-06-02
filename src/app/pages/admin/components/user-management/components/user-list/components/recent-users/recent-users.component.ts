@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { AdminService } from '@core/services/admin.service';
 import { UserService } from '@core/services/users/user.service';
@@ -24,9 +25,16 @@ import { UserService } from '@core/services/users/user.service';
 })
 export class RecentUsersComponent {
   private readonly adminService = inject(AdminService);
+  private readonly snackBar = inject(MatSnackBar);
 
-  recentLogins = toSignal(this.adminService.getRecentLogins());
-  loginStats = toSignal(this.adminService.getLoginStats());
+  recentLogins = toSignal(this.adminService.getRecentLogins(), {
+    initialValue: null,
+  });
+  loginStats = toSignal(this.adminService.getLoginStats(), {
+    initialValue: null,
+  });
+
+  error = this.adminService.error;
 
   displayedColumns: string[] = [
     'username',
@@ -35,4 +43,15 @@ export class RecentUsersComponent {
     'ipAddress',
     'userAgent',
   ];
+
+  retryLoadData() {
+    this.adminService.resetState();
+
+    this.recentLogins = toSignal(this.adminService.getRecentLogins(), {
+      initialValue: null,
+    });
+    this.loginStats = toSignal(this.adminService.getLoginStats(), {
+      initialValue: null,
+    });
+  }
 }

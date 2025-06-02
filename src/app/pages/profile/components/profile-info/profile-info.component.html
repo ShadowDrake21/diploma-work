@@ -1,27 +1,37 @@
 <div class="profile__container">
   <div class="profile__top">
-    @if (user()) {
-    <profile-avatar
-      [user]="user()!"
-      (updateSuccess)="handleAvatarSucess($event)"
-      (updateFailure)="handleAvatarFailure()"
-    />
-
-    @if(!editMode()) {
-    <profile-view [user]="user()!" (edit)="editMode.set(true)" />
-    } @else {
-    <profile-edit
-      [user]="user()!"
-      [isLoading]="isLoading()"
-      (save)="onSave($event)"
-      (cancel)="editMode.set(false)"
-    />
-    } } @else {
+    @if (isProfileLoading()) {
     <div class="profile-loading">
-      <mat-progress-bar
-        mode="indeterminate"
-        style="width: 100%"
-      ></mat-progress-bar>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p>Loading your profile...</p>
+    </div>
+    } @else if (error()) {
+    <div class="profile-error">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-raised-button color="primary" (click)="retryLoadUser()">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
+    </div>
+    } @else if (user()) {
+    <div>
+      <profile-avatar
+        [user]="user()!"
+        (updateSuccess)="handleAvatarSucess($event)"
+        (updateFailure)="handleAvatarFailure($event)"
+      />
+
+      @if(!editMode()) {
+      <profile-view [user]="user()!" (edit)="editMode.set(true)" />
+      } @else {
+      <profile-edit
+        [user]="user()!"
+        [isLoading]="isLoading()"
+        (save)="onSave($event)"
+        (cancel)="editMode.set(false)"
+      />
+      }
     </div>
     }
   </div>
