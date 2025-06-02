@@ -21,9 +21,9 @@ import {
   SignInForm,
   SignInFormValues,
 } from '@shared/types/forms/auth-form.types';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { switchMap } from 'rxjs';
 import { UserStore } from '@core/services/stores/user-store.service';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'auth-sign-in',
@@ -45,7 +45,7 @@ export class SignInComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
   private readonly userStore = inject(UserStore);
 
   protected signInForm = new FormGroup<SignInForm>({
@@ -66,6 +66,7 @@ export class SignInComponent implements OnInit {
     email: signal<string>(''),
     password: signal<string>(''),
   };
+  readonly formError = signal<string | null>(null);
 
   ngOnInit(): void {
     this.setupFormValidation();
@@ -76,9 +77,10 @@ export class SignInComponent implements OnInit {
       if (key !== 'rememberMe') {
         control.statusChanges
           .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() =>
-            this.updateErrorMessage(key as keyof SignInErrorMessages)
-          );
+          .subscribe(() => {
+            this.updateErrorMessage(key as keyof SignInErrorMessages);
+            this.formError.set(null);
+          });
       }
     });
   }
@@ -89,8 +91,15 @@ export class SignInComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.signInForm.invalid) return;
+    if (this.signInForm.invalid) {
+      this.formError.set(
+        "Будь ласка, заповніть всі обов'язкові поля правильно"
+      );
+      return;
+    }
+
     this.isLoading.set(true);
+    this.formError.set(null);
 
     this.authService
       .login(this.signInForm.value as SignInFormValues)
@@ -98,14 +107,25 @@ export class SignInComponent implements OnInit {
       .subscribe({
         next: () => {
           this.router.navigate(['/']);
-          this.snackBar.open('Успішний вхід', 'Закрити', {
-            duration: 3000,
-          });
+          this.notificationService.showSuccess('Успішний вхід');
         },
         error: (error) => {
           console.error('Login failed', error);
           this.isLoading.set(false);
-          this.snackBar.open(error.message, 'Закрити', { duration: 5000 });
+
+          let errorMessage = 'Невдала спроба входу';
+          if (error.code === 'INVALID_CREDENTIALS') {
+            errorMessage = 'Невірний email або пароль';
+          } else if (error.code === 'ACCOUNT_LOCKED') {
+            errorMessage =
+              "Обліковий запис заблоковано. Будь ласка, зв'яжіться з адміністратором.";
+          } else if (error.code === 'EMAIL_NOT_VERIFIED') {
+            errorMessage =
+              'Будь ласка, підтвердіть вашу електронну пошту перед входом.';
+          }
+
+          this.formError.set(errorMessage);
+          this.notificationService.showError(errorMessage);
         },
         complete: () => this.isLoading.set(false),
       });

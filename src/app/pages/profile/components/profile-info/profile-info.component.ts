@@ -9,6 +9,8 @@ import { ProfileViewComponent } from './components/profile-view/profile-view.com
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { currentUserSig } from '@core/shared/shared-signals';
+import { NotificationService } from '@core/services/notification.service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'profile-info',
@@ -18,46 +20,54 @@ import { currentUserSig } from '@core/shared/shared-signals';
     ProfileViewComponent,
     MatProgressSpinner,
     MatProgressBarModule,
+    MatIcon,
   ],
   templateUrl: './profile-info.component.html',
   styleUrl: './profile-info.component.scss',
 })
 export class ProfileInfoComponent implements OnDestroy {
   private readonly userService = inject(UserService);
-  private readonly _snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
   private subscriptions: Subscription[] = [];
 
   readonly editMode = signal(false);
   readonly isLoading = signal(false);
+  readonly isSaving = signal(false);
+  readonly isProfileLoading = signal(false);
   readonly user = signal<IUser | null>(null);
   readonly selectedFile = signal<File | null>(null);
+  readonly error = signal<string | null>(null);
 
   constructor() {
     this.loadUser();
   }
 
   onSave(profileData: any): void {
-    this.isLoading.set(true);
+    this.isSaving.set(true);
+    this.error.set(null);
+
     const sub = this.userService
       .updateUserProfile(this.formProfileData(profileData))
       .subscribe({
         next: (response) => {
-          this.user.set({ ...this.user(), ...profileData });
-          this._snackBar.open('Profile updated successfully.', 'Close', {
-            duration: 3000,
-          });
-          this.editMode.set(false);
+          if (response.success) {
+            const updatedUser = { ...this.user()!, ...profileData };
+            this.user.set(updatedUser);
+            currentUserSig.set(updatedUser);
+            this.notificationService.showSuccess(
+              'Profile updated successfully'
+            );
+            this.editMode.set(false);
+          } else {
+            this.error.set(response.message || 'Failed to update profile');
+          }
         },
-        error: () => {
-          this._snackBar.open(
-            'Failed to update profile. Please try again.',
-            'Close',
-            {
-              duration: 3000,
-            }
+        error: (err) => {
+          this.error.set(
+            err.error?.message || 'Failed to update profile. Please try again.'
           );
         },
-        complete: () => this.isLoading.set(false),
+        complete: () => this.isSaving.set(false),
       });
 
     this.subscriptions.push(sub);
@@ -66,30 +76,52 @@ export class ProfileInfoComponent implements OnDestroy {
   handleAvatarSucess(updatedUser: IUser): void {
     this.user.set(updatedUser);
     currentUserSig.set(updatedUser);
-    this.showMessage('Avatar updated successfully');
+    this.notificationService.showSuccess('Avatar updated successfully');
   }
 
-  handleAvatarFailure(): void {
-    this.showMessage('Failed to update avatar. Please try again.');
+  handleAvatarFailure(error: any): void {
+    const message =
+      error.status === 413
+        ? 'Image size is too large'
+        : error.status === 415
+        ? 'Unsupported image format'
+        : 'Failed to update avatar. Please try again.';
+
+    this.notificationService.showError(message);
   }
 
   private loadUser(): void {
-    this.subscriptions.push(
-      this.userService.getCurrentUser().subscribe({
-        next: (response) => this.user.set(response.data!),
-        error: () => this.showMessage('Failed to load user profile'),
-      })
-    );
+    this.isProfileLoading.set(true);
+    this.error.set(null);
+
+    const sub = this.userService.getCurrentUser().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.user.set(response.data!);
+        } else {
+          this.error.set(response.message || 'Failed to load profile data');
+        }
+      },
+      error: (err) => {
+        this.error.set(
+          err.error?.message || 'Failed to load profile. Please try again.'
+        );
+      },
+      complete: () => this.isProfileLoading.set(false),
+    });
+    this.subscriptions.push(sub);
   }
 
-  private showMessage(message: string): void {
-    this._snackBar.open(message, 'Close', { duration: 3000 });
+  retryLoadUser(): void {
+    this.loadUser();
   }
 
   private formProfileData(data: any): IUpdateUserProfile {
     return {
       phoneNumber: data.phoneNumber || undefined,
-      dateOfBirth: new Date(data.dateOfBirth ?? '').toISOString().split('T')[0],
+      dateOfBirth: data.dateOfBirth
+        ? new Date(data.dateOfBirth).toISOString().split('T')[0]
+        : undefined,
       userType: data.userType || undefined,
       universityGroup: data.universityGroup || undefined,
       socialLinks: data.socialLinks || [],

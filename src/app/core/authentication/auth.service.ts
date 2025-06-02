@@ -28,9 +28,6 @@ import {
 import { ApiResponse } from '@models/api-response.model';
 import { IJwtPayload } from '@shared/types/jwt.types';
 import { UserRole } from '@shared/enums/user.enum';
-import { UserService } from '@core/services/users/user.service';
-import { currentUserSig } from '@core/shared/shared-signals';
-import { UserStore } from '@core/services/stores/user-store.service';
 
 @Injectable({
   providedIn: 'root',
