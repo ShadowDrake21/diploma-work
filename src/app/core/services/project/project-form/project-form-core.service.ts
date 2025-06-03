@@ -4,7 +4,7 @@ import { FileMetadataDTO } from '@models/file.model';
 import { ResponseUserDTO } from '@models/user.model';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { GeneralInformationForm } from '@shared/types/forms/project-form.types';
-import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

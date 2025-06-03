@@ -1,46 +1,30 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
-import { AttachmentsService } from '../../attachments.service';
-import { CommentService } from '../../comment.service';
 import { ProjectService } from '../models/project.service';
-import { TagService } from '../models/tag.service';
 import { ProjectDTO } from '@models/project.model';
 
 import {
   BehaviorSubject,
   catchError,
-  finalize,
-  forkJoin,
-  map,
   Observable,
   of,
-  startWith,
   Subject,
-  switchMap,
   takeUntil,
   tap,
-  throwError,
 } from 'rxjs';
-import { IComment, ICommentUser, ICreateComment } from '@models/comment.types';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { AuthService } from '@core/authentication/auth.service';
-import { UserService } from '@core/services/users/user.service';
-import { currentUserSig } from '@core/shared/shared-signals';
-
-// COMMENTS!!!! (BUG FIXING)
+import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectDetailsService implements OnDestroy {
-  private projectService = inject(ProjectService);
+  private readonly projectService = inject(ProjectService);
+  private readonly notificationService = inject(NotificationService);
   private destroyed$ = new Subject<void>();
   private currentProjectId: string | null = null;
 
-  // State
   private _project = new BehaviorSubject<ProjectDTO | undefined>(undefined);
   project$ = this._project.asObservable();
-
-  constructor() {}
 
   loadProjectDetails(projectId: string): void {
     this.resetState();
@@ -49,9 +33,19 @@ export class ProjectDetailsService implements OnDestroy {
     this.projectService
       .getProjectById(projectId)
       .pipe(
-        tap((project) => this._project.next(project.data)),
-        catchError((error) => {
-          console.error('Error loading project:', error);
+        takeUntil(this.destroyed$),
+        tap({
+          next: (response) => this._project.next(response.data),
+          error: (error) => {
+            console.error('Error loading project:', error);
+            this.notificationService.showError(
+              error.status === 404
+                ? 'Project not found'
+                : 'Failed to load project details'
+            );
+          },
+        }),
+        catchError(() => {
           this._project.next(undefined);
           return of(undefined);
         })
@@ -60,7 +54,22 @@ export class ProjectDetailsService implements OnDestroy {
   }
 
   deleteProject(projectId: string): Observable<any> {
-    return this.projectService.deleteProject(projectId);
+    return this.projectService.deleteProject(projectId).pipe(
+      tap({
+        next: () => {
+          this.notificationService.showSuccess('Project deleted successfully');
+          this.resetState();
+        },
+        error: (error) => {
+          console.error('Error deleting project:', error);
+          this.notificationService.showError(
+            error.status === 403
+              ? 'You do not have permission to delete this project'
+              : 'Failed to delete project'
+          );
+        },
+      })
+    );
   }
 
   resetState(): void {

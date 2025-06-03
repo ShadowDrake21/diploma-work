@@ -8,15 +8,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { Filter } from '@shared/types/filters.types';
-import { statuses } from '@content/createProject.content';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
 import {
   BaseFormInputs,
   ResearchFormGroup,
 } from '@shared/types/forms/project-form.types';
 import { UserService } from '@core/services/users/user.service';
+import { NotificationService } from '@core/services/notification.service';
+import { statuses } from '@shared/content/project.content';
 
 @Component({
   selector: 'create-project-research-form',
@@ -39,7 +40,8 @@ export class ProjectResearchFormComponent
   extends BaseFormComponent
   implements OnInit
 {
-  private userService = inject(UserService);
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   researchProjectsForm = input.required<ResearchFormGroup>();
 
@@ -50,11 +52,14 @@ export class ProjectResearchFormComponent
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   ngOnInit(): void {
-    this.allUsers$ = this.userService
-      .getAllUsers()
-      .pipe(map((response) => response.data!));
-
-    console.log('researchProjectsForm', this.researchProjectsForm());
+    this.allUsers$ = this.userService.getAllUsers().pipe(
+      map((response) => response.data!),
+      catchError((error) => {
+        console.error('Error loading users:', error);
+        this.notificationService.showError('Failed to load users');
+        return of([]);
+      })
+    );
   }
 
   compareStatuses = (status1: string, status2: Filter | string) => {

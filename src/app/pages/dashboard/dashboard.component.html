@@ -1,6 +1,20 @@
 <div style="flex: 1">
+  @if (hasError) {
+  <div class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ errorMessage }}</p>
+    <button mat-raised-button color="primary" (click)="retryLoading()">
+      Retry
+    </button>
+  </div>
+  } @else {
   <div>
     <h3>Основна статистика</h3>
+    @if (isLoading) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+    } @else {
     <ul class="dashboard-metric-card__list">
       @for (item of metricsData; track $index) {
       <li class="dashboard-metric-card__list-item">
@@ -8,14 +22,26 @@
       </li>
       }
     </ul>
+    }
   </div>
+
   <shared-projects-quick-links />
+
   <div class="dashboard-content">
-    <!-- <dashboard-filter-sidebar /> -->
     <div class="dashboard-content__inner">
       <h3 class="dashboard-recent-project__title" style="text-align: center">
         Останні проєкти
       </h3>
+      @if (isLoading) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+      } @else if (newestProjects.length === 0) {
+      <div class="empty-state">
+        <mat-icon>info</mat-icon>
+        <p>No recent projects found</p>
+      </div>
+      } @else {
       <ul class="dashboard-recent-project__list">
         @for (item of newestProjects; track $index) {
         <li class="dashboard-recent-project__list-item">
@@ -23,8 +49,9 @@
         </li>
         }
       </ul>
+      }
     </div>
   </div>
   <dashboard-online-users />
-  <shared-frequent-links />
+  }
 </div>

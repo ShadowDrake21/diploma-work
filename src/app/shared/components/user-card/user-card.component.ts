@@ -12,7 +12,7 @@ import { RoleFormatPipe } from '@pipes/role-format.pipe';
   styleUrl: './user-card.component.scss',
 })
 export class UserCardComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
   user = input.required<IUser>();
 
   goToProfile() {

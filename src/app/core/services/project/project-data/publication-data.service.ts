@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { PublicationService } from '../models/publication.service';
 import { TypedProjectFormValues } from '@shared/types/services/project-data.types';
-import { Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { ProjectDataCoreService } from './project-data-core.service';
 import {
   CreatePublicationRequest,
@@ -18,23 +18,45 @@ export class PublicationDataService extends ProjectDataCoreService {
     projectId: string,
     formValues: TypedProjectFormValues
   ): Observable<any> {
-    return this.publicationService.createPublication(
-      this.buildCreateRequest(projectId, formValues.publication)
-    );
+    try {
+      const request = this.buildCreateRequest(
+        projectId,
+        formValues.publication
+      );
+      return this.publicationService
+        .createPublication(request)
+        .pipe(
+          catchError((error) => this.handlePublicationError(error, 'create'))
+        );
+    } catch (error) {
+      return this.handleBuildError(error as Error);
+    }
   }
 
   update(
     projectId: string,
     formValues: TypedProjectFormValues
   ): Observable<any> {
-    const typedProjectId = formValues.publication?.id;
-    if (!typedProjectId)
-      throw new Error('Publication ID is required for update');
+    try {
+      const typedProjectId = formValues.publication?.id;
+      if (!typedProjectId) {
+        throw new Error('Publication ID is required for update');
+      }
 
-    return this.publicationService.updatePublication(
-      typedProjectId,
-      this.buildUpdateRequest(projectId, formValues.publication, typedProjectId)
-    );
+      const request = this.buildUpdateRequest(
+        projectId,
+        formValues.publication,
+        typedProjectId
+      );
+
+      return this.publicationService
+        .updatePublication(typedProjectId, request)
+        .pipe(
+          catchError((error) => this.handlePublicationError(error, 'update'))
+        );
+    } catch (error) {
+      return this.handleBuildError(error as Error);
+    }
   }
 
   private buildCreateRequest(
@@ -67,5 +89,25 @@ export class PublicationDataService extends ProjectDataCoreService {
   ): UpdatePublicationRequest {
     const baseRequest = this.buildCreateRequest(projectId, formValue);
     return { ...baseRequest, id };
+  }
+
+  private handlePublicationError(
+    error: any,
+    operation: string
+  ): Observable<never> {
+    const message =
+      operation === 'create'
+        ? 'Failed to create publication record'
+        : 'Failed to update publication record';
+
+    this.notificationService.showError(message);
+    console.error(`Publication ${operation} error:`, error);
+    return throwError(() => error);
+  }
+
+  private handleBuildError(error: Error): Observable<never> {
+    this.notificationService.showError(error.message);
+    console.error('Publication request build error:', error);
+    return throwError(() => error);
   }
 }

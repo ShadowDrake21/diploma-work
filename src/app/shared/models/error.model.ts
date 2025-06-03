@@ -1,7 +1,7 @@
 export interface ApiError {
-  statusCode: number;
   message: string;
-  error?: string;
-  timestamp: Date;
-  path?: string;
+  errorCode: string | null; // Matches your backend's 'errorCode' field
+  status: number;
+  timestamp?: string; // Optional since it comes from backend
+  details?: any;
 }

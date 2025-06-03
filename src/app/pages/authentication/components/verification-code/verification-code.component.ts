@@ -3,6 +3,8 @@ import { CustomButtonComponent } from '@shared/components/custom-button/custom-b
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@core/authentication/auth.service';
 import { Subscription } from 'rxjs';
+import { NotificationService } from '@core/services/notification.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 const CODE_LENGTH = 6;
 
@@ -16,16 +18,24 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(NotificationService);
 
   readonly inputValues = signal<string[]>(Array(CODE_LENGTH).fill(''));
   readonly verificationMessage = signal<string>('');
   readonly email = signal<string>('');
+  readonly isLoading = signal<boolean>(false);
 
   private subsctription!: Subscription;
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
-      this.email.set(params['email'] || '');
+    this.route.queryParams.subscribe({
+      next: (params) => {
+        this.email.set(params['email'] || '');
+      },
+      error: (error) => {
+        console.error('Error reading query params:', error);
+        this.notificationService.showError('Failed to load email parameter');
+      },
     });
   }
 
@@ -72,25 +82,57 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
     const code = this.getVerificationCode();
 
     if (code.length !== CODE_LENGTH) {
-      this.verificationMessage.set('Please enter a valid 6-digit code');
+      this.notificationService.showError('Please enter a valid 6-digit code');
       return;
     }
+
+    this.isLoading.set(true);
+    this.verificationMessage.set('');
 
     this.subsctription = this.authService
       .verifyUser({ email: this.email(), code })
       .subscribe({
         next: (response) => {
-          console.log(response);
-          this.verificationMessage.set('Verification successful');
+          this.notificationService.showSuccess('Verification successful');
+
           this.router.navigate(['/']);
         },
         error: (error) => {
-          console.error('Verification failed', error);
-          this.verificationMessage.set(
-            'Invalid verification code. Please try again'
-          );
+          this.handleVerificationError(error);
+        },
+        complete: () => {
+          this.isLoading.set(false);
         },
       });
+  }
+
+  private handleVerificationError(error: HttpErrorResponse): void {
+    console.error('Verification failed:', error);
+    this.isLoading.set(false);
+
+    if (error.status === 400) {
+      this.verificationMessage.set(
+        'Invalid verification code. Please try again'
+      );
+    } else if (error.status === 404) {
+      this.notificationService.showError(
+        'Email not found. Please request a new verification code'
+      );
+      this.router.navigate(['/authentication/sign-up']);
+    } else if (error.status === 410) {
+      this.notificationService.showError(
+        'Verification code expired. Please request a new one'
+      );
+      this.router.navigate(['/authentication/request-verification']);
+    } else if (error.status === 429) {
+      this.notificationService.showError(
+        'Too many attempts. Please try again later'
+      );
+    } else {
+      this.notificationService.showError(
+        'Verification failed. Please try again'
+      );
+    }
   }
 
   private isValidKey(key: string): boolean {

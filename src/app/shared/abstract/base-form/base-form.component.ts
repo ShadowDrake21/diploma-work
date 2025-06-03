@@ -1,9 +1,5 @@
-import { Component, input, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import {
-  BaseFormInputs,
-  ProjectFormGroup,
-} from '@shared/types/forms/project-form.types';
+import { Component, input } from '@angular/core';
+import { BaseFormInputs } from '@shared/types/forms/project-form.types';
 
 @Component({
   template: '',

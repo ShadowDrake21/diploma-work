@@ -1,47 +1,62 @@
-@if (systemOverview()) {
+@if (error()) {
+<div class="error-state">
+  <mat-icon>error_outline</mat-icon>
+  <p>{{ error() }}</p>
+  <button mat-button (click)="loadData()">
+    <mat-icon>refresh</mat-icon>
+    Try Again
+  </button>
+</div>
+} @else if (loading()) {
+<div class="loading-container">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+} @else if (systemOverview() || userGrowth() || projectDistribution()) {
 <mat-grid-list cols="2" rowHeight="400px">
   <mat-grid-tile>
     <mat-card>
       <mat-card-header>
         <mat-card-title>System Overview</mat-card-title>
+        <button mat-icon-button (click)="refreshData()">
+          <mat-icon>refresh</mat-icon>
+        </button>
       </mat-card-header>
-      <mat-card-content *ngIf="systemOverview() as overview">
+      @if (systemOverview(); as overview) {
+      <mat-card-content>
         <div class="metric-grid">
-          <div
-            class="metric-item"
-            *ngFor="
-              let metric of [
-                {
-                  icon: 'people',
-                  value: overview.totalUsers,
-                  label: 'Total Users'
-                },
-                {
-                  icon: 'person',
-                  value: overview.activeUsers,
-                  label: 'Active Users'
-                },
-                {
-                  icon: 'folder',
-                  value: overview.totalProjects,
-                  label: 'Total Projects'
-                },
-                {
-                  icon: 'wifi',
-                  value: overview.activeSessions,
-                  label: 'Active Sessions'
-                }
-              ]
-            "
-          >
-            <mat-icon>{{ metric.icon }}</mat-icon>
+          <div class="metric-item" matTooltip="Total registered users">
+            <mat-icon>people</mat-icon>
             <div>
-              <h3>{{ metric.value }}</h3>
-              <p>{{ metric.label }}</p>
+              <h3>{{ overview.totalUsers }}</h3>
+              <p>Total Users</p>
+            </div>
+          </div>
+          <div class="metric-item" matTooltip="Users active in last 30 days">
+            <mat-icon>person</mat-icon>
+            <div>
+              <h3>{{ overview.activeUsers }}</h3>
+              <p>Active Users</p>
+            </div>
+          </div>
+          <div class="metric-item" matTooltip="All projects in the system">
+            <mat-icon>folder</mat-icon>
+            <div>
+              <h3>{{ overview.totalProjects }}</h3>
+              <p>Total Projects</p>
+            </div>
+          </div>
+          <div class="metric-item" matTooltip="Current active sessions">
+            <mat-icon>wifi</mat-icon>
+            <div>
+              <h3>{{ overview.activeSessions }}</h3>
+              <p>Active Sessions</p>
             </div>
           </div>
         </div>
       </mat-card-content>
+      } @else {
+      <mat-spinner diameter="40"></mat-spinner>
+      }
     </mat-card>
   </mat-grid-tile>
 
@@ -52,8 +67,8 @@
       </mat-card-header>
       <mat-card-content>
         @if (userGrowthChart$ | async; as chartData) {
+        @if(chartData.series.length) {
         <ngx-charts-line-chart
-          *ngIf="chartData.series.length"
           [results]="[chartData]"
           [xAxis]="true"
           [yAxis]="true"
@@ -65,6 +80,10 @@
           [animations]="true"
         >
         </ngx-charts-line-chart>
+        }@else {
+        <div class="no-data">No user growth data available</div>
+        } } @else {
+        <mat-spinner diameter="40"></mat-spinner>
         }
       </mat-card-content>
     </mat-card>
@@ -76,9 +95,10 @@
         <mat-card-title>Project Distribution</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (projectDistributionChart$ | async; as chartData) {
+        @if (projectDistributionChart$ | async; as chartData) { @if(chartData |
+        overviewHasData){
+
         <ngx-charts-pie-chart
-          *ngIf="hasData(chartData)"
           [results]="chartData"
           [labels]="true"
           [doughnut]="true"
@@ -86,12 +106,22 @@
           [animations]="true"
         >
         </ngx-charts-pie-chart>
-        <div *ngIf="!hasData(chartData)">No project data available</div>
-        } @else {
+        }@else {
+        <div class="no-data">No project distribution data available</div>
+        } } @else {
         <mat-spinner diameter="40"></mat-spinner>
         }
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
+}@else {
+<div class="empty-state">
+  <mat-icon>info</mat-icon>
+  <p>No data available</p>
+  <button mat-button (click)="loadData()">
+    <mat-icon>refresh</mat-icon>
+    Load Data
+  </button>
+</div>
 }

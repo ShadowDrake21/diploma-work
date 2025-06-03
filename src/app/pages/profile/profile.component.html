@@ -1,14 +1,28 @@
 <div class="profile">
   <div class="profile__inner">
     <profile-info />
-    @if(myProjects()){
+
+    @if (isLoading()) {
+    <div class="loading-spinner">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading your projects...</p>
+    </div>
+    } @if (error()) {
+    <div class="error-message">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-raised-button color="primary" (click)="onFiltersReset()">
+        Retry
+      </button>
+    </div>
+    } @if(!isLoading() && !error()) {
     <shared-profile-projects
       [projects]="myProjects()"
+      [currentPage]="currentPage()"
       (filters)="onFiltersChanged($event)"
       (pageChange)="onPageChanged($event)"
     />
     }
     <profile-my-comments />
-    <shared-frequent-links />
   </div>
 </div>

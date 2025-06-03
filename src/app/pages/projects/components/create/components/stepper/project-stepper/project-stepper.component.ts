@@ -18,6 +18,7 @@ import {
   TypeForm,
 } from '@shared/types/forms/project-form.types';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'create-project-stepper',
@@ -35,9 +36,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
   styleUrl: './project-stepper.component.scss',
 })
 export class ProjectStepperComponent {
-  private submissionService = inject(ProjectFormService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private readonly submissionService = inject(ProjectFormService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   formService = inject(ProjectFormService);
 
@@ -56,11 +58,17 @@ export class ProjectStepperComponent {
 
   submitForm() {
     if (this.loading()) return;
-    if (!this.typeForm().valid && !this.typeForm().disabled) return;
+
+    if (!this.typeForm().valid && !this.typeForm().disabled) {
+      this.notificationService.showError('Please select a valid project type');
+      return;
+    }
 
     const workForm = this.getCurrentWorkForm();
     if (!workForm?.valid) {
-      console.warn('Work form is invalid');
+      this.notificationService.showError(
+        'Please fill out all required work information'
+      );
       return;
     }
 
@@ -70,7 +78,9 @@ export class ProjectStepperComponent {
     );
 
     if (!this.formService.creatorId) {
-      console.error('No creator ID available');
+      this.notificationService.showError(
+        'Unable to identify user. Please try again later.'
+      );
       return;
     }
 
@@ -87,20 +97,35 @@ export class ProjectStepperComponent {
       )
       .subscribe({
         next: (response) => {
+          this.notificationService.showSuccess(
+            this.isEditing()
+              ? 'Project updated successfully'
+              : 'Project created successfully'
+          );
           this.router.navigate(['/projects', response[0].projectId]);
         },
         error: (error) => {
-          // this.showErrorToast(error.message);
+          const errorMessage =
+            error.message ||
+            (this.isEditing()
+              ? 'Failed to update project'
+              : 'Failed to create project');
+          this.notificationService.showError(errorMessage);
         },
       });
   }
 
   private getCurrentWorkForm() {
-    return new WorkFormPipe().transform(
-      this.typeForm()?.value.type || '',
-      this.publicationForm(),
-      this.patentForm(),
-      this.researchForm()
-    );
+    try {
+      return new WorkFormPipe().transform(
+        this.typeForm()?.value.type || '',
+        this.publicationForm(),
+        this.patentForm(),
+        this.researchForm()
+      );
+    } catch (error) {
+      this.notificationService.showError('Invalid project type selected');
+      return null;
+    }
   }
 }

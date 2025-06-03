@@ -1,4 +1,13 @@
 <div class="user">
+  @if (hasError()) {
+  <div class="error-state">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h3 class="error-message">{{ error() }}</h3>
+    <button mat-raised-button color="primary" (click)="retryLoading()">
+      Retry
+    </button>
+  </div>
+  } @else {
   <div class="user-inner">
     <div class="user-img__wrapper">
       <img [src]="user()?.avatarUrl" class="user-img" />
@@ -18,12 +27,7 @@
           {{ user()?.affiliation }}
         </p>
       </div>
-      <!-- <div class="user-content__btns">
-        <button mat-button class="user-content__btns-item">
-          Send a message
-        </button>
-        <button mat-button class="user-content__btns-item">Follow</button>
-      </div> -->
+
       <ul class="user-content__metric-list">
         @for (item of userMetrics(); track $index) {
         <li class="user-content__metric-list__item">
@@ -40,9 +44,9 @@
     [currentPage]="currentPage()"
     (pageChange)="onPageChange($event)"
   />
-  } @else {
+  } @else if (isLoading()) {
   <div class="user-content__loading">
     <mat-spinner [diameter]="50" [strokeWidth]="5"></mat-spinner>
   </div>
-  }
+  }}
 </div>

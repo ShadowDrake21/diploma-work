@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProjectFormCoreService } from './project-form-core.service';
-import { statuses } from '@content/createProject.content';
+import { statuses } from '@shared/content/project.content';
 
 @Injectable({
   providedIn: 'root',

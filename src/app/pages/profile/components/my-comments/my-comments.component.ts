@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { RouterLink } from '@angular/router';
@@ -53,7 +52,7 @@ export class MyCommentsComponent {
       totalPages: 0,
       totalItems: 0,
       hasNext: false,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
     };
   }
 }

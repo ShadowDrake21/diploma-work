@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,19 +10,14 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
-import { UserService } from '@core/services/users/user.service';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, of, switchMap, tap } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { CommentService } from '@core/services/comment.service';
-import { currentUserSig } from '@core/shared/shared-signals';
-import { PaginatedResponse } from '@models/api-response.model';
-import { IComment } from '@models/comment.types';
 import { MyCommentsComponent } from './components/my-comments/my-comments.component';
 import { ProjectSearchFilters } from '@shared/types/search.types';
 import { ProjectService } from '@core/services/project/models/project.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-profile',
@@ -38,10 +33,10 @@ import { ProjectService } from '@core/services/project/models/project.service';
     MatSelectModule,
     MatButtonToggleModule,
     MatPaginatorModule,
-    FrequentLinksComponent,
     ProfileInfoComponent,
     ProfileProjectsComponent,
     MyCommentsComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
@@ -53,6 +48,8 @@ export class ProfileComponent {
   currentPage = signal(0);
   pageSize = signal(8);
   searchFilters = signal<ProjectSearchFilters>({});
+  isLoading = signal(false);
+  error = signal<string | null>(null);
 
   private searchParams = computed(() => ({
     filters: this.cleanFilters(this.searchFilters()),
@@ -64,13 +61,21 @@ export class ProfileComponent {
 
   projectsResponse = toSignal(
     this.searchParams$.pipe(
+      tap(() => {
+        this.isLoading.set(true);
+        this.error.set(null);
+      }),
       switchMap((params) => {
-        console.log('Making API call with:', params);
         return this.projectService
           .getMyProjects(params.filters, params.page, params.size)
           .pipe(
+            tap(() => this.isLoading.set(false)),
             catchError((error) => {
-              console.error('API Error:', error);
+              this.isLoading.set(false);
+              this.error.set(
+                this.getErrorMessage(error, 'Failed to load projects')
+              );
+              console.error('Project loading error:', error);
               return of({
                 success: false,
                 message: 'Failed to load projects',
@@ -85,7 +90,7 @@ export class ProfileComponent {
     {
       initialValue: {
         success: false,
-        message: 'Loading...',
+        message: '',
         data: [],
         totalItems: 0,
         totalPages: 0,
@@ -120,5 +125,18 @@ export class ProfileComponent {
       }
     });
     return clean;
+  }
+
+  private getErrorMessage(error: any, defaultMessage: string): string {
+    if (error.status === 404) {
+      return 'No projects found matching your criteria';
+    }
+    if (error.status === 403) {
+      return 'You do not have permission to view these projects';
+    }
+    if (error.status === 400) {
+      return 'Invalid search parameters';
+    }
+    return defaultMessage;
   }
 }

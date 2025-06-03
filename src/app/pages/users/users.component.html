@@ -28,7 +28,7 @@
   <p class="users__paragraph">
     {{ displayMessage() }}
   </p>
-  @if (users().length > 0) {
+  @if (!errorOccurred()) { @if (users().length > 0) {
   <div class="users__list">
     @for (user of users(); track user.id) {
     <shared-user-card [user]="user" />
@@ -49,5 +49,15 @@
     <strong>{{ searchQuery() }}</strong
     >} @else { No users found }
   </p>
+  } }@else {
+  <div class="users__error">
+    <mat-icon class="users__error-icon">error_outline</mat-icon>
+    <p class="users__error-message">
+      Failed to load users. Please try again later.
+    </p>
+    <button mat-raised-button color="primary" (click)="reloadUsers()">
+      Retry
+    </button>
+  </div>
   }}
 </div>

@@ -10,10 +10,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ProjectDetailsService } from '@core/services/project/project-details/project-details.service';
 import { CommentComponent } from '@shared/components/comment/comment.component';
 import { ICreateComment } from '@models/comment.types';
-import { finalize, lastValueFrom, Observable, Subscription } from 'rxjs';
+import { lastValueFrom, Observable, Subscription } from 'rxjs';
 import { ProjectCommentService } from '@core/services/project/project-details/comments/project-comment.service';
 
 @Component({

@@ -13,6 +13,9 @@ import { IComment } from '@models/comment.types';
 import { ConfirmDialogComponent } from '@pages/admin/components/user-management/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BaseFormComponent } from '../../../../../../shared/abstract/base-form/base-form.component';
+import { NotificationService } from '@core/services/notification.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { retry } from 'rxjs';
 
 @Component({
   selector: 'app-comments-table',
@@ -35,6 +38,7 @@ export class CommentsTableComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly dialog = inject(MatDialog);
   private readonly _snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
 
   displayedColumns: string[] = [
     'content',
@@ -50,23 +54,27 @@ export class CommentsTableComponent implements OnInit {
   totalItems = signal<number>(0);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
+  error = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadComments();
   }
 
   loadComments() {
+    this.error.set(null);
     this.isLoading.set(true);
+
     this.adminService
       .loadAllComments(this.currentPage(), this.pageSize())
+      .pipe(retry(2))
       .subscribe({
         next: (response) => {
-          this.comments.set(response.data!);
+          this.comments.set(response.data ?? []);
           this.totalItems.set(response.totalItems);
           this.isLoading.set(false);
         },
-        error: () => {
-          this.openSnackBar('Error loading comments');
+        error: (error: HttpErrorResponse) => {
+          this.handleError(error, 'Failed to load comments');
           this.isLoading.set(false);
         },
       });
@@ -88,20 +96,26 @@ export class CommentsTableComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.isLoading.set(true);
-        this.adminService.deleteComment(commentId).subscribe({
-          next: () => {
-            this.openSnackBar('Comment deleted successfully');
-            this.loadComments();
-          },
-          error: () => {
-            this.openSnackBar('Failed to delete comment');
-            this.isLoading.set(false);
-          },
-        });
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.executeDeleteComment(commentId);
       }
+    });
+  }
+
+  private executeDeleteComment(commentId: string) {
+    this.error.set(null);
+    this.isLoading.set(true);
+
+    this.adminService.deleteComment(commentId).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('Comment deleted successfully');
+        this.loadComments();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.handleError(error, 'Failed to delete comment');
+        this.isLoading.set(false);
+      },
     });
   }
 
@@ -110,9 +124,31 @@ export class CommentsTableComponent implements OnInit {
     console.log('View replies for comment:', comment.id);
   }
 
-  private openSnackBar(message: string, action: string = 'Close') {
-    this._snackBar.open(message, action, {
-      duration: 3000,
-    });
+  private handleError(error: HttpErrorResponse, defaultMessage: string): void {
+    const errorMessage = this.getErrorMessage(error, defaultMessage);
+    this.error.set(errorMessage);
+    this.notificationService.showError(errorMessage);
+    console.error('Error:', error);
+  }
+
+  private getErrorMessage(
+    error: HttpErrorResponse,
+    defaultMessage: string
+  ): string {
+    if (error.status === 403) {
+      return 'You do not have permission to perform this action';
+    }
+    if (error.status === 404) {
+      return 'Comment not found';
+    }
+    if (error.status === 409) {
+      return 'Cannot delete comment with replies';
+    }
+    return defaultMessage;
+  }
+
+  refreshComments(): void {
+    this.currentPage.set(0);
+    this.loadComments();
   }
 }
