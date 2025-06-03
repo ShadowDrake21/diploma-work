@@ -1,0 +1,39 @@
+.admin-nav {
+  width: 100%;
+  background: #2c3e50;
+  color: white;
+  padding: 1rem 0;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    width: 100;
+    li {
+      flex: 1;
+
+      a {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        color: white;
+        text-decoration: none;
+        transition: background 0.3s;
+        justify-content: center;
+
+        &:hover {
+          background: #34495e;
+        }
+
+        &.active {
+          background: #3498db;
+        }
+
+        .material-icons {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+}

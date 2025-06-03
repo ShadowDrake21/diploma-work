@@ -2,11 +2,18 @@ package com.backend.app.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -15,27 +22,39 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "comments")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Comment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
 	private UUID id;
 	
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 	
-	@Column(nullable = false)
+	@CreationTimestamp
+	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 	
+	@UpdateTimestamp
 	@Column(nullable = false)
 	private LocalDateTime updatedAt;
 	
 	@Column(nullable = false)
+	@Builder.Default
 	private int likes = 0;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -51,90 +70,14 @@ public class Comment {
 	private Comment parentComment;
 	
 	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<Comment> replies = new ArrayList<>();
 	
-	@PrePersist
-	protected void onCreate() {
-		createdAt = LocalDateTime.now();
-		updatedAt = LocalDateTime.now();
-	}
-	
-	@PreUpdate
-	protected void onUpdate() {
-		updatedAt = LocalDateTime.now();
-	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public int getLikes() {
-		return likes;
-	}
-
-	public void setLikes(int likes) {
-		this.likes = likes;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public Project getProject() {
-		return project;
-	}
-
-	public void setProject(Project project) {
-		this.project = project;
-	}
-
-	public Comment getParentComment() {
-		return parentComment;
-	}
-
-	public void setParentComment(Comment parentComment) {
-		this.parentComment = parentComment;
-	}
-
-	public List<Comment> getReplies() {
-		return replies;
-	}
-
-	public void setReplies(List<Comment> replies) {
-		this.replies = replies;
-	}
+	@ElementCollection
+	@CollectionTable(name = "comment_likes", joinColumns = @JoinColumn(name = "comment_id"))
+	@Column(name = "user_id")
+	@Builder.Default
+	private Set<Long> likedByUsers = new HashSet<Long>();
 	
 	public void addReply(Comment reply) {
 		replies.add(reply);
@@ -144,5 +87,15 @@ public class Comment {
 	public void removeReply(Comment reply) {
 		replies.remove(reply);
 		reply.setParentComment(null);
+	}
+	
+	public void incrementLikes() {
+		this.likes++;
+	}
+	
+	public void decrementLikes() {
+		if(this.likes > 0) {
+			this.likes--;
+		}
 	}
 }

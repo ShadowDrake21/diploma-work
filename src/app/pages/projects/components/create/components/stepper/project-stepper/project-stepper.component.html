@@ -1,0 +1,63 @@
+@let loading = formService.loading | async; @let authors = formService.authors;
+
+<p class="create-subtext">
+  {{ subtext() }}
+</p>
+
+<mat-stepper #stepper orientation="vertical" linear>
+  <!-- Step 1: Project Type -->
+  <mat-step
+    [stepControl]="typeForm()!"
+    label="Select a project type"
+    errorMessage="Type is required."
+  >
+    <create-project-type-step [typeForm]="typeForm()!" />
+  </mat-step>
+
+  <!-- Step 2: General Information -->
+  <mat-step
+    [stepControl]="generalInfoForm()!"
+    label="Fill out general information"
+    errorMessage="General information is required."
+  >
+    <create-project-general-info-step
+      [generalInfoForm]="generalInfoForm()!"
+      [typeForm]="typeForm()!"
+    />
+  </mat-step>
+  <!-- [existingFiles]="formService.existingFiles$ | async" -->
+
+  <!-- Step 3: Work Information (Dynamic based on type) -->
+  @if (typeForm().value.type; as projectType) {
+  <mat-step
+    [stepControl]="
+      projectType | workForm : publicationForm() : patentForm() : researchForm()
+    "
+    errorMessage="Type-specific information is required."
+    label="Fill out work information"
+  >
+    <create-project-work-info-step
+      [typeForm]="typeForm()"
+      [publicationsForm]="publicationForm()"
+      [patentsForm]="patentForm()"
+      [researchesForm]="researchForm()"
+      [authors]="authors"
+    /> </mat-step
+  >}
+
+  <!-- Final Step: Submission -->
+  <mat-step>
+    <ng-template matStepLabel>Done</ng-template>
+    <p>You are now done.</p>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button (click)="stepper.reset()">Reset</button>
+      <button mat-button (click)="submitForm()" [disabled]="loading">
+        {{ loading ? "Saving..." : "Submit" }}
+      </button>
+    </div>
+    @if (loading) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+  </mat-step>
+</mat-stepper>

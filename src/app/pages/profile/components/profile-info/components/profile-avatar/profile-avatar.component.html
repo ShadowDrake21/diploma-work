@@ -1,0 +1,50 @@
+<div class="profile-avatar">
+  <input
+    #fileInput
+    type="file"
+    accept="image/*"
+    (change)="onFileSelected($event)"
+    style="display: none"
+  />
+
+  @if (previewUrl() || user()?.avatarUrl) {
+  <img
+    class="avatar-image"
+    [src]="previewUrl() || user()?.avatarUrl"
+    alt="Profile image"
+  />
+  } @else {
+  <div class="avatar-placeholder">
+    <mat-icon>account_circle</mat-icon>
+  </div>
+  }
+
+  <button
+    mat-icon-button
+    class="avatar-upload-button"
+    (click)="onUploadClick()"
+    [disabled]="isLoading()"
+  >
+    <mat-icon>photo_camera</mat-icon>
+  </button>
+
+  @if (showPreview() && !isLoading()) {
+  <div class="avatar-actions">
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="onAvatarChanged()"
+      [disabled]="isLoading() || !selectedFile()"
+    >
+      Upload
+    </button>
+    <button mat-button (click)="cancelUpload()">
+      <mat-icon>cancel</mat-icon> Cancel
+    </button>
+  </div>
+  } @if (errorMessage()) {
+  <div class="error-message">{{ errorMessage() }}</div>
+  } @if (isLoading()) {
+  <mat-spinner diameter="32"></mat-spinner>
+  }
+</div>

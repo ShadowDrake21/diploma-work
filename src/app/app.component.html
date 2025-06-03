@@ -1,9 +1,9 @@
 <section class="layout">
-  @if (!isAuth && !isSettings) {
+  @if (!isAuth && !isSettings && !isErrorPages) {
   <shared-header (sidebarToggle)="toggleMenu()" [isSidebarOpened]="isOpened" />
   }
   <mat-sidenav-container autosize>
-    @if (!isAuth && !isSettings) {
+    @if (!isAuth && !isSettings && !isErrorPages) {
     <mat-sidenav
       class="sidenav expanded"
       [mode]="isMobile ? 'over' : 'side'"
@@ -13,6 +13,14 @@
       <!-- [opened]="isMobile ? 'false' : 'true'" -->
 
       <mat-nav-list class="sidenav-list">
+        @if (isAdmin) {
+        <a mat-list-item routerLink="/admin/dashboard">
+          <span class="entry">
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span>Admin Panel</span>
+          </span>
+        </a>
+        }
         <h3 class="sidenav-list__title">Navigation</h3>
         <div>
           <a mat-list-item routerLink="/">
@@ -37,30 +45,29 @@
               <span>Users</span>
             </span>
           </a>
-
-          <a mat-list-item routerLink="/settings">
-            <span class="entry">
-              <mat-icon>settings</mat-icon>
-              <span>Settings</span>
-            </span>
-          </a>
         </div>
         <div class="sidenav-list__additions">
-          <sidebar-notifications />
           <sidebar-recent-users />
         </div>
       </mat-nav-list>
     </mat-sidenav>
     }
     <mat-sidenav-content
-      [ngStyle]="!isAuth && !isSettings ? { 'padding-top': '80px' } : {}"
+      [ngStyle]="
+        !isAuth && !isSettings && !isErrorPages ? { 'padding-top': '80px' } : {}
+      "
     >
       <main
         class="main"
-        [ngStyle]="!isAuth && !isSettings ? { padding: '10px 30px 50px' } : {}"
+        [ngStyle]="
+          !isAuth && !isSettings && !isErrorPages
+            ? { padding: '10px 30px 50px' }
+            : {}
+        "
       >
         <router-outlet></router-outlet>
         <shared-footer />
+        <app-session-warning />
       </main>
     </mat-sidenav-content>
   </mat-sidenav-container>

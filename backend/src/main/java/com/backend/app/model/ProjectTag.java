@@ -11,9 +11,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "project_tags", uniqueConstraints = {@UniqueConstraint(columnNames = {"project_id", "tag_id"})})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ProjectTag {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,42 +31,12 @@ public class ProjectTag {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false)
+	@EqualsAndHashCode.Include
 	private Project project;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "tag_id", referencedColumnName = "id", nullable = false)
+	@EqualsAndHashCode.Include
 	@JsonBackReference
 	private Tag tag;
-	
-	public ProjectTag() {
-	}
-
-	public ProjectTag(Long id, Project project, Tag tag) {
-		this.project = project;
-		this.tag = tag;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Project getProject() {
-		return project;
-	}
-
-	public void setProject(Project project) {
-		this.project = project;
-	}
-
-	public Tag getTag() {
-		return tag;
-	}
-
-	public void setTag(Tag tag) {
-		this.tag = tag;
-	}
 }

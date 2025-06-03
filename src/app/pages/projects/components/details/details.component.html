@@ -1,32 +1,21 @@
-<!-- @if (project$ | async; as project) {
-  @switch (project.type) {
-    @case('publication') {
-      <details-publication [work]="project" />
-    }
-    @case('patent') {
-      <details-patent [work]="project" />
-    }
-    @case('research project') {
-      <details-research-project [work]="project" />
-    }
-  }
-} -->
-
-@let comments = comments$ | async; @if (project$ | async; as project) {
+@if (projectLoading()) {
+<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @else if (project()) {
 <div class="details">
   <div class="details-header">
     <div class="details-header__status">
       <h4 class="details-header__status-title">
-        Status: {{ getStatusOnProgess(project.progress) }} or
-        {{ project.progress }}%
+        Status: {{ getStatusOnProgess(project()!.progress) }} or
+        {{ project()!.progress }}%
       </h4>
       <mat-progress-bar
         class="details-header__status-progress"
         mode="determinate"
-        [value]="project.progress"
+        [value]="project()!.progress"
       ></mat-progress-bar>
     </div>
     <div class="details-header__btns">
+      @if(isCurrentUserOwner()) {
       <button
         mat-flat-button
         class="details-header__btns-item"
@@ -38,9 +27,13 @@
         mat-flat-button
         class="details-header__btns-item"
         (click)="onDelete()"
+        [disabled]="deleteLoading()"
       >
-        Delete <mat-icon>delete</mat-icon>
+        @if (!deleteLoading()) {
+        <ng-container> Delete <mat-icon>delete</mat-icon> </ng-container>
+        } @else { Deleting... }
       </button>
+      }
       <button mat-flat-button class="details-header__btns-item">
         Share <mat-icon>share</mat-icon>
       </button>
@@ -49,41 +42,38 @@
   <div class="details-basic">
     <h3 class="details-basic__section-title">Basic</h3>
     <p class="details-basic__title details-basic__item">
-      <span class="details-subtitle">Title:</span> {{ project.title }}
+      <span class="details-subtitle">Title:</span> {{ project()!.title }}
     </p>
     <p class="details-basic__description details-basic__item">
       <span class="details-subtitle">Description:</span>
-      {{ project.description }}
+      {{ project()!.description }}
     </p>
     <p class="details-basic__lastupdated details-basic__item">
       <span class="details-subtitle">Last updated:</span>
-      {{ project.updatedAt | date : "medium" }}
+      {{ project()!.updatedAt | date : "medium" }}
     </p>
-    <mat-chip-set class="details-tags">
-      @for (tag of work?.tags; track tag) {
-      <mat-chip>{{ tag }}</mat-chip>
-      }
-    </mat-chip-set>
   </div>
   <div class="details-content">
-    <h3 class="details-basic__section-title">{{ work?.type | titlecase }}</h3>
-    @switch (project.type) { @case('PUBLICATION') {
-    <details-publication [id]="project.id" />
+    <h3 class="details-basic__section-title">
+      {{ project()!.type | titlecase }}
+    </h3>
+    @switch (project()!.type) { @case('PUBLICATION') {
+    <details-publication [id]="project()!.id" />
     } @case('PATENT') {
-    <details-patent [id]="project.id" />
-    } @case('RESEARCH') { <details-research-project [id]="project.id" /> }
+    <details-patent [id]="project()!.id" />
+    } @case('RESEARCH') { <details-research-project [id]="project()!.id" /> }
     @default {
     <p>Unknown work type</p>
     } }
   </div>
   <div class="details-attachments">
     <h3 class="details-attachments__title">Attachments Section</h3>
-    @if(errorMessage) {
-    <p class="error-message">{{ errorMessage }}</p>
+    @if(errorMessage()) {
+    <p class="error-message">{{ errorMessage() }}</p>
     }
     <ul class="details-attachments__list">
-      @if (attachments$ | async; as attachments) { @for (attachment of
-      attachments; track attachment) {
+      @if (attachments()) { @for (attachment of attachments(); track
+      attachment.id) {
       <li class="details-attachments__list-item">
         <h5 class="details-attachments__list-item__title">
           {{ attachment.fileName | truncateText : 20 }}
@@ -93,21 +83,23 @@
           class="details-attachments__list-item__btn"
           [href]="attachment.fileUrl"
           target="_blank"
-          (click)="openPdfInNewTab(attachment.fileUrl)"
           download
         >
           Download PDF <mat-icon>picture_as_pdf</mat-icon>
         </a>
       </li>
-      } } @else {
+      }@empty {
       <p>No attachments found.</p>
+      } } @else {
+      <p>Loading attachments...</p>
       }
     </ul>
   </div>
+
   <div class="details-attachments">
     <h3 class="details-attachments__title">Project tags:</h3>
     <ul class="details-attachments__list">
-      @if(tags$| async; as tags ) { @for (tag of tags; track tag) {
+      @if(tags() ) { @for (tag of tags()!; track tag.id) {
       <li class="details-attachments__list-item">
         <button mat-flat-button class="details-attachments__list-item__btn">
           {{ tag.name }}
@@ -117,124 +109,10 @@
     </ul>
   </div>
 
-  <div class="details-comments">
-    <h3 class="details-comments__title">Comments Section</h3>
-
-    <div
-      style="
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding-bottom: 20px;
-      "
-    >
-      <textarea
-        [(ngModel)]="newCommentContent"
-        style="width: 100%; resize: none; height: 100px; padding: 10px 15px"
-        placeholder="Write a comment..."
-      ></textarea>
-      <button mat-flat-button style="width: 100%" (click)="postComment()">
-        Post comment
-      </button>
-    </div>
-    @if(commentsLoading) {
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    } @else {
-
-    <div class="comments-list">
-      @if(comments && comments.length > 0) { @for (comment of comments; track
-      comment) {
-      <shared-comment
-        [comment]="comment"
-        (like)="onCommentLike($event)"
-        (edit)="onCommentEdit($event.id, $event.content)"
-        (delete)="onCommentDelete($event)"
-        (reply)="startReply($event)"
-      />
-
-      @if(replyingToCommentId === comment.id) {
-      <div class="reply-input">
-        <textarea
-          [(ngModel)]="replyContent"
-          placeholder="Write your reply..."
-          style="width: 100%; resize: none; height: 150px; padding: 10px 15px"
-        ></textarea>
-        <div class="reply-buttons" style="display: flex">
-          <button
-            mat-button
-            (click)="postReply(comment.id)"
-            style="flex: 1"
-            mat-stroked-button
-          >
-            Post reply
-          </button>
-          <button
-            mat-button
-            (click)="cancelReply()"
-            style="flex: 1"
-            mat-stroked-button
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-      } @if(comment.replies && comment.replies.length > 0) {
-      <div>
-        @for (reply of comment.replies; track reply.id) {
-        <shared-comment
-          [comment]="reply"
-          (like)="onCommentLike($event)"
-          (edit)="onCommentEdit($event.id, $event.content)"
-          (delete)="onCommentDelete($event)"
-          (reply)="startReply($event)"
-          [isReply]="true"
-        />
-        }
-      </div>
-      } } } @else {
-      <p>No comments yet. Be the first to comment!</p>
-      }
-    </div>
-    }
-    <!-- <div class="details-comments__container">
-      <ul class="details-comments__list">
-        <shared-comment [comment]="comment" />
-
-        <ul class="details-comments__list details-comments__reply-list">
-          <shared-comment [comment]="comment" />
-          <shared-comment [comment]="comment" />
-        </ul>
-
-        <li>
-          <shared-comment [comment]="comment" />
-          <ul class="details-comments__list details-comments__reply-list">
-            <shared-comment [comment]="comment" />
-            <shared-comment [comment]="comment" />
-          </ul>
-        </li>
-      </ul>
-    </div> -->
-  </div>
-
-  <!-- <div class="details-related-works">
-    <h3 class="details-related-works__title">Related Works</h3>
-    <ul class="details-related-works__list">
-      <li class="details-related-works__item">
-        <shared-project-card [project]="work!" />
-      </li>
-      <li class="details-related-works__item">
-        <shared-project-card [project]="work!" />
-      </li>
-      <li class="details-related-works__item">
-        <shared-project-card [project]="work!" />
-      </li>
-      <li class="details-related-works__item">
-        <shared-project-card [project]="work!" />
-      </li>
-      <li class="details-related-works__item">
-        <shared-project-card [project]="work!" />
-      </li>
-    </ul>
-  </div> -->
+  <details-project-comments [projectId]="workId()" />
 </div>
+} @else if (errorMessage()) {
+<p class="error-message">{{ errorMessage() }}</p>
+} @else {
+<p>No project data available</p>
 }

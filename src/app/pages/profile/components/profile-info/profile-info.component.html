@@ -1,134 +1,28 @@
-@let user = user$ | async;
-
 <div class="profile__container">
   <div class="profile__top">
-    <div class="profile__image-wrapper">
-      @if (selectedImagePreview) {
-      <img
-        class="profile__image"
-        [src]="selectedImagePreview"
-        [alt]="user?.email"
-      />
-      } @else {
-      <img class="profile__image" [src]="user?.avatarUrl" [alt]="user?.email" />
-      }
-      <input
-        class="profile__image-input"
-        type="file"
-        accept="image/*"
-        (change)="onFileSelected($event)"
-      />
-      @if (selectedImagePreview) {
-      <button
-        mat-flat-button
-        color="primary"
-        (click)="uploadAvatar()"
-        [disabled]="!!errorMessage"
-      >
-        Upload Avatar
-      </button>
-      } @if (errorMessage) {
-      <div class="error-message">{{ errorMessage }}</div>
-      }
+    @if (user()) {
+    <profile-avatar
+      [user]="user()!"
+      (updateSuccess)="handleAvatarSucess($event)"
+      (updateFailure)="handleAvatarFailure()"
+    />
+
+    @if(!editMode()) {
+    <profile-view [user]="user()!" (edit)="editMode.set(true)" />
+    } @else {
+    <profile-edit
+      [user]="user()!"
+      [isLoading]="isLoading()"
+      (save)="onSave($event)"
+      (cancel)="editMode.set(false)"
+    />
+    } } @else {
+    <div class="profile-loading">
+      <mat-progress-bar
+        mode="indeterminate"
+        style="width: 100%"
+      ></mat-progress-bar>
     </div>
-
-    <div class="profile__info">
-      <h2 class="profile__header">Profile Information</h2>
-
-      @if (!editMode) {
-      <div class="profile__info-section">
-        <p class="profile__info-text">Name: {{ user?.username }}</p>
-        <p class="profile__info-text">Email: {{ user?.email }}</p>
-        <p class="profile__info-text">Role: {{ user?.role }}</p>
-        <p class="profile__info-text">Type: {{ user?.userType }}</p>
-
-        @if (user?.userType === 'student') {
-        <p class="profile__info-text">
-          Group: {{ user?.universityGroup || "Not specified" }}
-        </p>
-        }
-        <p class="profile__info-text">
-          Date of Birth: {{ user?.dateOfBirth || "Not provided" }}
-        </p>
-
-        <p class="profile__info-text">
-          Phone: {{ user?.phoneNumber || "Not provided" }}
-        </p>
-
-        <button
-          mat-flat-button
-          color="primary"
-          (click)="toggleEditMode()"
-          style="width: 100%"
-        >
-          Edit
-        </button>
-      </div>
-      } @else {
-      <form
-        [formGroup]="profileForm"
-        (ngSubmit)="saveProfile()"
-        class="profile__form"
-      >
-        <div class="profile__form-fields">
-          <mat-form-field appearance="outline">
-            <mat-label>Phone Number</mat-label>
-            <input
-              matInput
-              formControlName="phoneNumber"
-              placeholder="+1 234-567-8901"
-            />
-            @if (profileForm.get('phoneNumber')?.hasError('pattern')) {
-            <mat-error>Please enter a valid phone number</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Date of Birth</mat-label>
-            <input
-              matInput
-              [matDatepicker]="picker"
-              formControlName="dateOfBirth"
-            />
-            <mat-datepicker-toggle
-              matSuffix
-              [for]="picker"
-            ></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>User Type</mat-label>
-            <mat-select formControlName="userType">
-              <mat-option value="student">Student</mat-option>
-              <mat-option value="teacher">Teacher</mat-option>
-              <mat-option value="researcher">Researcher</mat-option>
-              <mat-option value="staff">Staff</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          @if (profileForm.value.userType === 'student') {
-          <mat-form-field appearance="outline">
-            <mat-label>University Group</mat-label>
-            <input matInput formControlName="universityGroup" />
-          </mat-form-field>
-          }
-        </div>
-        <div class="profile__form-actions">
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="isLoading"
-          >
-            Save Changes
-          </button>
-          <button mat-button type="button" (click)="toggleEditMode()">
-            Cancel
-          </button>
-        </div>
-      </form>
-      }
-    </div>
+    }
   </div>
 </div>

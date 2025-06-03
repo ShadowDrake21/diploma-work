@@ -1,88 +1,69 @@
-<!-- @let comment = commentSig();
-
-<div class="comment">
-  <div class="comment-avatar">
-    <img class="comment-avatar__img" [src]="comment.avatarUrl" alt="avatar" />
-  </div>
-
-  <div class="comment-box">
-    <div class="comment-head">
-      <div>
-        <h6 class="comment-name by-author">
-          <a class="comment-name__link" href="#">{{ comment.userName }}</a>
-        </h6>
-        <span class="comment-name__time">{{
-          comment.timestamp | timeAgo
-        }}</span>
-      </div>
-      <div>
-        <mat-icon>reply</mat-icon>
-        <mat-icon>favorite</mat-icon>
-      </div>
-    </div>
-    <div class="comment-content">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit omnis
-      animi et iure laudantium vitae, praesentium optio, sapiente distinctio
-      illo?
-    </div>
-  </div>
-</div> -->
-
-<!-- comment.component.html -->
-<div class="comment" [class.reply]="isReply">
+<div class="comment" [class.reply]="isReply()">
   <div class="comment-header">
     <img
-      [src]="comment.userAvatarUrl"
+      [src]="comment().userAvatarUrl || 'assets/default-avatar.jpg'"
       alt="User avatar"
       class="comment-avatar"
     />
     <div class="comment-user-info">
-      <span class="comment-username">{{ comment.userName }}</span>
+      <span class="comment-username">{{ comment().userName }}</span>
       <span class="comment-date">{{
-        comment.createdAt | date : "medium"
+        comment().createdAt | date : "medium"
       }}</span>
     </div>
   </div>
 
   <div class="comment-content">
-    <div *ngIf="!isEditing; else editMode">
-      <p>{{ comment.content }}</p>
+    @if (!isEditing()) {
+    <p>{{ comment().content }}</p>
+    } @else {
+    <textarea
+      [(ngModel)]="editedContent"
+      class="comment-edit-textarea"
+    ></textarea>
+    <div class="comment-edit-actions">
+      <button (click)="onCancel()" mat-raised-button>
+        <mat-icon>cancel</mat-icon> Cancel
+      </button>
+      <button (click)="onSave()" mat-raised-button>
+        <mat-icon>save</mat-icon> Save
+      </button>
     </div>
-    <ng-template #editMode>
-      <textarea
-        [(ngModel)]="editedContent"
-        class="comment-edit-textarea"
-      ></textarea>
-      <div class="comment-edit-actions">
-        <button (click)="onCancel()" mat-raised-button>Cancel</button>
-        <button (click)="onSave()" mat-raised-button>Save</button>
-      </div>
-    </ng-template>
+    }
   </div>
 
-  @if (!isEditing) {
+  @if (!isEditing()) {
   <div class="comment-actions">
-    @if (currentUserId !== comment.userId) {
-
-    <button (click)="onReply()" class="comment-action">Reply</button>
+    @if (!isCurrentUserComment()) {
+    <button (click)="onReply()" class="comment-action">
+      <mat-icon>reply</mat-icon> Reply
+    </button>
     }
-    <button (click)="onLike()" class="comment-action">
-      Like ({{ comment.likes }})
-    </button>
     <button
-      *ngIf="isCurrentUserComment()"
-      (click)="onEdit()"
-      class="comment-action"
+      (click)="onLikeToggle()"
+      class="comment-action like-button"
+      [disabled]="isLiking() || isCurrentUserComment()"
+      [class.liked]="comment().isLikedByCurrentUser"
+      [class.disabled]="comment().userId === currentUserId()"
     >
-      Edit
+      <mat-icon>{{
+        comment().isLikedByCurrentUser ? "favorite" : "favorite_border"
+      }}</mat-icon>
+      @if(!isLiking()) {
+      <span> {{ comment().likes }} </span>
+      } @else {
+      <span>Processing...</span>
+      }
     </button>
-    <button
-      *ngIf="isCurrentUserComment()"
-      (click)="onDelete()"
-      class="comment-action"
-    >
-      Delete
+    @if (isCurrentUserComment()) {
+
+    <button (click)="onEdit()" class="comment-action">
+      <mat-icon>edit</mat-icon> Edit
     </button>
+    <button (click)="onDelete()" class="comment-action">
+      <mat-icon>delete</mat-icon> Delete
+    </button>
+    }
   </div>
   }
 </div>

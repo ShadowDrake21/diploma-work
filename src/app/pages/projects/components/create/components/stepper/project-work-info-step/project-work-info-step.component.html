@@ -1,0 +1,16 @@
+@if(typeForm().value.type === 'PUBLICATION' && publicationsForm()) {
+<create-project-publication-form
+  [publicationsForm]="publicationsForm()!"
+  [authors]="authors()"
+/>
+} @else if(typeForm().value.type === 'PATENT' && patentsForm()) {
+<create-project-patent-form
+  [patentsForm]="patentsForm()!"
+  [authors]="authors()"
+/>
+} @else if (typeForm().value.type === 'RESEARCH' && researchesForm()) {
+<create-project-research-form
+  [researchProjectsForm]="researchesForm()!"
+  [authors]="authors()"
+/>
+}

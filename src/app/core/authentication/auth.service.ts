@@ -1,134 +1,416 @@
-import { HttpClient } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpStatusCode,
+} from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  map,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import {
+  IAuthResponse,
+  ILoginRequest,
+  IRegisterRequest,
+  IRequestPasswordReset,
+  IResetPasswordRequest,
+  IVerifyRequest,
+} from '@shared/types/auth.types';
+import { ApiResponse } from '@models/api-response.model';
+import { IJwtPayload } from '@shared/types/jwt.types';
+import { UserRole } from '@shared/enums/user.enum';
+import { UserService } from '@core/services/users/user.service';
+import { currentUserSig } from '@core/shared/shared-signals';
+import { UserStore } from '@core/services/stores/user-store.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+
   private apiUrl = 'http://localhost:8080/api/auth';
 
-  private currentUserSub!: BehaviorSubject<any>;
-  public currentUser!: Observable<any>;
+  private currentUserSubject = new BehaviorSubject<IJwtPayload | null>(null);
+  private rememberSessionSubject = new BehaviorSubject<boolean>(false);
+  private sessionWarningSubject = new Subject<number>();
+  private tokenRefreshedSubject = new Subject<string | null>();
+
+  // Public observables
+  public currentUser$ = this.currentUserSubject.asObservable();
+  public rememberSession$ = this.rememberSessionSubject.asObservable();
+  public sessionWarning$ = this.sessionWarningSubject.asObservable();
+  public tokenRefreshed$ = this.tokenRefreshedSubject.asObservable();
+
+  // State flags
+  public isRefreshingToken = false;
 
   constructor() {
-    const token = localStorage.getItem('authToken');
-    const user = token ? this.decodeToken(token) : null;
-    console.log('User', user);
-    this.currentUserSub = new BehaviorSubject<any>(user);
-    this.currentUser = this.currentUserSub.asObservable();
+    this.initializeAuthState();
   }
 
-  private decodeToken(token: string): any {
+  /* ------------------------- Public API Methods ------------------------- */
+
+  public getToken(): string | null {
+    return (
+      localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
+    );
+  }
+
+  public decodeToken(token: string): IJwtPayload | null {
     try {
-      return jwtDecode(token);
+      return jwtDecode<IJwtPayload>(token);
     } catch (error) {
-      console.log('Error decoding token', error);
+      console.error('Error decoding token:', error);
       return null;
     }
   }
 
   public isAuthenticated(): boolean {
-    const token = localStorage.getItem('authToken');
+    const token = this.getToken();
     if (!token) return false;
 
-    try {
-      const decodedToken = this.decodeToken(token);
-      const isExpired = decodedToken.exp
-        ? decodedToken.exp < Date.now() / 1000
-        : false;
-      return !isExpired;
-    } catch (error) {
-      console.error('Error decoding token', error);
-      return false;
-    }
+    const decoded = this.decodeToken(token);
+    return decoded ? !this.isTokenExpired(decoded) : false;
   }
 
-  public login(
-    email: string,
-    password: string
-  ): Observable<{ message: string; authToken: string }> {
-    return this.http
-      .post<{ message: string; authToken: string }>(`${this.apiUrl}/login`, {
-        email,
-        password,
-      })
-      .pipe(
-        tap((response) => {
-          localStorage.setItem('authToken', response.authToken);
-          this.currentUserSub.next(this.decodeToken(response.authToken));
-        })
-      );
-  }
-
-  public register(
-    username: string,
-    email: string,
-    password: string,
-    role: string
-  ): Observable<string> {
-    return this.http.post<string>(`${this.apiUrl}/register`, {
-      username,
-      email,
-      password,
-      role,
-    });
-  }
-
-  public verifyUser(
-    email: string,
-    code: string
-  ): Observable<{ message: string; authToken: string }> {
-    return this.http
-      .post<{ message: string; authToken: string }>(`${this.apiUrl}/verify`, {
-        email,
-        code,
-      })
-      .pipe(
-        tap((response) => {
-          localStorage.setItem('authToken', response.authToken);
-          this.currentUserSub.next(this.decodeToken(response.authToken));
-        })
-      );
-  }
-
-  public requestPasswordReset(email: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
-      `${this.apiUrl}/request-password-reset`,
-      { email }
-    );
-  }
-
-  public resetPassword(
-    token: string,
-    newPassword: string
-  ): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
-      `${this.apiUrl}/reset-password`,
-      { token, newPassword }
-    );
+  public getCurrentUser(): IJwtPayload | null {
+    return this.currentUserSubject.value;
   }
 
   public getCurrentUserId(): number | null {
-    const token = localStorage.getItem('authToken');
-    if (!token) return null;
+    return this.currentUserSubject.value?.userId || null;
+  }
 
-    try {
-      const decodedToken = this.decodeToken(token);
-      return decodedToken.userId || null;
-    } catch (error) {
-      console.error('Error decoding token', error);
-      return null;
+  public getUserRole(): UserRole | null {
+    return this.currentUserSubject.value?.role || null;
+  }
+
+  public isAdmin(): boolean {
+    const role = this.getUserRole();
+    return role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
+  }
+
+  public isSuperAdmin(): boolean {
+    return this.getUserRole() === UserRole.SUPER_ADMIN;
+  }
+
+  public setRememberSession(remember: boolean): void {
+    this.rememberSessionSubject.next(remember);
+    const storage = this.getCurrentStorage();
+    storage.setItem('rememberSession', remember.toString());
+  }
+
+  public getRememberSession(): boolean {
+    const storage = this.getCurrentStorage();
+    return storage.getItem('rememberSession') === 'true';
+  }
+
+  /* ------------------------- Authentication Methods ------------------------- */
+
+  public login(credentials: ILoginRequest): Observable<IAuthResponse> {
+    return this.http
+      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/login`, credentials)
+      .pipe(
+        tap((response) =>
+          this.handleLoginResponse(response, credentials.rememberMe)
+        ),
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
+      );
+  }
+
+  public register(userData: IRegisterRequest): Observable<string> {
+    return this.http
+      .post<ApiResponse<string>>(`${this.apiUrl}/register`, userData)
+      .pipe(
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
+      );
+  }
+
+  public verifyUser(verifyData: IVerifyRequest): Observable<IAuthResponse> {
+    return this.http
+      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/verify`, verifyData)
+      .pipe(
+        tap((response) => this.handleLoginResponse(response, true)),
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
+      );
+  }
+
+  public logout(): void {
+    this.http.post<ApiResponse<string>>(`${this.apiUrl}/logout`, {}).subscribe({
+      next: () => this.handleLogoutSuccess(),
+      error: (error) => {
+        console.error('Logout error:', error);
+        this.handleLogoutSuccess();
+      },
+    });
+  }
+
+  /* ------------------------- Token Management ------------------------- */
+
+  public refreshToken(): Observable<string | null> {
+    this.isRefreshingToken = true;
+
+    return this.http
+      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/refresh-token`, {
+        rememberMe: this.getRememberSession(),
+      })
+      .pipe(
+        tap((response) => this.handleRefreshResponse(response)),
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data?.authToken || null;
+        }),
+        catchError((error) => {
+          console.error('Token refresh failed:', error);
+          this.tokenRefreshedSubject.next(null);
+          return of(null);
+        }),
+        tap(() => (this.isRefreshingToken = false))
+      );
+  }
+
+  public checkAndRefreshToken(): Observable<string | null> {
+    const token = this.getToken();
+    if (!token) return of(null);
+
+    const decoded = this.decodeToken(token);
+    if (!decoded || this.isTokenExpired(decoded)) return of(null);
+
+    const timeLeft = this.getTokenTimeLeft(decoded);
+    const refreshThreshold = 15 * 60 * 1000;
+
+    if (timeLeft > refreshThreshold) return of(token);
+
+    return this.refreshToken().pipe(
+      tap({
+        next: (newToken) => this.handleRefreshResult(newToken, timeLeft),
+        error: () => this.handleRefreshError(timeLeft),
+      }),
+      switchMap((newToken) => of(newToken || token)),
+      catchError(() => of(token))
+    );
+  }
+
+  /* ------------------------- Password Reset ------------------------- */
+
+  public requestPasswordReset(
+    request: IRequestPasswordReset
+  ): Observable<string> {
+    return this.http
+      .post<ApiResponse<string>>(
+        `${this.apiUrl}/request-password-reset`,
+        request
+      )
+      .pipe(
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
+      );
+  }
+
+  public resetPassword(request: IResetPasswordRequest): Observable<string> {
+    return this.http
+      .post<ApiResponse<string>>(`${this.apiUrl}/reset-password`, request)
+      .pipe(
+        map((response) => {
+          if (!response.success) {
+            throw this.createApplicationError(
+              response.message!,
+              response.errorCode
+            );
+          }
+          return response.data!;
+        }),
+        catchError((error) => this.handleAuthError(error))
+      );
+  }
+
+  /* ------------------------- Error Handling ------------------------- */
+
+  private handleAuthError(error: any): Observable<never> {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === HttpStatusCode.TooManyRequests) {
+        const retryAfter = error.headers.get('Retry-After') || '60';
+        const message = `Too many requests. Please try again after ${retryAfter} seconds.`;
+        return throwError(() =>
+          this.createApplicationError(message, 'RATE_LIMIT_EXCEEDED')
+        );
+      }
+      if (error.error?.message) {
+        return throwError(() =>
+          this.createApplicationError(
+            error.error.message,
+            error.error.errorCode || 'SERVER_ERROR'
+          )
+        );
+      }
+    }
+
+    if (error instanceof ApplicationError) {
+      return throwError(() => error);
+    }
+
+    return throwError(() =>
+      this.createApplicationError(
+        'An unexpected error occurred',
+        'SERVER_ERROR'
+      )
+    );
+  }
+
+  private createApplicationError(
+    message: string,
+    code?: string
+  ): ApplicationError {
+    return new ApplicationError(message, code);
+  }
+
+  /* ------------------------- Private Helpers ------------------------- */
+
+  private initializeAuthState(): void {
+    const token = this.getToken();
+    if (!token) return;
+
+    const decoded = this.decodeToken(token);
+    if (decoded && !this.isTokenExpired(decoded)) {
+      this.currentUserSubject.next(decoded);
+    } else {
+      this.clearAuthData();
     }
   }
 
-  public logout() {
+  private handleLoginResponse(
+    response: ApiResponse<IAuthResponse>,
+    rememberMe: boolean
+  ): void {
+    if (response.success && response.data?.authToken) {
+      const storage = this.getStorage(rememberMe);
+      storage.setItem('authToken', response.data.authToken);
+
+      const decoded = this.decodeToken(response.data.authToken);
+      if (!decoded) throw new Error('Invalid token');
+
+      this.currentUserSubject.next(decoded);
+      this.setRememberSession(rememberMe);
+    }
+  }
+
+  private handleRefreshResponse(response: ApiResponse<IAuthResponse>): void {
+    if (response.success && response.data?.authToken) {
+      const storage = this.getCurrentStorage();
+      storage.setItem('authToken', response.data.authToken);
+
+      const decoded = this.decodeToken(response.data.authToken);
+      if (decoded) {
+        this.currentUserSubject.next(decoded);
+      }
+
+      this.tokenRefreshedSubject.next(response.data.authToken);
+    } else {
+      this.tokenRefreshedSubject.next(null);
+    }
+  }
+
+  private handleRefreshResult(newToken: string | null, timeLeft: number): void {
+    if (!newToken && timeLeft > 0) {
+      this.sessionWarningSubject.next(timeLeft);
+    }
+  }
+
+  private handleRefreshError(timeLeft: number): void {
+    if (timeLeft > 0) {
+      this.sessionWarningSubject.next(timeLeft);
+    }
+  }
+
+  private handleLogoutSuccess(): void {
+    this.clearAuthData();
+    this.router.navigate(['/authentication/sign-in']);
+  }
+
+  private handleLogoutError(error: any): void {
+    console.error('Logout error:', error);
+    this.clearAuthData();
+    this.router.navigate(['/authentication/sign-in']);
+  }
+
+  private clearAuthData(): void {
     localStorage.removeItem('authToken');
-    this.currentUserSub.next(null);
-    this.router.navigate(['/login']);
+    sessionStorage.removeItem('authToken');
+    this.currentUserSubject.next(null);
+  }
+
+  private getStorage(rememberMe: boolean): Storage {
+    return rememberMe ? localStorage : sessionStorage;
+  }
+
+  private getCurrentStorage(): Storage {
+    return localStorage.getItem('authToken') ? localStorage : sessionStorage;
+  }
+
+  private isTokenExpired(decodedToken: IJwtPayload): boolean {
+    return decodedToken.exp ? decodedToken.exp < Date.now() / 1000 : false;
+  }
+
+  private getTokenTimeLeft(decodedToken: IJwtPayload): number {
+    return decodedToken.exp * 1000 - Date.now();
+  }
+}
+
+class ApplicationError extends Error {
+  constructor(message: string, public readonly code?: string) {
+    super(message);
+    this.name = 'ApplicationError';
+    Object.setPrototypeOf(this, ApplicationError.prototype);
   }
 }

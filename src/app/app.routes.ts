@@ -39,14 +39,14 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
-  {
-    path: 'my-comments',
-    loadComponent: () =>
-      import('./pages/comments/comments.component').then(
-        (c) => c.CommentsComponent
-      ),
-    canActivate: [authGuard],
-  },
+  // {
+  //   path: 'my-comments',
+  //   loadComponent: () =>
+  //     import('./pages/comments/comments.component').then(
+  //       (c) => c.CommentsComponent
+  //     ),
+  //   canActivate: [authGuard],
+  // },
   {
     path: 'settings',
     loadChildren: () =>
@@ -70,7 +70,7 @@ export const routes: Routes = [
   {
     path: 'users/:id',
     loadComponent: () =>
-      import('./pages/user/user.component').then((c) => c.UserComponent),
+      import('./pages/user/user.component').then((c) => c.UserProfileComponent),
     canActivate: [authGuard],
   },
   {
@@ -78,6 +78,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/not-found/not-found.component').then(
         (c) => c.NotFoundComponent
+      ),
+  },
+  {
+    path: 'forbidden',
+    loadComponent: () =>
+      import('./pages/forbidden/forbidden.component').then(
+        (c) => c.ForbiddenComponent
       ),
   },
   { path: '**', redirectTo: 'not-found' },

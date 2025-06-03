@@ -1,0 +1,99 @@
+@if (researchFunding() || publicationMetrics() || patentMetrics()) {
+<mat-grid-list cols="2" rowHeight="300px">
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Research Funding</mat-card-title>
+      </mat-card-header>
+      @if (researchFunding(); as funding) {
+      <mat-card-content>
+        <div class="metric-grid">
+          <div class="metric-item">
+            <h3>${{ funding.totalBudget | number : "1.0-0" }}</h3>
+            <p>Total Budget</p>
+          </div>
+          <div class="metric-item">
+            <h3>${{ funding.averageBudget | number : "1.0-0" }}</h3>
+            <p>Average Budget</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ funding.activeProjects }}</h3>
+            <p>Active Projects</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ funding.mostCommonFundingSource }}</h3>
+            <p>Top Funding Source</p>
+          </div>
+        </div>
+      </mat-card-content>
+      } @else {
+      <mat-spinner diameter="40"></mat-spinner>
+      }
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Publication Metrics</mat-card-title>
+      </mat-card-header>
+      @if(publicationMetrics(); as metrics) {
+      <mat-card-content>
+        <div class="metric-grid">
+          <div class="metric-item">
+            <h3>{{ metrics.totalPublications }}</h3>
+            <p>Total Publications</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ metrics.averagePages | number : "1.1-1" }}</h3>
+            <p>Avg. Pages</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ metrics.publicationsThisYear }}</h3>
+            <p>This Year</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ metrics.mostCommonSource }}</h3>
+            <p>Top Source</p>
+          </div>
+        </div> </mat-card-content
+      >} @else {
+      <mat-spinner diameter="40"></mat-spinner>
+      }
+    </mat-card>
+  </mat-grid-tile>
+
+  <mat-grid-tile colspan="2">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Patent Metrics</mat-card-title>
+      </mat-card-header>
+      @if(patentMetrics(); as metrics){
+      <mat-card-content>
+        <div class="metric-grid">
+          <div class="metric-item">
+            <h3>{{ metrics.totalPatents }}</h3>
+            <p>Total Patents</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ metrics.averageInventors | number : "1.1-1" }}</h3>
+            <p>Avg. Inventors</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ metrics.patentsThisYear }}</h3>
+            <p>This Year</p>
+          </div>
+          <div class="metric-item">
+            <h3>{{ metrics.mostCommonAuthority }}</h3>
+            <p>Top Authority</p>
+          </div>
+        </div>
+      </mat-card-content>
+      }@else {
+      <mat-spinner diameter="40"></mat-spinner>
+      }
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+} @else {
+<mat-spinner></mat-spinner>
+}

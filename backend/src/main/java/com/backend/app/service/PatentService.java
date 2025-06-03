@@ -1,37 +1,48 @@
 package com.backend.app.service;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.mapstruct.ap.shaded.freemarker.core.ReturnInstruction.Return;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.backend.app.dto.CreatePatentRequest;
+import com.backend.app.dto.create.CreatePatentRequest;
+import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.model.Patent;
 import com.backend.app.model.PatentCoInventor;
 import com.backend.app.model.Project;
+import com.backend.app.model.Publication;
 import com.backend.app.model.User;
 import com.backend.app.repository.PatentRepository;
 import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class PatentService {
-	@Autowired
-	private PatentRepository patentRepository;
-	
-	@Autowired
-	private ProjectRepository projectRepository;
-	
-	@Autowired
-	private UserRepository userRepository;
+	private final PatentRepository patentRepository;
+	private final ProjectRepository projectRepository;
+	private final UserRepository userRepository;
 	
 	public List<Patent> findAllPatents(){
 		return patentRepository.findAll();
+	}
+	
+	public Page<Patent> findAllPatents(Pageable pageable) {
+		return patentRepository.findAll(pageable);
 	}
 	
 	public Optional<Patent> findPatentById(UUID id) {
@@ -42,61 +53,53 @@ public class PatentService {
 		return patentRepository.findByProjectId(projectId);
 	}
 	
-	public Optional<Patent> updatePatent(UUID id, Patent newPatent) {
-		return patentRepository.findById(id).map(existingPatent -> {
-			existingPatent.setProject(newPatent.getProject());
-			existingPatent.setPrimaryAuthor(newPatent.getPrimaryAuthor());
-			existingPatent.setRegistrationNumber(newPatent.getRegistrationNumber());
-			existingPatent.setRegistrationDate(newPatent.getRegistrationDate());
-			existingPatent.setIssuingAuthority(newPatent.getIssuingAuthority());
-			
-			List<PatentCoInventor> existingCoInventors = existingPatent.getCoInventors();
-			List<PatentCoInventor> newCoInventors = newPatent.getCoInventors();
-			List<PatentCoInventor> coInventorsToRemove = existingCoInventors.stream().filter(existingCoInventor -> newCoInventors.stream().noneMatch(newCoInventor -> newCoInventor.getUser().getId().equals(existingCoInventor.getUser().getId()))).collect(Collectors.toList());
-			
-			coInventorsToRemove.forEach(existingPatent::removeCoInventor);
-			
-			
-			for(PatentCoInventor newCoInventor : newCoInventors) {
-				 boolean exists = existingCoInventors.stream()
-			                .anyMatch(existingCoInventor -> existingCoInventor.getUser().getId().equals(newCoInventor.getUser().getId()));	
-				 
-				if(!exists) {
-					newCoInventor.setPatent(existingPatent);
-					existingPatent.addCoInventor(newCoInventor);
-				}
-			
-			}
-			
-			return patentRepository.save(existingPatent);
-		});
-	}
+	@Transactional
+    public Optional<Patent> updatePatent(UUID id, Patent newPatent) {
+        return patentRepository.findByIdWithConInventors(id).map(existing -> {
+            
+        if(!existing.getProject().getId().equals(newPatent.getProject().getId())) {
+        	throw new IllegalStateException("Changing project association is not allowed through this endpoint");
+        }
+        
+        updatePatentFields(existing, newPatent);
+        
+        updateCoInventors(existing, newPatent);
+            
+            // Save and return the updated patent
+            return patentRepository.save(existing);
+        });
+    }
 	
+	@Transactional
 	public Patent createPatent(CreatePatentRequest request) {
-		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new RuntimeException("Project not found with ID: " + request.getProjectId()));
-		User user = userRepository.findById(request.getPrimaryAuthorId()).orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getPrimaryAuthorId()));;
-		Patent patent = new Patent(
-				project, user, request.getRegistrationNumber(), request.getRegistrationDate(), request.getIssuingAuthority());
+		Project project = projectRepository.findById(request.getProjectId())
+				.orElseThrow(() -> new ResourceNotFoundException
+						("Project not found with ID: " + request.getProjectId()));
+		User primaryAuthor = userRepository.findById(request.getPrimaryAuthorId())
+				.orElseThrow(() -> new ResourceNotFoundException
+						("Primary author not found with ID: " + request.getPrimaryAuthorId()));;
+		Patent patent = Patent.builder().project(project)
+				.primaryAuthor(primaryAuthor)
+				.registrationNumber(request.getRegistrationNumber())
+				.registrationDate(request.getRegistrationDate())
+				.issuingAuthority(request.getIssuingAuthority())
+				.coInventors(new ArrayList<PatentCoInventor>())
+				.build();
 		
-		if(request.getCoInventors() != null && !request.getCoInventors().isEmpty()) {
-			for(Long userId : request.getCoInventors()) {
-				if(userId != null) {
-					Optional<User> userOptional = userRepository.findById(userId);
-					if(userOptional.isPresent()) {
-						
-						boolean exists = patent.getCoInventors().stream().anyMatch(ci -> ci.getUser().getId().equals(userId));
-						
-						if(!exists) {							
-							PatentCoInventor coInventor = new PatentCoInventor();
-							coInventor.setPatent(patent);
-							coInventor.setUser(userOptional.get());
-							patent.addCoInventor(coInventor);
-						}
-					}
-				}
+		
+		
+		if(request.getCoInventorIds() != null) {
+			
+			request.getCoInventorIds().forEach(coInventorId -> {
+				User coInventor = userRepository.findById(coInventorId)   .orElseThrow(() -> new ResourceNotFoundException("Co-inventor not found with ID: " + coInventorId));
 				
-			}
+				PatentCoInventor patentCoInventor = new PatentCoInventor();
+				patentCoInventor.setPatent(patent);
+				patentCoInventor.setUser(coInventor);
+				patent.addCoInventor(patentCoInventor);
+			});
 		}
+		
 		return patentRepository.save(patent);
 	}
 	
@@ -123,6 +126,84 @@ public class PatentService {
 	public Patent savePatent(Patent patent) {
 		return patentRepository.save(patent);
 	}
+	
+	public void updatePatentFields(Patent existing, Patent newPatent) {
+		   if (newPatent.getPrimaryAuthor() != null) {
+	            existing.setPrimaryAuthor(newPatent.getPrimaryAuthor());
+	        }
+	        if (newPatent.getRegistrationNumber() != null) {
+	            existing.setRegistrationNumber(newPatent.getRegistrationNumber());
+	        }
+	        if (newPatent.getRegistrationDate() != null) {
+	            existing.setRegistrationDate(newPatent.getRegistrationDate());
+	        }
+	        if (newPatent.getIssuingAuthority() != null) {
+	            existing.setIssuingAuthority(newPatent.getIssuingAuthority());
+	        }
+	}
+	
+	private void updateCoInventors(Patent existingPatent, Patent newPatent) {
+		if (newPatent.getCoInventors() == null) {
+			
+			return;
+		}
+	    log.debug("Starting co-inventor update for patent {}", existingPatent.getId());
+
+		
+       Set<Long> newCoInventorIds = newPatent.getCoInventors().stream()
+    		   .map(coInventor -> coInventor.getUser().getId()).collect(Collectors.toSet());
+       
+       log.debug("New co-inventor IDs: {}", newCoInventorIds);
+
+       
+       log.debug("Existing co-inventor IDs before update: {}", 
+    		    existingPatent.getCoInventors().stream()
+    		        .map(ci -> ci.getUser().getId())
+    		        .collect(Collectors.toList()));
+       
+       
+       List<PatentCoInventor> toRemove = existingPatent.getCoInventors().stream().
+    		   filter(ci -> !newCoInventorIds.contains(ci.getUser().getId())).collect(Collectors.toList());
+       log.debug("Removing {} co-inventors", toRemove.size());
+
+       toRemove.forEach(existingPatent::removeCoInventor);
+       
+       newPatent.getCoInventors().forEach(newCoInventor -> {
+    	   Long userId = newCoInventor.getUser().getId();
+    	   if (!userRepository.existsById(userId)) {
+    	        throw new ResourceNotFoundException("User not found with ID: " + userId);
+    	    }
+    	   
+    	   boolean exists = existingPatent.getCoInventors().stream().anyMatch(ci -> ci.getUser().getId().equals(userId));
+    	   
+    	   if(!exists) {
+               log.debug("Adding new co-inventor with ID: {}", userId);
+
+    		   PatentCoInventor coInventor = new PatentCoInventor();
+    		   coInventor.setPatent(existingPatent);
+    		   coInventor.setUser(newCoInventor.getUser());
+    		   existingPatent.addCoInventor(coInventor);
+    	   }
+       });
+       log.debug("Completed co-inventor update. Final count: {}", existingPatent.getCoInventors().size());
+
+    }
+	
+	 private void addCoInventors(Patent patent, List<Long> coInventorIds) {
+	        if (coInventorIds == null || coInventorIds.isEmpty()) {
+	            return;
+	        }
+
+	      for(Long coInventorId: coInventorIds) {
+	    	  User user = userRepository.findById(coInventorId) .orElseThrow(() -> new RuntimeException("User not found with ID: " + coInventorId));
+	    	  
+	    	  PatentCoInventor coInventor = new PatentCoInventor();
+	    	  coInventor.setPatent(patent);
+	    	  coInventor.setUser(user);
+	    	  
+	    	  patent.addCoInventor(coInventor);
+	      }
+	    }
 	
 	public void deletePatent(UUID id) {
 		patentRepository.deleteById(id);

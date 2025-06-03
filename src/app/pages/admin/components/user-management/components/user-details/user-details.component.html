@@ -1,0 +1,182 @@
+<div class="user-detail-container">
+  @if(isLoading()) {
+  <div class="loading-spinner">
+    <mat-spinner></mat-spinner>
+  </div>
+  } @else if (error()) {
+  <div class="error-message">
+    <mat-icon color="warn">error</mat-icon>
+    <span>{{ error() }}</span>
+    <button mat-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Users
+    </button>
+  </div>
+  } @else if(user()) {
+  <div class="user-header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>User Details</h2>
+  </div>
+
+  <mat-card class="user-card">
+    <mat-card-header>
+      <img
+        mat-card-avatar
+        [src]="user()?.avatarUrl || 'assets/default-avatar.png'"
+        alt="User avatar"
+        onerror="this.src='assets/default-avatar.png'"
+      />
+      <mat-card-title>{{ user()?.username }}</mat-card-title>
+      <mat-card-subtitle>{{ user()?.email }}</mat-card-subtitle>
+      <mat-card-subtitle>
+        <span class="user-meta">
+          <app-user-role-chip [role]="user()?.role!"></app-user-role-chip>
+          <app-user-status-chip
+            [active]="user()?.active!"
+          ></app-user-status-chip>
+        </span>
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-divider></mat-divider>
+
+      <mat-tab-group animationDuration="200ms">
+        <mat-tab label="Details">
+          <div class="details-content">
+            <mat-list>
+              <mat-list-item>
+                <mat-icon matListItemIcon>person</mat-icon>
+                <div matListItemTitle>Username</div>
+                <div matListItemLine>{{ user()?.username }}</div>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon>email</mat-icon>
+                <div matListItemTitle>Email</div>
+                <div matListItemLine>{{ user()?.email }}</div>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon>phone</mat-icon>
+                <div matListItemTitle>Phone</div>
+                <div matListItemLine>
+                  {{ user()?.phoneNumber || "Not provided" }}
+                </div>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon>school</mat-icon>
+                <div matListItemTitle>Affiliation</div>
+                <div matListItemLine>{{ user()?.affiliation }}</div>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon>calendar_today</mat-icon>
+                <div matListItemTitle>Joined</div>
+                <div matListItemLine>
+                  {{ user()?.createdAt | date : "mediumDate" }}
+                </div>
+              </mat-list-item>
+            </mat-list>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Projects">
+          <div class="projects-content">
+            @if (userProjects().length > 0) {
+            <shared-profile-projects [projects]="userProjects()" />
+            } @else {
+            <div class="no-projects">
+              <mat-icon>folder_off</mat-icon>
+              <p>No projects found</p>
+            </div>
+            }
+          </div>
+        </mat-tab>
+        <mat-tab label="Statistics">
+          <div class="stats-content">
+            <mat-list>
+              <mat-list-item>
+                <mat-icon matListItemIcon>article</mat-icon>
+                <div matListItemTitle>Publication</div>
+                <div matListItemLine>{{ user()?.publicationCount || 0 }}</div>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon>copyright</mat-icon>
+                <div matListItemTitle>Patents</div>
+                <div matListItemLine>{{ user()?.patentCount || 0 }}</div>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon>science</mat-icon>
+                <div matListItemTitle>Research Projects</div>
+                <div matListItemLine>{{ user()?.researchCount || 0 }}</div>
+              </mat-list-item>
+            </mat-list>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+
+    @if(!(user()?.id | isCurrentUser) ){
+
+    <mat-card-actions align="end">
+      @if(user()?.role === UserRole.USER) {
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="promoteUser()"
+        [disabled]="isProcessing()"
+      >
+        <mat-icon>arrow_upward</mat-icon>
+        Promote to Admin
+      </button>
+      } @if(user()?.role === UserRole.ADMIN) {
+      <button
+        mat-raised-button
+        color="warn"
+        (click)="demoteUser()"
+        [disabled]="isProcessing()"
+      >
+        <mat-icon>arrow_downward</mat-icon>
+        Demote to User
+      </button>
+      } @if(user()?.active) {
+      <button
+        mat-raised-button
+        color="warn"
+        (click)="deactivateUser()"
+        [disabled]="isProcessing()"
+      >
+        <mat-icon>toggle_off</mat-icon>
+        Deactivate
+      </button>
+      } @else {
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="reactivateUser()"
+        [disabled]="isProcessing()"
+      >
+        <mat-icon>toggle_on</mat-icon>
+        Reactivate
+      </button>
+      }
+
+      <button
+        mat-raised-button
+        color="warn"
+        (click)="deleteUser()"
+        [disabled]="isProcessing()"
+      >
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button> </mat-card-actions
+    >}
+  </mat-card>
+  }
+</div>

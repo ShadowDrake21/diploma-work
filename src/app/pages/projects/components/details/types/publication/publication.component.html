@@ -1,4 +1,4 @@
-@if (publication$ | async; as publication) {
+@let publication = (publication$ | async)?.data; @if ( publication) {
 <div class="publication">
   <div class="publication__authors publication__section">
     <h4 class="publication__section-title">Authors</h4>

@@ -1,0 +1,8 @@
+<div>
+  <h3 class="dashboard-recent-project__title" style="text-align: center">
+    Останні активні користувачі
+  </h3>
+  @if (activeUsers; as users) { @for (user of users; track user.id) {
+  <shared-user-card [user]="user" />
+  } }
+</div>

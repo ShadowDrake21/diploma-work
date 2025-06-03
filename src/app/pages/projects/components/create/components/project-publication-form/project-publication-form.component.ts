@@ -1,19 +1,6 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, inject, input, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,9 +8,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { map, Observable, startWith } from 'rxjs';
-import { CreateWorkService } from '@core/services/create-work.service';
-import { authors } from '@content/createProject.content';
+import { map, Observable } from 'rxjs';
+import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
+import {
+  BaseFormInputs,
+  PublicationFormGroup,
+} from '@shared/types/forms/project-form.types';
+import { UserService } from '@core/services/users/user.service';
+import { AuthorNamePipe } from '@pipes/author-name.pipe';
 
 @Component({
   selector: 'create-project-publication-form',
@@ -36,52 +28,35 @@ import { authors } from '@content/createProject.content';
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
-    AsyncPipe,
     MatAutocompleteModule,
     MatDatepickerModule,
+    AuthorNamePipe,
   ],
   templateUrl: './project-publication-form.component.html',
   styleUrl: './project-publication-form.component.scss',
 })
-export class ProjectPublicationFormComponent implements OnChanges {
-  publicationsFormSig = input.required<
-    FormGroup<{
-      authors: FormControl<string[] | null>;
-      publicationDate: FormControl<Date | null>;
-      publicationSource: FormControl<string | null>;
-      doiIsbn: FormControl<string | null>;
-      startPage: FormControl<number | null>;
-      endPage: FormControl<number | null>;
-      journalVolume: FormControl<number | null>;
-      issueNumber: FormControl<number | null>;
-    }>
-  >({ alias: 'publicationForm' });
-  allUsersSig = input.required<any[] | null>({ alias: 'allUsers' });
-  authorsSig = input.required<any[] | null>({ alias: 'authors' });
+export class ProjectPublicationFormComponent
+  extends BaseFormComponent
+  implements OnInit
+{
+  private userService = inject(UserService);
+  publicationsForm = input.required<PublicationFormGroup>();
 
-  // authors = authors;
-  filteredAuthors!: Observable<string[]>;
+  allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['authorSig']) {
-      this.publicationsFormSig().controls.authors.setValue(this.authorsSig());
-    }
+  ngOnInit(): void {
+    this.allUsers$ = this.userService
+      .getAllUsers()
+      .pipe(map((response) => response.data!));
   }
 
-  compareAuthors(authorId1: string, authorId2: string): boolean {
-    console.log('authorId1', authorId1);
-    console.log('authorId2', authorId2);
-    console.log(
-      'authorId1 === authorId2',
-      authorId1.toString() === authorId2.toString()
+  compareAuthors = (id1: string, id2: string) => this.compareIds(id1, id2);
+
+  getAuthorName(authorId: string, users: BaseFormInputs['allUsers']): string {
+    const author = users?.find(
+      (user) => user?.id.toString() === authorId.toString()
     );
-    return authorId1.toString() === authorId2.toString();
-  }
-
-  getAuthorName(authorId: string): string {
-    const author = this.allUsersSig()?.find((user) => {
-      return user.id.toString() === authorId.toString();
-    });
+    console.log('author', author);
     return author ? author.username : '';
   }
 }

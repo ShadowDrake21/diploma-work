@@ -1,0 +1,52 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>User Analytics</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="filter-row">
+      <mat-form-field>
+        <mat-label>Start Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="startPicker"
+          (dateChange)="onStartDateChange($event.value)"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="startPicker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>End Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="endPicker"
+          (dateChange)="onEndDateChange($event.value)"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="endPicker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+    @if(userGrowthChart$ | async; as userGrowthChart){
+    <ngx-charts-line-chart
+      *ngIf="userGrowthChart.length"
+      [results]="userGrowthChart"
+      [xAxis]="true"
+      [yAxis]="true"
+      [showXAxisLabel]="true"
+      [showYAxisLabel]="true"
+      xAxisLabel="Date"
+      yAxisLabel="Users"
+      [legend]="true"
+    ></ngx-charts-line-chart>
+    <div *ngIf="!userGrowthChart.length" class="no-data">
+      No user growth data available
+    </div>
+    }
+  </mat-card-content>
+</mat-card>

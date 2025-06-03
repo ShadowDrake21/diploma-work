@@ -185,6 +185,17 @@
       &:hover {
         color: #333;
       }
+
+      &.liked {
+        color: #3f51b5;
+        font-weight: bold;
+      }
+
+      &.like-button.disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+        color: gray !important;
+      }
     }
   }
 

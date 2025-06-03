@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.backend.app.dto.ProjectSearchCriteria;
+import com.backend.app.dto.miscellaneous.ProjectSearchCriteria;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.model.Project;
 import com.backend.app.model.Tag;
@@ -20,22 +20,15 @@ import com.backend.app.repository.TagRepository;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import jakarta.persistence.criteria.CriteriaBuilder.Case;
-
+import jakarta.persistence.criteria.*;
 @Service
+@RequiredArgsConstructor
 public class ProjectSpecificationService {
 	private final PublicationService publicationService;
 	private final PatentService patentService;
-	private final ResearchService researchService;
-	
-	@Autowired
-	public ProjectSpecificationService(
-			PublicationService publicationService, PatentService patentService, ResearchService researchService) {
-		this.publicationService = publicationService;
-		this.patentService = patentService;
-		this.researchService=researchService;
-	}
-	
+	private final ResearchService researchService;	
 	
 	public Specification<Project> buildSpecification(ProjectSearchCriteria criteria) {
 		return Specification.where(withSearchQuery(criteria.getSearch()))
@@ -49,12 +42,10 @@ public class ProjectSpecificationService {
 	}
 	
 	private Specification<Project> withSearchQuery(String search) {
-		return (root, query, cb) -> {
-			if(search == null || search.isEmpty()) {
-				return cb.conjunction();
-			}
-			String searchPattern = "%" + search.toLowerCase() + "%";
-			return cb.or(cb.like(cb.lower(root.get("title")), searchPattern), cb.like(cb.lower(root.get("description")), searchPattern));};
+		return (root, query, cb) -> search == null || search.isEmpty() ? cb.conjunction() : cb.or(
+                cb.like(cb.lower(root.get("title")), "%" + search.toLowerCase() + "%"),
+                cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+            );
 	}
 	
 	private Specification<Project> withTypes(List<ProjectType> types) {
@@ -81,18 +72,20 @@ public class ProjectSpecificationService {
 		                startDate.atStartOfDay(), 
 		                endDate.atTime(23, 59, 59)
 		            );
-		        } else if (startDate != null) {
+		        } 
+		        if (startDate != null) {
 		            return cb.greaterThanOrEqualTo(
 		            	createdAt, 
 		                startDate.atStartOfDay()
 		            );
-		        } else if (endDate != null) {
+		        } 
+		        if (endDate != null) {
 		            return cb.lessThanOrEqualTo(
 		            	createdAt, 
 		                endDate.atTime(23, 59, 59)
 		            );
 		        }
-		        return null;
+		        return cb.conjunction();
 		    };
 	}
 	 
@@ -102,50 +95,46 @@ public class ProjectSpecificationService {
 	 
 	 private Specification<Project> withPublicationFilters(String source, String doiIsbn) {
 	        return (root, query, cb) -> {
-	            if ((source == null || source.isEmpty()) && (doiIsbn == null || doiIsbn.isEmpty())) {
+	            if (isNullOrEmpty(source) && isNullOrEmpty(doiIsbn)) {
 	                return cb.conjunction();
 	            }
 	            
 	            List<UUID> matchingProjectIds = publicationService.findProjectsByFilters(source, doiIsbn);
 	            
-	            if(matchingProjectIds.isEmpty()) {
-	            	return cb.disjunction();
-	            }
-	            
-	            return root.get("id").in(matchingProjectIds);
+	            return getProjectIdSpecification(cb, root, matchingProjectIds);
+
 	        };
 	    }
 	 
 	 private Specification<Project> withResearchFilters(BigDecimal minBudget, BigDecimal maxBudget, String fundingSource) {
 	        return (root, query, cb) -> {
-	            if (minBudget == null && maxBudget == null && (fundingSource == null || fundingSource.isEmpty())) {
+	            if (minBudget == null && maxBudget == null && isNullOrEmpty(fundingSource)) {
 	                return cb.conjunction();
 	            }
 	            
 	            List<UUID> matchingProjectIds = researchService.findProjectsByFilters(minBudget, maxBudget, fundingSource);
 	            
-	            if(matchingProjectIds.isEmpty()) {
-	            	return cb.disjunction();
-	            }
-	            
-	            return root.get("id").in(matchingProjectIds);
+	            return getProjectIdSpecification(cb, root, matchingProjectIds);
 	        };
 	    }
 	 
 	 private Specification<Project> withPatentFilters(String registrationNumber, String issuingAuthority) {
 	        return (root, query, cb) -> {
-	            if ((registrationNumber == null || registrationNumber.isEmpty()) && 
-	                (issuingAuthority == null || issuingAuthority.isEmpty())) {
+	            if (isNullOrEmpty(registrationNumber) && isNullOrEmpty(issuingAuthority)) {
 	                return cb.conjunction();
 	            }
 	            
 	            List<UUID> matchingProjectIds = patentService.findProjectsByFilters(registrationNumber, issuingAuthority);
 	            
-	            if(matchingProjectIds.isEmpty()) {
-	            	return cb.disjunction();
-	            }
-	            
-	            return root.get("id").in(matchingProjectIds);
+	            return getProjectIdSpecification(cb, root, matchingProjectIds);
+
 	        };
 	    }
+	 
+	 private Predicate getProjectIdSpecification(CriteriaBuilder cb, Root<Project> root, List<UUID> projectIds) {
+		 return projectIds.isEmpty() ? cb.disjunction() : root.get("id").in(projectIds);
+	 }
+	 private boolean isNullOrEmpty(String value) {
+		 return value == null || value.isEmpty();
+	 }
 }

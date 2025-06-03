@@ -1,11 +1,13 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatChipsModule } from '@angular/material/chips';
@@ -13,15 +15,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
-import { usersContent } from '@content/users.content';
 import { UserCardComponent } from '../../shared/components/user-card/user-card.component';
-import { PaginationService } from '@core/services/pagination.service';
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
-import { IUser } from '@shared/types/users.types';
-import { debounce, debounceTime, distinctUntilChanged, Observable } from 'rxjs';
-import { UsersListComponent } from '../../shared/components/users-list/users-list.component';
-import { UserService } from '@core/services/user.service';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { IUser } from '@shared/models/user.model';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { UserService } from '@core/services/users/user.service';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PageResponse } from '@shared/types/generics.types';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-users',
@@ -36,100 +37,84 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     MatButtonToggleModule,
     MatListModule,
     MatChipsModule,
-    AsyncPipe,
-    UsersListComponent,
     UserCardComponent,
     MatPaginatorModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
-  providers: [PaginationService],
+  host: { style: 'height: 100%; display: block;' },
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent {
+  private readonly userService = inject(UserService);
+
   searchControl = new FormControl('');
 
-  userService = inject(UserService);
-  paginationService = inject(PaginationService);
+  users = signal<IUser[]>([]);
+  isLoading = signal(false);
+  searchQuery = signal('');
+  currentPage = signal(0);
+  pageSize = signal(10);
+  totalItems = signal(0);
 
-  currentPage = 0;
-  pageSize = 10;
-  totalElements = 0;
+  displayMessage = computed(() => {
+    if (this.searchQuery()) {
+      return `Search results for: "${this.searchQuery()}": ${
+        this.users().length
+      } of ${this.totalItems()} users found`;
+    }
+    return `All Users: ${this.totalItems()}`;
+  });
 
-  users: IUser[] = [];
+  searchQuery$ = toSignal(
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ),
+    { initialValue: '' }
+  );
 
-  pages: number[] = [];
-  elements: IUser[] = [];
-
-  searchQuery: string = '';
-
-  ngOnInit(): void {
-    this.loadUsers();
-
-    this.searchControl.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((query) => {
-        this.searchQuery = query || '';
+  constructor() {
+    effect(() => {
+      const query = this.searchQuery$();
+      untracked(() => {
+        this.searchQuery.set(query || '');
+        this.currentPage.set(0);
         this.loadUsers();
       });
+    });
   }
 
-  loadUsers(page: number = 0): void {
-    if (this.searchQuery) {
-      this.userService
-        .searchUsers(this.searchQuery, page, this.pageSize)
-        .subscribe({
-          next: (response) => {
-            this.users = response.content;
-            this.totalElements = response.totalElements;
-            this.currentPage = response.pageable.pageNumber;
-          },
-          error: (error) => {
-            console.error('Error searching users:', error);
-          },
-        });
-    } else {
-      this.userService.getPaginatedUsers(page, this.pageSize).subscribe({
-        next: (response) => {
-          this.users = response.content;
-          this.totalElements = response.totalElements;
-          this.currentPage = response.pageable.pageNumber;
-        },
-        error: (error) => {
-          console.error('Error loading users:', error);
-        },
-      });
+  private loadUsers(): void {
+    if (this.users().length === 0) {
+      this.isLoading.set(true);
     }
+
+    const request = this.searchQuery()
+      ? this.userService.searchUsers(
+          this.searchQuery(),
+          this.currentPage(),
+          this.pageSize()
+        )
+      : this.userService.getPaginatedUsers(this.currentPage(), this.pageSize());
+
+    request.subscribe({
+      next: (response) => {
+        this.users.set(response.data);
+        this.totalItems.set(response.totalItems);
+        this.currentPage.set(response.page);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+        this.isLoading.set(false);
+      },
+    });
   }
 
-  onPageChange(page: number): void {
-    this.loadUsers(page);
+  onPageChange(event: PageEvent): void {
+    this.pageSize.set(event.pageSize);
+    this.currentPage.set(event.pageIndex);
+    this.loadUsers();
   }
-
-  // search(value: string) {
-  //   this.paginationService.currentPage = 1;
-  //   this.paginationService.elements = this.users.filter((user) =>
-  //     user.username.toLowerCase().includes(value.toLowerCase())
-  //   );
-  //   this.paginationService.itemsPerPage = 10;
-  //   this.paginationService.updateVisibleElements();
-  //   this.elements = this.paginationService.visibleElements;
-
-  //   this.pages = Array.from(
-  //     { length: this.paginationService.numPages() },
-  //     (_, i) => i + 1
-  //   );
-  // }
-
-  // paginationUsage() {
-  //   this.paginationService.currentPage = 1;
-  //   this.paginationService.elements = this.users;
-  //   this.paginationService.itemsPerPage = 10;
-  //   this.paginationService.updateVisibleElements();
-  //   this.elements = this.paginationService.visibleElements;
-
-  //   this.pages = Array.from(
-  //     { length: this.paginationService.numPages() },
-  //     (_, i) => i + 1
-  //   );
-  // }
 }

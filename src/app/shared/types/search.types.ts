@@ -1,17 +1,13 @@
+import { ProjectDTO, Tag } from '@models/project.model';
+import { ProjectType } from '@shared/enums/categories.enum';
+
 export interface ProjectSearchResponse {
-  content: ProjectInterface[];
-  pageable: any;
+  content: ProjectDTO[];
   totalElements: number;
   totalPages: number;
-  last: boolean;
   size: number;
   number: number;
-  sort: any;
-  numberOfElements: number;
-  first: boolean;
-  empty: boolean;
 }
-
 export interface ProjectInterface {
   id: string;
   type: string;
@@ -23,7 +19,20 @@ export interface ProjectInterface {
   tags: Tag[];
 }
 
-export interface Tag {
-  id: string;
-  name: string;
+export interface ProjectSearchFilters {
+  search?: string;
+  types?: ProjectType[];
+  tags?: string[];
+  startDate?: string;
+  endDate?: string;
+  progressMin?: number;
+  progressMax?: number;
+  publicationSource?: string;
+  doiIsbn?: string;
+  minBudget?: number;
+  maxBudget?: number;
+  fundingSource?: string;
+  registrationNumber?: string;
+  issuingAuthority?: string;
+  statuses?: string[];
 }

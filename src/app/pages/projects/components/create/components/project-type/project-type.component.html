@@ -1,6 +1,4 @@
-@let typeForm = typeFormSig();
-
-<form [formGroup]="typeForm" class="project-type__form">
+<form [formGroup]="typeForm()" class="project-type__form">
   <mat-form-field>
     <mat-label>Type</mat-label>
     <mat-select formControlName="type">
@@ -10,10 +8,8 @@
     </mat-select>
   </mat-form-field>
   <div>
-    <button mat-button matStepperNext [disabled]="typeForm.invalid">
+    <button mat-button matStepperNext [disabled]="typeForm().invalid">
       Next
     </button>
   </div>
 </form>
-
-{{ typeFormSig().value.type }}

@@ -1,25 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { PaginationService } from '@core/services/pagination.service';
-import { MetricsStatisticsComponent } from './components/metrics-statistics/metrics-statistics.component';
-import { RecentActivitiesComponent } from './components/recent-activities/recent-activities.component';
-import { PendingActionsComponent } from './components/pending-actions/pending-actions.component';
-import { AnalylicsTrendsComponent } from './components/analylics-trends/analylics-trends.component';
-import { QuickActionsComponent } from './components/quick-actions/quick-actions.component';
-import { SearchFilterComponent } from './components/search-filter/search-filter.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTabsModule } from '@angular/material/tabs';
+import { AnalyticsService } from '@core/services/analytics.service';
+import { OverviewComponent } from './components/overview/overview.component';
+import { ProjectAnalyticsComponent } from './components/project-analytics/project-analytics.component';
+import { ResearchAnalyticsComponent } from './components/research-analytics/research-analytics.component';
+import { SystemAnalyticsComponent } from './components/system-analytics/system-analytics.component';
+import { UserAnalyticsComponent } from './components/user-analytics/user-analytics.component';
 
 @Component({
   selector: 'app-dashboard',
   imports: [
-    QuickActionsComponent,
-    SearchFilterComponent,
-    AnalylicsTrendsComponent,
-    PendingActionsComponent,
-    RecentActivitiesComponent,
-    MetricsStatisticsComponent,
+    MatTabsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    OverviewComponent,
+    UserAnalyticsComponent,
+    ProjectAnalyticsComponent,
+    ResearchAnalyticsComponent,
+    SystemAnalyticsComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
-  providers: [provideNativeDateAdapter(), PaginationService],
+  providers: [provideNativeDateAdapter()],
 })
-export class DashboardComponent {}
+export class DashboardComponent {
+  private readonly analyticsService = inject(AnalyticsService);
+
+  refreshAll(): void {
+    this.analyticsService.refreshAll();
+  }
+}

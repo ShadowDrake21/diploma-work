@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { DashboardMetrics } from '@shared/types/dashboard.types';
-import { getAuthHeaders } from '@shared/utils/auth.utils';
+import { getAuthHeaders } from '@core/utils/auth.utils';
 import { catchError, Observable, of } from 'rxjs';
 
 @Injectable({
