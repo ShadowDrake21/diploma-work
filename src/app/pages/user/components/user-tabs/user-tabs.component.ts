@@ -8,14 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import { ProfileProjectsComponent } from '../../../../shared/components/profile-projects/profile-projects.component';
+import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/users/user.service';
 import { catchError, of } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 import { ProjectDTO } from '@models/project.model';
-import { IUser, SocialLink } from '@models/user.model';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { IUser } from '@models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import { ContactInformationComponent } from './components/contact-information/contact-information.component';
 import { NotificationService } from '@core/services/notification.service';

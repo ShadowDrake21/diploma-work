@@ -31,7 +31,6 @@ import { TagService } from '@core/services/project/models/tag.service';
 import { FileMetadataDTO } from '@models/file.model';
 import { ProjectDTO, UpdateProjectRequest } from '@models/project.model';
 import { Tag } from '@models/tag.model';
-import { FileSizePipe } from '@pipes/file-size.pipe';
 import { finalize } from 'rxjs';
 import { FileHandlerFacadeService } from '@core/services/files/file-handler-facade.service';
 import { FileUploadListComponent } from '../../../../../../../projects/components/create/components/project-general-information/components/file-upload-list/file-upload-list.component';
@@ -57,7 +56,6 @@ import { NotificationService } from '@core/services/notification.service';
     MatListModule,
     MatProgressSpinnerModule,
     MatSliderThumb,
-    FileSizePipe,
     FileUploadListComponent,
   ],
   templateUrl: './project-edit-modal.component.html',

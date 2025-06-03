@@ -10,9 +10,9 @@ import { NotificationService } from './notification.service';
   providedIn: 'root',
 })
 export class DashboardService {
-  private http = inject(HttpClient);
-  private notificationService = inject(NotificationService);
-  private apiUrl = BASE_URL + 'dashboard';
+  private readonly http = inject(HttpClient);
+  private readonly notificationService = inject(NotificationService);
+  private readonly apiUrl = BASE_URL + 'dashboard';
 
   private defaultMetrics: DashboardMetrics = {
     totalProjects: 0,

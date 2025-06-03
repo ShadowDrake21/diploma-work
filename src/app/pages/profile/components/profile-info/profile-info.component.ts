@@ -1,12 +1,10 @@
-import { Component, inject, OnDestroy, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { UserService } from '@core/services/users/user.service';
 import { Subscription } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { IUpdateUserProfile, IUser } from '@models/user.model';
 import { ProfileAvatarComponent } from './components/profile-avatar/profile-avatar.component';
 import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
 import { ProfileViewComponent } from './components/profile-view/profile-view.component';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { NotificationService } from '@core/services/notification.service';
@@ -18,7 +16,6 @@ import { MatIcon } from '@angular/material/icon';
     ProfileAvatarComponent,
     ProfileEditComponent,
     ProfileViewComponent,
-    MatProgressSpinner,
     MatProgressBarModule,
     MatIcon,
   ],

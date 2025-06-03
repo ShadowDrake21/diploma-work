@@ -5,23 +5,19 @@ import {
   forkJoin,
   of,
   catchError,
-  take,
   takeUntil,
 } from 'rxjs';
 import { TagService } from '../../models/tag.service';
-import { NotificationService } from '@core/services/notification.service';
-import { ApiResponse } from '@models/api-response.model';
-import { Tag, TagDTO } from '@models/tag.model';
+import { Tag } from '@models/tag.model';
 import { ErrorHandlerService } from '@core/services/utils/error-handler.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectTagService implements OnDestroy {
-  private tagService = inject(TagService);
-  private notificationService = inject(NotificationService);
-  private errorHandler = inject(ErrorHandlerService);
-  private destroyed$ = new Subject<void>();
+  private readonly tagService = inject(TagService);
+  private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly destroyed$ = new Subject<void>();
 
   // State
   private _tags = new BehaviorSubject<any[]>([]);

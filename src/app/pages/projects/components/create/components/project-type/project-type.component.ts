@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
-import { types } from '@content/createProject.content';
+import { types } from '@shared/content/project.content';
 import { ProjectType } from '@shared/enums/categories.enum';
 
 @Component({

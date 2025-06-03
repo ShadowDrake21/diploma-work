@@ -1,24 +1,18 @@
 import {
   Component,
-  effect,
   ElementRef,
-  EventEmitter,
   inject,
   input,
-  Input,
   OnDestroy,
   output,
-  Output,
   signal,
   viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
-import { currentUserSig } from '@core/shared/shared-signals';
 import { IUser } from '@models/user.model';
 
 @Component({

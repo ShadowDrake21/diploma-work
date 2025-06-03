@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
@@ -15,9 +15,9 @@ import { ErrorHandlerService } from '@core/services/utils/error-handler.service'
   providedIn: 'root',
 })
 export class ResearchService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly errorHandler = inject(ErrorHandlerService);
-  private apiUrl = BASE_URL + 'researches';
+  private readonly apiUrl = BASE_URL + 'researches';
 
   getAll(): Observable<ApiResponse<ResearchDTO[]>>;
   getAll(

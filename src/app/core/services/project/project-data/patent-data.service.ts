@@ -4,7 +4,6 @@ import { CreatePatentRequest, UpdatePatentRequest } from '@models/patent.model';
 import { PatentService } from '../models/patent.service';
 import { TypedProjectFormValues } from '@shared/types/services/project-data.types';
 import { catchError, Observable, throwError } from 'rxjs';
-import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',

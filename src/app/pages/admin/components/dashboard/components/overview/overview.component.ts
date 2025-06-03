@@ -7,13 +7,11 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { catchError, map, of, tap } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgIf } from '@angular/common';
 import { OverviewHasDataPipe } from '@pipes/overview-has-data.pipe';
 import { NotificationService } from '@core/services/notification.service';
 @Component({
   selector: 'app-overview',
   imports: [
-    NgIf,
     MatGridListModule,
     MatCardModule,
     MatIconModule,

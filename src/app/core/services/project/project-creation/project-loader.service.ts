@@ -22,10 +22,10 @@ import { NotificationService } from '@core/services/notification.service';
   providedIn: 'root',
 })
 export class ProjectLoaderService {
-  private projectDataService = inject(ProjectDataService);
-  private projectFormService = inject(ProjectFormService);
-  private projectService = inject(ProjectService);
-  private notificationService = inject(NotificationService);
+  private readonly projectDataService = inject(ProjectDataService);
+  private readonly projectFormService = inject(ProjectFormService);
+  private readonly projectService = inject(ProjectService);
+  private readonly notificationService = inject(NotificationService);
 
   // Forms
   typeForm = this.projectFormService.createTypeForm();

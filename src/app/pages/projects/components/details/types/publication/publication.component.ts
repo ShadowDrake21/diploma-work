@@ -11,8 +11,8 @@ import { catchError, Observable, of } from 'rxjs';
   styleUrl: './publication.component.scss',
 })
 export class PublicationComponent implements OnInit {
-  private projectService = inject(ProjectService);
-  private notificationService = inject(NotificationService);
+  private readonly projectService = inject(ProjectService);
+  private readonly notificationService = inject(NotificationService);
 
   @Input({ required: true })
   id!: string;

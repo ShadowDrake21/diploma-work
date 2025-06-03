@@ -1,13 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { IUser } from '@shared/models/user.model';
-import { catchError, map, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'user-collaborators',
@@ -16,8 +15,8 @@ import { catchError, map, of } from 'rxjs';
   styleUrl: './user-collaborators.component.scss',
 })
 export class UserCollaboratorsComponent {
-  private userService = inject(UserService);
-  private notificationService = inject(NotificationService);
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   userId = input.required<number>();
 

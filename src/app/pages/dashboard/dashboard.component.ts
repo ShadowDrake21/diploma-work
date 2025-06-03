@@ -10,7 +10,6 @@ import { forkJoin, map, Subscription, tap } from 'rxjs';
 import { DashboardService } from '@core/services/dashboard.service';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { ProjectDTO } from '@models/project.model';
-import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
 import { RouterLink } from '@angular/router';
 import { OnlineUsersComponent } from './components/online-users/online-users.component';
 import { ProjectsQuickLinksComponent } from '../../shared/components/projects-quick-links/projects-quick-links.component';
@@ -38,9 +37,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   },
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private projectService = inject(ProjectService);
-  private dashboardService = inject(DashboardService);
-  private notificationService = inject(NotificationService);
+  private readonly projectService = inject(ProjectService);
+  private readonly dashboardService = inject(DashboardService);
+  private readonly notificationService = inject(NotificationService);
 
   isLoading = true;
   hasError = false;

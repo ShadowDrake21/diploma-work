@@ -18,8 +18,8 @@ import { NotificationService } from '@core/services/notification.service';
   providedIn: 'root',
 })
 export class ProjectDetailsService implements OnDestroy {
-  private projectService = inject(ProjectService);
-  private notificationService = inject(NotificationService);
+  private readonly projectService = inject(ProjectService);
+  private readonly notificationService = inject(NotificationService);
   private destroyed$ = new Subject<void>();
   private currentProjectId: string | null = null;
 

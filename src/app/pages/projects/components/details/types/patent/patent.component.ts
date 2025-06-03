@@ -1,4 +1,4 @@
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   Component,
   inject,
@@ -11,27 +11,19 @@ import { NotificationService } from '@core/services/notification.service';
 import { ProjectService } from '@core/services/project/models/project.service';
 import { UserService } from '@core/services/users/user.service';
 import { PatentDTO } from '@models/patent.model';
-import { IAuthorizedUser, IUser } from '@models/user.model';
-import {
-  catchError,
-  forkJoin,
-  map,
-  Observable,
-  of,
-  Subscription,
-  tap,
-} from 'rxjs';
+import { IUser } from '@models/user.model';
+import { catchError, forkJoin, map, of, Subscription, tap } from 'rxjs';
 
 @Component({
   selector: 'details-patent',
-  imports: [DatePipe, AsyncPipe],
+  imports: [DatePipe],
   templateUrl: './patent.component.html',
   styleUrl: './patent.component.scss',
 })
 export class PatentComponent implements OnInit, OnDestroy {
-  private projectService = inject(ProjectService);
-  private userService = inject(UserService);
-  private notificationService = inject(NotificationService);
+  private readonly projectService = inject(ProjectService);
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
   @Input({ required: true })
   id!: string;
   // Signals for state management

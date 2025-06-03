@@ -20,9 +20,9 @@ import { PublicationDTO } from '@models/publication.model';
   providedIn: 'root',
 })
 export class ProjectService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly errorHandler = inject(ErrorHandlerService);
-  private apiUrl = BASE_URL + 'projects';
+  private readonly apiUrl = BASE_URL + 'projects';
 
   getAllProjects(): Observable<ApiResponse<ProjectDTO[]>>;
 

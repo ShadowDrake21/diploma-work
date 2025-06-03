@@ -15,8 +15,8 @@ import { AuthService } from '@core/authentication/auth.service';
   styleUrl: './forbidden.component.scss',
 })
 export class ForbiddenComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   onGoBack() {
     if (this.authService.getCurrentUser()) {

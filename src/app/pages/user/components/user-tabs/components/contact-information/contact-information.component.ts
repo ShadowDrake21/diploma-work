@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { IUser, SocialLink } from '@models/user.model';
+import { IUser } from '@models/user.model';
 
 @Component({
   selector: 'user-contact-information',

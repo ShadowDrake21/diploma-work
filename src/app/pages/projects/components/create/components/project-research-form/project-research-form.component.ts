@@ -10,7 +10,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Filter } from '@shared/types/filters.types';
-import { statuses } from '@content/createProject.content';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
 import {
   BaseFormInputs,
@@ -18,6 +17,7 @@ import {
 } from '@shared/types/forms/project-form.types';
 import { UserService } from '@core/services/users/user.service';
 import { NotificationService } from '@core/services/notification.service';
+import { statuses } from '@shared/content/project.content';
 
 @Component({
   selector: 'create-project-research-form',
@@ -40,8 +40,8 @@ export class ProjectResearchFormComponent
   extends BaseFormComponent
   implements OnInit
 {
-  private userService = inject(UserService);
-  private notificationService = inject(NotificationService);
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   researchProjectsForm = input.required<ResearchFormGroup>();
 

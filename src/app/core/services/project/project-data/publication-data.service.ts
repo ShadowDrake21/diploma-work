@@ -7,7 +7,6 @@ import {
   CreatePublicationRequest,
   UpdatePublicationRequest,
 } from '@models/publication.model';
-import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',

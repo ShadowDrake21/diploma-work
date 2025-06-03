@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,17 +12,11 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
-import { UserService } from '@core/services/users/user.service';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, of, switchMap, tap } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { CommentService } from '@core/services/comment.service';
-import { currentUserSig } from '@core/shared/shared-signals';
-import { PaginatedResponse } from '@models/api-response.model';
-import { IComment } from '@models/comment.types';
 import { MyCommentsComponent } from './components/my-comments/my-comments.component';
 import { ProjectSearchFilters } from '@shared/types/search.types';
 import { ProjectService } from '@core/services/project/models/project.service';
-import { NotificationService } from '@core/services/notification.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({

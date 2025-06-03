@@ -6,15 +6,15 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { FilterPanelComponent } from '../../../../shared/components/filter-panel/filter-panel.component';
-import { ProjectCardComponent } from '../../../../shared/components/project-card/project-card.component';
+import { FilterPanelComponent } from '@shared/components/filter-panel/filter-panel.component';
+import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { ProjectService } from '@core/services/project/models/project.service';
 import { ProjectDTO } from '@models/project.model';
 import { ProjectSearchFilters } from '@shared/types/search.types';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ProjectsQuickLinksComponent } from '../../../../shared/components/projects-quick-links/projects-quick-links.component';
+import { ProjectsQuickLinksComponent } from '@shared/components/projects-quick-links/projects-quick-links.component';
 import { ActivatedRoute } from '@angular/router';
 import {
   catchError,

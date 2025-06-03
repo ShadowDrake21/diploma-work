@@ -3,7 +3,6 @@ import { Component, inject, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RecentUsersService } from '@core/services/users/recent-users.service';
-import { UserRole } from '@shared/enums/user.enum';
 import { TruncateTextPipe } from '@shared/pipes/truncate-text.pipe';
 
 @Component({
@@ -19,7 +18,8 @@ export class RecentUsersComponent {
   error = signal<string | null>(null);
 
   get activeUsers() {
-    return this.recentUsersService.activeUsers()?.data || [];
+    const result = this.recentUsersService.activeUsers();
+    return result && 'data' in result ? result.data : [];
   }
 
   refreshActiveUsers() {
