@@ -35,7 +35,6 @@ import { MatIcon } from '@angular/material/icon';
     MatIcon,
   ],
   templateUrl: './sign-up.component.html',
-  styleUrl: './sign-up.component.scss',
 })
 export class SignUpComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);

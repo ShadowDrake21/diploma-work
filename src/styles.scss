@@ -1,5 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
-@use "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
@@ -9,77 +11,63 @@ body {
 }
 body {
   margin: 0;
-  // font-family: Roboto, "Helvetica Neue", sans-serif;
   font-family: "Roboto", sans-serif;
   font-style: normal;
 }
-
 .roboto-thin {
   font-family: "Roboto", sans-serif;
   font-weight: 100;
   font-style: normal;
 }
-
 .roboto-light {
   font-family: "Roboto", sans-serif;
   font-weight: 300;
   font-style: normal;
 }
-
 .roboto-regular {
   font-family: "Roboto", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
-
 .roboto-medium {
   font-family: "Roboto", sans-serif;
   font-weight: 500;
   font-style: normal;
 }
-
 .roboto-bold {
   font-family: "Roboto", sans-serif;
   font-weight: 700;
   font-style: normal;
 }
-
 .roboto-black {
   font-family: "Roboto", sans-serif;
   font-weight: 900;
   font-style: normal;
 }
-
 .container {
   max-width: 1500px;
   padding: 0 20px;
   margin: 0 auto;
 }
-
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
-
 * {
   margin: 0;
   padding: 0;
 }
-
 ul[role="list"],
 ol[role="list"] {
   list-style: none;
 }
-
 html:focus-within {
   scroll-behavior: smooth;
 }
-
 a:not([class]) {
   text-decoration-skip-ink: auto;
 }
-
 img,
 picture,
 svg,
@@ -92,18 +80,15 @@ canvas {
   background-repeat: no-repeat;
   background-size: cover;
 }
-
 input,
 button,
 textarea,
 select {
   font: inherit;
 }
-
 button {
   outline: none;
 }
-
 @media (prefers-reduced-motion: reduce) {
   html:focus-within {
     scroll-behavior: auto;
@@ -118,93 +103,79 @@ button {
     transition: none;
   }
 }
-
 body,
 html {
   height: 100%;
   scroll-behavior: smooth;
 }
-
 .dashboard {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   height: 100%;
 }
-
 .main {
   flex: 1;
   width: 100%;
 }
-
 .pagination {
   margin-top: 25px;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 25px;
-
-  &__text {
-    font-weight: 600;
-  }
-
-  &__btn {
-    cursor: pointer;
-    padding: 10px 15px;
-    background: #5c5c5c;
-    color: #fff;
-    transition: background-color 0.3s;
-
-    &.active {
-      background-color: #a8a8a8;
-      border-color: #000;
-
-      &:hover {
-        background-color: #fff;
-        color: #000;
-      }
-    }
-    &:hover {
-      background-color: #2c2c2c;
-    }
-
-    &:disabled {
-      background: rgba(0, 0, 0, 0.2);
-    }
-  }
 }
-
+.pagination__text {
+  font-weight: 600;
+}
+.pagination__btn {
+  cursor: pointer;
+  padding: 10px 15px;
+  background: #5c5c5c;
+  color: #fff;
+  transition: background-color 0.3s;
+}
+.pagination__btn.active {
+  background-color: #a8a8a8;
+  border-color: #000;
+}
+.pagination__btn.active:hover {
+  background-color: #fff;
+  color: #000;
+}
+.pagination__btn:hover {
+  background-color: #2c2c2c;
+}
+.pagination__btn:disabled {
+  background: rgba(0, 0, 0, 0.2);
+}
 .main-settings {
   width: 500px;
-  &__title {
-    padding-bottom: 15px;
-    text-align: center;
-  }
-
-  &__form {
-    max-width: 100%;
-    &-inner {
-      display: flex;
-      flex-direction: column;
-      padding-bottom: 20px;
-    }
-    &-group {
-      display: flex;
-      justify-content: space-between;
-    }
-    &-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    &-item {
-    }
-    &-btn {
-      width: 100%;
-    }
-  }
 }
-
+.main-settings__title {
+  padding-bottom: 15px;
+  text-align: center;
+}
+.main-settings__form {
+  max-width: 100%;
+}
+.main-settings__form-inner {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+}
+.main-settings__form-group {
+  display: flex;
+  justify-content: space-between;
+}
+.main-settings__form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.main-settings__form-btn {
+  width: 100%;
+}
 /* HTML: <div class="loader"></div> */
 .loader {
   width: 100px;
@@ -239,35 +210,25 @@ html {
     clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
   }
 }
-
 .notification-success {
-  background-color: #4caf50 !important; // Green
+  background-color: #4caf50 !important;
   color: white !important;
 }
-
 .notification-error {
-  background-color: #f44336 !important; // Red
+  background-color: #f44336 !important;
   color: white !important;
 }
-
 .notification-warning {
-  background-color: #ff9800 !important; // Orange
+  background-color: #ff9800 !important;
   color: white !important;
 }
-
 .notification-info {
-  background-color: #2196f3 !important; // Blue
+  background-color: #2196f3 !important;
   color: white !important;
 }
-
-// Snackbar custom styling
-.mat-snack-bar-container {
-  &.notification-success,
-  &.notification-error,
-  &.notification-warning,
-  &.notification-info {
-    .mat-simple-snackbar-action {
-      color: white;
-    }
-  }
+.mat-snack-bar-container.notification-success .mat-simple-snackbar-action,
+.mat-snack-bar-container.notification-error .mat-simple-snackbar-action,
+.mat-snack-bar-container.notification-warning .mat-simple-snackbar-action,
+.mat-snack-bar-container.notification-info .mat-simple-snackbar-action {
+  color: white;
 }

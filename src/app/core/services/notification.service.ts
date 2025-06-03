@@ -16,7 +16,7 @@ const DEFAULT_DURATION = 5000;
 })
 export class NotificationService {
   private readonly snackBar = inject(MatSnackBar);
-  private readonly translate = inject(TranslateService);
+  // private readonly translate = inject(TranslateService);
 
   show(
     message: string,
@@ -30,7 +30,7 @@ export class NotificationService {
       verticalPosition: 'top',
     };
 
-    this.snackBar.open(message, this.translate.instant('common.close'), config);
+    // this.snackBar.open(message, this.translate.instant('common.close'), config);
   }
 
   showSuccess(message: string, duration: number = DEFAULT_DURATION): void {
@@ -49,37 +49,37 @@ export class NotificationService {
     this.show(message, NotificationType.INFO, duration);
   }
 
-  showTranslated(
-    key: string,
-    params?: object,
-    type: NotificationType = NotificationType.INFO,
-    duration: number = DEFAULT_DURATION
-  ): void {
-    this.translate.get(key, params).subscribe((translated) => {
-      this.show(translated, type, duration);
-    });
-  }
-  showTranslatedSuccess(
-    key: string,
-    params?: object,
-    duration: number = DEFAULT_DURATION
-  ): void {
-    this.showTranslated(key, params, NotificationType.SUCCESS, duration);
-  }
+  // showTranslated(
+  //   key: string,
+  //   params?: object,
+  //   type: NotificationType = NotificationType.INFO,
+  //   duration: number = DEFAULT_DURATION
+  // ): void {
+  //   this.translate.get(key, params).subscribe((translated) => {
+  //     this.show(translated, type, duration);
+  //   });
+  // }
+  // showTranslatedSuccess(
+  //   key: string,
+  //   params?: object,
+  //   duration: number = DEFAULT_DURATION
+  // ): void {
+  //   this.showTranslated(key, params, NotificationType.SUCCESS, duration);
+  // }
 
-  showTranslatedError(
-    key: string,
-    params?: object,
-    duration: number = DEFAULT_DURATION
-  ): void {
-    this.showTranslated(key, params, NotificationType.ERROR, duration);
-  }
+  // showTranslatedError(
+  //   key: string,
+  //   params?: object,
+  //   duration: number = DEFAULT_DURATION
+  // ): void {
+  //   this.showTranslated(key, params, NotificationType.ERROR, duration);
+  // }
 
-  showTranslatedWarning(
-    key: string,
-    params?: object,
-    duration: number = DEFAULT_DURATION
-  ): void {
-    this.showTranslated(key, params, NotificationType.WARNING, duration);
-  }
+  // showTranslatedWarning(
+  //   key: string,
+  //   params?: object,
+  //   duration: number = DEFAULT_DURATION
+  // ): void {
+  //   this.showTranslated(key, params, NotificationType.WARNING, duration);
+  // }
 }

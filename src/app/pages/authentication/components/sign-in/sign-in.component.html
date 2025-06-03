@@ -1,17 +1,23 @@
-<div class="sign-in">
-  <div class="sign-in__header">
-    <h1 class="sign-in__title">Вхід до профілю</h1>
-    <h3 class="sign-in__subtitle">
+<div>
+  <div class="pb-[30px] text-center">
+    <h1 class="text-2xl font-semibold">Вхід до профілю</h1>
+    <h3 class="text-base font-normal">
       Раді знову Вас бачити! Введіть дані до авторизації
     </h3>
   </div>
   @if (formError()) {
-  <div class="sign-in__error">
-    <mat-icon>error</mat-icon>
-    <span>{{ formError() }}</span>
+  <div
+    class="w-full h-5 flex items-center justify-center gap-2 py-5 bg-red-500 mb-[15px]"
+  >
+    <mat-icon color="warn">error</mat-icon>
+    <span class="text-black">{{ formError() }}</span>
   </div>
   }
-  <form class="sign-in__form" [formGroup]="signInForm" (ngSubmit)="onSubmit()">
+  <form
+    class="flex flex-col gap-[10px] pb-5"
+    [formGroup]="signInForm"
+    (ngSubmit)="onSubmit()"
+  >
     <mat-form-field class="sign-in__form-field">
       <mat-label>E-mail</mat-label>
       <input matInput type="email" formControlName="email" />
@@ -47,14 +53,12 @@
       <mat-error>{{ errorMessages.password() }}</mat-error>
       }
     </mat-form-field>
-    <div class="sign-in__form-options">
-      <mat-checkbox
-        class="sign-in__form-options__checkbox"
-        formControlName="rememberMe"
+    <div class="sign-in__form-options flex justify-between items-center">
+      <mat-checkbox class="remember-me-checkbox" formControlName="rememberMe"
         >Запамʼятати мене</mat-checkbox
       >
       <a
-        class="sign-in__form-options__link"
+        class="sign-in__form-options__link no-underline font-medium text-inherit"
         routerLink="/authentication/recover-password"
         >Забули пароль?</a
       >
@@ -68,8 +72,10 @@
       Ввійти</shared-custom-button
     >
   </form>
-  <p class="sign-in__link">
+  <p class="sign-in__link text-center">
     Не маєте аккаунту?
-    <a routerLink="/authentication/sign-up">Створити профіль</a>
+    <a class="no-underline font-bold" routerLink="/authentication/sign-up"
+      >Створити профіль</a
+    >
   </p>
 </div>
