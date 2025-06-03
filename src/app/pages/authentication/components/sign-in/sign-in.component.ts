@@ -55,7 +55,7 @@ export class SignInComponent implements OnInit {
     }),
     password: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.minLength(6)],
     }),
     rememberMe: new FormControl(false, { nonNullable: true }),
   });
@@ -116,9 +116,6 @@ export class SignInComponent implements OnInit {
           let errorMessage = 'Невдала спроба входу';
           if (error.code === 'INVALID_CREDENTIALS') {
             errorMessage = 'Невірний email або пароль';
-          } else if (error.code === 'ACCOUNT_LOCKED') {
-            errorMessage =
-              "Обліковий запис заблоковано. Будь ласка, зв'яжіться з адміністратором.";
           } else if (error.code === 'EMAIL_NOT_VERIFIED') {
             errorMessage =
               'Будь ласка, підтвердіть вашу електронну пошту перед входом.';
