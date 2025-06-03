@@ -26,6 +26,7 @@ import { ActivatedRoute } from '@angular/router';
 import { GeneralInformationForm } from '@shared/types/forms/project-form.types';
 import { FileUploadListComponent } from './components/file-upload-list/file-upload-list.component';
 import { FileHandlerFacadeService } from '@core/services/files/file-handler-facade.service';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'create-project-general-information',
@@ -49,11 +50,12 @@ import { FileHandlerFacadeService } from '@core/services/files/file-handler-faca
   styleUrl: './project-general-information.component.scss',
 })
 export class ProjectGeneralInformationComponent implements OnInit {
-  private tagService = inject(TagService);
-  private fileHandler = inject(FileHandlerFacadeService);
-  private destroyRef = inject(DestroyRef);
-  private route = inject(ActivatedRoute);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly tagService = inject(TagService);
+  private readonly fileHandler = inject(FileHandlerFacadeService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private notificationService = inject(NotificationService);
 
   generalInformationForm = input.required<FormGroup<GeneralInformationForm>>();
   entityType = input.required<ProjectType | null | undefined>();
@@ -80,7 +82,9 @@ export class ProjectGeneralInformationComponent implements OnInit {
     const entityId = this.getEntityId();
 
     if (!entityType || !entityId) {
-      console.warn('Cannot upload files - no files or entity type.');
+      this.notificationService.showError(
+        'Cannot upload files - missing project information'
+      );
       return;
     }
 
@@ -92,6 +96,7 @@ export class ProjectGeneralInformationComponent implements OnInit {
       },
       error: (error) => {
         console.error('Upload failed:', error);
+        this.notificationService.showError('File upload failed');
       },
     });
   }
@@ -99,7 +104,10 @@ export class ProjectGeneralInformationComponent implements OnInit {
   removeFile(index: number, isPending: boolean): void {
     this.fileHandler.removeFile(index, isPending).subscribe({
       next: () => this.updateFormControl(),
-      error: (error) => console.error('Error removing file:', error),
+      error: (error) => {
+        console.error('Error removing file:', error);
+        this.notificationService.showError('Failed to remove file');
+      },
     });
   }
 

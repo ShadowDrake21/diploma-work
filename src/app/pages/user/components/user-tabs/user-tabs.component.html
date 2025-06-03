@@ -1,4 +1,11 @@
 <mat-tab-group>
+  @if (error()) {
+  <div class="error-message">
+    {{ error() }}
+  </div>
+  } @if (loading()) {
+  <div class="loading-spinner">Loading...</div>
+  } @if (!error() && !loading()) {
   <mat-tab label="Publications">
     <shared-profile-projects
       [projects]="publications()"
@@ -39,4 +46,5 @@
   <mat-tab label="Contact information">
     <user-contact-information [user]="user()" />
   </mat-tab>
+  }
 </mat-tab-group>

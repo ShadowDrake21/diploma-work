@@ -23,6 +23,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PageResponse } from '@shared/types/generics.types';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-users',
@@ -47,6 +48,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class UsersComponent {
   private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   searchControl = new FormControl('');
 
@@ -56,8 +58,12 @@ export class UsersComponent {
   currentPage = signal(0);
   pageSize = signal(10);
   totalItems = signal(0);
+  errorOccurred = signal(false);
 
   displayMessage = computed(() => {
+    if (this.errorOccurred()) {
+      return 'Failed to load users. Please try again later.';
+    }
     if (this.searchQuery()) {
       return `Search results for: "${this.searchQuery()}": ${
         this.users().length
@@ -86,6 +92,8 @@ export class UsersComponent {
   }
 
   private loadUsers(): void {
+    this.errorOccurred.set(false);
+
     if (this.users().length === 0) {
       this.isLoading.set(true);
     }
@@ -108,8 +116,16 @@ export class UsersComponent {
       error: (error) => {
         console.error('Error loading users:', error);
         this.isLoading.set(false);
+        this.errorOccurred.set(true);
+        this.notificationService.showError(
+          'Failed to load users. Please try again later.'
+        );
       },
     });
+  }
+
+  reloadUsers(): void {
+    this.loadUsers();
   }
 
   onPageChange(event: PageEvent): void {

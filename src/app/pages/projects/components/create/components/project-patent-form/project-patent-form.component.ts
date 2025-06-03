@@ -1,6 +1,6 @@
 import { Component, inject, input, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +15,7 @@ import {
   BaseFormInputs,
   PatentFormGroup,
 } from '@shared/types/forms/project-form.types';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'create-project-patent-form',
@@ -37,28 +38,29 @@ export class ProjectPatentFormComponent
   extends BaseFormComponent
   implements OnInit
 {
-  private userService = inject(UserService);
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
-  // TODO: primaryAuthorId and coInventorsId should be numbers, not strings!!!
   patentsForm = input.required<PatentFormGroup>();
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
   selectedPrimaryAuthor: number | null = null;
 
   ngOnInit(): void {
-    this.allUsers$ = this.userService
-      .getAllUsers()
-      .pipe(map((response) => response.data!));
+    this.allUsers$ = this.userService.getAllUsers().pipe(
+      map((response) => response.data!),
+      catchError((error) => {
+        console.error('Error loading users:', error);
+        this.notificationService.showError('Failed to load inventors');
+        return of([]);
+      })
+    );
 
-    this.allUsers$.subscribe((users) => {
-      console.log('ProjectPatentFormComponent allUsers', users);
-    });
     const initialValue = this.patentsForm().get('primaryAuthor')?.value || null;
     this.selectedPrimaryAuthor = initialValue !== null ? +initialValue : null;
 
     this.patentsForm()
       .get('primaryAuthor')
       ?.valueChanges.subscribe((authorId) => {
-        console.log('ProjectPatentFormComponent authorId', authorId);
         this.selectedPrimaryAuthor = authorId !== null ? +authorId : null;
 
         const coInventors = this.patentsForm().get('coInventors')?.value;

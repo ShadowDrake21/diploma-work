@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
-import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
 import { ProjectService } from '@core/services/project/models/project.service';
 import { forkJoin, map, Subscription, tap } from 'rxjs';
 import { DashboardService } from '@core/services/dashboard.service';
@@ -28,8 +27,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     MetricCardItemComponent,
     ProjectCardComponent,
-    FrequentLinksComponent,
-    RouterLink,
     OnlineUsersComponent,
     ProjectsQuickLinksComponent,
     MatProgressSpinnerModule,
