@@ -17,7 +17,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { types } from '@content/createProject.content';
 import { UserService } from '@core/services/users/user.service';
 import { map, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,6 +24,7 @@ import { IUser } from '@shared/models/user.model';
 import { ProjectStepperComponent } from './components/stepper/project-stepper/project-stepper.component';
 import { ProjectLoaderService } from '@core/services/project/project-creation/project-loader.service';
 import { NotificationService } from '@core/services/notification.service';
+import { types } from '@shared/content/project.content';
 
 @Component({
   selector: 'project-creation',
@@ -53,13 +53,13 @@ import { NotificationService } from '@core/services/notification.service';
   host: { style: 'display: block; height: 100%' },
 })
 export class CreateProjectComponent implements OnInit, OnDestroy {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private headerService = inject(HeaderService);
-  private userService = inject(UserService);
-  private projectLoaderService = inject(ProjectLoaderService);
-  private notificationService = inject(NotificationService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly headerService = inject(HeaderService);
+  private readonly userService = inject(UserService);
+  private readonly projectLoaderService = inject(ProjectLoaderService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   creatorId: number | null = null;
   projectId: string | null = null;

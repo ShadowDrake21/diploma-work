@@ -5,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -17,8 +16,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { RecentUsersComponent } from './components/recent-users/recent-users.component';
 import { SortingDirection } from '@shared/enums/sorting.enum';
-import { RoleFormatPipe } from '@pipes/role-format.pipe';
-import { currentUserSig } from '@core/shared/shared-signals';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { Observable } from 'rxjs';
@@ -37,7 +34,6 @@ import { Observable } from 'rxjs';
     UserRoleChipComponent,
     UserStatusChipComponent,
     RecentUsersComponent,
-    RoleFormatPipe,
     IsCurrentUserPipe,
   ],
   templateUrl: './user-list.component.html',

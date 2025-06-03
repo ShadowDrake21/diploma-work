@@ -8,17 +8,15 @@ import { HeaderService } from '@core/services/header.service';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { CommentComponent } from '@shared/components/comment/comment.component';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { finalize, Subscription } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { MatButtonModule } from '@angular/material/button';
-import { ICreateComment } from '@models/comment.types';
 import { FormsModule } from '@angular/forms';
 import { ProjectDTO } from '@models/project.model';
 import { ProjectDetailsService } from '@core/services/project/project-details/project-details.service';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ConfirmationDialogComponent } from '../../../../shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
@@ -37,7 +35,6 @@ import { NotificationService } from '@core/services/notification.service';
     MatButton,
     MatProgressBarModule,
     MatIcon,
-    CommentComponent,
     TitleCasePipe,
     DatePipe,
     TruncateTextPipe,

@@ -8,7 +8,7 @@ import { Subject, BehaviorSubject, catchError, of, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class ProjectAttachmentService implements OnDestroy {
-  private attachmentsService = inject(AttachmentsService);
+  private readonly attachmentsService = inject(AttachmentsService);
   private readonly notificationService = inject(NotificationService);
   private destroyed$ = new Subject<void>();
 

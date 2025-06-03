@@ -17,7 +17,6 @@ import {
   Observable,
   of,
   switchMap,
-  tap,
   throwError,
 } from 'rxjs';
 import { ProjectService } from '../project/models/project.service';
@@ -29,10 +28,10 @@ import { NotificationService } from '../notification.service';
   providedIn: 'root',
 })
 export class UserService {
-  private http = inject(HttpClient);
-  private projectService = inject(ProjectService);
-  private notificationService = inject(NotificationService);
-  private apiUrl = BASE_URL + 'users';
+  private readonly http = inject(HttpClient);
+  private readonly projectService = inject(ProjectService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly apiUrl = BASE_URL + 'users';
 
   private handleError<T>(operation: string, error: any): Observable<T> {
     console.error(`${operation} error:`, error);

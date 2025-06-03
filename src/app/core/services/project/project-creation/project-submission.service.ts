@@ -1,15 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { ProjectFormService } from '../project-form/project-form.service';
 import { FormGroup } from '@angular/forms';
-import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
+import { catchError, finalize, Observable, throwError } from 'rxjs';
 import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectSubmissionService {
-  private projectFormService = inject(ProjectFormService);
-  private notificationService = inject(NotificationService);
+  private readonly projectFormService = inject(ProjectFormService);
+  private readonly notificationService = inject(NotificationService);
 
   submitProject(
     typeForm: FormGroup,

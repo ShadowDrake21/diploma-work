@@ -43,8 +43,8 @@ import { SessionWarningComponent } from '@shared/components/dialogs/session-warn
 export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly userStore = inject(UserStore);
-  private observer = inject(BreakpointObserver);
-  private router = inject(Router);
+  private readonly observer = inject(BreakpointObserver);
+  private readonly router = inject(Router);
 
   @ViewChild(MatSidenav)
   sidenav!: MatSidenav;

@@ -20,7 +20,6 @@ import { TagService } from '@core/services/project/models/tag.service';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { FileMetadataDTO } from '@models/file.model';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { ActivatedRoute } from '@angular/router';
 import { GeneralInformationForm } from '@shared/types/forms/project-form.types';

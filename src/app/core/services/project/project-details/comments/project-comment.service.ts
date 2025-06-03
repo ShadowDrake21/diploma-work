@@ -19,9 +19,9 @@ import {
   providedIn: 'root',
 })
 export class ProjectCommentService {
-  private commentService = inject(CommentService);
-  private notificationService = inject(NotificationService);
-  private destroyed$ = new Subject<void>();
+  private readonly commentService = inject(CommentService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly destroyed$ = new Subject<void>();
 
   // State
   private _comments = new BehaviorSubject<IComment[]>([]);

@@ -9,7 +9,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
-import { Subject, Subscription, take, takeUntil, timer } from 'rxjs';
+import { Subject, Subscription, takeUntil, timer } from 'rxjs';
 
 @Component({
   selector: 'app-session-warning',

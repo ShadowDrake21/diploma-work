@@ -13,7 +13,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ProjectService } from '@core/services/project/models/project.service';
 import { TagService } from '@core/services/project/models/tag.service';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -41,9 +40,8 @@ import { provideNativeDateAdapter } from '@angular/material/core';
   providers: [provideNativeDateAdapter()],
 })
 export class FilterPanelComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private projectService = inject(ProjectService);
-  private tagService = inject(TagService);
+  private readonly fb = inject(FormBuilder);
+  private readonly tagService = inject(TagService);
 
   @Output() filtersApplied = new EventEmitter<any>();
   @Output() filtersReset = new EventEmitter<void>();

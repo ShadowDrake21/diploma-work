@@ -16,9 +16,9 @@ import { ErrorHandlerService } from '@core/services/utils/error-handler.service'
   providedIn: 'root',
 })
 export class TagService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly errorHandler = inject(ErrorHandlerService);
-  private apiUrl = BASE_URL + 'tags';
+  private readonly apiUrl = BASE_URL + 'tags';
 
   getAllTags(): Observable<Tag[]> {
     return this.http

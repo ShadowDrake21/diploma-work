@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  output,
-} from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { ProjectDTO } from '@models/project.model';

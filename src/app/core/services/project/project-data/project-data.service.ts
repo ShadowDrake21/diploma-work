@@ -17,7 +17,6 @@ import { ProjectDataCoreService } from './project-data-core.service';
 import { PublicationDataService } from './publication-data.service';
 import { PatentDataService } from './patent-data.service';
 import { ResearchDataService } from './research-data.service';
-import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',

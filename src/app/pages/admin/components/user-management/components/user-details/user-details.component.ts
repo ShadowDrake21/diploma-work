@@ -4,14 +4,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
 import { UserService } from '@core/services/users/user.service';
 import { ProjectDTO } from '@models/project.model';
 import { IUser } from '@models/user.model';
-import { firstValueFrom, switchMap, tap } from 'rxjs';
+import { firstValueFrom, switchMap } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
@@ -19,9 +18,7 @@ import { UserRole } from '@shared/enums/user.enum';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserRoleChipComponent } from '../utils/user-role-chip/user-role-chip.component';
 import { UserStatusChipComponent } from '../utils/user-status-chip/user-status-chip.component';
-import { ProjectsComponent } from '../../../../../projects/projects.component';
-import { ProfileProjectsComponent } from '../../../../../../shared/components/profile-projects/profile-projects.component';
-import { currentUserSig } from '@core/shared/shared-signals';
+import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { ApiResponse } from '@models/api-response.model';
@@ -39,7 +36,6 @@ import { ApiResponse } from '@models/api-response.model';
     MatProgressSpinnerModule,
     UserRoleChipComponent,
     UserStatusChipComponent,
-    ProjectsComponent,
     ProfileProjectsComponent,
     IsCurrentUserPipe,
   ],

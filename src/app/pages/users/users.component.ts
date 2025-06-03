@@ -21,7 +21,6 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { UserService } from '@core/services/users/user.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { PageResponse } from '@shared/types/generics.types';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NotificationService } from '@core/services/notification.service';
 

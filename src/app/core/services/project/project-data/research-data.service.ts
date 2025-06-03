@@ -7,8 +7,7 @@ import {
   CreateResearchRequest,
   UpdateResearchRequest,
 } from '@models/research.model';
-import { statuses } from '@content/createProject.content';
-import { NotificationService } from '@core/services/notification.service';
+import { statuses } from '@shared/content/project.content';
 
 @Injectable({
   providedIn: 'root',

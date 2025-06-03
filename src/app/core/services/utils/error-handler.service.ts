@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ErrorHandlerService {
-  private notificationService = inject(NotificationService);
+  private readonly notificationService = inject(NotificationService);
 
   handleServiceError(
     error: any,

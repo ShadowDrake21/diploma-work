@@ -11,9 +11,9 @@ import { NotificationService } from './notification.service';
   providedIn: 'root',
 })
 export class CommentService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);
-  private apiUrl = BASE_URL + 'comments';
+  private readonly apiUrl = BASE_URL + 'comments';
 
   getCommentsByProjectId(
     projectId: string

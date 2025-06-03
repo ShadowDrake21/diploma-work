@@ -18,9 +18,9 @@ import { catchError, forkJoin, map, Observable, of, Subscription } from 'rxjs';
   styleUrl: './research-project.component.scss',
 })
 export class ResearchProjectComponent implements OnInit, OnDestroy {
-  private projectService = inject(ProjectService);
-  private userService = inject(UserService);
-  private notificationService = inject(NotificationService);
+  private readonly projectService = inject(ProjectService);
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   @Input({ required: true })
   id!: string;
