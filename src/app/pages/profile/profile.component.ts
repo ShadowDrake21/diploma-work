@@ -10,7 +10,6 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
 import { ProfileInfoComponent } from './components/profile-info/profile-info.component';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/users/user.service';
@@ -40,7 +39,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSelectModule,
     MatButtonToggleModule,
     MatPaginatorModule,
-    FrequentLinksComponent,
     ProfileInfoComponent,
     ProfileProjectsComponent,
     MyCommentsComponent,

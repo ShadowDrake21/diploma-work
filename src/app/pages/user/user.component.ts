@@ -23,6 +23,8 @@ import { ProjectDTO } from '@models/project.model';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RoleFormatPipe } from '@pipes/role-format.pipe';
+import { NotificationService } from '@core/services/notification.service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-user-profile',
@@ -35,6 +37,7 @@ import { RoleFormatPipe } from '@pipes/role-format.pipe';
     MatPaginatorModule,
     MatProgressSpinner,
     RoleFormatPipe,
+    MatIcon,
   ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss',
@@ -44,6 +47,7 @@ export class UserProfileComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly headerService = inject(HeaderService);
   private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   userId = signal<number | null>(null);
   user = signal<IUser | null>(null);
@@ -56,6 +60,7 @@ export class UserProfileComponent implements OnInit {
   pageSizeOptions = signal([5, 10, 20]);
 
   isUserLoaded = computed(() => this.user() !== null);
+  hasError = computed(() => this.error() !== null);
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -101,13 +106,18 @@ export class UserProfileComponent implements OnInit {
     this.error.set(null);
 
     const userId = this.userId();
-    if (!userId) return;
+    if (!userId) {
+      this.error.set('Invalid user ID');
+      this.isLoading.set(false);
+      return;
+    }
 
     this.userService
       .getFullUserById(userId)
       .pipe(
         catchError((err) => {
           this.error.set('Failed to load user data');
+          this.notificationService.showError('Failed to load user profile');
           this.isLoading.set(false);
           return of(null);
         })
@@ -117,19 +127,27 @@ export class UserProfileComponent implements OnInit {
           this.user.set(user.data);
           this.headerService.setTitle(`User: ${user.data.username}`);
           this.loadUserProjects();
+        } else {
+          this.error.set('User not found');
+          this.isLoading.set(false);
         }
       });
   }
 
   private loadUserProjects(): void {
     const userId = this.userId();
-    if (!userId) return;
+    if (!userId) {
+      this.error.set('Invalid user ID');
+      this.isLoading.set(false);
+      return;
+    }
 
     this.userService
       .getUserProjects(userId)
       .pipe(
         catchError((err) => {
           this.error.set('Failed to load user projects');
+          this.notificationService.showError('Failed to load user projects');
           return of([]);
         })
       )
@@ -137,5 +155,10 @@ export class UserProfileComponent implements OnInit {
         this.userProjects.set(Array.isArray(projects) ? projects : []);
         this.isLoading.set(false);
       });
+  }
+
+  retryLoading(): void {
+    this.error.set(null);
+    this.loadUserData();
   }
 }

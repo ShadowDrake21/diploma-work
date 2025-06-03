@@ -132,11 +132,11 @@ export class ProjectLoaderService {
         );
       case ProjectType.RESEARCH:
         return this.projectService.getResearchByProjectId(projectId).pipe(
-          tap((research: ApiResponse<ResearchDTO>) => {
+          tap((research: ResearchDTO) => {
             try {
               this.projectFormService.patchSpecificForm(
                 this.researchesForm,
-                research.data,
+                research,
                 ProjectType.RESEARCH
               );
             } catch (error) {

@@ -1,4 +1,11 @@
 <h2>Collaborators</h2>
+@if (error()) {
+<div class="error-message">
+  {{ error() }}
+</div>
+} @if (loading()) {
+<div class="loading-spinner">Loading collaborators...</div>
+} @if (!error() && !loading()) {
 <mat-list>
   @for (collaborator of collaborators(); track collaborator.id) {
   <mat-list-item>
@@ -11,7 +18,7 @@
   }
 </mat-list>
 
-@if (collaborators()) {
+@if (collaborators().length > 0) {
 <mat-paginator
   [length]="totalItems()"
   [pageSize]="pageSize()"
@@ -21,4 +28,4 @@
   aria-label="Select page"
 >
 </mat-paginator>
-}
+}}

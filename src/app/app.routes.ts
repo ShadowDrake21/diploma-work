@@ -39,28 +39,6 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
-  // {
-  //   path: 'my-comments',
-  //   loadComponent: () =>
-  //     import('./pages/comments/comments.component').then(
-  //       (c) => c.CommentsComponent
-  //     ),
-  //   canActivate: [authGuard],
-  // },
-  {
-    path: 'settings',
-    loadChildren: () =>
-      import('./pages/settings/settings.module').then((c) => c.SettingsModule),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'notifications',
-    loadComponent: () =>
-      import('./pages/notifications/notifications.component').then(
-        (c) => c.NotificationsComponent
-      ),
-    canActivate: [authGuard],
-  },
   {
     path: 'users',
     loadComponent: () =>

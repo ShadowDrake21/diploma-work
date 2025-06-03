@@ -1,4 +1,4 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,18 +19,12 @@ import { ProjectType } from '@shared/enums/categories.enum';
   templateUrl: './project-type.component.html',
   styleUrl: './project-type.component.scss',
 })
-export class ProjectTypeComponent implements OnInit {
+export class ProjectTypeComponent {
   typeForm = input.required<
     FormGroup<{
       type: FormControl<ProjectType | null>;
     }>
   >();
-
-  ngOnInit() {
-    this.typeForm().valueChanges.subscribe((values) => {
-      console.log('Form values changed:', values);
-    });
-  }
 
   types = types;
 }
