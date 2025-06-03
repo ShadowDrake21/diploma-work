@@ -1,8 +1,5 @@
-@let generalInformationForm = generalInformationFormSig(); @let tags = tags$ |
-async; @let existingFiles = existingFilesSig();
-
 <form
-  [formGroup]="generalInformationForm"
+  [formGroup]="generalInformationForm()"
   class="project-general-information__form"
 >
   <mat-form-field>
@@ -18,7 +15,7 @@ async; @let existingFiles = existingFilesSig();
     <mat-slider min="0" max="100" step="1" showTickMarks discrete>
       <input
         matSliderThumb
-        [formControl]="generalInformationForm.controls.progress"
+        [formControl]="generalInformationForm().controls.progress"
       />
     </mat-slider>
   </div>
@@ -28,57 +25,34 @@ async; @let existingFiles = existingFilesSig();
       matInput
       placeholder="A new model for the graphics render"
       formControlName="description"
+      style="resize: none"
+      rows="4"
     ></textarea>
   </mat-form-field>
   <mat-form-field>
     <mat-label>Tags</mat-label>
     <mat-select formControlName="tags" multiple [compareWith]="compareTags">
-      <input placeholder="Custom tag" />
-      @for (tag of tags; track tag) {
+      @for (tag of tags$ | async; track tag.id) {
       <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
 
-  @if (existingFiles?.length! > 0 && !isFilesReseted) { @for (file of
-  existingFiles; track file) {
-  <a
-    [href]="file.fileUrl"
-    target="_blank"
-    download
-    style="text-decoration: none"
-  >
-    <mat-list-item style="cursor: pointer">
-      <mat-icon matListItemIcon>note</mat-icon>
-      <div matListItemTitle>
-        {{ file.fileName }}
-      </div>
-      <div matListItemLine>
-        {{ file.uploadedAt | date }}
-      </div>
-    </mat-list-item></a
-  >
-  }
-  <button mat-raised-button (click)="isFilesReseted = true">
-    Вибрати нові файли
-  </button>
-  } @if(!existingFiles?.length! || isFilesReseted) {<shared-multiple-file-upload
-    [formControl]="generalInformationForm.controls.attachments"
-    [entityType]="entityTypeSig()"
+  <general-information-file-upload-list
+    [uploadedFiles]="uploadedFiles"
+    [pendingFiles]="pendingFiles"
+    [isUploading]="isUploading"
+    [uploadProgress]="uploadProgress"
+    (uploadRequested)="uploadFiles()"
+    (filesSelected)="onFilesSelected($event)"
+    (removeFile)="removeFile($event.index, $event.isPending)"
   />
-  @if (generalInformationForm.controls.attachments.invalid &&
-  generalInformationForm.controls.attachments.touched) {
-  <mat-error>Attachments are required.</mat-error>
-  } }
-
   <div>
     <button mat-button matStepperPrevious>Back</button>
     <button
       mat-button
       matStepperNext
-      [disabled]="
-        generalInformationForm.invalid && existingFiles?.length! === 0
-      "
+      [disabled]="generalInformationForm().invalid"
     >
       Next
     </button>

@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
+import { RecentUsersService } from '@core/services/users/recent-users.service';
+import { UserRole } from '@shared/enums/user.enum';
 import { TruncateTextPipe } from '@shared/pipes/truncate-text.pipe';
 
 @Component({
@@ -10,27 +12,13 @@ import { TruncateTextPipe } from '@shared/pipes/truncate-text.pipe';
   styleUrl: './recent-users.component.scss',
 })
 export class RecentUsersComponent {
-  recentUsers = [
-    {
-      id: '1',
-      name: 'Amelia Kastelik',
-      avatar: '/recent-users/user-1.jpg',
-      role: 'user',
-      lastActive: '2024-12-24T14:30:00Z',
-    },
-    {
-      id: '2',
-      name: 'Dmytro Krapyvianskyi',
-      avatar: '/recent-users/user-2.jpg',
-      role: 'admin',
-      lastActive: '2024-12-24T13:45:00Z',
-    },
-    {
-      id: '3',
-      name: 'Paulo Dybala',
-      avatar: '/recent-users/user-3.jpg',
-      role: 'user',
-      lastActive: '2024-12-23T18:20:00Z',
-    },
-  ];
+  private readonly recentUsersService = inject(RecentUsersService);
+
+  get activeUsers() {
+    return this.recentUsersService.activeUsers()?.data || [];
+  }
+
+  refreshActiveUsers() {
+    this.recentUsersService.refreshActiveUsers();
+  }
 }

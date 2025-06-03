@@ -3,19 +3,18 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import {
   FormControl,
-  FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { AuthService } from '@core/authentication/auth.service';
+import { CustomButtonComponent } from '../../../../../../shared/components/custom-button/custom-button.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -29,64 +28,74 @@ import { AuthService } from '@core/authentication/auth.service';
     ReactiveFormsModule,
     MatLabel,
     MatIcon,
+    CustomButtonComponent,
   ],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
 })
 export class ResetPasswordComponent implements OnInit {
-  private router = inject(Router);
-  private authService = inject(AuthService);
-  private route = inject(ActivatedRoute);
-  private destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
-  token: string = '';
-
-  passwordController = new FormControl('', [
+  readonly passwordControl = new FormControl('', [
     Validators.required,
     Validators.minLength(6),
     Validators.maxLength(30),
   ]);
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
-      this.token = params['token'] || '';
-    });
+  readonly isPasswordHidden = signal(true);
+  readonly token = signal<string>('');
+  readonly passwordErrorMessage = signal<string>('');
 
-    this.passwordController.statusChanges
+  ngOnInit(): void {
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        this.token.set(params['token'] || '');
+      });
+
+    this.setupPasswordValidation();
+  }
+
+  private setupPasswordValidation() {
+    this.passwordControl.statusChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.updateErrorMessage());
   }
 
-  hide = signal(true);
-
-  clickEvent(event: MouseEvent) {
-    this.hide.set(!this.hide());
+  togglePasswordVisibility(event: MouseEvent): void {
+    this.isPasswordHidden.update((prev) => !prev);
     event.stopPropagation();
   }
 
-  passwordErrorMessage = signal<string>('');
-
-  onResetPassword() {
-    if (!this.passwordController.value) {
+  onSubmit(): void {
+    if (this.passwordControl.invalid || !this.passwordControl.value) {
       return;
     }
+    this.resetPassword(this.passwordControl.value);
+  }
 
+  private resetPassword(newPassword: string) {
     this.authService
-      .resetPassword(this.token, this.passwordController.value)
+      .resetPassword({
+        token: this.token(),
+        newPassword,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           console.log(response);
-          this.router.navigate(['/auth/sign-in']);
+          this.router.navigate(['/authentication/sign-in']);
         },
-        error: (error) => {
-          console.error('Password reset failed', error);
-        },
+        error: (error) => console.error('Password reset failed', error),
       });
   }
 
   updateErrorMessage() {
     this.passwordErrorMessage.set(
-      getValidationErrorMessage(this.passwordController, 'password')
+      getValidationErrorMessage(this.passwordControl, 'password')
     );
   }
 }

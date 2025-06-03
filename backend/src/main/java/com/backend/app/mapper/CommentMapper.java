@@ -2,25 +2,32 @@ package com.backend.app.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.backend.app.dto.CommentDTO;
+import com.backend.app.dto.model.CommentDTO;
 import com.backend.app.model.Comment;
+import com.backend.app.security.SecurityUtils;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class CommentMapper {
+    private final SecurityUtils securityUtils;
+
 	public CommentDTO toDTO(Comment comment) {
-		CommentDTO dto = new CommentDTO();
-		
-		dto.setId(comment.getId());
-        dto.setContent(comment.getContent());
-        dto.setCreatedAt(comment.getCreatedAt());
-        dto.setUpdatedAt(comment.getUpdatedAt());
-        dto.setLikes(comment.getLikes());
-        dto.setUserId(comment.getUser().getId());
-        dto.setUserName(comment.getUser().getUsername());
-        dto.setUserAvatarUrl(comment.getUser().getAvatarUrl());
-        dto.setProjectId(comment.getProject().getId());
-        
-		return dto;
-        
+		Long currentLongId = securityUtils.getCurrentUserId();
+		boolean isLiked = currentLongId != null && comment.getLikedByUsers().contains(currentLongId);
+		return CommentDTO.builder().id(comment.getId())
+                .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .likes(comment.getLikes())
+                .userId(comment.getUser().getId())
+                .userName(comment.getUser().getUsername())
+                .userAvatarUrl(comment.getUser().getAvatarUrl())
+                .projectId(comment.getProject().getId())
+                .projectTitle(comment.getProject().getTitle())
+                .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
+                .isLikedByCurrentUser(isLiked)
+                .build();
 	}
 }

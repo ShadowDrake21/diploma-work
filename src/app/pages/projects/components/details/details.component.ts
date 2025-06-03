@@ -1,12 +1,5 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import {
-  ActivatedRoute,
-  Router,
-  RouterModule,
-  RouterOutlet,
-} from '@angular/router';
-import { recentProjectModalContent } from '@content/recentProjects.content';
-import { DashboardRecentProjectItemModal } from '@shared/types/dashboard.types';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PublicationComponent } from './types/publication/publication.component';
 import { ResearchProjectComponent } from './types/research-project/research-project.component';
 import { PatentComponent } from './types/patent/patent.component';
@@ -15,28 +8,24 @@ import { HeaderService } from '@core/services/header.service';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatChip, MatChipSet } from '@angular/material/chips';
-import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { CommentComponent } from '@shared/components/comment/comment.component';
-import { AsyncPipe, DatePipe, TitleCasePipe } from '@angular/common';
-import { userComments } from '@content/userComments.content';
-import { PublicationService } from '@core/services/publication.service';
-import { PatentService } from '@core/services/patent.service';
-import { ResearchService } from '@core/services/research.service';
-import { ProjectService } from '@core/services/project.service';
-import { Project } from '@shared/types/project.types';
-import { catchError, forkJoin, Observable, of, Subscription, tap } from 'rxjs';
+import { DatePipe, TitleCasePipe } from '@angular/common';
+import { finalize, Subscription } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
-import { TagService } from '@core/services/tag.service';
-import { AttachmentsService } from '@core/services/attachments.service';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { MatButtonModule } from '@angular/material/button';
-import { CommentService } from '@core/services/comment.service';
-import {
-  CommentInterface,
-  CreateCommentInterface,
-} from '@shared/types/comment.types';
+import { ICreateComment } from '@models/comment.types';
 import { FormsModule } from '@angular/forms';
+import { ProjectDTO } from '@models/project.model';
+import { ProjectDetailsService } from '@core/services/project/project-details/project-details.service';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ConfirmationDialogComponent } from '../../../../shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '@core/authentication/auth.service';
+import { ProjectCommentsComponent } from './components/project-comments/project-comments.component';
+import { ProjectCommentService } from '@core/services/project/project-details/comments/project-comment.service';
+import { ProjectAttachmentService } from '@core/services/project/project-details/attachments/project-attachment.service';
+import { ProjectTagService } from '@core/services/project/project-details/tags/project-tag.service';
 
 @Component({
   selector: 'project-details',
@@ -47,264 +36,137 @@ import { FormsModule } from '@angular/forms';
     MatButton,
     MatProgressBarModule,
     MatIcon,
-    MatChipSet,
-    MatChip,
-    ProjectCardComponent,
     CommentComponent,
     TitleCasePipe,
-    AsyncPipe,
     DatePipe,
     TruncateTextPipe,
     MatButtonModule,
     FormsModule,
     MatProgressBarModule,
+    ProjectCommentsComponent,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private headerService = inject(HeaderService);
-  private projectService = inject(ProjectService);
-  private tagService = inject(TagService);
-  private attachmentsService = inject(AttachmentsService);
-  private commentService = inject(CommentService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly headerService = inject(HeaderService);
+  private readonly projectDetailsService = inject(ProjectDetailsService);
+  private readonly authService = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
+  private readonly projectCommentService = inject(ProjectCommentService);
+  private readonly projectAttachmentService = inject(ProjectAttachmentService);
+  private readonly projectTagService = inject(ProjectTagService);
 
-  workId: string | null = null;
-  work: DashboardRecentProjectItemModal | undefined = undefined;
-  comment = userComments[0];
+  // Signals
+  readonly workId = signal<string | null>(null);
+  readonly projectLoading = signal(false);
+  readonly errorMessage = signal<string | null>(null);
+  readonly deleteLoading = signal(false);
+  readonly isCurrentUserOwner = signal(false);
 
-  project$!: Observable<Project | undefined>;
-  tags$!: Observable<any>;
-  publication$!: Observable<any>;
-  patent$!: Observable<any>;
-  research$!: Observable<any>;
+  readonly project = toSignal(this.projectDetailsService.project$);
+  readonly attachments = toSignal(this.projectAttachmentService.attachments$);
+  readonly tags = toSignal(this.projectTagService.tags$);
 
-  attachments$!: Observable<any>;
+  readonly getStatusOnProgess = getStatusOnProgess;
 
-  subscriptions: Subscription[] = [];
-
-  errorMessage: string | null = null;
-
-  getStatusOnProgess = getStatusOnProgess;
-
-  comments$!: Observable<CommentInterface[]>;
-  newCommentContent = '';
-  replyingToCommentId: string | null = null;
-  replyContent = '';
-
-  commentsLoading = false;
-  private loadingTimeout: any;
-
-  private setLoadingState(loading: boolean) {
-    clearTimeout(this.loadingTimeout);
-
-    if (loading) {
-      this.commentsLoading = true;
-    } else {
-      this.loadingTimeout = setTimeout(() => {
-        this.commentsLoading = false;
-      }, 2000 + Math.random() * 1000);
-    }
-  }
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
-    const paramsSub = this.route.params.subscribe((params) => {
-      this.workId = params['id'];
-    });
+    this.workId.set(this.route.snapshot.params['id']);
 
-    this.getWorkById();
-    this.loadComments();
-    this.subscriptions.push(paramsSub);
+    if (this.workId()) {
+      console.log('Loading project with ID:', this.workId());
+      this.loadProject();
+    }
   }
 
-  getWorkById() {
-    if (!this.workId) return;
+  private loadProject(): void {
+    this.projectLoading.set(true);
+    this.projectLoading.set(false);
 
-    this.project$ = this.projectService.getProjectById(this.workId);
+    this.projectDetailsService.loadProjectDetails(this.workId()!);
 
-    const projectSub = this.project$.subscribe((project) => {
-      console.log('project', project);
-      this.tags$ = project?.tagIds
-        ? forkJoin(
-            project?.tagIds.map((tagId) => this.tagService.getTagById(tagId))
-          )
-        : new Observable();
+    const sub = this.projectDetailsService.project$.pipe().subscribe({
+      next: (project) => {
+        if (project) {
+          this.updateHeader(project);
+          const currentUserId = this.authService.getCurrentUserId();
+          this.isCurrentUserOwner.set(currentUserId === project.createdBy);
 
-      if (project?.type) {
-        this.attachments$ = this.attachmentsService
-          .getFilesByEntity(project?.type, this.workId!)
-          .pipe(
-            tap((attachments) => {
-              console.log('attachments', attachments);
-            }),
-            catchError((error) => {
-              console.error('Error fetching attachments:', error);
-              this.errorMessage =
-                'Failed to load attachments. Please try again later.';
-              return of([]); // Return an empty array to prevent the template from breaking
-            })
+          this.projectCommentService.refreshComments(project.id);
+          this.projectTagService.loadTags(project.tagIds);
+          this.projectAttachmentService.loadAttachments(
+            project.type,
+            project.id
           );
-      }
-
-      if (project?.type === 'PUBLICATION') {
-        console.log('publication');
-      } else if (project?.type === 'PATENT') {
-        console.log('patent');
-      } else {
-        console.log('research');
-        this.research$ = this.projectService
-          .getResearchByProjectId(this.workId!)
-          .pipe(
-            tap((research) => {
-              console.log('research', research);
-            })
-          );
-      }
+        }
+        this.projectLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading project:', err);
+        this.projectLoading.set(false);
+        this.errorMessage.set('Failed to load project details');
+      },
     });
 
-    if (this.work) {
-      const capitalizedType =
-        this.work.type.charAt(0).toUpperCase() + this.work.type.slice(1);
-      this.headerService.setTitle(
-        `${capitalizedType}: ${this.work.projectTitle}`
-      );
-    } else {
-      this.headerService.setTitle('Project Details');
-    }
+    this.subscriptions.push(sub);
+  }
 
-    this.subscriptions.push(projectSub);
+  private updateHeader(project?: ProjectDTO): void {
+    if (project) {
+      const capitalizedType =
+        project.type.charAt(0).toUpperCase() +
+        project.type.slice(1).toLowerCase();
+      this.headerService.setTitle(`${capitalizedType}: ${project.title}`);
+    }
   }
 
   onEdit() {
     this.router.navigate(['../create'], {
       relativeTo: this.route,
-      queryParams: { id: this.workId },
+      queryParams: { id: this.workId() },
     });
   }
 
   onDelete() {
-    const deleteSub = this.projectService
-      .deleteProject(this.workId!)
-      .subscribe(() => {
-        this.router.navigate(['/projects/list']);
-      });
+    if (!this.workId()) return;
 
-    this.subscriptions.push(deleteSub);
-  }
-
-  openPdfInNewTab(fileUrl: string): void {
-    window.open(fileUrl, '_blank');
-  }
-
-  loadComments() {
-    if (!this.workId) return;
-
-    this.setLoadingState(true);
-    this.comments$ = this.commentService
-      .getCommentsByProjectId(this.workId)
-      .pipe(
-        tap(() => this.setLoadingState(false)),
-        catchError((error) => {
-          console.error('Error fetching comments:', error);
-          this.setLoadingState(false);
-          return of([]);
-        })
-      );
-  }
-
-  postComment() {
-    if (!this.workId || !this.newCommentContent.trim()) return;
-
-    const comment: CreateCommentInterface = {
-      content: this.newCommentContent,
-      projectId: this.workId,
-      parentCommentId: this.replyingToCommentId || undefined,
-    };
-
-    this.commentService.createComment(comment).subscribe({
-      next: () => {
-        this.newCommentContent = '';
-        this.replyingToCommentId = null;
-        this.loadComments();
-      },
-      error: (error) => {
-        console.error('Error posting comment:', error);
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        message:
+          'Ви впевнені, що хочете видалити цей проєкт? Цю дію не можна скасувати.',
+        // Are you sure you want to delete this project? This action cannot be undone.
       },
     });
-  }
-
-  postReply(parentCommentId: string) {
-    if (!this.replyContent.trim()) return;
-
-    const comment: CreateCommentInterface = {
-      content: this.replyContent,
-      projectId: this.workId!,
-      parentCommentId,
-    };
-
-    this.commentService.createComment(comment).subscribe({
-      next: () => {
-        this.replyContent = '';
-        this.loadComments();
-      },
-      error: (err) => console.error('Error posting reply:', err),
+    const sub = dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.deleteLoading.set(true);
+        this.projectDetailsService
+          .deleteProject(this.workId()!)
+          .pipe(
+            finalize(() => {
+              this.deleteLoading.set(false);
+            })
+          )
+          .subscribe({
+            next: () => this.router.navigate(['/projects/list']),
+            error: (err) => {
+              console.error('Error deleting project:', err);
+              this.errorMessage.set('Failed to delete project');
+            },
+          });
+      }
     });
+
+    this.subscriptions.push(sub);
   }
 
-  onCommentLike(commentId: string) {
-    this.commentsLoading = true;
-    this.commentService.likeComment(commentId).subscribe({
-      next: () => {
-        this.setLoadingState(true);
-        this.loadComments();
-      },
-      error: (err) => {
-        this.setLoadingState(false);
-        console.error('Error liking comment:', err);
-      },
-    });
-  }
-
-  onCommentEdit(commentId: string, newContent: string) {
-    this.setLoadingState(true);
-    this.commentService.updateComment(commentId, newContent).subscribe({
-      next: () => {
-        this.setLoadingState(false);
-        this.loadComments();
-      },
-      error: (err) => {
-        this.setLoadingState(false);
-        console.error('Error updating comment:', err);
-      },
-    });
-  }
-
-  onCommentDelete(commentId: string) {
-    this.setLoadingState(true);
-    this.commentService.deleteComment(commentId).subscribe({
-      next: () => {
-        this.setLoadingState(false);
-        this.loadComments();
-      },
-      error: (err) => {
-        this.setLoadingState(false);
-        console.error('Error deleting comment:', err);
-      },
-    });
-  }
-
-  startReply(commentId: string) {
-    this.replyingToCommentId = commentId;
-  }
-
-  cancelReply() {
-    this.replyingToCommentId = null;
-    this.replyContent = '';
-  }
-
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+    this.projectDetailsService.resetState();
   }
 }

@@ -1,21 +1,27 @@
 <div class="recent-users">
   <h3 class="recent-users__title">Recent users</h3>
   <ul class="recent-users__list">
-    @for (user of recentUsers; track $index) {
+    @for (user of activeUsers; track user.id) {
     <li class="recent-users__list-item">
       <div class="recent-users__list-item__img--wrapper">
         <img
-          [src]="user.avatar"
-          alt="{{ user.name }}'s avatar"
+          [src]="user.avatarUrl || 'assets/default-avatar.png'"
+          alt="{{ user.username }}'s avatar"
           class="recent-users__list-item__img"
         />
       </div>
       <div class="recent-users__list-item__info">
         <h3 class="recent-users__list-item__info-name">
-          {{ user.name | truncateText : 30 }}
+          {{ user.username | truncateText : 30 }}
           <span>
             <mat-icon>{{
-              user.role === "user" ? "person" : "verified_user"
+              user.role === "SUPER_ADMIN"
+                ? "workspace_premium"
+                : user.role === "ADMIN"
+                ? "verified_user"
+                : user.role === "USER"
+                ? "person"
+                : "person_outline"
             }}</mat-icon></span
           >
         </h3>

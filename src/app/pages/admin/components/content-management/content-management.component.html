@@ -1,5 +1,8 @@
-<div>
-  <h2 style="text-align: center; padding-bottom: 20px">Content Management</h2>
-  <admin-projects />
-  <admin-comments />
-</div>
+<mat-tab-group>
+  <mat-tab label="Projects">
+    <app-project-table />
+  </mat-tab>
+  <mat-tab label="Comments">
+    <app-comments-table />
+  </mat-tab>
+</mat-tab-group>

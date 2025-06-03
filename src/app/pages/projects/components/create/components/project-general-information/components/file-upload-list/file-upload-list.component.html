@@ -1,0 +1,64 @@
+<div class="file-upload-container">
+  <input
+    type="file"
+    #fileInput
+    multiple
+    (change)="handleFileSelection($event)"
+    style="display: none"
+    accept="application/pdf"
+  />
+
+  <button mat-button color="primary" (click)="fileInput.click()">
+    <mat-icon>attach_file</mat-icon>
+    Select Files
+  </button>
+
+  <button
+    mat-button
+    color="accent"
+    (click)="uploadRequested.emit()"
+    [disabled]="!pendingFiles().length || isUploading()"
+  >
+    <mat-icon>cloud_upload</mat-icon>
+    Upload Selected ({{ pendingFiles().length }})
+  </button>
+
+  @if (isUploading()) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-list class="file-list">
+    @for (file of pendingFiles(); track file.name; let i = $index) {
+    <mat-list-item>
+      <mat-icon matListItemIcon>insert_drive_file</mat-icon>
+      <div matListItemTitle>{{ file.name }}</div>
+      <div matListItemLine>{{ file.size | fileSize }}</div>
+      <button mat-icon-button (click)="handleRemoveFile(i, true)">
+        <mat-icon>delete</mat-icon>
+      </button> </mat-list-item
+    >} @for(file of uploadedFiles(); track file.fileUrl; let i = $index) {
+    <mat-list-item>
+      <mat-icon matListItemIcon>description</mat-icon>
+      <div matListItemTitle>{{ file.fileName }}</div>
+      <div matListItemLine>
+        {{ file.fileSize ? (file.fileSize | fileSize) : "Size unknown" }} •
+        Uploaded {{ file.uploadedAt | date }}
+        @if(file.entityType) {
+        <span>({{ file.entityType }})</span>
+        }
+      </div>
+      <a
+        mat-icon-button
+        [href]="file.fileUrl"
+        target="_blank"
+        matTooltip="View file"
+      >
+        <mat-icon>visibility</mat-icon>
+      </a>
+      <button mat-icon-button (click)="handleRemoveFile(i, false)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+    }
+  </mat-list>
+</div>

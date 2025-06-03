@@ -3,21 +3,18 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { DashboardMetricsContent } from '@content/dashboardMetrics.content';
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
-import { recentProjectContent } from '@content/recentProjects.content';
-import { RecentProjectComponent } from './components/recent-project/recent-project.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
-import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
 import { FrequentLinksComponent } from '@shared/components/frequent-links/frequent-links.component';
-import { Project } from '@shared/types/project.types';
-import { ProjectService } from '@core/services/project.service';
+import { ProjectService } from '@core/services/project/models/project.service';
 import { Subscription } from 'rxjs';
 import { DashboardService } from '@core/services/dashboard.service';
-import {
-  DashboardMetricCardItem,
-  DashboardMetrics,
-} from '@shared/types/dashboard.types';
+import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
+import { ProjectDTO } from '@models/project.model';
+import { FilterSidebarComponent } from './components/filter-sidebar/filter-sidebar.component';
+import { RouterLink } from '@angular/router';
+import { OnlineUsersComponent } from './components/online-users/online-users.component';
+import { ProjectsQuickLinksComponent } from '../../shared/components/projects-quick-links/projects-quick-links.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,10 +24,11 @@ import {
     CommonModule,
     MatIconModule,
     MetricCardItemComponent,
-    RecentProjectComponent,
     ProjectCardComponent,
-    FilterSidebarComponent,
     FrequentLinksComponent,
+    RouterLink,
+    OnlineUsersComponent,
+    ProjectsQuickLinksComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -44,24 +42,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   isLoading = true;
 
-  newestProjects: Project[] = [];
+  newestProjects: ProjectDTO[] = [];
   metricsData: DashboardMetricCardItem[] = [];
   ngOnInit(): void {
     this.loadNewsestProjects();
     this.loadMetrics();
   }
 
-  // recentProjects = [
-  //   ...recentProjectContent,
-  //   ...recentProjectContent.splice(0, 5),
-  // ];
-
   subscriptions: Subscription[] = [];
 
   loadNewsestProjects() {
-    const subscription = this.projectService.getNewestProjects(6).subscribe({
+    const subscription = this.projectService.getNewestProjects(7).subscribe({
       next: (projects) => {
-        this.newestProjects = projects;
+        this.newestProjects = projects.data!;
       },
       error: (error) => {
         console.error('Error fetching newest projects:', error);
@@ -78,25 +71,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
             title: 'Total Products',
             value: metrics.totalProjects.toString(),
             icon: 'category',
-            link: '/products',
+            link: '/projects',
           },
           {
             title: 'Total Publications',
             value: metrics.totalPublications.toString(),
             icon: 'description',
-            link: '/publications',
+            link: '/projects',
           },
           {
             title: 'Total Patents',
             value: metrics.totalPatents.toString(),
             icon: 'gavel',
-            link: '/patents',
+            link: '/projects',
           },
           {
             title: 'Total Research Projects',
             value: metrics.totalResearch.toString(),
             icon: 'science',
-            link: '/research-projects',
+            link: '/projects',
           },
           {
             title: 'Total Users',

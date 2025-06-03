@@ -9,24 +9,22 @@
       }
     </ul>
   </div>
-  <div>
-    <h3>Останні проєкти</h3>
-
-    <ul class="dashboard-recent-project__list">
-      @for (item of newestProjects; track $index) {
-      <li class="dashboard-recent-project__list-item">
-        <shared-project-card [project]="item" />
-      </li>
-      }
-    </ul>
-  </div>
-  <!-- <div class="dashboard-content">
-    <dashboard-filter-sidebar />
-    <div class="dashboard-project__list">
-      @for (project of recentProjects; track $index) {
-      <shared-project-card [project]="project" />
-      }
+  <shared-projects-quick-links />
+  <div class="dashboard-content">
+    <!-- <dashboard-filter-sidebar /> -->
+    <div class="dashboard-content__inner">
+      <h3 class="dashboard-recent-project__title" style="text-align: center">
+        Останні проєкти
+      </h3>
+      <ul class="dashboard-recent-project__list">
+        @for (item of newestProjects; track $index) {
+        <li class="dashboard-recent-project__list-item">
+          <shared-project-card [project]="item" />
+        </li>
+        }
+      </ul>
     </div>
-  </div> -->
+  </div>
+  <dashboard-online-users />
   <shared-frequent-links />
 </div>

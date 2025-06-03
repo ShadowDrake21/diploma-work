@@ -1,16 +1,31 @@
 package com.backend.app.service;
 
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.app.dto.CreatePublicationRequest;
-import com.backend.app.dto.ResponseUserDTO;
+import com.backend.app.dto.create.CreatePublicationRequest;
+import com.backend.app.dto.miscellaneous.ProjectWithDetailsDTO;
+import com.backend.app.dto.miscellaneous.ResponseUserDTO;
+import com.backend.app.dto.model.ProjectDTO;
+import com.backend.app.dto.model.PublicationDTO;
+import com.backend.app.exception.ResourceNotFoundException;
+import com.backend.app.mapper.PublicationMapper;
 import com.backend.app.model.Project;
 import com.backend.app.model.Publication;
 import com.backend.app.model.PublicationAuthor;
@@ -22,162 +37,255 @@ import com.backend.app.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class PublicationService {
-	@Autowired
-	private PublicationRepository publicationRepository;
-	
-	@Autowired
-	private ProjectRepository projectRepository;
-	
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Autowired
-	private PublicationAuthorRepository publicationAuthorRepository;
-	
-    @PersistenceContext
-	private EntityManager entityManager;
-	
-	public List<Publication> findAllPublications(){
+	private final PublicationRepository publicationRepository;
+	private final ProjectRepository projectRepository;
+	private final UserRepository userRepository;
+	private final PublicationAuthorRepository publicationAuthorRepository;
+	private final PublicationMapper publicationMapper;
+
+	@PersistenceContext
+	private final EntityManager entityManager;
+
+	public List<Publication> findAllPublications() {
 		return publicationRepository.findAll();
 	}
 	
-	public Optional<Publication> findPublicationById(UUID id) {
-		return publicationRepository.findById(id);
+	public Page<Publication> findAllPublications(Pageable pageable) {
+		return publicationRepository.findAll(pageable);
 	}
-	
+
+	public PublicationDTO findPublicationById(UUID id) {
+		return publicationRepository.findByIdWithRelations(id).map(publicationMapper::toDTO)
+				.orElseThrow(() -> new ResourceNotFoundException("Publication not found with ID: " + id));
+	}
+
 	public List<Publication> findPublicationByProjectId(UUID projectId) {
 		return publicationRepository.findByProjectId(projectId);
 	}
-	
-	@Transactional 
-	public Optional<Publication> updatePublication(UUID id, Publication newPublication) {
-		System.out.println("Updating publication with ID: " + id);
-	    System.out.println("Project: " + newPublication.getProject());
-	    System.out.println("Publication authors: " + newPublication.getPublicationAuthors().size());
-	    return publicationRepository.findById(id).map(existingPublication -> {
-			if (newPublication.getProject() == null) {
-	            throw new IllegalArgumentException("Project cannot be null");
-	        }
-			existingPublication.setProject(newPublication.getProject());
-			existingPublication.setPublicationSource(newPublication.getPublicationSource());
-			existingPublication.setDoiIsbn(newPublication.getDoiIsbn());
-			existingPublication.setStartPage(newPublication.getStartPage());
-			existingPublication.setEndPage(newPublication.getEndPage());
-			existingPublication.setJournalVolume(newPublication.getJournalVolume());
-			existingPublication.setIssueNumber(newPublication.getIssueNumber());
-			
-	        System.out.println("Clearing existing authors...");
-			existingPublication.getPublicationAuthors().clear();
-			
-			entityManager.flush();
-			for(PublicationAuthor author : newPublication.getPublicationAuthors()) {
-				author.setPublication(newPublication);
-				existingPublication.addPublicationAuthor(author);
-			}
-		
-			return publicationRepository.save(existingPublication);
-		});
-}
-	@Transactional 
-	public Publication createPublication(CreatePublicationRequest request) {
-		Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new RuntimeException("Project not found with ID: " + request.getProjectId()));
-		Publication publication = new Publication(
-				project, request.getPublicationDate(),
-				request.getPublicationSource(), 
-				request.getDoiIsbn(), 
-				request.getStartPage(), 
-				request.getEndPage(), 
-				request.getJournalVolume(),
-				request.getIssueNumber()
-				);
-		
-		
-		for(Long userId : request.getAuthors()) {
-			User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-			PublicationAuthor publicationAuthor = new PublicationAuthor();
-			publicationAuthor.setPublication(publication);
-			publicationAuthor.setUser(user);
-			
-			publication.addPublicationAuthor(publicationAuthor);
 
+	@Transactional
+	public Publication createPublication(CreatePublicationRequest request) {
+		try {
+			Project project = projectRepository.findById(request.getProjectId()).orElseThrow(
+					() -> new ResourceNotFoundException("Project not found with ID: " + request.getProjectId()));
+
+			Publication publication = new Publication();
+			publication.setProject(project);
+			publication.setPublicationDate(request.getPublicationDate());
+			publication.setPublicationSource(request.getPublicationSource());
+			publication.setDoiIsbn(request.getDoiIsbn());
+			publication.setStartPage(request.getStartPage());
+			publication.setEndPage(request.getEndPage());
+			publication.setJournalVolume(request.getJournalVolume());
+			publication.setIssueNumber(request.getIssueNumber());
+
+			Publication savedPublication = publicationRepository.save(publication);
+
+			if (request.getAuthors() != null && !request.getAuthors().isEmpty()) {
+				addAuthorsToPublication(savedPublication, request.getAuthors());
+			}
+
+			return savedPublication;
+
+		} catch (Exception e) {
+			log.error("Error creating publication: {}", e.getMessage(), e);
+			throw new RuntimeException("Failed to create publication", e);
 		}
-		
-		return  publicationRepository.save(publication);
 	}
-	
-	@Transactional 
+
+	@Transactional
+	public PublicationDTO updatePublication(UUID id, PublicationDTO publicationDTO) {
+	    // 1. Update the publication fields
+	    Publication publication = publicationRepository.findById(id)
+	        .orElseThrow(() -> new ResourceNotFoundException("Publication not found"));
+	    
+	    List<ResponseUserDTO> originalAuthors = publicationAuthorRepository.getAuthorsInfoByPublication(publication);
+	    
+	    publicationMapper.updatePublicationFromDto(publicationDTO, publication);
+	    publicationRepository.save(publication);
+	    
+	    // 2. Handle authors update in a separate atomic operation
+	    if (publicationDTO.getAuthors() != null) {
+	    	updateAuthorsInNewTransaction(id, 
+	            publicationDTO.getAuthors().stream()
+	                .map(ResponseUserDTO::getId)
+	                .collect(Collectors.toList()), originalAuthors.stream().map(ResponseUserDTO::getId).collect(Collectors.toList()));
+	    }
+	    
+	    return findPublicationById(id);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void updateAuthorsInNewTransaction(UUID publicationId, List<Long> newAuthorIds, List<Long> originalAuthorIds) {
+	    try {
+	        // 1. Get fresh references
+	        Publication publication = publicationRepository.getReferenceById(publicationId);
+	        
+	        log.debug("newAuthorIds: " + newAuthorIds.size());
+	        
+	        // 2. Determine authors to remove (present in original but not in new)
+	        List<Long> authorsToRemove = originalAuthorIds.stream()
+	            .filter(id -> !newAuthorIds.contains(id))
+	            .collect(Collectors.toList());
+	        
+	        // 3. Determine authors to add (present in new but not in original)
+	        List<Long> authorsToAdd = newAuthorIds.stream()
+	            .filter(id -> !originalAuthorIds.contains(id))
+	            .collect(Collectors.toList());
+	        
+	        // 4. Remove authors
+	        if (!authorsToRemove.isEmpty()) {
+	            publicationAuthorRepository.deleteByPublicationIdAndUserIds(publicationId, authorsToRemove);
+	        }
+	        
+	        // 5. Add new authors
+	        if (!authorsToAdd.isEmpty()) {
+	            List<PublicationAuthor> newAuthors = authorsToAdd.stream()
+	                .map(userId -> {
+	                    User user = userRepository.getReferenceById(userId);
+	                    return new PublicationAuthor(publication, user);
+	                })
+	                .collect(Collectors.toList());
+	            
+	            publicationAuthorRepository.saveAll(newAuthors);
+	        }
+	    } catch (Exception e) {
+	        log.error("Failed to update authors for publication {}", publicationId, e);
+	        throw e;
+	    }
+	}
+
+	@Transactional
 	public PublicationAuthor addPublicationAuthor(UUID publicationId, Long userId) {
-		Publication publication = publicationRepository.findById(publicationId).orElseThrow(() -> new RuntimeException("Publication not found with ID: " + publicationId));
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-		
-		if(publicationAuthorRepository.existsByPublicationAndUser(publication, user)) {
-			throw new RuntimeException("User is already an author of this publication");
+		Publication publication = getPublicationById(publicationId);
+		User user = getUserById(userId);
+
+		if (publicationAuthorRepository.existsByPublicationAndUser(publication, user)) {
+			throw new IllegalArgumentException("User is already an author of this publication");
 		}
-		
-		PublicationAuthor publicationAuthor = new PublicationAuthor();
-		publicationAuthor.setPublication(publication);
-		publicationAuthor.setUser(user);
-		
+
+		PublicationAuthor publicationAuthor = new PublicationAuthor(publication, user);
 		return publicationAuthorRepository.save(publicationAuthor);
 	}
-	
-	@Transactional 
+
+	@Transactional
 	public void removePublicationAuthor(UUID publicationId, Long userId) {
-		Publication publication = publicationRepository.findById(publicationId).orElseThrow(() -> new RuntimeException("Publication not found with ID: " + publicationId));
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-		PublicationAuthor publicationAuthor = publicationAuthorRepository.findByPublicationAndUser(publication, user).orElseThrow(() -> new RuntimeException("This user is not an author of the publication"));
-		
+		Publication publication = getPublicationById(publicationId);
+		User user = getUserById(userId);
+
+		PublicationAuthor publicationAuthor = publicationAuthorRepository.findByPublicationAndUser(publication, user)
+				.orElseThrow(() -> new ResourceNotFoundException("This user is not an author of the publication"));
+
 		publicationAuthorRepository.delete(publicationAuthor);
 	}
-	
-	@Transactional 
+
+	@Transactional
 	public void updatePublicationAuthors(UUID publicationId, List<Long> newAuthorIds) {
-		Publication publication = publicationRepository.findById(publicationId).orElseThrow(() -> new RuntimeException("Publication not found with ID: " + publicationId));
-		
-		publicationAuthorRepository.deleteByPublication(publication);
-		
-		for(Long userId:newAuthorIds) {
-			addPublicationAuthor(publicationId, userId);
+		Publication publication = publicationRepository.findById(publicationId)
+				.orElseThrow(() -> new RuntimeException("Publication not found with ID: " + publicationId));
+
+		List<PublicationAuthor> currentAuthors = publicationAuthorRepository.findByPublication(publication);
+
+		try {
+			currentAuthors.forEach(author -> {
+				publicationAuthorRepository.delete(author);
+			});
+		} catch (ObjectOptimisticLockingFailureException e) {
+			throw new ConcurrentModificationException(
+					"Authors were modified by another transaction. Please refresh and try again.");
+		}
+		publication.getPublicationAuthors().clear();
+
+		if (newAuthorIds != null) {
+			newAuthorIds.forEach(userId -> {
+				User user = getUserById(userId);
+				PublicationAuthor author = new PublicationAuthor(publication, user);
+				publicationAuthorRepository.save(author);
+				publication.addPublicationAuthor(author);
+			});
 		}
 	}
-	
+
 	public Publication savePublication(Publication publication) {
 		return publicationRepository.save(publication);
 	}
-	
-	@Transactional 
+
+	@Transactional
 	public void deleteProject(UUID id) {
 		publicationRepository.deleteById(id);
 	}
-	
+
 	public List<ResponseUserDTO> getPublicationAuthorsInfo(UUID publicationId) {
-		System.out.println("getPublicationAuthorsInfo " + publicationId);
-		Publication publication = publicationRepository.findById(publicationId) .orElseThrow(() -> new RuntimeException("Publication not found with ID: " + publicationId));
+		Publication publication = getPublicationById(publicationId);
 		return publicationAuthorRepository.getAuthorsInfoByPublication(publication);
 	}
-	
-	public List<UUID> findProjectsByFilters(String source, String doiIsbn){
+
+	public List<UUID> findProjectsByFilters(String source, String doiIsbn) {
 		Specification<Publication> spec = Specification.where(null);
-		
-		 if (source != null && !source.isEmpty()) {
-		        spec = spec.and((root, query, cb) -> 
-		            cb.like(cb.lower(root.get("publicationSource")), "%" + source.toLowerCase() + "%"));
-		    }
-		    
-		    if (doiIsbn != null && !doiIsbn.isEmpty()) {
-		        spec = spec.and((root, query, cb) -> 
-		            cb.like(cb.lower(root.get("doiIsbn")), "%" + doiIsbn.toLowerCase() + "%"));
-		    }
-		    
-		    return publicationRepository.findAll(spec)
-		            .stream()
-		            .map(p -> p.getProject().getId())
-		            .distinct()
-		            .collect(Collectors.toList());
-		    }
-	
+
+		if (source != null && !source.isEmpty()) {
+			spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("publicationSource")),
+					"%" + source.toLowerCase() + "%"));
+		}
+
+		if (doiIsbn != null && !doiIsbn.isEmpty()) {
+			spec = spec.and(
+					(root, query, cb) -> cb.like(cb.lower(root.get("doiIsbn")), "%" + doiIsbn.toLowerCase() + "%"));
+		}
+
+		return publicationRepository.findAll(spec).stream().map(p -> p.getProject().getId()).distinct()
+				.collect(Collectors.toList());
+	}
+
+	private User getUserById(Long id) {
+		return userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+	}
+
+	private void addAuthorsToPublication(Publication publication, List<Long> authorIds) {
+		authorIds.forEach(userId -> {
+			User user = getUserById(userId);
+			publication.addPublicationAuthor(new PublicationAuthor(publication, user));
+		});
+	}
+
+	@Transactional
+	private void updateAuthors(Publication publication, List<Long> newAuthorIds) {
+		if (newAuthorIds == null) {
+			return;
+		}
+
+		List<PublicationAuthor> currentAuthors = new ArrayList<PublicationAuthor>(publication.getPublicationAuthors());
+
+		for (PublicationAuthor author : currentAuthors) {
+			if (!newAuthorIds.contains(author.getUser().getId())) {
+				publicationAuthorRepository.delete(author);
+				publication.getPublicationAuthors().remove(author);
+			}
+		}
+
+		Set<Long> currentAuthorIds = publication.getPublicationAuthors().stream().map(pa -> pa.getUser().getId())
+				.collect(Collectors.toSet());
+
+		for (Long userId : newAuthorIds) {
+			if (!currentAuthorIds.contains(userId)) {
+				User user = getUserById(userId);
+				PublicationAuthor author = new PublicationAuthor(publication, user);
+				publicationAuthorRepository.save(author);
+				publication.addPublicationAuthor(author);
+			}
+		}
+	}
+
+	private Publication getPublicationById(UUID id) {
+		return publicationRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Publication not found with ID: " + id));
+	}
 }

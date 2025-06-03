@@ -1,29 +1,29 @@
 <div class="user">
   <div class="user-inner">
     <div class="user-img__wrapper">
-      <img [src]="user?.avatarUrl" class="user-img" />
+      <img [src]="user()?.avatarUrl" class="user-img" />
     </div>
     <div class="user-content">
       <div class="user-content__info">
         <p class="user-content__info-item">
           <span class="user-content__info-item__span">Name:</span>
-          {{ user?.username }}
+          {{ user()?.username }}
         </p>
         <p class="user-content__info-item">
           <span class="user-content__info-item__span">Role:</span>
-          {{ user?.role }}
+          {{ user()?.role | roleFormat }}
         </p>
         <p class="user-content__info-item">
           <span class="user-content__info-item__span">Affiliation:</span>
-          {{ user?.affiliation }}
+          {{ user()?.affiliation }}
         </p>
       </div>
-      <div class="user-content__btns">
+      <!-- <div class="user-content__btns">
         <button mat-button class="user-content__btns-item">
           Send a message
         </button>
         <button mat-button class="user-content__btns-item">Follow</button>
-      </div>
+      </div> -->
       <ul class="user-content__metric-list">
         @for (item of userMetrics(); track $index) {
         <li class="user-content__metric-list__item">
@@ -33,7 +33,16 @@
       </ul>
     </div>
   </div>
-  @if (user) {
-  <user-tabs [user]="user" />
+  @if (isUserLoaded()) {
+  <user-tabs
+    [user]="user()!"
+    [pageSize]="pageSize()"
+    [currentPage]="currentPage()"
+    (pageChange)="onPageChange($event)"
+  />
+  } @else {
+  <div class="user-content__loading">
+    <mat-spinner [diameter]="50" [strokeWidth]="5"></mat-spinner>
+  </div>
   }
 </div>

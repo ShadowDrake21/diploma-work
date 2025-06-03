@@ -1,0 +1,105 @@
+<div class="table-container">
+  <table mat-table [dataSource]="projects()">
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef>Title</th>
+      <td mat-cell *matCellDef="let project">{{ project.title }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <td mat-cell *matCellDef="let project">
+        {{ getProjectTypeName(project.type) | titlecase }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let project">
+        {{ project.description | truncateText : 100 }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="progress">
+      <th mat-header-cell *matHeaderCellDef>Progress</th>
+      <td mat-cell *matCellDef="let project">
+        {{ project.progress }}%
+        <mat-progress-bar
+          mode="determinate"
+          [value]="project.progress"
+          [color]="getProgressColor(project.progress)"
+        />
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="attachments">
+      <th mat-header-cell *matHeaderCellDef>Attachments</th>
+      <td mat-cell *matCellDef="let project">
+        <mat-list>
+          @for (file of project.attachments || []; track file.id) {
+          <mat-list-item>
+            <mat-icon matListItemIcon>description</mat-icon>
+            <div matListItemTitle>{{ file.fileName }}</div>
+            <div matListItemLine>{{ file.fileSize | fileSize }}</div>
+          </mat-list-item>
+          <a
+            mat-icon-button
+            [href]="file.fileUrl"
+            target="_blank"
+            matTooltip="View file"
+          >
+            <mat-icon>visibility</mat-icon>
+          </a>
+          } @empty {
+          <mat-list-item>
+            <mat-icon matListItemIcon>description</mat-icon>
+            <div matListItemTitle>No attachments</div>
+          </mat-list-item>
+          }
+        </mat-list>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="creator">
+      <th mat-header-cell *matHeaderCellDef>Creator</th>
+      <td mat-cell *matCellDef="let project">
+        {{ project.creator?.username || "Deleted User" }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef>Created</th>
+      <td mat-cell *matCellDef="let project">
+        {{ project.createdAt | date }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let project">
+        <button mat-icon-button (click)="editProject(project)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="deleteProject(project.id)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <mat-paginator
+    [length]="pagination().total"
+    [pageSize]="pagination().size"
+    [pageIndex]="pagination().page"
+    [pageSizeOptions]="[5, 10, 25]"
+    (page)="onPageChange($event)"
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>

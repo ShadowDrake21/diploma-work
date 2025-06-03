@@ -1,37 +1,36 @@
-@let user = userSig();
-
 <div class="user-card">
-  <img [src]="user.avatarUrl" class="user-card__image" alt="user-image" />
+  <img [src]="user().avatarUrl" class="user-card__image" alt="user-image" />
 
   <div class="user-card__content">
     <div class="user-card__content-header">
-      <h3 class="user-card__content-header__item">{{ user.username }}</h3>
-      <h4 class="user-card__content-header__item">{{ user.email }}</h4>
+      <h3 class="user-card__content-header__item">{{ user().username }}</h3>
+      <h4 class="user-card__content-header__item">{{ user().email }}</h4>
     </div>
     <div class="user-card__content-body">
       <div class="user-card__content-body__part">
         <p class="user-card__content-body__part-item">
-          <span class="user-card__content-subtitle">Role:</span> {{ user.role }}
+          <span class="user-card__content-subtitle">Role:</span>
+          {{ user().role | roleFormat }}
         </p>
 
         <p class="user-card__content-body__part-item">
           <span class="user-card__content-subtitle">Affiliation:</span>
-          {{ user.affiliation }}
+          {{ user().affiliation }}
         </p>
       </div>
       <mat-divider />
       <div class="user-card__content-body__part">
         <p class="user-card__content-body__part-item">
           <span class="user-card__content-subtitle">Publications:</span>
-          {{ user.publicationCount }}
+          {{ user().publicationCount }}
         </p>
         <p class="user-card__content-body__part-item">
           <span class="user-card__content-subtitle">Patents:</span>
-          {{ user.patentCount }}
+          {{ user().patentCount }}
         </p>
         <p class="user-card__content-body__part-item">
           <span class="user-card__content-subtitle">Research projects:</span>
-          {{ user.researchCount }}
+          {{ user().researchCount }}
         </p>
       </div>
     </div>

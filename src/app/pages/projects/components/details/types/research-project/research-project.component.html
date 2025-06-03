@@ -1,5 +1,5 @@
-@let participants = participants$ | async; @if (research$ | async; as
-researchProject) {
+@let participants = participants$ | async; @let researchProject = (research$ |
+async); @if (researchProject) {
 
 <div class="research-project">
   <div class="research-project__authors research-project__section">

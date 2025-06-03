@@ -1,7 +1,6 @@
-@let patentsForm = patentsFormSig();
 @let allUsers = allUsers$ | async;
 
-<form [formGroup]="patentsForm" class="project-patent__form">
+<form [formGroup]="patentsForm()" class="project-patent__form">
   <mat-form-field>
     <mat-label>Primary author</mat-label>
     <mat-select
@@ -21,8 +20,11 @@
       [compareWith]="compareCoInventors"
     >
       @for (coInventor of allUsers; track coInventor) {
+      @if(selectedPrimaryAuthor === null || +coInventor.id !==
+      selectedPrimaryAuthor){
+
       <mat-option [value]="coInventor.id">{{ coInventor.username }}</mat-option>
-      }
+      } }
     </mat-select>
   </mat-form-field>
   <mat-form-field>

@@ -1,0 +1,97 @@
+@if (systemOverview()) {
+<mat-grid-list cols="2" rowHeight="400px">
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>System Overview</mat-card-title>
+      </mat-card-header>
+      <mat-card-content *ngIf="systemOverview() as overview">
+        <div class="metric-grid">
+          <div
+            class="metric-item"
+            *ngFor="
+              let metric of [
+                {
+                  icon: 'people',
+                  value: overview.totalUsers,
+                  label: 'Total Users'
+                },
+                {
+                  icon: 'person',
+                  value: overview.activeUsers,
+                  label: 'Active Users'
+                },
+                {
+                  icon: 'folder',
+                  value: overview.totalProjects,
+                  label: 'Total Projects'
+                },
+                {
+                  icon: 'wifi',
+                  value: overview.activeSessions,
+                  label: 'Active Sessions'
+                }
+              ]
+            "
+          >
+            <mat-icon>{{ metric.icon }}</mat-icon>
+            <div>
+              <h3>{{ metric.value }}</h3>
+              <p>{{ metric.label }}</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>User Growth</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (userGrowthChart$ | async; as chartData) {
+        <ngx-charts-line-chart
+          *ngIf="chartData.series.length"
+          [results]="[chartData]"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Date"
+          yAxisLabel="New Users"
+          scheme="cool"
+          [animations]="true"
+        >
+        </ngx-charts-line-chart>
+        }
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Project Distribution</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (projectDistributionChart$ | async; as chartData) {
+        <ngx-charts-pie-chart
+          *ngIf="hasData(chartData)"
+          [results]="chartData"
+          [labels]="true"
+          [doughnut]="true"
+          scheme="vivid"
+          [animations]="true"
+        >
+        </ngx-charts-pie-chart>
+        <div *ngIf="!hasData(chartData)">No project data available</div>
+        } @else {
+        <mat-spinner diameter="40"></mat-spinner>
+        }
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+}

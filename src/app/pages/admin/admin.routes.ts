@@ -23,10 +23,10 @@ export const AdminRoutes: Routes = [
       },
       {
         path: 'users-management',
-        loadComponent: () =>
-          import(
-            './components/users-management/users-management.component'
-          ).then((c) => c.UsersManagementComponent),
+        loadChildren: () =>
+          import('./components/user-management/user-management.routes').then(
+            (r) => r.UserManagementRoutes
+          ),
       },
     ],
   },

@@ -12,20 +12,19 @@
     }
   }
 
-  &-recent-project__list {
-    display: flex;
-    width: 100%;
-    list-style: none;
-    overflow-x: scroll;
-    padding-bottom: 10px;
-
-    &-item {
+  &-recent-project {
+    &__list {
+      display: flex;
+      flex-wrap: wrap;
       width: 100%;
-      border-right: 1px solid #000000;
+      list-style: none;
+      overflow-x: scroll;
+      padding-bottom: 10px;
+      gap: 30px;
+    }
 
-      &:last-child {
-        border-right: none;
-      }
+    &__title {
+      text-align: center;
     }
   }
 
@@ -39,5 +38,39 @@
   &-content {
     display: flex;
     gap: 20px;
+
+    &__inner {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      flex-grow: 1;
+      gap: 20px;
+    }
+  }
+  &__actions {
+    display: flex;
+    gap: 10px;
+    padding-bottom: 20px;
+
+    &-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      width: 100%;
+      padding: 10px;
+      text-align: center;
+      background-color: #000000;
+      transition: all 0.3s ease-in-out;
+
+      &__text {
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      &:hover {
+        background-color: #707070;
+      }
+    }
   }
 }

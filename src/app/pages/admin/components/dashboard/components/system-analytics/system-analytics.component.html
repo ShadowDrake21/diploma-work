@@ -1,0 +1,125 @@
+@let performance = systemPerformance$ | async;
+
+<mat-grid-list cols="2" rowHeight="400px">
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>System Performance</mat-card-title>
+      </mat-card-header>
+      @if (performance){
+      <mat-card-content>
+        <div class="metric-grid">
+          <div class="metric-item">
+            <mat-icon>speed</mat-icon>
+            <div>
+              <h3>
+                {{ performance.averageResponseTime | number : "1.0-2" }}ms
+              </h3>
+              <p>Avg. Response Time</p>
+            </div>
+          </div>
+          <div class="metric-item">
+            <mat-icon>timer</mat-icon>
+            <div>
+              <h3>{{ performance.uptimePercentage | number : "1.2-2" }}%</h3>
+              <p>Uptime</p>
+            </div>
+          </div>
+          <div class="metric-item">
+            <mat-icon>memory</mat-icon>
+            <div>
+              <h3>{{ performance.memoryUsage | number : "1.2-2" }}%</h3>
+              <p>Memory Usage</p>
+            </div>
+          </div>
+          <div class="metric-item">
+            <mat-icon>device_hub</mat-icon>
+            <div>
+              <h3>{{ performance.cpuUsage | number : "1.2-2" }}%</h3>
+              <p>CPU Usage</p>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="metric-item">
+            <mat-icon>people</mat-icon>
+            <div>
+              <h3>{{ performance.activeConnections }}</h3>
+              <p>Active Sessions</p>
+            </div>
+          </div>
+          <div class="metric-item">
+            <mat-icon>storage</mat-icon>
+            <div>
+              <h3>
+                {{ performance.activeDbConnections }}/{{
+                  performance.maxDbConnections
+                }}
+              </h3>
+              <p>DB Connections</p>
+            </div>
+          </div>
+        </div></mat-card-content
+      >}
+    </mat-card>
+  </mat-grid-tile>
+
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Comment Activity</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ngx-charts-line-chart
+          *ngIf="commentActivityChart$ | async as chartData"
+          [results]="chartData"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Date"
+          yAxisLabel="Activity"
+          [legend]="true"
+          [scheme]="'vivid'"
+        >
+        </ngx-charts-line-chart>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+<mat-grid-list cols="2" rowHeight="300px" *ngIf="performance">
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Memory Usage</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ngx-charts-gauge
+          *ngIf="memoryUsageGauge$ | async as data"
+          [results]="data"
+          [max]="100"
+          [units]="'%'"
+          [scheme]="'cool'"
+        >
+        </ngx-charts-gauge>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>CPU Usage</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ngx-charts-gauge
+          *ngIf="cpuUsageGauge$ | async as data"
+          [results]="data"
+          [max]="100"
+          [units]="'%'"
+          [scheme]="'fire'"
+        >
+        </ngx-charts-gauge>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>

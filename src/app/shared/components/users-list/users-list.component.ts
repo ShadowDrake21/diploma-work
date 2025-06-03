@@ -1,36 +1,43 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
-import { PaginationComponent } from '../pagination/pagination.component';
-import { PaginationService } from '@core/services/pagination.service';
 import { UserCardComponent } from '../user-card/user-card.component';
 import { MatFormField, MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
+import { IUser } from '@models/user.model';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'shared-users-list',
   imports: [
     MatListModule,
-    PaginationComponent,
     UserCardComponent,
     MatSelectModule,
     MatButtonModule,
     MatFormField,
+    MatPaginatorModule,
   ],
   templateUrl: './users-list.component.html',
   styleUrl: './users-list.component.scss',
-  providers: [PaginationService],
 })
 export class UsersListComponent {
-  private router = inject(Router);
-  paginationServiceSig = input.required<PaginationService>({
-    alias: 'paginationService',
-  });
-  pages = input.required<number[]>({
-    alias: 'pages',
-  });
+  users = input.required<IUser[]>();
+  type = input.required<'general' | 'admin'>();
+  pageSize = input(10);
+  totalItems = input.required<number>();
 
-  typeSig = input.required<'general' | 'admin'>({ alias: 'type' });
+  currentPage = signal(0);
+  pageSizeInternal = signal(this.pageSize());
+
+  handlePageEvent(event: PageEvent) {
+    this.currentPage.set(event.pageIndex);
+    this.pageSizeInternal.set(event.pageSize);
+  }
+
+  get paginatedUsers() {
+    const startIndex = this.currentPage() * this.pageSizeInternal();
+    const endIndex = startIndex + this.pageSizeInternal();
+    return this.users().slice(startIndex, endIndex);
+  }
 
   editUser(user: any) {}
 

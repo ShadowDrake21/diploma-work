@@ -17,6 +17,11 @@ import { NotificationsComponent } from '@pages/dashboard/components/notification
 import { HeaderComponent } from '@shared/components/header/header.component';
 import { filter } from 'rxjs';
 import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/recent-users.component';
+import { AdminService } from '@core/services/admin.service';
+import { AuthService } from '@core/authentication/auth.service';
+import { currentUserSig } from '@core/shared/shared-signals';
+import { UserStore } from '@core/services/stores/user-store.service';
+import { SessionWarningComponent } from '@shared/components/dialogs/session-warning/session-warning.component';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +35,7 @@ import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/r
     NotificationsComponent,
     RecentUsersComponent,
     FooterComponent,
+    SessionWarningComponent,
     NgStyle,
     RouterLink,
   ],
@@ -37,6 +43,8 @@ import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/r
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
+  private readonly authService = inject(AuthService);
+  private readonly userStore = inject(UserStore);
   private observer = inject(BreakpointObserver);
   private router = inject(Router);
 
@@ -48,6 +56,10 @@ export class AppComponent implements OnInit {
 
   isAuth = true;
   isSettings = false;
+  isErrorPages = false;
+
+  isAdmin = false;
+  isLoggedIn = this.authService.isAuthenticated();
 
   ngOnInit() {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
@@ -63,7 +75,19 @@ export class AppComponent implements OnInit {
       .subscribe((event) => {
         this.isAuth = event.url.split('/').includes('authentication');
         this.isSettings = event.url.split('/').includes('settings');
+        this.isErrorPages =
+          event.url.split('/').includes('forbidden') ||
+          event.url.split('/').includes('not-found');
       });
+
+    if (this.authService.isAuthenticated()) {
+      const rememberMe = !!localStorage.getItem('authToken');
+      this.userStore.setRememberMe(rememberMe);
+
+      this.userStore.loadCurrentUser().subscribe();
+    }
+
+    this.isAdmin = this.authService.isAdmin();
   }
 
   toggleMenu() {

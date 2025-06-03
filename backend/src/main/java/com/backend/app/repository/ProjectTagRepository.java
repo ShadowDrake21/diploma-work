@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.backend.app.model.ProjectTag;
-import com.backend.app.model.ProjectTagId;
 
 public interface ProjectTagRepository extends JpaRepository<ProjectTag, Long>{
 	@Query("SELECT pt FROM ProjectTag pt WHERE pt.project.id = :projectId")

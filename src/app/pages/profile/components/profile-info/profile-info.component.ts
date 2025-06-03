@@ -1,134 +1,54 @@
-import { Component, inject, input, OnInit } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { IProfileInfo } from '@shared/types/profile.types';
-import { UserService } from '@core/services/user.service';
-import { Observable, tap } from 'rxjs';
-import { IAuthorizedUser, IUser } from '@shared/types/users.types';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Component, inject, OnDestroy, signal, ViewChild } from '@angular/core';
+import { UserService } from '@core/services/users/user.service';
+import { Subscription } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { IUpdateUserProfile, IUser } from '@models/user.model';
+import { ProfileAvatarComponent } from './components/profile-avatar/profile-avatar.component';
+import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
+import { ProfileViewComponent } from './components/profile-view/profile-view.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AsyncPipe } from '@angular/common';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { currentUserSig } from '@core/shared/shared-signals';
 
 @Component({
   selector: 'profile-info',
   imports: [
-    MatIconModule,
-    MatButtonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    ReactiveFormsModule,
-    MatSelectModule,
-    MatButtonToggleModule,
-    MatPaginatorModule,
+    ProfileAvatarComponent,
+    ProfileEditComponent,
+    ProfileViewComponent,
+    MatProgressSpinner,
     MatProgressBarModule,
-    AsyncPipe,
   ],
   templateUrl: './profile-info.component.html',
   styleUrl: './profile-info.component.scss',
 })
-export class ProfileInfoComponent implements OnInit {
-  private userService = inject(UserService);
-  private _snackBar = inject(MatSnackBar);
-  private sanitizer = inject(DomSanitizer);
+export class ProfileInfoComponent implements OnDestroy {
+  private readonly userService = inject(UserService);
+  private readonly _snackBar = inject(MatSnackBar);
+  private subscriptions: Subscription[] = [];
 
-  user$!: Observable<IUser>;
-  editMode = false;
-  isLoading = false;
+  readonly editMode = signal(false);
+  readonly isLoading = signal(false);
+  readonly user = signal<IUser | null>(null);
+  readonly selectedFile = signal<File | null>(null);
 
-  selectedFile: File | null = null;
-  errorMessage = '';
-
-  profileForm = new FormGroup({
-    dateOfBirth: new FormControl<string | null>(null),
-    userType: new FormControl<
-      'student' | 'teacher' | 'researcher' | 'staff' | null
-    >(null),
-    universityGroup: new FormControl<string | null>(null),
-    phoneNumber: new FormControl<string | null>(null, [
-      Validators.pattern(/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/),
-    ]),
-  });
-
-  selectedImagePreview: SafeUrl | null = null;
-
-  ngOnInit(): void {
-    this.user$ = this.userService.getCurrentUser().pipe(
-      tap((user) => {
-        this.profileForm.patchValue({
-          dateOfBirth: user.dateOfBirth || null,
-          userType: user.userType || null,
-          universityGroup: user.universityGroup || null,
-          phoneNumber: user.phoneNumber || null,
-        });
-      })
-    );
+  constructor() {
+    this.loadUser();
   }
 
-  toggleEditMode(): void {
-    this.editMode = !this.editMode;
-  }
-
-  saveProfile() {
-    if (this.profileForm.invalid) {
-      this._snackBar.open(
-        'Please fill in all required fields correctly.',
-        'Close',
-        {
-          duration: 3000,
-        }
-      );
-      return;
-    }
-
-    this.isLoading = true;
-    const formValue = this.profileForm.value;
-    const formattedDate = new Date(formValue.dateOfBirth ?? '')
-      .toISOString()
-      .split('T')[0];
-    console.log('Form Value:', formValue);
-    this.userService
-      .updateUserProfile({
-        phoneNumber: formValue.phoneNumber || undefined,
-        dateOfBirth: formattedDate,
-        userType: formValue.userType || undefined,
-        universityGroup: formValue.universityGroup || undefined,
-      })
+  onSave(profileData: any): void {
+    this.isLoading.set(true);
+    const sub = this.userService
+      .updateUserProfile(this.formProfileData(profileData))
       .subscribe({
-        next: (user) => {
+        next: (response) => {
+          this.user.set({ ...this.user(), ...profileData });
           this._snackBar.open('Profile updated successfully.', 'Close', {
             duration: 3000,
           });
-          this.editMode = false;
-          console.log('Updated User:', user);
-          // TODO: does not work
-          this.profileForm.patchValue({
-            dateOfBirth: user.dateOfBirth || null,
-            userType: user.userType || null,
-            universityGroup: user.universityGroup || null,
-            phoneNumber: user.phoneNumber || null,
-          });
-          this.user$ = this.userService.getCurrentUser();
+          this.editMode.set(false);
         },
-        error: (err) => {
-          console.log('Failed to update profile', err);
+        error: () => {
           this._snackBar.open(
             'Failed to update profile. Please try again.',
             'Close',
@@ -137,52 +57,46 @@ export class ProfileInfoComponent implements OnInit {
             }
           );
         },
-        complete: () => (this.isLoading = false),
+        complete: () => this.isLoading.set(false),
       });
+
+    this.subscriptions.push(sub);
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-      this.errorMessage = '';
-
-      // Basic validation
-      if (this.selectedFile.size > 5 * 1024 * 1024) {
-        this.errorMessage = 'File must be smaller than 5MB';
-        this.selectedFile = null;
-        this.selectedImagePreview = null;
-        return;
-      }
-
-      this.createImagePreview(this.selectedFile);
-    }
+  handleAvatarSucess(updatedUser: IUser): void {
+    this.user.set(updatedUser);
+    currentUserSig.set(updatedUser);
+    this.showMessage('Avatar updated successfully');
   }
 
-  private createImagePreview(file: File): void {
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      // Sanitize the URL for security
-      this.selectedImagePreview = this.sanitizer.bypassSecurityTrustUrl(
-        e.target.result
-      );
+  handleAvatarFailure(): void {
+    this.showMessage('Failed to update avatar. Please try again.');
+  }
+
+  private loadUser(): void {
+    this.subscriptions.push(
+      this.userService.getCurrentUser().subscribe({
+        next: (response) => this.user.set(response.data!),
+        error: () => this.showMessage('Failed to load user profile'),
+      })
+    );
+  }
+
+  private showMessage(message: string): void {
+    this._snackBar.open(message, 'Close', { duration: 3000 });
+  }
+
+  private formProfileData(data: any): IUpdateUserProfile {
+    return {
+      phoneNumber: data.phoneNumber || undefined,
+      dateOfBirth: new Date(data.dateOfBirth ?? '').toISOString().split('T')[0],
+      userType: data.userType || undefined,
+      universityGroup: data.universityGroup || undefined,
+      socialLinks: data.socialLinks || [],
     };
-    reader.readAsDataURL(file);
   }
 
-  uploadAvatar(): void {
-    if (!this.selectedFile) return;
-
-    this.userService.updateUserAvatar(this.selectedFile).subscribe({
-      next: (response) => {
-        console.log('Avatar updated successfully', response);
-        this.selectedImagePreview = null;
-        this.user$ = this.userService.getCurrentUser();
-      },
-      error: (error) => {
-        console.error('Avatar upload failed', error);
-        this.errorMessage = 'Failed to upload avatar. Please try again.';
-      },
-    });
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 }

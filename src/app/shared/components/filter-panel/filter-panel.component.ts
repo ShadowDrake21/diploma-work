@@ -1,9 +1,7 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { projectTags } from '@content/filterProjectTags.content';
 import { MatIconModule } from '@angular/material/icon';
 import {
   FormBuilder,
-  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
@@ -15,18 +13,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import {
-  filterLayout,
-  filters,
-  quickFilters,
-  sorting,
-} from '@content/filterPanel.content';
-import { MatSlider } from '@angular/material/slider';
-import { ProjectService } from '@core/services/project.service';
-import { TagService } from '@core/services/tag.service';
+import { ProjectService } from '@core/services/project/models/project.service';
+import { TagService } from '@core/services/project/models/tag.service';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { format, parseISO } from 'date-fns';
+import { ProjectSearchFilters } from '@shared/types/search.types';
+import { ProjectStatus } from '@shared/enums/project.enums';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'profile-filter-panel',
@@ -41,11 +34,11 @@ import { format, parseISO } from 'date-fns';
     ReactiveFormsModule,
     MatSelectModule,
     MatButtonToggleModule,
-    MatSlider,
     MatExpansionModule,
   ],
   templateUrl: './filter-panel.component.html',
   styleUrl: './filter-panel.component.scss',
+  providers: [provideNativeDateAdapter()],
 })
 export class FilterPanelComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -132,41 +125,56 @@ export class FilterPanelComponent implements OnInit {
   }
 
   applyFilters(): void {
-    if (this.searchForm.invalid) {
-      return;
-    }
+    if (this.searchForm.invalid) return;
 
     const formValue = this.searchForm.value;
+    const statuses = this.getSelectedStatuses(formValue.status);
 
-    const toDateString = (date: Date) =>
-      date ? date.toISOString().split('T')[0] : null;
+    let startDate = formValue.dateRange.start;
+    let endDate = formValue.dateRange.end;
 
-    const filters = {
-      search: formValue.searchQuery,
-      types: formValue.projectTypes,
-      tags: formValue.tags,
-      startDate: toDateString(formValue.dateRange.start),
-      endDate: toDateString(formValue.dateRange.end),
-      assigned: formValue.status.assigned,
-      inProgress: formValue.status.inProgress,
-      completed: formValue.status.completed,
-      progressMin: formValue.progressRange.min,
-      progressMax: formValue.progressRange.max,
-      publicationSource: formValue.publication.source,
-      doiIsbn: formValue.publication.doiIsbn,
-      minBudget: formValue.research.minBudget,
-      maxBudget: formValue.research.maxBudget,
-      fundingSource: formValue.research.fundingSource,
-      registrationNumber: formValue.patent.registrationNumber,
-      issuingAuthority: formValue.patent.issuingAuthority,
+    if (endDate) {
+      endDate = new Date(endDate);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    const filters: ProjectSearchFilters = {
+      search: formValue.searchQuery || undefined,
+      types: formValue.projectTypes?.length
+        ? formValue.projectTypes
+        : undefined,
+      tags: formValue.tags?.length ? formValue.tags : undefined,
+      startDate: startDate?.toISOString().split('T')[0],
+      endDate: endDate?.toISOString().split('T')[0],
+      progressMin:
+        formValue.progressRange.min !== 0
+          ? formValue.progressRange.min
+          : undefined,
+      progressMax:
+        formValue.progressRange.max !== 100
+          ? formValue.progressRange.max
+          : undefined,
+      publicationSource: formValue.publication.source || undefined,
+      doiIsbn: formValue.publication.doiIsbn || undefined,
+      minBudget: formValue.research.minBudget || undefined,
+      maxBudget: formValue.research.maxBudget || undefined,
+      fundingSource: formValue.research.fundingSource || undefined,
+      registrationNumber: formValue.patent.registrationNumber || undefined,
+      issuingAuthority: formValue.patent.issuingAuthority || undefined,
+      statuses: statuses.length ? statuses : undefined,
     };
 
     this.filtersApplied.emit(filters);
-    console.log('Applied filters:', filters);
-    this.projectService.searchProjects(filters).subscribe((projects) => {
-      console.log('Filtered projects:', projects);
-    });
   }
+
+  private getSelectedStatuses(statusGroup: any): ProjectStatus[] {
+    const statuses: ProjectStatus[] = [];
+    if (statusGroup.assigned) statuses.push(ProjectStatus.PENDING);
+    if (statusGroup.inProgress) statuses.push(ProjectStatus.IN_PROGRESS);
+    if (statusGroup.completed) statuses.push(ProjectStatus.COMPLETED);
+    return statuses;
+  }
+
   resetFilters(): void {
     this.searchForm.reset({
       searchQuery: '',
@@ -196,6 +204,8 @@ export class FilterPanelComponent implements OnInit {
         issuingAuthority: '',
       },
     });
+
+    this.filtersReset.emit();
   }
 
   formatProgressLabel(value: number): string {

@@ -1,12 +1,14 @@
-@let myProjects = myProjects$ | async;
-
 <div class="profile">
   <div class="profile__inner">
     <profile-info />
+    @if(myProjects()){
     <shared-profile-projects
-      [projects]="myProjects"
-      [paginationService]="paginationService"
+      [projects]="myProjects()"
+      (filters)="onFiltersChanged($event)"
+      (pageChange)="onPageChanged($event)"
     />
+    }
+    <profile-my-comments />
     <shared-frequent-links />
   </div>
 </div>

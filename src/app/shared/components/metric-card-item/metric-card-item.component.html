@@ -1,9 +1,7 @@
-@let item = data();
+<a class="metric-card-item" routerLink="{{ data().link || '' }}">
+  <mat-icon>{{ data().icon }}</mat-icon>
 
-<a class="metric-card-item" routerLink="{{ item.link || '' }}">
-  <mat-icon>{{ item.icon }}</mat-icon>
+  <div class="metric-card-item__title">{{ data().title }}</div>
 
-  <div class="metric-card-item__title">{{ item.title }}</div>
-
-  <div class="metric-card-item__value">{{ item.value }}</div>
+  <div class="metric-card-item__value">{{ data().value }}</div>
 </a>

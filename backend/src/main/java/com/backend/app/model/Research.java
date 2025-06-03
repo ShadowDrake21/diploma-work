@@ -17,12 +17,28 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 @Entity
 @Table(name = "research_projects")
+@Getter
+@Setter
+@ToString(exclude = {"project", "researchParticipants"})
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Accessors(chain = true)
 public class Research {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(updatable = false, nullable = false)
 	private UUID id;
 	
 	@ManyToOne
@@ -45,95 +61,32 @@ public class Research {
 	private String fundingSource;
 	
 	@OneToMany(mappedBy = "research", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@Singular
 	private List<ResearchParticipant> researchParticipants = new ArrayList<>();
 	
-	public Research() {
-		super();
+	
+	public Research addParticipant(ResearchParticipant participant) {
+		researchParticipants.add(participant);
+		participant.setResearch(this);
+		return this;
 	}
 	
-	public Research(Project project, BigDecimal budget, LocalDate startDate, LocalDate endDate, String status,
-			String fundingSource) {
-		super();
+	public Research removeParticipant(ResearchParticipant participant) {
+		researchParticipants.remove(participant);
+		participant.setResearch(this);
+		return this;
+	}
+	
+	@Builder
+	public Research(Project project, BigDecimal budget, LocalDate startDate, 
+            LocalDate endDate, String status, String fundingSource,
+            List<ResearchParticipant> participants) {
 		this.project = project;
 		this.budget = budget;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.status = status;
 		this.fundingSource = fundingSource;
+		this.researchParticipants = participants != null ? new ArrayList<>(participants) : new ArrayList<>();
 	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public Project getProject() {
-		return project;
-	}
-
-	public void setProject(Project project) {
-		this.project = project;
-	}
-
-	public BigDecimal getBudget() {
-		return budget;
-	}
-
-	public void setBudget(BigDecimal budget) {
-		this.budget = budget;
-	}
-
-	public LocalDate getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(LocalDate startDate) {
-		this.startDate = startDate;
-	}
-
-	public LocalDate getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(LocalDate endDate) {
-		this.endDate = endDate;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getFundingSource() {
-		return fundingSource;
-	}
-
-	public void setFundingSource(String fundingSource) {
-		this.fundingSource = fundingSource;
-	}
-
-	public List<ResearchParticipant> getResearchParticipants() {
-		return researchParticipants;
-	}
-
-	public void setResearchParticipants(List<ResearchParticipant> researchParticipants) {
-		this.researchParticipants = researchParticipants;
-	}
-	
-	public void addParticipant(ResearchParticipant researchParticipant) {
-		researchParticipants.add(researchParticipant);
-		researchParticipant.setResearch(this);
-	}
-	
-	public void removeParticipant(ResearchParticipant researchParticipant) {
-		researchParticipants.remove(researchParticipant);
-		researchParticipant.setResearch(this);
-	}
-	
 }

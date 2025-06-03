@@ -1,19 +1,17 @@
-<header>
-  <mat-toolbar class="header-toolbar">
-    <div class="header-toolbar__inner">
-      <button
-        mat-icon-button
-        aria-label="Menu icon"
-        (click)="onSidebarToggle()"
-        [ngStyle]="isSidebarOpened() ? { backgroundColor: '#c4c4c4' } : {}"
-      >
-        <mat-icon>menu</mat-icon>
-      </button>
-      <img src="logo.png" alt="logo" style="height: 100%" />
-    </div>
-    <h3>{{ headerTitle }}</h3>
-    <app-profile-dropdown
-      [userEmail]="'dmytro.krapyvianskyi@gmail.com'"
-    ></app-profile-dropdown>
-  </mat-toolbar>
-</header>
+<mat-toolbar class="header-toolbar">
+  <div class="header-toolbar__left">
+    <button
+      mat-icon-button
+      aria-label="Toggle sidebar"
+      (click)="onSidebarToggle()"
+      [class.active]="isSidebarOpened()"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+    <img src="logo.png" alt="Application logo" class="header-logo" />
+  </div>
+  <h1 class="header-title">{{ headerTitle() }}</h1>
+  <div class="header-toolbar__right">
+    <app-profile-dropdown />
+  </div>
+</mat-toolbar>

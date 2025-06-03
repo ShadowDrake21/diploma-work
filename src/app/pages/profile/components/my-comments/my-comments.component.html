@@ -1,0 +1,42 @@
+<section class="comments-section">
+  <h2>My Comments</h2>
+
+  @if(comments().data.length) { @for(comment of comments().data; track
+  comment.id) {
+  <mat-card class="comment-card">
+    <mat-card-content
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <div>
+        <p>{{ comment.content }}</p>
+        <div class="comment-meta">
+          <span>Posted on {{ comment.createdAt | date }}</span>
+          <span>• {{ comment.likes }} likes</span>
+          <span>• Project: {{ comment.projectTitle }}</span>
+        </div>
+      </div>
+      <div>
+        <a
+          mat-button
+          color="primary"
+          [routerLink]="['/projects', comment.projectId]"
+          >Go to project</a
+        >
+      </div>
+    </mat-card-content>
+  </mat-card>
+  }
+
+  <mat-paginator
+    [length]="comments().totalItems || 0"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 20]"
+    (page)="onPageChange($event)"
+    aria-label="Select page"
+  >
+  </mat-paginator>
+  } @else {
+  <p class="no-comments">You haven't posted any comments yet.</p>
+  }
+</section>

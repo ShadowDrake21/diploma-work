@@ -1,18 +1,36 @@
 <div class="list">
-  <profile-filter-panel (filtersApplied)="onFiltering($event)" />
+  <shared-projects-quick-links />
+  <profile-filter-panel
+    (filtersApplied)="onFiltering($event)"
+    (filtersReset)="onFiltersReset()"
+  />
+  @if (isLoading()) {
+  <div class="loading-spinner">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  </div>
+  } @else { @if(isEmptyState()) {
+  <div class="empty-state">
+    <p>
+      @if(isMineMode) { You don't have any projects matching your criteria }
+      @else { No projects found matching your criteria }
+    </p>
+  </div>
+  } @else {
   <div class="list__projects">
-    @for (project of searchResults; track $index) {
+    @for (project of projects(); track project.id) {
     <shared-project-card [project]="project" />
     }
   </div>
-  @if(projects.length > paginationService.itemsPerPage) {
-  <!-- get rid of the service in html (not important) -->
-  <shared-pagination
-    [pages]="pages"
-    [currentPage]="paginationService.currentPage"
-    (prevPage)="paginationService.prevPage()"
-    (nextPage)="paginationService.nextPage()"
-    (goToPage)="paginationService.goToPage($event)"
-  />
-  }
+  @if(showPagination()) {
+  <mat-paginator
+    [length]="totalItems()"
+    [pageSize]="pageSize()"
+    [pageIndex]="currentPage()"
+    [pageSizeOptions]="[5, 10, 20, 50]"
+    (page)="onPageChange($event)"
+    aria-label="Select page"
+    class="projects-paginator"
+  >
+  </mat-paginator>
+  } }}
 </div>
