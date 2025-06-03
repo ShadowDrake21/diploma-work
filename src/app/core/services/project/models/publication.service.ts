@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
@@ -8,15 +8,16 @@ import {
   UpdatePublicationRequest,
 } from '@models/publication.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
+import { ErrorHandlerService } from '@core/services/utils/error-handler.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PublicationService {
-  private http = inject(HttpClient);
-
-  private apiUrl = BASE_URL + 'publications';
+  private readonly http = inject(HttpClient);
+  private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly apiUrl = BASE_URL + 'publications';
 
   getAllPublications(): Observable<ApiResponse<PublicationDTO[]>>;
 
@@ -38,29 +39,53 @@ export class PublicationService {
         .set('page', page.toString())
         .set('pageSize', pageSize.toString());
     }
-    return this.http.get<
-      ApiResponse<PublicationDTO[]> | PaginatedResponse<PublicationDTO[]>
-    >(this.apiUrl, {
-      ...getAuthHeaders(),
-      params,
-    });
+    return this.http
+      .get<ApiResponse<PublicationDTO[]> | PaginatedResponse<PublicationDTO[]>>(
+        this.apiUrl,
+        {
+          ...getAuthHeaders(),
+          params,
+        }
+      )
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to load publications`
+          )
+        )
+      );
   }
 
   getPublicationById(id: string): Observable<ApiResponse<PublicationDTO>> {
-    return this.http.get<ApiResponse<PublicationDTO>>(
-      `${this.apiUrl}/${id}`,
-      getAuthHeaders()
-    );
+    return this.http
+      .get<ApiResponse<PublicationDTO>>(
+        `${this.apiUrl}/${id}`,
+        getAuthHeaders()
+      )
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to load publication with ID ${id}`
+          )
+        )
+      );
   }
 
   createPublication(
     request: CreatePublicationRequest
   ): Observable<ApiResponse<PublicationDTO>> {
-    return this.http.post<ApiResponse<PublicationDTO>>(
-      this.apiUrl,
-      request,
-      getAuthHeaders()
-    );
+    return this.http
+      .post<ApiResponse<PublicationDTO>>(this.apiUrl, request, getAuthHeaders())
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to create publication`
+          )
+        )
+      );
   }
 
   // TODO: finish authors publication
@@ -69,17 +94,32 @@ export class PublicationService {
     id: string,
     request: UpdatePublicationRequest
   ): Observable<ApiResponse<PublicationDTO>> {
-    return this.http.put<ApiResponse<PublicationDTO>>(
-      `${this.apiUrl}/${id}`,
-      request,
-      getAuthHeaders()
-    );
+    return this.http
+      .put<ApiResponse<PublicationDTO>>(
+        `${this.apiUrl}/${id}`,
+        request,
+        getAuthHeaders()
+      )
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to update publication with ID ${id}`
+          )
+        )
+      );
   }
 
   deletePublication(id: string): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(
-      `${this.apiUrl}/${id}`,
-      getAuthHeaders()
-    );
+    return this.http
+      .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Failed to delete publication with ID ${id}`
+          )
+        )
+      );
   }
 }

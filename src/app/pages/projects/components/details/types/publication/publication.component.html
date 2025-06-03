@@ -1,4 +1,8 @@
-@let publication = (publication$ | async)?.data; @if ( publication) {
+@let publication = (publication$ | async)?.data; @if (error) {
+<div class="error-message">
+  Failed to load publication details. Please try again later.
+</div>
+} @else if ( publication) {
 <div class="publication">
   <div class="publication__authors publication__section">
     <h4 class="publication__section-title">Authors</h4>
@@ -38,4 +42,7 @@
     <p class="publication__section-text">{{ publication.issueNumber }}</p>
   </div>
 </div>
+
+} @else {
+<div class="loading-message">Loading publication details...</div>
 }

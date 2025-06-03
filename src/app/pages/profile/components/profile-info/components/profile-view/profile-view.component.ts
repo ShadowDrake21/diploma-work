@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { NotificationService } from '@core/services/notification.service';
 import { IUser, SocialLink } from '@models/user.model';
 
 @Component({
@@ -10,14 +11,25 @@ import { IUser, SocialLink } from '@models/user.model';
   styleUrl: './profile-view.component.scss',
 })
 export class ProfileViewComponent {
+  private readonly notificationService = inject(NotificationService);
+
   user = input.required<IUser>();
   edit = output<void>();
 
   get socialLinks(): SocialLink[] {
-    if (!this.user().socialLinks) return [];
-    return this.user().socialLinks || [];
+    try {
+      return this.user().socialLinks || [];
+    } catch (error) {
+      console.error('Error getting social links:', error);
+      return [];
+    }
   }
   onEdit(): void {
-    this.edit.emit();
+    try {
+      this.edit.emit();
+    } catch (error) {
+      this.notificationService.showError('Failed to enter edit mode');
+      console.error('Error emitting edit event:', error);
+    }
   }
 }

@@ -8,16 +8,16 @@ import {
   signal,
 } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import { ProfileProjectsComponent } from '../../../../shared/components/profile-projects/profile-projects.component';
+import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/users/user.service';
 import { catchError, of } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 import { ProjectDTO } from '@models/project.model';
-import { IUser, SocialLink } from '@models/user.model';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { IUser } from '@models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import { ContactInformationComponent } from './components/contact-information/contact-information.component';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'user-tabs',
@@ -33,6 +33,7 @@ import { ContactInformationComponent } from './components/contact-information/co
 })
 export class TabsComponent {
   private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   user = input.required<IUser>();
   pageSize = input.required<number>();
@@ -40,6 +41,8 @@ export class TabsComponent {
 
   pageChange = output<PageEvent>();
   projects = signal<ProjectDTO[]>([]);
+  loading = signal<boolean>(false);
+  error = signal<string | null>(null);
 
   publications = computed(
     () =>
@@ -74,9 +77,22 @@ export class TabsComponent {
   private loadProjects(userId: number): void {
     this.userService
       .getProjectsWithDetails(userId)
-      .pipe(catchError(() => of([] as ProjectDTO[])))
-      .subscribe((projects) => {
-        this.projects.set(projects);
+      .pipe(
+        catchError((error) => {
+          this.error.set('Failed to load projects');
+          this.notificationService.showError('Failed to load user projects');
+          console.error('Error loading projects:', error);
+          return of([] as ProjectDTO[]);
+        })
+      )
+      .subscribe({
+        next: (projects) => {
+          this.projects.set(projects);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
       });
   }
 

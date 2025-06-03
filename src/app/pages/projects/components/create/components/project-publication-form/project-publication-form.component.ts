@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
 import {
   BaseFormInputs,
@@ -16,6 +16,7 @@ import {
 } from '@shared/types/forms/project-form.types';
 import { UserService } from '@core/services/users/user.service';
 import { AuthorNamePipe } from '@pipes/author-name.pipe';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'create-project-publication-form',
@@ -39,15 +40,21 @@ export class ProjectPublicationFormComponent
   extends BaseFormComponent
   implements OnInit
 {
-  private userService = inject(UserService);
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
   publicationsForm = input.required<PublicationFormGroup>();
 
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   ngOnInit(): void {
-    this.allUsers$ = this.userService
-      .getAllUsers()
-      .pipe(map((response) => response.data!));
+    this.allUsers$ = this.userService.getAllUsers().pipe(
+      map((response) => response.data!),
+      catchError((error) => {
+        console.error('Error loading users:', error);
+        this.notificationService.showError('Failed to load authors');
+        return of([]);
+      })
+    );
   }
 
   compareAuthors = (id1: string, id2: string) => this.compareIds(id1, id2);
@@ -56,7 +63,6 @@ export class ProjectPublicationFormComponent
     const author = users?.find(
       (user) => user?.id.toString() === authorId.toString()
     );
-    console.log('author', author);
     return author ? author.username : '';
   }
 }

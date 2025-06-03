@@ -1,64 +1,128 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AnalyticsService } from '@core/services/analytics.service';
+import { NotificationService } from '@core/services/notification.service';
 import { safeToLocaleDateString } from '@shared/utils/date.utils';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { map } from 'rxjs';
+import { catchError, EMPTY, map, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-system-analytics',
-  imports: [MatCardModule, MatGridListModule, NgxChartsModule, MatIcon],
+  imports: [
+    MatCardModule,
+    MatGridListModule,
+    NgxChartsModule,
+    MatIcon,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './system-analytics.component.html',
   styleUrl: './system-analytics.component.scss',
 })
 export class SystemAnalyticsComponent implements OnInit {
   private readonly analyticsService = inject(AnalyticsService);
 
-  systemPerformance$ = toObservable(this.analyticsService.systemPerformance);
-  commentActivity$ = toObservable(this.analyticsService.commentActivity);
+  systemPerformance = this.analyticsService.systemPerformance;
+  commentActivity = this.analyticsService.commentActivity;
 
-  memoryUsageGauge$ = this.systemPerformance$.pipe(
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+
+  memoryUsageGauge$ = toObservable(this.systemPerformance).pipe(
     map((perf) => [
       {
         name: 'Memory',
         value: perf?.memoryUsage || 0,
       },
-    ])
+    ]),
+    catchError(() => {
+      this.error.set('Failed to load memory usage data');
+      return of([{ name: 'Memory', value: 0 }]);
+    })
   );
 
-  cpuUsageGauge$ = this.systemPerformance$.pipe(
+  cpuUsageGauge$ = toObservable(this.systemPerformance).pipe(
     map((perf) => [
       {
         name: 'CPU',
         value: perf?.cpuUsage || 0,
       },
-    ])
+    ]),
+    catchError(() => {
+      this.error.set('Failed to load CPU usage data');
+      return of([{ name: 'CPU', value: 0 }]);
+    })
   );
 
-  commentActivityChart$ = this.commentActivity$.pipe(
-    map((data) => [
-      {
-        name: 'Comments',
-        series: data.map((item) => ({
-          name: safeToLocaleDateString(item.date),
-          value: item.newComments,
-        })),
-      },
-      {
-        name: 'Likes',
-        series: data.map((item) => ({
-          name: safeToLocaleDateString(item.date),
-          value: item.likes,
-        })),
-      },
-    ])
+  commentActivityChart$ = toObservable(this.commentActivity).pipe(
+    map((data) => {
+      if (!data) return [];
+
+      return [
+        {
+          name: 'Comments',
+          series: data!.map((item) => ({
+            name: safeToLocaleDateString(item.date),
+            value: item.newComments,
+          })),
+        },
+        {
+          name: 'Likes',
+          series: data!.map((item) => ({
+            name: safeToLocaleDateString(item.date),
+            value: item.likes,
+          })),
+        },
+      ];
+    }),
+    catchError(() => {
+      this.error.set('Failed to load comment activity data');
+      return of([]);
+    })
   );
 
   ngOnInit() {
     this.analyticsService.getSystemPerformance().subscribe();
     this.analyticsService.getCommentActivity().subscribe();
+  }
+
+  private loadData() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.analyticsService
+      .getSystemPerformance()
+      .pipe(
+        switchMap(() => this.analyticsService.getCommentActivity()),
+        catchError((err) => {
+          this.handleDataLoadError(err);
+          return EMPTY;
+        })
+      )
+      .subscribe({
+        complete: () => this.loading.set(false),
+      });
+  }
+
+  private handleDataLoadError(error: any) {
+    console.error('Failed to load analytics data:', error);
+    this.loading.set(false);
+
+    if (error.status === 0) {
+      this.error.set('Network error: Unable to connect to analytics service');
+    } else if (error.status === 403) {
+      this.error.set(
+        'Unauthorized: You do not have permission to view analytics'
+      );
+    } else {
+      this.error.set('Failed to load system analytics data');
+    }
+  }
+
+  retry() {
+    this.loadData();
   }
 }

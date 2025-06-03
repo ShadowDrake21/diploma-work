@@ -4,12 +4,19 @@
       <mat-card-title>Login Statistics</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      @if (loginStats()) {
+      @if (error()) {
+      <div class="error-message">
+        {{ error() }}
+        <button mat-button color="primary" (click)="retryLoadData()">
+          Retry
+        </button>
+      </div>
+      } @else if (loginStats() === null) {
+      <mat-spinner diameter="30"></mat-spinner>
+      } @else {
       <div class="stat-value">
         {{ loginStats()?.data || 0 }} logins in last 24 hours
       </div>
-      } @else {
-      <mat-spinner diameter="30"></mat-spinner>
       }
     </mat-card-content>
   </mat-card>
@@ -21,7 +28,16 @@
       <mat-card-title>Recent Logins</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      @if (recentLogins()) {
+      @if (error()) {
+      <div class="error-message">
+        {{ error() }}
+        <button mat-button color="primary" (click)="retryLoadData()">
+          Retry
+        </button>
+      </div>
+      } @else if(recentLogins() === null) {
+      <mat-spinner diameter="30"></mat-spinner>
+      } @else {
       <table
         mat-table
         [dataSource]="recentLogins()?.data || []"
@@ -59,8 +75,6 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
-      } @else {
-      <mat-spinner diameter="30"></mat-spinner>
       }
     </mat-card-content>
   </mat-card>

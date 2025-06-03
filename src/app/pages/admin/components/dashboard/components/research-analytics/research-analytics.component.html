@@ -1,26 +1,44 @@
-@if (researchFunding() || publicationMetrics() || patentMetrics()) {
+@if (loading()) {
+<div class="loading-container">
+  <mat-spinner diameter="60"></mat-spinner>
+  <p>Loading analytics data...</p>
+</div>
+} @else if (error()) {
+<div class="error-container">
+  <mat-icon class="error-icon">error_outline</mat-icon>
+  <h3>Failed to load analytics</h3>
+  <p>{{ error() }}</p>
+  <button mat-raised-button color="primary" (click)="refreshData()">
+    <mat-icon>refresh</mat-icon>
+    Retry
+  </button>
+</div>
+} @else if (researchFunding() || publicationMetrics() || patentMetrics()) {
 <mat-grid-list cols="2" rowHeight="300px">
   <mat-grid-tile>
     <mat-card>
       <mat-card-header>
         <mat-card-title>Research Funding</mat-card-title>
+        <button mat-icon-button (click)="refreshPublicationMetrics()">
+          <mat-icon>refresh</mat-icon>
+        </button>
       </mat-card-header>
       @if (researchFunding(); as funding) {
       <mat-card-content>
         <div class="metric-grid">
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Total allocated budget">
             <h3>${{ funding.totalBudget | number : "1.0-0" }}</h3>
             <p>Total Budget</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Average project budget">
             <h3>${{ funding.averageBudget | number : "1.0-0" }}</h3>
             <p>Average Budget</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Currently active projects">
             <h3>{{ funding.activeProjects }}</h3>
             <p>Active Projects</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Most common funding source">
             <h3>{{ funding.mostCommonFundingSource }}</h3>
             <p>Top Funding Source</p>
           </div>
@@ -35,23 +53,26 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>Publication Metrics</mat-card-title>
+        <button mat-icon-button (click)="refreshResearchFunding()">
+          <mat-icon>refresh</mat-icon>
+        </button>
       </mat-card-header>
       @if(publicationMetrics(); as metrics) {
       <mat-card-content>
         <div class="metric-grid">
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Total publications">
             <h3>{{ metrics.totalPublications }}</h3>
             <p>Total Publications</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Average pages per publication">
             <h3>{{ metrics.averagePages | number : "1.1-1" }}</h3>
             <p>Avg. Pages</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Publications this year">
             <h3>{{ metrics.publicationsThisYear }}</h3>
             <p>This Year</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Most common publication source">
             <h3>{{ metrics.mostCommonSource }}</h3>
             <p>Top Source</p>
           </div>
@@ -66,23 +87,26 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>Patent Metrics</mat-card-title>
+        <button mat-icon-button (click)="refreshPatentMetrics()">
+          <mat-icon>refresh</mat-icon>
+        </button>
       </mat-card-header>
       @if(patentMetrics(); as metrics){
       <mat-card-content>
         <div class="metric-grid">
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Total patents">
             <h3>{{ metrics.totalPatents }}</h3>
             <p>Total Patents</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Average inventors per patent">
             <h3>{{ metrics.averageInventors | number : "1.1-1" }}</h3>
             <p>Avg. Inventors</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Patents filed this year">
             <h3>{{ metrics.patentsThisYear }}</h3>
             <p>This Year</p>
           </div>
-          <div class="metric-item">
+          <div class="metric-item" matTooltip="Most common patent authority">
             <h3>{{ metrics.mostCommonAuthority }}</h3>
             <p>Top Authority</p>
           </div>
@@ -95,5 +119,7 @@
   </mat-grid-tile>
 </mat-grid-list>
 } @else {
-<mat-spinner></mat-spinner>
+<div class="loading-container">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
 }

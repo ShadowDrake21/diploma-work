@@ -5,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -17,9 +16,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { RecentUsersComponent } from './components/recent-users/recent-users.component';
 import { SortingDirection } from '@shared/enums/sorting.enum';
-import { RoleFormatPipe } from '@pipes/role-format.pipe';
-import { currentUserSig } from '@core/shared/shared-signals';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
+import { NotificationService } from '@core/services/notification.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
@@ -35,17 +34,16 @@ import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
     UserRoleChipComponent,
     UserStatusChipComponent,
     RecentUsersComponent,
-    RoleFormatPipe,
     IsCurrentUserPipe,
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
 export class UserListComponent {
-  private router = inject(Router);
-  private adminService = inject(AdminService);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
+  private readonly adminService = inject(AdminService);
+  private readonly dialog = inject(MatDialog);
+  private readonly notificationService = inject(NotificationService);
 
   users = signal<IUser[]>([]);
   isLoading = signal<boolean>(false);
@@ -91,15 +89,91 @@ export class UserListComponent {
             this.users.set(response.data!);
             this.totalItems.set(response.totalItems);
           } else {
-            this.error.set(response.message || 'Failed to load users');
+            this.handleError(response.message || 'Failed to load users');
           }
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.error.set(err.message || 'Failed to load users');
+          this.handleError(this.getErrorMessage(err));
           this.isLoading.set(false);
         },
       });
+  }
+
+  promoteUser(user: IUser): void {
+    this.showConfirmationDialog(
+      'Promote User',
+      `Are you sure you want to promote ${user.username} to admin?`,
+      'Promote',
+      () =>
+        this.executeUserAction(
+          this.adminService.promoteToAdmin(user.id),
+          'User promoted to admin successfully',
+          'promote'
+        )
+    );
+  }
+
+  demoteUser(user: IUser): void {
+    this.showConfirmationDialog(
+      'Demote User',
+      `Are you sure you want to demote ${user.username} to regular user?`,
+      'Demote',
+      () =>
+        this.executeUserAction(
+          this.adminService.demoteFromAdmin(user.id),
+          'Admin demoted successfully',
+          'demote'
+        )
+    );
+  }
+
+  deactivateUser(user: IUser): void {
+    this.showConfirmationDialog(
+      'Deactivate User',
+      `Are you sure you want to deactivate ${user.username}?`,
+      'Deactivate',
+      () =>
+        this.executeUserAction(
+          this.adminService.deactivateUser(user.id),
+          'User deactivated successfully',
+          'deactivate'
+        )
+    );
+  }
+
+  reactivateUser(user: IUser): void {
+    this.showConfirmationDialog(
+      'Reactivate User',
+      `Are you sure you want to reactivate ${user.username}?`,
+      'Reactivate',
+      () =>
+        this.executeUserAction(
+          this.adminService.reactivateUser(user.id),
+          'User reactivated successfully',
+          'reactivate'
+        )
+    );
+  }
+
+  deleteUser(user: IUser): void {
+    this.showConfirmationDialog(
+      'Delete User',
+      `Are you sure you want to permanently delete ${user.username}? This action cannot be undone.`,
+      'Delete',
+      () =>
+        this.executeUserAction(
+          this.adminService.deleteUser(user.id),
+          'User deleted successfully',
+          'delete',
+          true
+        ),
+      true
+    );
+  }
+
+  viewUserDetails(user: IUser): void {
+    this.router.navigate(['/admin/users-management/users', user.id]);
   }
 
   onPageChange(event: PageEvent): void {
@@ -115,146 +189,75 @@ export class UserListComponent {
     this.currentPage.set(0);
   }
 
-  promoteUser(user: IUser): void {
+  private showConfirmationDialog(
+    title: string,
+    message: string,
+    confirmText: string,
+    onConfirm: () => void,
+    warn: boolean = false
+  ): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Promote User',
-        message: `Are you sure you want to promote ${user.username} to admin?`,
-        confirmText: 'Promote',
+        title,
+        message,
+        confirmText,
+        warn,
       },
     });
 
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.adminService.promoteToAdmin(user.id).subscribe({
-          next: () => {
-            this.snackBar.open('User promoted successfully', 'Close', {
-              duration: 3000,
-            });
-            this.loadUsers();
-          },
-          error: (err) => {
-            this.snackBar.open(
-              err.error.message || 'Failed to promote user',
-              'Close',
-              { duration: 3000 }
-            );
-          },
-        });
+        onConfirm();
       }
     });
   }
 
-  demoteUser(user: IUser): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Demote User',
-        message: `Are you sure you want to demote ${user.username} to regular user?`,
-        confirmText: 'Demote',
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.adminService.demoteFromAdmin(user.id).subscribe({
-          next: () => {
-            this.snackBar.open('Admin demoted successfully', 'Close', {
-              duration: 3000,
-            });
-            this.loadUsers();
-          },
-          error: (err) => {
-            this.snackBar.open(
-              err.error.message || 'Failed to demote user',
-              'Close',
-              { duration: 3000 }
-            );
-          },
-        });
-      }
-    });
-  }
-
-  deactivateUser(user: IUser): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Deactivate User',
-        message: `Are you sure you want to deactivate ${user.username}?`,
-        confirmText: 'Deactivate',
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.adminService.deactivateUser(user.id).subscribe({
-          next: () => {
-            this.snackBar.open('User deactivated successfully', 'Close', {
-              duration: 3000,
-            });
-            this.loadUsers();
-          },
-          error: (err) => {
-            this.snackBar.open(
-              err.error.message || 'Failed to deactivate user',
-              'Close',
-              { duration: 3000 }
-            );
-          },
-        });
-      }
-    });
-  }
-
-  reactivateUser(user: IUser): void {
-    this.adminService.reactivateUser(user.id).subscribe({
+  private executeUserAction(
+    action$: Observable<any>,
+    successMessage: string,
+    actionType: string,
+    reloadOnSuccess: boolean = true
+  ): void {
+    action$.subscribe({
       next: () => {
-        this.snackBar.open('User reactivated successfully', 'Close', {
-          duration: 3000,
-        });
-        this.loadUsers();
+        this.notificationService.showSuccess(successMessage);
+        if (reloadOnSuccess) {
+          this.loadUsers();
+        }
       },
       error: (err) => {
-        this.snackBar.open(
-          err.error.message || 'Failed to reactivate user',
-          'Close',
-          { duration: 3000 }
+        this.notificationService.showError(
+          this.getActionErrorMessage(err, actionType)
         );
       },
     });
   }
 
-  deleteUser(user: IUser): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Delete User',
-        message: `Are you sure you want to permanently delete ${user.username}? This action cannot be undone.`,
-        confirmText: 'Delete',
-        warn: true,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.adminService.deleteUser(user.id).subscribe({
-          next: () => {
-            this.snackBar.open('User deleted successfully', 'Close', {
-              duration: 3000,
-            });
-            this.loadUsers();
-          },
-          error: (err) => {
-            this.snackBar.open(
-              err.error.message || 'Failed to delete user',
-              'Close',
-              { duration: 3000 }
-            );
-          },
-        });
-      }
-    });
+  private handleError(message: string): void {
+    this.error.set(message);
+    this.notificationService.showError(message);
   }
 
-  viewUserDetails(user: IUser): void {
-    this.router.navigate(['/admin/users-management/users', user.id]);
+  private getErrorMessage(error: any): string {
+    if (error.status === 0) {
+      return 'Network error: Unable to connect to server';
+    }
+    if (error.status === 403) {
+      return 'Unauthorized: You do not have permission to view users';
+    }
+    if (error.status === 404) {
+      return 'No users found';
+    }
+    return error.message || 'Failed to load users';
+  }
+
+  private getActionErrorMessage(error: any, actionType: string): string {
+    if (error.status === 403) {
+      return `You don't have permission to ${actionType} users`;
+    }
+    if (error.status === 409) {
+      return `Cannot ${actionType} user: ${error.error.message}`;
+    }
+    return error.error?.message || `Failed to ${actionType} user`;
   }
 }

@@ -1,12 +1,35 @@
-@let performance = systemPerformance$ | async;
-
+@if (error()) {
+<div class="error-container">
+  <mat-card appearance="outlined" class="error-card">
+    <mat-card-header>
+      <mat-card-title>Error Loading Analytics</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="error-content">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="retry()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+} @else if (loading()) {
+<div class="loading-container">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+} @else { @if (systemPerformance() || commentActivity()) {
 <mat-grid-list cols="2" rowHeight="400px">
   <mat-grid-tile>
     <mat-card>
       <mat-card-header>
         <mat-card-title>System Performance</mat-card-title>
       </mat-card-header>
-      @if (performance){
+      @if (systemPerformance(); as performance){
       <mat-card-content>
         <div class="metric-grid">
           <div class="metric-item">
@@ -60,7 +83,7 @@
             </div>
           </div>
         </div></mat-card-content
-      >}
+      >} @else {<mat-spinner diameter="40"></mat-spinner>}
     </mat-card>
   </mat-grid-tile>
 
@@ -70,8 +93,9 @@
         <mat-card-title>Comment Activity</mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        @if(commentActivityChart$ | async; as chartData) { @if
+        (chartData.length) {
         <ngx-charts-line-chart
-          *ngIf="commentActivityChart$ | async as chartData"
           [results]="chartData"
           [xAxis]="true"
           [yAxis]="true"
@@ -83,25 +107,36 @@
           [scheme]="'vivid'"
         >
         </ngx-charts-line-chart>
+        }@else {
+        <div class="no-data">No comment activity data available</div>
+        }}@else {
+        <mat-spinner diameter="40"></mat-spinner>
+        }
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
-<mat-grid-list cols="2" rowHeight="300px" *ngIf="performance">
+
+@if (systemPerformance()) {
+
+<mat-grid-list cols="2" rowHeight="300px">
   <mat-grid-tile>
     <mat-card>
       <mat-card-header>
         <mat-card-title>Memory Usage</mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        @if(memoryUsageGauge$ | async; as data){
         <ngx-charts-gauge
-          *ngIf="memoryUsageGauge$ | async as data"
           [results]="data"
           [max]="100"
           [units]="'%'"
           [scheme]="'cool'"
         >
         </ngx-charts-gauge>
+        }@else {
+        <mat-spinner diameter="40"></mat-spinner>
+        }
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
@@ -111,15 +146,25 @@
         <mat-card-title>CPU Usage</mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        @if(cpuUsageGauge$ | async; as data){
         <ngx-charts-gauge
-          *ngIf="cpuUsageGauge$ | async as data"
+          *ngIf=""
           [results]="data"
           [max]="100"
           [units]="'%'"
           [scheme]="'fire'"
         >
         </ngx-charts-gauge>
+        }@else {
+        <mat-spinner diameter="40"></mat-spinner>
+        }
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
+} } @else {
+<div class="no-data-container">
+  <mat-icon>info</mat-icon>
+  <p>No analytics data available</p>
+</div>
+} }

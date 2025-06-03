@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, effect, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,9 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { UserService } from '@core/services/users/user.service';
-import { catchError, interval, of, startWith, switchMap } from 'rxjs';
-import { UserCardComponent } from '../../../../shared/components/user-card/user-card.component';
+import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { RecentUsersService } from '@core/services/users/recent-users.service';
 
 @Component({
@@ -32,11 +29,38 @@ import { RecentUsersService } from '@core/services/users/recent-users.service';
 export class OnlineUsersComponent {
   private readonly recentUsersService = inject(RecentUsersService);
 
+  isLoading = signal(false);
+  error = signal<string | null>(null);
+  private refreshInProgress = signal(false);
+
+  constructor() {
+    // React to changes in the activeUsers signal
+    effect(() => {
+      const result = this.recentUsersService.activeUsers();
+      if (this.refreshInProgress()) {
+        this.isLoading.set(false);
+        this.refreshInProgress.set(false);
+      }
+
+      if (result && 'error' in result) {
+        this.error.set(result.error.message || 'Failed to load active users');
+      } else {
+        this.error.set(null);
+      }
+    });
+  }
+
   get activeUsers() {
-    return this.recentUsersService.activeUsers()?.data || [];
+    const result = this.recentUsersService.activeUsers();
+    return result && 'data' in result ? result.data : [];
   }
 
   refreshActiveUsers() {
+    if (this.isLoading()) return;
+
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.refreshInProgress.set(true);
     this.recentUsersService.refreshActiveUsers();
   }
 }

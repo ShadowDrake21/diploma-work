@@ -1,18 +1,22 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
 import { AttachmentsService } from '@core/services/attachments.service';
+import { NotificationService } from '@core/services/notification.service';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { Subject, BehaviorSubject, catchError, of } from 'rxjs';
+import { Subject, BehaviorSubject, catchError, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectAttachmentService implements OnDestroy {
-  private attachmentsService = inject(AttachmentsService);
+  private readonly attachmentsService = inject(AttachmentsService);
+  private readonly notificationService = inject(NotificationService);
   private destroyed$ = new Subject<void>();
 
-  // State
   private _attachments = new BehaviorSubject<any[]>([]);
+  private _loading = new BehaviorSubject<boolean>(false);
+
   attachments$ = this._attachments.asObservable();
+  loading$ = this._loading.asObservable();
 
   loadAttachments(type: ProjectType | undefined, projectId: string): void {
     if (!type) {
@@ -20,15 +24,25 @@ export class ProjectAttachmentService implements OnDestroy {
       return;
     }
 
+    this._loading.next(true);
+
     this.attachmentsService
       .getFilesByEntity(type, projectId)
       .pipe(
-        catchError((error) => {
-          console.error('Error fetching attachments:', error);
-          return of([]);
-        })
+        tap({
+          next: (attachments) => {
+            this._attachments.next(attachments);
+            this._loading.next(false);
+          },
+          error: (error) => {
+            this._loading.next(false);
+            this.notificationService.showError('Failed to load attachments.');
+            console.error('Error loading attachments:', error);
+          },
+        }),
+        catchError(() => of([]))
       )
-      .subscribe((attachments) => this._attachments.next(attachments));
+      .subscribe();
   }
 
   resetAttachments(): void {

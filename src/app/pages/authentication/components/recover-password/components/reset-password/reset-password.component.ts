@@ -15,6 +15,7 @@ import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '@core/authentication/auth.service';
 import { CustomButtonComponent } from '../../../../../../shared/components/custom-button/custom-button.component';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -38,6 +39,7 @@ export class ResetPasswordComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notificationService = inject(NotificationService);
 
   readonly passwordControl = new FormControl('', [
     Validators.required,
@@ -48,13 +50,23 @@ export class ResetPasswordComponent implements OnInit {
   readonly isPasswordHidden = signal(true);
   readonly token = signal<string>('');
   readonly passwordErrorMessage = signal<string>('');
+  readonly isLoading = signal(false);
 
   ngOnInit(): void {
-    this.route.queryParams
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (params) => {
         this.token.set(params['token'] || '');
-      });
+        if (!this.token()) {
+          this.notificationService.showError('Invalid password reset link');
+          this.router.navigate(['/authentication/forgot-password']);
+        }
+      },
+      error: (error) => {
+        console.error('Error reading query params:', error);
+        this.notificationService.showError('Failed to process reset link');
+        this.router.navigate(['/authentication/forgot-password']);
+      },
+    });
 
     this.setupPasswordValidation();
   }
@@ -72,6 +84,7 @@ export class ResetPasswordComponent implements OnInit {
 
   onSubmit(): void {
     if (this.passwordControl.invalid || !this.passwordControl.value) {
+      this.passwordControl.markAsTouched();
       return;
     }
     this.resetPassword(this.passwordControl.value);
@@ -86,10 +99,13 @@ export class ResetPasswordComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          console.log(response);
+          this.notificationService.showSuccess('Password reset successfully');
           this.router.navigate(['/authentication/sign-in']);
         },
-        error: (error) => console.error('Password reset failed', error),
+        error: (error) => {
+          this.isLoading.set(false);
+          this.handleResetError(error);
+        },
       });
   }
 
@@ -97,5 +113,22 @@ export class ResetPasswordComponent implements OnInit {
     this.passwordErrorMessage.set(
       getValidationErrorMessage(this.passwordControl, 'password')
     );
+  }
+
+  private handleResetError(error: any): void {
+    console.error('Password reset failed:', error);
+
+    let errorMessage = 'Failed to reset password';
+    if (error?.code === 'EXPIRED_TOKEN') {
+      errorMessage = 'Password reset link has expired';
+      this.router.navigate(['/authentication/forgot-password']);
+    } else if (error?.code === 'INVALID_TOKEN') {
+      errorMessage = 'Invalid password reset link';
+      this.router.navigate(['/authentication/forgot-password']);
+    } else if (error?.status === 400) {
+      errorMessage = 'Invalid password format';
+    }
+
+    this.notificationService.showError(errorMessage);
   }
 }

@@ -1,23 +1,18 @@
 import {
   Component,
-  effect,
   ElementRef,
-  EventEmitter,
   inject,
   input,
-  Input,
   OnDestroy,
   output,
-  Output,
   signal,
   viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
-import { currentUserSig } from '@core/shared/shared-signals';
 import { IUser } from '@models/user.model';
 
 @Component({
@@ -28,16 +23,15 @@ import { IUser } from '@models/user.model';
 })
 export class ProfileAvatarComponent implements OnDestroy {
   private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
-  // Inputs
   user = input<IUser | null>(null);
   isLoading = signal<boolean>(false);
 
-  // Outputs
   updateSuccess = output<IUser>();
-  updateFailure = output<void>();
+  updateFailure = output<any>();
 
   // Internal signals
   readonly previewUrl = signal<string | null>(null);
@@ -62,13 +56,15 @@ export class ProfileAvatarComponent implements OnDestroy {
 
     if (file.size > 5 * 1024 * 1024) {
       this.errorMessage.set('File must be smaller than 5MB');
+      this.notificationService.showError('File must be smaller than 5MB');
+
       return;
     }
 
     if (!file.type.match(/image\/(jpeg|png|gif|webp)/)) {
-      this.errorMessage.set(
-        'Only image files are allowed (JPEG, PNG, GIF, WEBP)'
-      );
+      const errorMsg = 'Only image files are allowed (JPEG, PNG, GIF, WEBP)';
+      this.errorMessage.set(errorMsg);
+      this.notificationService.showError(errorMsg);
       return;
     }
 
@@ -81,15 +77,17 @@ export class ProfileAvatarComponent implements OnDestroy {
     reader.onload = (e: ProgressEvent<FileReader>) => {
       this.previewUrl.set(e.target?.result as string);
     };
+    reader.onerror = () => {
+      this.errorMessage.set('Failed to preview image');
+      this.notificationService.showError('Failed to preview selected image');
+    };
     reader.readAsDataURL(file);
   }
 
   onAvatarChanged(): void {
-    this.isLoading.set(true);
-
-    if (!this.selectedFile()) {
+    const file = this.selectedFile();
+    if (!file) {
       this.errorMessage.set('No file selected');
-      this.isLoading.set(false);
       return;
     }
 
@@ -99,22 +97,40 @@ export class ProfileAvatarComponent implements OnDestroy {
           const newAvatarUrl = response.data.avatarUrl;
           const currentUser = this.user();
           if (currentUser) {
-            this.updateSuccess.emit({
+            const updatedUser = {
               ...currentUser,
               avatarUrl: newAvatarUrl,
-            });
+            };
+            this.updateSuccess.emit(updatedUser);
+            this.notificationService.showSuccess('Avatar updated successfully');
             this.resetUploadState();
           }
         }
       },
       error: (error) => {
         console.error('Avatar upload failed:', error);
-        this.updateFailure.emit();
+        this.updateFailure.emit(error);
+        this.handleUploadError(error);
       },
       complete: () => {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private handleUploadError(error: any): void {
+    let errorMessage = 'Failed to upload avatar';
+
+    if (error.status === 413) {
+      errorMessage = 'Image size too large (max 5MB)';
+    } else if (error.status === 415) {
+      errorMessage = 'Unsupported image format';
+    } else if (error.status === 0) {
+      errorMessage = 'Network error - please check your connection';
+    }
+
+    this.errorMessage.set(errorMessage);
+    this.notificationService.showError(errorMessage);
   }
 
   cancelUpload(): void {

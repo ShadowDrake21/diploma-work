@@ -8,17 +8,15 @@ import { HeaderService } from '@core/services/header.service';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { CommentComponent } from '@shared/components/comment/comment.component';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { finalize, Subscription } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { MatButtonModule } from '@angular/material/button';
-import { ICreateComment } from '@models/comment.types';
 import { FormsModule } from '@angular/forms';
 import { ProjectDTO } from '@models/project.model';
 import { ProjectDetailsService } from '@core/services/project/project-details/project-details.service';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ConfirmationDialogComponent } from '../../../../shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
@@ -26,6 +24,7 @@ import { ProjectCommentsComponent } from './components/project-comments/project-
 import { ProjectCommentService } from '@core/services/project/project-details/comments/project-comment.service';
 import { ProjectAttachmentService } from '@core/services/project/project-details/attachments/project-attachment.service';
 import { ProjectTagService } from '@core/services/project/project-details/tags/project-tag.service';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'project-details',
@@ -36,7 +35,6 @@ import { ProjectTagService } from '@core/services/project/project-details/tags/p
     MatButton,
     MatProgressBarModule,
     MatIcon,
-    CommentComponent,
     TitleCasePipe,
     DatePipe,
     TruncateTextPipe,
@@ -58,6 +56,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private readonly projectCommentService = inject(ProjectCommentService);
   private readonly projectAttachmentService = inject(ProjectAttachmentService);
   private readonly projectTagService = inject(ProjectTagService);
+  private readonly notificationService = inject(NotificationService);
 
   // Signals
   readonly workId = signal<string | null>(null);
@@ -80,39 +79,65 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     if (this.workId()) {
       console.log('Loading project with ID:', this.workId());
       this.loadProject();
+    } else {
+      this.notificationService.showError('Invalid project ID');
+      this.router.navigate(['/projects/list']);
     }
   }
 
   private loadProject(): void {
     this.projectLoading.set(true);
-    this.projectLoading.set(false);
 
     this.projectDetailsService.loadProjectDetails(this.workId()!);
 
     const sub = this.projectDetailsService.project$.pipe().subscribe({
       next: (project) => {
         if (project) {
-          this.updateHeader(project);
-          const currentUserId = this.authService.getCurrentUserId();
-          this.isCurrentUserOwner.set(currentUserId === project.createdBy);
-
-          this.projectCommentService.refreshComments(project.id);
-          this.projectTagService.loadTags(project.tagIds);
-          this.projectAttachmentService.loadAttachments(
-            project.type,
-            project.id
-          );
+          this.handleProjectLoadSuccess(project);
+        } else {
+          this.notificationService.showError('Project not found');
+          this.router.navigate(['/projects/list']);
         }
         this.projectLoading.set(false);
       },
-      error: (err) => {
-        console.error('Error loading project:', err);
-        this.projectLoading.set(false);
-        this.errorMessage.set('Failed to load project details');
+      error: (error) => {
+        this.handleProjectLoadError(error);
       },
     });
 
     this.subscriptions.push(sub);
+  }
+
+  private handleProjectLoadSuccess(project: ProjectDTO): void {
+    this.updateHeader(project);
+    const currentUserId = this.authService.getCurrentUserId();
+    this.isCurrentUserOwner.set(currentUserId === project.createdBy);
+
+    try {
+      this.projectCommentService.refreshComments(project.id);
+      this.projectTagService.loadTags(project.tagIds);
+      this.projectAttachmentService.loadAttachments(project.type, project.id);
+    } catch (error) {
+      console.error('Error loading project dependencies:', error);
+      this.notificationService.showError('Failed to load some project details');
+    }
+  }
+
+  private handleProjectLoadError(error: any): void {
+    this.projectLoading.set(false);
+    console.error('Project load error:', error);
+
+    if (error.status === 404) {
+      this.notificationService.showError('Project not found');
+    } else if (error.status === 403) {
+      this.notificationService.showError(
+        'You do not have permission to view this project'
+      );
+    } else {
+      this.notificationService.showError('Failed to load project details');
+    }
+
+    this.router.navigate(['/projects/list']);
   }
 
   private updateHeader(project?: ProjectDTO): void {
@@ -125,6 +150,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   }
 
   onEdit() {
+    if (!this.workId()) return;
+
     this.router.navigate(['../create'], {
       relativeTo: this.route,
       queryParams: { id: this.workId() },
@@ -144,25 +171,40 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
     const sub = dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.deleteLoading.set(true);
-        this.projectDetailsService
-          .deleteProject(this.workId()!)
-          .pipe(
-            finalize(() => {
-              this.deleteLoading.set(false);
-            })
-          )
-          .subscribe({
-            next: () => this.router.navigate(['/projects/list']),
-            error: (err) => {
-              console.error('Error deleting project:', err);
-              this.errorMessage.set('Failed to delete project');
-            },
-          });
+        this.deleteProject();
       }
     });
 
     this.subscriptions.push(sub);
+  }
+
+  private deleteProject(): void {
+    this.deleteLoading.set(true);
+
+    this.projectDetailsService
+      .deleteProject(this.workId()!)
+      .pipe(finalize(() => this.deleteLoading.set(false)))
+      .subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Project deleted successfully');
+          this.router.navigate(['/projects/list']);
+        },
+        error: (error) => {
+          console.error('Delete project error:', error);
+
+          if (error.status === 403) {
+            this.notificationService.showError(
+              'You do not have permission to delete this project'
+            );
+          } else {
+            this.notificationService.showError('Failed to delete project');
+          }
+        },
+      });
+  }
+
+  goBack() {
+    this.router.navigate(['/projects/list']);
   }
 
   ngOnDestroy() {

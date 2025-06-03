@@ -11,9 +11,10 @@
   } @else { @if(isEmptyState()) {
   <div class="empty-state">
     <p>
-      @if(isMineMode) { You don't have any projects matching your criteria }
+      @if(isMineMode()) { You don't have any projects matching your criteria }
       @else { No projects found matching your criteria }
     </p>
+    <button mat-stroked-button (click)="onFiltersReset()">Reset filters</button>
   </div>
   } @else {
   <div class="list__projects">

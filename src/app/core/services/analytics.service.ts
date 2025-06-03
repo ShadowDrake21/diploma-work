@@ -13,131 +13,136 @@ import {
   SystemPerformanceDTO,
 } from '@models/analytics.model';
 import { ApiResponse } from '@models/api-response.model';
-import { map, Observable, tap } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
+import { NotificationService } from './notification.service';
+
+type AnalyticsEndpoint = {
+  [K in keyof AnalyticsService]: K extends `get${infer T}`
+    ? Uncapitalize<T>
+    : never;
+}[keyof AnalyticsService];
 
 @Injectable({
   providedIn: 'root',
 })
 export class AnalyticsService {
   private readonly http = inject(HttpClient);
+  private readonly notificationService = inject(NotificationService);
   private readonly apiUrl = BASE_URL + 'admin/analytics';
 
-  systemOverview = signal<SystemOverviewDTO | null>(null);
-  userGrowth = signal<UserGrowthDTO[]>([]);
-  projectDistribution = signal<ProjectDistributionDTO | null>(null);
-  projectProgress = signal<ProjectProgressDTO[]>([]);
-  publicationMetrics = signal<PublicationMetricsDTO | null>(null);
-  patentMetrics = signal<PatentMetricsDTO | null>(null);
-  researchFunding = signal<ResearchFundingDTO | null>(null);
-  commentActivity = signal<CommentActivityDTO[]>([]);
-  systemPerformance = signal<SystemPerformanceDTO | null>(null);
+  readonly systemOverview = signal<SystemOverviewDTO | null>(null);
+  readonly userGrowth = signal<UserGrowthDTO[] | null>(null);
+  readonly projectDistribution = signal<ProjectDistributionDTO | null>(null);
+  readonly projectProgress = signal<ProjectProgressDTO[] | null>(null);
+  readonly publicationMetrics = signal<PublicationMetricsDTO | null>(null);
+  readonly patentMetrics = signal<PatentMetricsDTO | null>(null);
+  readonly researchFunding = signal<ResearchFundingDTO | null>(null);
+  readonly commentActivity = signal<CommentActivityDTO[] | null>(null);
+  readonly systemPerformance = signal<SystemPerformanceDTO | null>(null);
 
-  getSystemOverview(): Observable<SystemOverviewDTO> {
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+
+  private fetchData<T>(
+    endpoint: AnalyticsEndpoint,
+    signalFn: (value: T | null) => void,
+    params?: HttpParams,
+    mapper?: (data: T) => T
+  ): Observable<T | null> {
+    this.loading.set(true);
+    this.error.set(null);
+
     return this.http
-      .get<ApiResponse<SystemOverviewDTO>>(`${this.apiUrl}/overview`)
+      .get<ApiResponse<T>>(`${this.apiUrl}/${endpoint}`, { params })
       .pipe(
-        tap((response) => this.systemOverview.set(response.data!)),
-        map((response) => response.data!)
+        map((response) =>
+          mapper ? mapper(response.data!) : response.data ?? null
+        ),
+        tap((data) => {
+          signalFn(data);
+          this.loading.set(false);
+        }),
+        catchError(this.handleError(endpoint, signalFn))
       );
+  }
+
+  private handleError<T>(
+    operation: string,
+    signalFn: (value: T | null) => void
+  ) {
+    return (error: any): Observable<T | null> => {
+      console.error(`${operation} failed:`, error);
+      const errorMessage = this.getErrorMessage(error, operation);
+      this.notificationService.showError(errorMessage);
+      this.error.set(errorMessage);
+      signalFn(null);
+      this.loading.set(false);
+      return of(null);
+    };
+  }
+
+  private getErrorMessage(error: any, operation: string): string {
+    if (error.status === 0) {
+      return 'Network error: Unable to connect to analytics service';
+    }
+    if (error.status === 403) {
+      return 'Unauthorized: You do not have permission to view analytics';
+    }
+    return `Failed to load ${operation
+      .replace(/([A-Z])/g, ' $1')
+      .toLowerCase()}`;
+  }
+
+  getSystemOverview(): Observable<SystemOverviewDTO | null> {
+    return this.fetchData('systemOverview', this.systemOverview.set);
   }
 
   getUserGrowth(
     startDate?: string,
     endDate?: string
-  ): Observable<UserGrowthDTO[]> {
+  ): Observable<UserGrowthDTO[] | null> {
     let params = new HttpParams();
     if (startDate) params = params.set('startDate', startDate);
     if (endDate) params = params.set('endDate', endDate);
 
-    return this.http
-      .get<ApiResponse<UserGrowthDTO[]>>(`${this.apiUrl}/users/growth`, {
-        params,
-      })
-      .pipe(
-        tap((response) => this.userGrowth.set(response.data!)),
-        map((response) => response.data!)
-      );
+    return this.fetchData('userGrowth', this.userGrowth.set, params);
   }
 
-  getProjectDistribution(): Observable<ProjectDistributionDTO> {
-    return this.http
-      .get<ApiResponse<ProjectDistributionDTO>>(
-        `${this.apiUrl}/projects/distribution`
-      )
-      .pipe(
-        tap((response) => this.projectDistribution.set(response.data!)),
-        map((response) => response.data!)
-      );
+  getProjectDistribution(): Observable<ProjectDistributionDTO | null> {
+    return this.fetchData('projectDistribution', this.projectDistribution.set);
   }
 
-  getProjectProgress(): Observable<ProjectProgressDTO[]> {
-    return this.http
-      .get<ApiResponse<ProjectProgressDTO[]>>(
-        `${this.apiUrl}/projects/progress`
-      )
-      .pipe(
-        tap((response) => this.projectProgress.set(response.data!)),
-        map((response) => response.data!)
-      );
+  getProjectProgress(): Observable<ProjectProgressDTO[] | null> {
+    return this.fetchData('projectProgress', this.projectProgress.set);
   }
 
-  getPublicationMetrics(): Observable<PublicationMetricsDTO> {
-    return this.http
-      .get<ApiResponse<PublicationMetricsDTO>>(`${this.apiUrl}/publications`)
-      .pipe(
-        tap((response) => this.publicationMetrics.set(response.data!)),
-        map((response) => response.data!)
-      );
+  getPublicationMetrics(): Observable<PublicationMetricsDTO | null> {
+    return this.fetchData('publicationMetrics', this.publicationMetrics.set);
   }
 
-  getPatentMetrics(): Observable<PatentMetricsDTO> {
-    return this.http
-      .get<ApiResponse<PatentMetricsDTO>>(`${this.apiUrl}/patents`)
-      .pipe(
-        tap((response) => this.patentMetrics.set(response.data!)),
-        map((response) => response.data!)
-      );
+  getPatentMetrics(): Observable<PatentMetricsDTO | null> {
+    return this.fetchData('patentMetrics', this.patentMetrics.set);
   }
 
-  getResearchFunding(): Observable<ResearchFundingDTO> {
-    return this.http
-      .get<ApiResponse<ResearchFundingDTO>>(`${this.apiUrl}/research/funding`)
-      .pipe(
-        tap((response) => this.researchFunding.set(response.data!)),
-        map((response) => response.data!)
-      );
+  getResearchFunding(): Observable<ResearchFundingDTO | null> {
+    return this.fetchData('researchFunding', this.researchFunding.set);
   }
 
-  getCommentActivity(days: number = 7): Observable<CommentActivityDTO[]> {
-    return this.http
-      .get<ApiResponse<CommentActivityDTO[]>>(
-        `${this.apiUrl}/comments/activity`,
-        {
-          params: new HttpParams().set('days', days.toString()),
-        }
-      )
-      .pipe(
-        map((response) => ({
-          ...response,
-          data: response.data!.map((item) => ({
-            ...item,
-            date: new Date(item.date),
-          })),
-        })),
-        tap((response) => this.commentActivity.set(response.data)),
-        map((response) => response.data!)
-      );
+  getCommentActivity(
+    days: number = 7
+  ): Observable<CommentActivityDTO[] | null> {
+    const params = new HttpParams().set('days', days.toString());
+
+    return this.fetchData(
+      'commentActivity',
+      this.commentActivity.set,
+      params,
+      (data) => data.map((item) => ({ ...item, date: new Date(item.date) }))
+    );
   }
 
-  getSystemPerformance(): Observable<SystemPerformanceDTO> {
-    return this.http
-      .get<ApiResponse<SystemPerformanceDTO>>(
-        `${this.apiUrl}/system/performance`
-      )
-      .pipe(
-        tap((response) => this.systemPerformance.set(response.data!)),
-        map((response) => response.data!)
-      );
+  getSystemPerformance(): Observable<SystemPerformanceDTO | null> {
+    return this.fetchData('systemPerformance', this.systemPerformance.set);
   }
 
   refreshAll(): void {

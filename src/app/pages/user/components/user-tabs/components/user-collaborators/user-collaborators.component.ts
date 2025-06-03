@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { IUser } from '@shared/models/user.model';
-import { catchError, map, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'user-collaborators',
@@ -15,13 +15,17 @@ import { catchError, map, of } from 'rxjs';
   styleUrl: './user-collaborators.component.scss',
 })
 export class UserCollaboratorsComponent {
-  private userService = inject(UserService);
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
+
   userId = input.required<number>();
 
   collaborators = signal<IUser[]>([]);
   totalItems = signal(0);
   pageSize = signal(10);
   currentPage = signal(0);
+  loading = signal(false);
+  error = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -33,22 +37,34 @@ export class UserCollaboratorsComponent {
   }
 
   private loadCollaborators(userId: number, page: number, size: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+
     this.userService
       .getUserCollaborators(userId, page, size)
       .pipe(
-        catchError(() =>
-          of({
+        catchError((error) => {
+          this.error.set('Failed to load collaborators');
+          this.notificationService.showError('Failed to load collaborators');
+          console.error('Error loading collaborators:', error);
+          return of({
             data: [],
             totalItems: 0,
             page: 0,
             totalPages: 0,
             hasNext: false,
-          })
-        )
+          });
+        })
       )
-      .subscribe((response) => {
-        this.collaborators.set(response.data!);
-        this.totalItems.set(response.totalItems);
+      .subscribe({
+        next: (response) => {
+          this.collaborators.set(response.data!);
+          this.totalItems.set(response.totalItems);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
       });
   }
 

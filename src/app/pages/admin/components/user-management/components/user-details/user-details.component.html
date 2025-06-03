@@ -7,10 +7,16 @@
   <div class="error-message">
     <mat-icon color="warn">error</mat-icon>
     <span>{{ error() }}</span>
-    <button mat-button color="primary" (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
-      Back to Users
-    </button>
+    <div class="error-actions">
+      <button mat-raised-button color="primary" (click)="reloadData()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+      <button mat-button color="primary" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Users
+      </button>
+    </div>
   </div>
   } @else if(user()) {
   <div class="user-header">

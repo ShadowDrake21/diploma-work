@@ -1,31 +1,61 @@
-import { inject, Injectable } from '@angular/core';
-import { Subject, BehaviorSubject, forkJoin, of, catchError } from 'rxjs';
+import { inject, Injectable, OnDestroy } from '@angular/core';
+import {
+  Subject,
+  BehaviorSubject,
+  forkJoin,
+  of,
+  catchError,
+  takeUntil,
+} from 'rxjs';
 import { TagService } from '../../models/tag.service';
+import { Tag } from '@models/tag.model';
+import { ErrorHandlerService } from '@core/services/utils/error-handler.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ProjectTagService {
-  private tagService = inject(TagService);
-  private destroyed$ = new Subject<void>();
+export class ProjectTagService implements OnDestroy {
+  private readonly tagService = inject(TagService);
+  private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly destroyed$ = new Subject<void>();
 
   // State
   private _tags = new BehaviorSubject<any[]>([]);
   tags$ = this._tags.asObservable();
 
   loadTags(tagIds: string[] | undefined): void {
-    const tags$ = tagIds?.length
-      ? forkJoin(tagIds.map((tagId) => this.tagService.getTagById(tagId)))
-      : of([]);
+    if (!tagIds?.length) {
+      this._tags.next([]);
+      return;
+    }
 
-    tags$
-      .pipe(
-        catchError((err) => {
-          console.error('Error loading tags:', err);
-          return of([]);
-        })
+    forkJoin(
+      tagIds.map((tagId) =>
+        this.tagService.getTagById(tagId).pipe(
+          catchError((error) => {
+            return of(null);
+          })
+        )
       )
-      .subscribe((tags) => this._tags.next(tags));
+    )
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe({
+        next: (responses) => {
+          const validTags = responses.filter((tag): tag is Tag => tag !== null);
+          this._tags.next(validTags);
+
+          if (validTags.length !== tagIds.length) {
+            this.errorHandler.handleServiceError(
+              new Error('Some tags failed to load'),
+              `${tagIds.length - validTags.length} tags failed to load`
+            );
+          }
+        },
+        error: (error) => {
+          this.errorHandler.handleServiceError(error, 'Failed to load tags');
+          this._tags.next([]);
+        },
+      });
   }
 
   resetTags(): void {

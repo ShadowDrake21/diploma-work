@@ -10,7 +10,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
-import { CommentDeleteDialogueComponent } from '../comment-delete-dialogue/comment-delete-dialogue.component';
+import { CommentDeleteDialogueComponent } from '../dialogs/comment-delete-dialogue/comment-delete-dialogue.component';
 import { MatButtonModule } from '@angular/material/button';
 import { IComment } from '@models/comment.types';
 import { toSignal } from '@angular/core/rxjs-interop';

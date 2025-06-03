@@ -9,8 +9,8 @@ import { Router } from '@angular/router';
   styleUrl: './not-found.component.scss',
 })
 export class NotFoundComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   onGoBack() {
     // if (this.authService.isAuthenticated) {

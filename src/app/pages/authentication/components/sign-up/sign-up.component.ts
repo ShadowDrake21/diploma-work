@@ -20,6 +20,8 @@ import {
 } from '@shared/types/forms/auth-form.types';
 import { UserRole } from '@shared/enums/user.enum';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'auth-sign-up',
@@ -30,15 +32,19 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatInputModule,
     ReactiveFormsModule,
     CustomButtonComponent,
+    MatIcon,
   ],
   templateUrl: './sign-up.component.html',
-  styleUrl: './sign-up.component.scss',
 })
 export class SignUpComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+
+  protected readonly isLoading = signal(false);
+  protected readonly formDisabled = signal(false);
+  protected readonly serverError = signal<string | null>(null);
 
   protected signUpForm = new FormGroup<SignUpForm>(
     {
@@ -108,7 +114,14 @@ export class SignUpComponent implements OnInit {
   }
 
   onSignUp() {
-    if (this.signUpForm.invalid) return;
+    if (this.signUpForm.invalid) {
+      this.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.formDisabled.set(true);
+    this.serverError.set(null);
 
     const { name, email, password, role } = this.signUpForm.getRawValue();
 
@@ -116,22 +129,42 @@ export class SignUpComponent implements OnInit {
       .register({ username: name, email, password, role })
       .subscribe({
         next: () => {
+          this.notificationService.showSuccess(
+            'Registration successful! Please check your email for verification.'
+          );
           this.router.navigate(['/authentication/verification-code'], {
             queryParams: { email },
             replaceUrl: true,
           });
         },
         error: (error) => {
+          this.isLoading.set(false);
+          this.formDisabled.set(false);
+
           if (error.error?.errorCode === 'EMAIL_IN_USE') {
             this.signUpForm.controls.email.setErrors({ emailInUse: true });
-            this.errorMessages.email.set(error.error.message); // Use backend message
+            this.errorMessages.email.set(error.error.message);
           } else if (error.error?.errorCode === 'WEAK_PASSWORD') {
             this.signUpForm.controls.password.setErrors({ weakPassword: true });
-            this.errorMessages.password.set(error.error.message); // Use backend message
+            this.errorMessages.password.set(error.error.message);
           } else {
-            this.snackBar.open(error.message, 'Закрити', { duration: 5000 });
+            const errorMessage =
+              error.error?.message ||
+              'An error occurred during registration. Please try again.';
+            this.serverError.set(errorMessage);
+            this.notificationService.showError(errorMessage);
           }
         },
+        complete: () => {
+          this.isLoading.set(false);
+          this.formDisabled.set(false);
+        },
       });
+  }
+
+  private markAllAsTouched(): void {
+    Object.values(this.signUpForm.controls).forEach((control) => {
+      control.markAsTouched();
+    });
   }
 }

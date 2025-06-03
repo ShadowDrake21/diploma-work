@@ -1,5 +1,5 @@
 import { DatePipe, TitleCasePipe } from '@angular/common';
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,21 +9,10 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AdminService } from '@core/services/admin.service';
 import { AttachmentsService } from '@core/services/attachments.service';
-import { PatentService } from '@core/services/project/models/patent.service';
 import { ProjectService } from '@core/services/project/models/project.service';
-import { PublicationService } from '@core/services/project/models/publication.service';
-import { ResearchService } from '@core/services/project/models/research.service';
-import { TagService } from '@core/services/project/models/tag.service';
 import { FileMetadataDTO } from '@models/file.model';
-import {
-  ProjectDTO,
-  ProjectWithDetails,
-  ProjectWithPatent,
-  ProjectWithPublication,
-  ProjectWithResearch,
-} from '@models/project.model';
+import { ProjectDTO } from '@models/project.model';
 import { Tag } from '@models/tag.model';
 import { FileSizePipe } from '@pipes/file-size.pipe';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
@@ -34,6 +23,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { ProjectFormService } from '@core/services/project/project-form/project-form.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmationDialogComponent } from '@shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
+import { NotificationService } from '@core/services/notification.service';
+import { ProjectTypeNamePipe } from './pipes/project-type-name.pipe';
+import { ProjectProgressColorPipe } from './pipes/project-progress-color.pipe';
 
 @Component({
   selector: 'app-project-table',
@@ -51,6 +43,8 @@ import { ConfirmationDialogComponent } from '@shared/components/dialogs/confirma
     DatePipe,
     TruncateTextPipe,
     TitleCasePipe,
+    ProjectTypeNamePipe,
+    ProjectProgressColorPipe,
   ],
   templateUrl: './project-table.component.html',
   styleUrl: './project-table.component.scss',
@@ -60,10 +54,12 @@ export class ProjectTableComponent implements OnInit {
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly dialog = inject(MatDialog);
   private readonly submissionService = inject(ProjectFormService);
+  private readonly notificationService = inject(NotificationService);
 
   projects = signal<
     (ProjectDTO & { tags?: Tag[]; attachments?: FileMetadataDTO[] })[]
   >([]);
+  isLoading = signal(false);
   displayedColumns: string[] = [
     'title',
     'type',
@@ -86,20 +82,28 @@ export class ProjectTableComponent implements OnInit {
   }
 
   loadProjects() {
+    this.isLoading.set(true);
     this.projectService
       .getAllProjects(this.pagination().page, this.pagination().size)
-      .subscribe((response) => {
-        const projects = response.data!;
+      .subscribe({
+        next: (response) => {
+          const projects = response.data || [];
+          this.projects.set(projects);
+          this.pagination.update((p) => ({
+            ...p,
+            total: response.totalItems,
+          }));
 
-        projects.forEach((project) => {
-          this.loadAttachmentsForProject(project);
-        });
-
-        this.projects.set(projects);
-        this.pagination.set({
-          ...this.pagination(),
-          total: response.totalItems,
-        });
+          projects.forEach((project) => {
+            this.loadAttachmentsForProject(project);
+          });
+        },
+        error: (error) => {
+          this.notificationService.showError('Failed to load projects');
+          console.error('Error loading projects:', error);
+          this.projects.set([]);
+        },
+        complete: () => this.isLoading.set(false),
       });
   }
 
@@ -108,8 +112,17 @@ export class ProjectTableComponent implements OnInit {
   ) {
     this.attachmentsService
       .getFilesByEntity(project.type, project.id)
-      .subscribe((attachments) => {
-        project.attachments = attachments;
+      .subscribe({
+        next: (attachments) => {
+          project.attachments = attachments;
+        },
+        error: (error) => {
+          console.error(
+            `Error loading attachments for project ${project.id}:`,
+            error
+          );
+          project.attachments = [];
+        },
       });
   }
 
@@ -122,20 +135,6 @@ export class ProjectTableComponent implements OnInit {
     this.loadProjects();
   }
 
-  getProjectTypeName(type: ProjectType): string {
-    return ProjectType[type];
-  }
-
-  getProgressColor(progress: number): string {
-    if (progress < 50) {
-      return 'warn';
-    } else if (progress < 80) {
-      return 'accent';
-    } else {
-      return 'primary';
-    }
-  }
-
   editProject(project: ProjectDTO) {
     const dialogRef = this.dialog.open(ProjectEditModalComponent, {
       width: '600px',
@@ -144,6 +143,7 @@ export class ProjectTableComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isLoading.set(true);
         this.submissionService
           .submitForm(
             new FormGroup({
@@ -162,8 +162,17 @@ export class ProjectTableComponent implements OnInit {
             []
           )
           .subscribe({
-            next: () => this.loadProjects(),
-            error: (error) => console.error('Error updating project:', error),
+            next: () => {
+              this.notificationService.showSuccess(
+                'Project updated successfully'
+              );
+              this.loadProjects();
+            },
+            error: (error) => {
+              this.notificationService.showError('Failed to update project');
+              console.error('Error updating project:', error);
+              this.isLoading.set(false);
+            },
           });
       }
     });
@@ -178,11 +187,25 @@ export class ProjectTableComponent implements OnInit {
         // Are you sure you want to delete this project? This action cannot be undone.
       },
     });
-    const sub = dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.isLoading.set(true);
         this.projectService.deleteProject(id).subscribe({
-          next: () => this.loadProjects(),
-          error: (error) => console.error('Error deleting project:', error),
+          next: () => {
+            this.notificationService.showSuccess(
+              'Project deleted successfully'
+            );
+            this.loadProjects();
+          },
+          error: (error) => {
+            const errorMessage =
+              error.status === 403
+                ? 'You do not have permission to delete this project'
+                : 'Failed to delete project';
+            this.notificationService.showError(errorMessage);
+            console.error('Error deleting project:', error);
+            this.isLoading.set(false);
+          },
         });
       }
     });

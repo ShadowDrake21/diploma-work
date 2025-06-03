@@ -13,7 +13,6 @@ import { MatListModule } from '@angular/material/list';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule, NgStyle } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { NotificationsComponent } from '@pages/dashboard/components/notifications/notifications.component';
 import { HeaderComponent } from '@shared/components/header/header.component';
 import { filter } from 'rxjs';
 import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/recent-users.component';
@@ -32,7 +31,6 @@ import { SessionWarningComponent } from '@shared/components/dialogs/session-warn
     RouterOutlet,
     CommonModule,
     MatIconModule,
-    NotificationsComponent,
     RecentUsersComponent,
     FooterComponent,
     SessionWarningComponent,
@@ -45,8 +43,8 @@ import { SessionWarningComponent } from '@shared/components/dialogs/session-warn
 export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly userStore = inject(UserStore);
-  private observer = inject(BreakpointObserver);
-  private router = inject(Router);
+  private readonly observer = inject(BreakpointObserver);
+  private readonly router = inject(Router);
 
   @ViewChild(MatSidenav)
   sidenav!: MatSidenav;

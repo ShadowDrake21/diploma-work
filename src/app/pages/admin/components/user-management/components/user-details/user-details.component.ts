@@ -4,14 +4,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
 import { UserService } from '@core/services/users/user.service';
 import { ProjectDTO } from '@models/project.model';
 import { IUser } from '@models/user.model';
-import { firstValueFrom, switchMap, tap } from 'rxjs';
+import { firstValueFrom, switchMap } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
@@ -19,10 +18,10 @@ import { UserRole } from '@shared/enums/user.enum';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserRoleChipComponent } from '../utils/user-role-chip/user-role-chip.component';
 import { UserStatusChipComponent } from '../utils/user-status-chip/user-status-chip.component';
-import { ProjectsComponent } from '../../../../../projects/projects.component';
-import { ProfileProjectsComponent } from '../../../../../../shared/components/profile-projects/profile-projects.component';
-import { currentUserSig } from '@core/shared/shared-signals';
+import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
+import { NotificationService } from '@core/services/notification.service';
+import { ApiResponse } from '@models/api-response.model';
 
 @Component({
   selector: 'app-user-details',
@@ -37,7 +36,6 @@ import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
     MatProgressSpinnerModule,
     UserRoleChipComponent,
     UserStatusChipComponent,
-    ProjectsComponent,
     ProfileProjectsComponent,
     IsCurrentUserPipe,
   ],
@@ -49,7 +47,7 @@ export class UserDetailsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly userService = inject(UserService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
   readonly user = signal<IUser | null>(null);
@@ -64,15 +62,37 @@ export class UserDetailsComponent implements OnInit {
     this.loadUserData();
   }
 
+  reloadData(): void {
+    this.loadUserData();
+  }
+
   private loadUserData(): void {
+    this.resetLoadingState();
+
     this.route.params
       .pipe(
-        tap(() => this.resetLoadingState()),
-        switchMap((params) => this.userService.getFullUserById(+params['id']))
+        switchMap((params) => {
+          const userId = params['id'];
+          if (!isNaN(userId)) {
+            throw new Error('Invalid user ID');
+          }
+          return this.userService.getFullUserById(userId);
+        })
       )
       .subscribe({
-        next: (response) => this.handleUserResponse(response),
-        error: (err) => this.handleError(err),
+        next: (response) => {
+          if (response.success) {
+            this.user.set(response.data!);
+            this.loadUserProjects();
+            this.notificationService.showSuccess(
+              'User data loaded successfully'
+            );
+          } else {
+            this.handleError(response.message || 'Failed to load user data');
+          }
+        },
+        error: (err) => this.handleError(this.getUserFriendlyError(err)),
+        complete: () => this.isLoading.set(false),
       });
   }
 
@@ -81,19 +101,18 @@ export class UserDetailsComponent implements OnInit {
     this.error.set(null);
   }
 
-  private handleUserResponse(response: any): void {
-    if (response.success) {
-      this.user.set(response.data);
-      this.loadUserProjects();
-    } else {
-      this.error.set(response.message || 'Failed to load user');
-    }
+  private handleError(errorMessage: string): void {
+    this.error.set(errorMessage);
     this.isLoading.set(false);
+    this.notificationService.showError(errorMessage);
   }
 
-  private handleError(error: any): void {
-    this.error.set(error.message || 'Failed to load user');
-    this.isLoading.set(false);
+  private getUserFriendlyError(error: any): string {
+    if (error.status === 404) return 'User not found';
+    if (error.status === 403)
+      return 'You do not have permission to view this user';
+    if (error.status === 400) return 'Invalid request';
+    return error.message || 'An unexpected error occurred';
   }
 
   loadUserProjects(): void {
@@ -103,10 +122,15 @@ export class UserDetailsComponent implements OnInit {
     this.userService.getUserProjects(userId).subscribe({
       next: (response) => {
         if (response.success) {
-          this.userProjects.set(response.data!);
+          this.userProjects.set(response.data || []);
+        } else {
+          this.notificationService.showError('Failed to load user projects');
         }
       },
-      error: (err) => console.error('Failed to load user projects', err),
+      error: (err) => {
+        console.error('Failed to load user projects:', err);
+        this.notificationService.showError('Failed to load user projects');
+      },
     });
   }
 
@@ -122,7 +146,8 @@ export class UserDetailsComponent implements OnInit {
         () => this.adminService.promoteToAdmin(this.user()!.id),
         { ...this.user()!, role: UserRole.ADMIN },
         'User promoted successfully',
-        'Failed to promote user'
+        'Failed to promote user',
+        'PROMOTE_ERROR'
       );
     }
   }
@@ -141,7 +166,8 @@ export class UserDetailsComponent implements OnInit {
         () => this.adminService.demoteFromAdmin(this.user()!.id),
         { ...this.user()!, role: UserRole.USER },
         'Admin demoted successfully',
-        'Failed to demote user'
+        'Failed to demote user',
+        'DEMOTE_ERROR'
       );
     }
   }
@@ -158,7 +184,8 @@ export class UserDetailsComponent implements OnInit {
         () => this.adminService.deactivateUser(this.user()!.id),
         { ...this.user()!, active: false },
         'User deactivated successfully',
-        'Failed to deactivate user'
+        'Failed to deactivate user',
+        'DEACTIVATE_ERROR'
       );
     }
   }
@@ -175,7 +202,8 @@ export class UserDetailsComponent implements OnInit {
         () => this.adminService.reactivateUser(this.user()!.id),
         { ...this.user()!, active: true },
         'User reactivated successfully',
-        'Failed to reactivate user'
+        'Failed to reactivate user',
+        'REACTIVATE_ERROR'
       );
     }
   }
@@ -194,6 +222,7 @@ export class UserDetailsComponent implements OnInit {
         null,
         'User deleted successfully',
         'Failed to delete user',
+        'DELETE_ERROR',
         () => this.router.navigate(['/admin/users'])
       );
     }
@@ -222,19 +251,24 @@ export class UserDetailsComponent implements OnInit {
     updatedUser: IUser | null,
     successMessage: string,
     errorMessage: string,
+    errorCode: string,
     onSuccess?: () => void
   ): Promise<void> {
     try {
       this.isProcessing.set(true);
-      await firstValueFrom(action());
+      const response = (await firstValueFrom(action())) as ApiResponse<any>;
 
-      this.snackBar.open(successMessage, 'Close', { duration: 3000 });
-      if (updatedUser) this.user.update(() => updatedUser);
-      if (onSuccess) onSuccess();
+      if (response.success) {
+        this.notificationService.showSuccess(successMessage);
+        if (updatedUser) this.user.set(updatedUser);
+        if (onSuccess) onSuccess();
+      } else {
+        this.notificationService.showError(response.message || errorMessage);
+      }
     } catch (err: any) {
-      this.snackBar.open(err.error?.message || errorMessage, 'Close', {
-        duration: 3000,
-      });
+      console.error(`${errorCode}:`, err);
+      const message = err.error?.message || errorMessage;
+      this.notificationService.showError(message);
     } finally {
       this.isProcessing.set(false);
     }

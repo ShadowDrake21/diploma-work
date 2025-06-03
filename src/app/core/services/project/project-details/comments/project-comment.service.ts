@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { CommentService } from '@core/services/comment.service';
+import { NotificationService } from '@core/services/notification.service';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { IComment, ICreateComment } from '@models/comment.types';
 import {
@@ -18,16 +19,17 @@ import {
   providedIn: 'root',
 })
 export class ProjectCommentService {
-  private commentService = inject(CommentService);
-  private destroyed$ = new Subject<void>();
+  private readonly commentService = inject(CommentService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly destroyed$ = new Subject<void>();
 
   // State
   private _comments = new BehaviorSubject<IComment[]>([]);
-  private _commentsLoading = new BehaviorSubject<boolean>(false);
+  private _loading = new BehaviorSubject<boolean>(false);
 
   // Public API
   comments$ = this._comments.asObservable();
-  commentsLoading$ = this._commentsLoading.asObservable();
+  loading = this._loading.asObservable();
 
   private currentProjectId: string | null = null;
 
@@ -36,33 +38,48 @@ export class ProjectCommentService {
   }
 
   refreshComments(projectId: string): void {
-    this._commentsLoading.next(true);
+    this._loading.next(true);
     this.commentService
       .getCommentsByProjectId(projectId)
       .pipe(
         map((response) => this.transformComments(response.data!)),
-        catchError((error) => {
-          console.error('Error fetching comments:', error);
-          return of(this._comments.value);
+        tap({
+          next: (comments) => {
+            this._comments.next(comments);
+            this._loading.next(false);
+          },
+          error: (error) => {
+            this._loading.next(false);
+            this.notificationService.showError('Failed to load comments');
+            console.error('Error fetching comments:', error);
+          },
         }),
-        tap((comments) => this._comments.next(comments)),
-        finalize(() => this._commentsLoading.next(false))
+        catchError(() => of(this._comments.value)),
+        finalize(() => this._loading.next(false))
       )
       .subscribe();
   }
 
   postComment(comment: ICreateComment): Observable<IComment> {
     const currentUser = currentUserSig();
-    if (!currentUser)
+    if (!currentUser) {
+      this.notificationService.showError('Please sign in to comment');
       return throwError(() => new Error('User not authenticated'));
+    }
 
     return this.commentService.createComment(comment).pipe(
       map((res) => res.data!),
-      tap(() => this.refreshComments(comment.projectId)),
-      catchError((error) => {
-        console.error('Error posting comment:', error);
-        return throwError(() => error);
-      })
+      tap({
+        next: () => {
+          this.refreshComments(comment.projectId);
+          this.notificationService.showSuccess('Comment posted successfully');
+        },
+        error: (error) => {
+          this.notificationService.showError('Failed to post comment');
+          console.error('Error posting comment:', error);
+        },
+      }),
+      catchError((error) => throwError(() => error))
     );
   }
 
@@ -77,22 +94,34 @@ export class ProjectCommentService {
   updateComment(commentId: string, newContent: string): Observable<IComment> {
     return this.commentService.updateComment(commentId, newContent).pipe(
       map((res) => res.data!),
-      tap(() => this.refreshComments(this.currentProjectId!)),
-      catchError((error) => {
-        console.error('Error updating comment:', error);
-        throw error;
-      })
+      tap({
+        next: () => {
+          this.refreshComments(this.currentProjectId!);
+          this.notificationService.showSuccess('Comment updated successfully');
+        },
+        error: (error) => {
+          this.notificationService.showError('Failed to update comment');
+          console.error('Error updating comment:', error);
+        },
+      }),
+      catchError((error) => throwError(() => error))
     );
   }
 
   deleteComment(commentId: string): Observable<void> {
     return this.commentService.deleteComment(commentId).pipe(
       map((res) => res.data),
-      tap(() => this.refreshComments(this.currentProjectId!)),
-      catchError((error) => {
-        console.error('Error deleting comment:', error);
-        throw error;
-      })
+      tap({
+        next: () => {
+          this.refreshComments(this.currentProjectId!);
+          this.notificationService.showSuccess('Comment deleted successfully');
+        },
+        error: (error) => {
+          this.notificationService.showError('Failed to delete comment');
+          console.error('Error deleting comment:', error);
+        },
+      }),
+      catchError((error) => throwError(() => error))
     );
   }
 
@@ -143,10 +172,16 @@ export class ProjectCommentService {
 
     return serviceCall.pipe(
       map((res) => res.data!),
-      catchError((err) => {
-        this.updateCommentLikeState(commentId, !like); // Revert on error
-        return throwError(() => err);
-      })
+      tap({
+        error: (err) => {
+          this.updateCommentLikeState(commentId, !like);
+          this.notificationService.showError(
+            like ? 'Failed to like comment' : 'Failed to unlike comment'
+          );
+          console.error('Error toggling comment like:', err);
+        },
+      }),
+      catchError((error) => throwError(() => error))
     );
   }
 

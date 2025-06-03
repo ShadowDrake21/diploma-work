@@ -1,50 +1,9 @@
 @use "@angular/material" as mat;
 
-.sign-in {
-  &__header {
-    padding-bottom: 30px;
-    text-align: center;
-  }
-  &__subtitle {
-    font-size: 1rem;
-    font-weight: 400;
-  }
-  &__form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-bottom: 20px;
-
-    &-btn {
-      text-transform: uppercase;
-    }
-    &-options {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      &__checkbox {
-        font-size: 16px;
-
-        @include mat.checkbox-overrides(
-          (
-            label-text-size: 16px,
-          )
-        );
-      }
-
-      &__link {
-        text-decoration: none;
-        color: inherit;
-        font-weight: 500;
-      }
-    }
-  }
-
-  &__link {
-    text-align: center;
-    a {
-      text-decoration: none;
-    }
-  }
+.remember-me-checkbox {
+  @include mat.checkbox-overrides(
+    (
+      label-text-size: 16px,
+    )
+  );
 }

@@ -15,14 +15,18 @@
         (keyup)="handleKeyUp($event, $index)"
         (focus)="handleFocus($event)"
         [value]="inputValues()[$index]"
+        [disabled]="isLoading()"
       />
       }
     </div>
     <shared-custom-button
       type="button"
-      [disabled]="getVerificationCode().length !== 6"
+      [disabled]="getVerificationCode().length !== 6 || isLoading()"
       (onPress)="onSubmit()"
-      >Відправити</shared-custom-button
+    >
+      @if (isLoading()) {
+      <span class="spinner"></span>
+      } @else { Відправити }</shared-custom-button
     >
   </div>
   @if(verificationMessage()) {

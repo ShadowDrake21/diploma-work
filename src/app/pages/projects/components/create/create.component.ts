@@ -17,13 +17,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { types } from '@content/createProject.content';
 import { UserService } from '@core/services/users/user.service';
 import { map, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IUser } from '@shared/models/user.model';
 import { ProjectStepperComponent } from './components/stepper/project-stepper/project-stepper.component';
 import { ProjectLoaderService } from '@core/services/project/project-creation/project-loader.service';
+import { NotificationService } from '@core/services/notification.service';
+import { types } from '@shared/content/project.content';
 
 @Component({
   selector: 'project-creation',
@@ -52,12 +53,13 @@ import { ProjectLoaderService } from '@core/services/project/project-creation/pr
   host: { style: 'display: block; height: 100%' },
 })
 export class CreateProjectComponent implements OnInit, OnDestroy {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private headerService = inject(HeaderService);
-  private userService = inject(UserService);
-  private projectLoaderService = inject(ProjectLoaderService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly headerService = inject(HeaderService);
+  private readonly userService = inject(UserService);
+  private readonly projectLoaderService = inject(ProjectLoaderService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   creatorId: number | null = null;
   projectId: string | null = null;
@@ -86,8 +88,17 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
       this.userService
         .getCurrentUser()
         .pipe(map((result) => result.data!))
-        .subscribe((user: IUser) => {
-          this.creatorId = +user.id;
+        .subscribe({
+          next: (user: IUser) => {
+            this.creatorId = +user.id;
+          },
+          error: (error) => {
+            console.error('Failed to load user data:', error);
+            this.notificationService.showError(
+              'Failed to load user information'
+            );
+            this.router.navigate(['/']);
+          },
         })
     );
 
@@ -103,25 +114,32 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     this.headerService.setTitle('Edit Project: ' + this.projectId);
 
     this.subscriptions.push(
-      this.projectLoaderService
-        .loadProject(this.projectId)
-
-        .subscribe({
-          next: () => {
-            this.loading = false;
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('Error loading project:', error);
-            this.loading = false;
-          },
-        })
+      this.projectLoaderService.loadProject(this.projectId).subscribe({
+        next: () => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error loading project:', error);
+          this.notificationService.showError(
+            error.status === 404
+              ? 'Project not found'
+              : 'Failed to load project data'
+          );
+          this.loading = false;
+          this.router.navigate(['/projects']);
+        },
+      })
     );
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.subscriptions = [];
-    this.projectLoaderService.clearAllForms();
+    try {
+      this.projectLoaderService.clearAllForms();
+    } catch (error) {
+      console.error('Error clearing forms:', error);
+    }
   }
 }

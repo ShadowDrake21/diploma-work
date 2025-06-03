@@ -111,8 +111,13 @@
 
   <details-project-comments [projectId]="workId()" />
 </div>
-} @else if (errorMessage()) {
-<p class="error-message">{{ errorMessage() }}</p>
 } @else {
-<p>No project data available</p>
+<div class="error-state">
+  <mat-icon class="error-icon">error_outline</mat-icon>
+  <h3>Project not available</h3>
+  <p>The requested project could not be loaded or doesn't exist.</p>
+  <button mat-flat-button color="primary" (click)="goBack()">
+    Back to Projects List
+  </button>
+</div>
 }

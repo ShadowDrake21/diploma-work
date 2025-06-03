@@ -1,11 +1,27 @@
 <div class="table-container">
   @if (isLoading()) {
-
   <div class="loading-shade">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
-  }
-
+  } @if(error()) {
+  <div class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-button (click)="loadComments()">
+      <mat-icon>refresh</mat-icon>
+      Try Again
+    </button>
+  </div>
+  } @else if (comments().length === 0 && !isLoading()) {
+  <div class="empty-state">
+    <mat-icon>comment</mat-icon>
+    <p>No comments found</p>
+    <button mat-button (click)="refreshComments()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+  } @else {
   <table mat-table [dataSource]="comments()">
     <ng-container matColumnDef="content">
       <th mat-header-cell *matHeaderCellDef>Content</th>
@@ -74,5 +90,6 @@
     (page)="onPageChange($event)"
     showFirstLastButtons
     aria-label="Select page of comments"
-  ></mat-paginator>
+  ></mat-paginator
+  >}
 </div>
