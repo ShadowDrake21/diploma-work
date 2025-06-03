@@ -19,7 +19,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 public class RateLimitFilter implements Filter {
     private final RateLimitingService rateLimitingService;
     
