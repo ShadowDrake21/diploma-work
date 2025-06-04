@@ -10,7 +10,6 @@ import {
 } from 'rxjs';
 import { UserService } from './user.service';
 import { NotificationService } from '../notification.service';
-import { ApiResponse } from '@models/api-response.model';
 import { IUser } from '@models/user.model';
 
 @Injectable({
@@ -46,9 +45,7 @@ export class RecentUsersService {
     );
   }
 
-  private getActiveUsersWithHandling(): Observable<ApiResponse<
-    IUser[]
-  > | null> {
+  private getActiveUsersWithHandling(): Observable<IUser[] | null> {
     return this.userService.getRecentlyActiveUsers().pipe(
       catchError((error) => {
         this.handleActiveUsersError(error);

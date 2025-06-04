@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
@@ -30,6 +30,7 @@ import { NotificationService } from '@core/services/notification.service';
     MatLabel,
     MatIcon,
     CustomButtonComponent,
+    RouterLink,
   ],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
@@ -104,6 +105,7 @@ export class ResetPasswordComponent implements OnInit {
         },
         error: (error) => {
           this.isLoading.set(false);
+
           this.handleResetError(error);
         },
       });
@@ -118,7 +120,7 @@ export class ResetPasswordComponent implements OnInit {
   private handleResetError(error: any): void {
     console.error('Password reset failed:', error);
 
-    let errorMessage = 'Failed to reset password';
+    let errorMessage = error.message || 'Failed to reset password';
     if (error?.code === 'EXPIRED_TOKEN') {
       errorMessage = 'Password reset link has expired';
       this.router.navigate(['/authentication/forgot-password']);

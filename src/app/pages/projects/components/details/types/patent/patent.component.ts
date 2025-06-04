@@ -47,8 +47,8 @@ export class PatentComponent implements OnInit, OnDestroy {
       .pipe(
         tap({
           next: (response) => {
-            this.patent.set(response.data!);
-            this.loadCoInventors(response.data?.coInventors);
+            this.patent.set(response);
+            this.loadCoInventors(response.coInventors);
             this.loading.set(false);
           },
           error: (error) => {
@@ -81,7 +81,6 @@ export class PatentComponent implements OnInit, OnDestroy {
     const coInventorSub = forkJoin(
       ids.map((id) =>
         this.userService.getFullUserById(id).pipe(
-          map((response) => response.data),
           catchError((error) => {
             console.error(`Error fetching co-inventor ${id}:`, error);
             this.notificationService.showError(

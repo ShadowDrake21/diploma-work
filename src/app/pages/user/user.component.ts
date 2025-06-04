@@ -1,10 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
@@ -122,9 +116,9 @@ export class UserProfileComponent implements OnInit {
         })
       )
       .subscribe((user) => {
-        if (user && user.data) {
-          this.user.set(user.data);
-          this.headerService.setTitle(`User: ${user.data.username}`);
+        if (user) {
+          this.user.set(user);
+          this.headerService.setTitle(`User: ${user.username}`);
           this.loadUserProjects();
         } else {
           this.error.set('User not found');

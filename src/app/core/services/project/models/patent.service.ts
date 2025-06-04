@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import { PaginatedResponse } from '@models/api-response.model';
 import {
   CreatePatentRequest,
   PatentCoInventorDTO,
@@ -23,7 +23,7 @@ export class PatentService {
    * Get all patents without pagination
    * @returns Observable of all patent data
    */
-  getAllPatents(): Observable<ApiResponse<PatentDTO[]>>;
+  getAllPatents(): Observable<PatentDTO[]>;
 
   /**
    * Get patents with pagination
@@ -42,7 +42,7 @@ export class PatentService {
   getAllPatents(
     page?: number,
     pageSize?: number
-  ): Observable<ApiResponse<PatentDTO[]> | PaginatedResponse<PatentDTO>> {
+  ): Observable<PatentDTO[] | PaginatedResponse<PatentDTO>> {
     let params = new HttpParams();
 
     if (page !== undefined && pageSize !== undefined) {
@@ -52,13 +52,10 @@ export class PatentService {
     }
 
     return this.http
-      .get<ApiResponse<PatentDTO[]> | PaginatedResponse<PatentDTO>>(
-        this.apiUrl,
-        {
-          ...getAuthHeaders(),
-          params,
-        }
-      )
+      .get<PatentDTO[] | PaginatedResponse<PatentDTO>>(this.apiUrl, {
+        ...getAuthHeaders(),
+        params,
+      })
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(error, `Failed to load patents`)
@@ -71,9 +68,9 @@ export class PatentService {
    * @param id Patent ID
    * @returns Observable of patent data
    */
-  getPatentById(id: string): Observable<ApiResponse<PatentDTO>> {
+  getPatentById(id: string): Observable<PatentDTO> {
     return this.http
-      .get<ApiResponse<PatentDTO>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .get<PatentDTO>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -89,11 +86,9 @@ export class PatentService {
    * @param patentId Patent ID
    * @returns Observable of co-inventor list
    */
-  getPatentCoInventors(
-    patentId: string
-  ): Observable<ApiResponse<PatentCoInventorDTO[]>> {
+  getPatentCoInventors(patentId: string): Observable<PatentCoInventorDTO[]> {
     return this.http
-      .get<ApiResponse<PatentCoInventorDTO[]>>(
+      .get<PatentCoInventorDTO[]>(
         `${this.apiUrl}/${patentId}/co-inventors`,
         getAuthHeaders()
       )
@@ -112,15 +107,9 @@ export class PatentService {
    * @param patentData Patent creation data
    * @returns Observable of created patent
    */
-  createPatent(
-    patentData: CreatePatentRequest
-  ): Observable<ApiResponse<PatentDTO>> {
+  createPatent(patentData: CreatePatentRequest): Observable<PatentDTO> {
     return this.http
-      .post<ApiResponse<PatentDTO>>(
-        `${this.apiUrl}`,
-        patentData,
-        getAuthHeaders()
-      )
+      .post<PatentDTO>(`${this.apiUrl}`, patentData, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(error, `Failed to create patent`)
@@ -137,14 +126,10 @@ export class PatentService {
   updatePatent(
     id: string,
     patentData: UpdatePatentRequest
-  ): Observable<ApiResponse<PatentDTO>> {
+  ): Observable<PatentDTO> {
     console.log('Updating patent with ID:', id);
     return this.http
-      .put<ApiResponse<PatentDTO>>(
-        `${this.apiUrl}/${id}`,
-        patentData,
-        getAuthHeaders()
-      )
+      .put<PatentDTO>(`${this.apiUrl}/${id}`, patentData, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -160,9 +145,9 @@ export class PatentService {
    * @param id Patent ID to delete
    * @returns Observable of void
    */
-  deletePatent(id: string): Observable<ApiResponse<void>> {
+  deletePatent(id: string): Observable<void> {
     return this.http
-      .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(

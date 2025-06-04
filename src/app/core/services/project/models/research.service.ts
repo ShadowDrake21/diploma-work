@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import { PaginatedResponse } from '@models/api-response.model';
 import {
   CreateResearchRequest,
   ResearchDTO,
@@ -19,16 +19,16 @@ export class ResearchService {
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly apiUrl = BASE_URL + 'researches';
 
-  getAll(): Observable<ApiResponse<ResearchDTO[]>>;
+  getAll(): Observable<ResearchDTO[]>;
   getAll(
     page: number,
     size: number
-  ): Observable<PaginatedResponse<ResearchDTO[]>>;
+  ): Observable<PaginatedResponse<ResearchDTO>>;
 
   getAll(
     page?: number,
     size?: number
-  ): Observable<ApiResponse<ResearchDTO[]> | PaginatedResponse<ResearchDTO[]>> {
+  ): Observable<ResearchDTO[] | PaginatedResponse<ResearchDTO>> {
     let params = new HttpParams();
     if (page !== undefined && size !== undefined) {
       params = params
@@ -37,13 +37,10 @@ export class ResearchService {
     }
 
     return this.http
-      .get<ApiResponse<ResearchDTO[]> | PaginatedResponse<ResearchDTO[]>>(
-        this.apiUrl,
-        {
-          ...getAuthHeaders(),
-          params,
-        }
-      )
+      .get<ResearchDTO[] | PaginatedResponse<ResearchDTO>>(this.apiUrl, {
+        ...getAuthHeaders(),
+        params,
+      })
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -67,9 +64,9 @@ export class ResearchService {
       );
   }
 
-  create(request: CreateResearchRequest): Observable<ApiResponse<ResearchDTO>> {
+  create(request: CreateResearchRequest): Observable<ResearchDTO> {
     return this.http
-      .post<ApiResponse<ResearchDTO>>(this.apiUrl, request, getAuthHeaders())
+      .post<ResearchDTO>(this.apiUrl, request, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -80,17 +77,10 @@ export class ResearchService {
       );
   }
 
-  update(
-    id: string,
-    research: UpdateResearchRequest
-  ): Observable<ApiResponse<ResearchDTO>> {
+  update(id: string, research: UpdateResearchRequest): Observable<ResearchDTO> {
     console.log('updateResearch', research);
     return this.http
-      .put<ApiResponse<ResearchDTO>>(
-        `${this.apiUrl}/${id}`,
-        research,
-        getAuthHeaders()
-      )
+      .put<ResearchDTO>(`${this.apiUrl}/${id}`, research, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -101,9 +91,9 @@ export class ResearchService {
       );
   }
 
-  delete(id: string): Observable<ApiResponse<void>> {
+  delete(id: string): Observable<void> {
     return this.http
-      .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(

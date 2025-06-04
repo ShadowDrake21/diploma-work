@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import { PaginatedResponse } from '@models/api-response.model';
 import { IComment, ICreateComment } from '@models/comment.types';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import { catchError, Observable, tap, throwError } from 'rxjs';
@@ -15,14 +15,9 @@ export class CommentService {
   private readonly notificationService = inject(NotificationService);
   private readonly apiUrl = BASE_URL + 'comments';
 
-  getCommentsByProjectId(
-    projectId: string
-  ): Observable<ApiResponse<IComment[]>> {
+  getCommentsByProjectId(projectId: string): Observable<IComment[]> {
     return this.http
-      .get<ApiResponse<IComment[]>>(
-        `${this.apiUrl}/project/${projectId}`,
-        getAuthHeaders()
-      )
+      .get<IComment[]>(`${this.apiUrl}/project/${projectId}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.handleError(error, 'Failed to load comments')
@@ -30,9 +25,9 @@ export class CommentService {
       );
   }
 
-  createComment(comment: ICreateComment): Observable<ApiResponse<IComment>> {
+  createComment(comment: ICreateComment): Observable<IComment> {
     return this.http
-      .post<ApiResponse<IComment>>(this.apiUrl, comment, getAuthHeaders())
+      .post<IComment>(this.apiUrl, comment, getAuthHeaders())
       .pipe(
         tap(() =>
           this.notificationService.showSuccess('Comment created successfully')
@@ -43,16 +38,9 @@ export class CommentService {
       );
   }
 
-  updateComment(
-    commentId: string,
-    content: string
-  ): Observable<ApiResponse<IComment>> {
+  updateComment(commentId: string, content: string): Observable<IComment> {
     return this.http
-      .put<ApiResponse<IComment>>(
-        `${this.apiUrl}/${commentId}`,
-        content,
-        getAuthHeaders()
-      )
+      .put<IComment>(`${this.apiUrl}/${commentId}`, content, getAuthHeaders())
       .pipe(
         tap(() =>
           this.notificationService.showSuccess('Comment updated successfully')
@@ -63,12 +51,9 @@ export class CommentService {
       );
   }
 
-  deleteComment(commentId: string): Observable<ApiResponse<void>> {
+  deleteComment(commentId: string): Observable<void> {
     return this.http
-      .delete<ApiResponse<void>>(
-        `${this.apiUrl}/${commentId}`,
-        getAuthHeaders()
-      )
+      .delete<void>(`${this.apiUrl}/${commentId}`, getAuthHeaders())
       .pipe(
         tap(() =>
           this.notificationService.showSuccess('Comment deleted successfully')
@@ -79,9 +64,9 @@ export class CommentService {
       );
   }
 
-  likeComment(commentId: string): Observable<ApiResponse<IComment>> {
+  likeComment(commentId: string): Observable<IComment> {
     return this.http
-      .post<ApiResponse<IComment>>(
+      .post<IComment>(
         `${this.apiUrl}/${commentId}/like`,
         null,
         getAuthHeaders()
@@ -92,12 +77,9 @@ export class CommentService {
       );
   }
 
-  unlikeComment(commentId: string): Observable<ApiResponse<IComment>> {
+  unlikeComment(commentId: string): Observable<IComment> {
     return this.http
-      .delete<ApiResponse<IComment>>(
-        `${this.apiUrl}/${commentId}/like`,
-        getAuthHeaders()
-      )
+      .delete<IComment>(`${this.apiUrl}/${commentId}/like`, getAuthHeaders())
       .pipe(
         tap(() =>
           this.notificationService.showSuccess('Removed like from comment')

@@ -3,6 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RecentUsersService } from '@core/services/users/recent-users.service';
+import { isUserArray } from '@core/services/users/utils/type-guards.utils';
 import { TruncateTextPipe } from '@shared/pipes/truncate-text.pipe';
 
 @Component({
@@ -19,7 +20,7 @@ export class RecentUsersComponent {
 
   get activeUsers() {
     const result = this.recentUsersService.activeUsers();
-    return result && 'data' in result ? result.data : [];
+    return isUserArray(result) ? result : [];
   }
 
   refreshActiveUsers() {

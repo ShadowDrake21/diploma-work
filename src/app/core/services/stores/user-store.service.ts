@@ -39,24 +39,15 @@ export class UserStore {
     return this.userService.getCurrentUser().pipe(
       tap({
         next: (response) => {
-          if (response.success && response.data) {
-            currentUserSig.set(response.data!);
-            this.persistUser(response.data!);
-            this._isLoaded.set(true);
-          } else {
-            this.handleUserLoadError(new Error('Invalid user data received'));
-          }
+          console.log('UserStore: loadCurrentUser response:', response);
+          currentUserSig.set(response!);
+          this.persistUser(response);
+          this._isLoaded.set(true);
         },
       }),
       catchError((error) => {
         this._isLoading.set(false);
         return throwError(() => error);
-      }),
-      map((response) => {
-        if (!response.success || !response.data) {
-          throw new Error('Invalid user data structure');
-        }
-        return response.data;
       }),
       tap(() => this._isLoading.set(false))
     );

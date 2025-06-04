@@ -10,7 +10,7 @@ import {
   UpdateProjectRequest,
 } from '@models/project.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import { PaginatedResponse } from '@models/api-response.model';
 import { ErrorHandlerService } from '@core/services/utils/error-handler.service';
 import { ResearchDTO } from '@models/research.model';
 import { PatentDTO } from '@models/patent.model';
@@ -24,7 +24,7 @@ export class ProjectService {
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly apiUrl = BASE_URL + 'projects';
 
-  getAllProjects(): Observable<ApiResponse<ProjectDTO[]>>;
+  getAllProjects(): Observable<ProjectDTO[]>;
 
   getAllProjects(
     page: number,
@@ -34,7 +34,7 @@ export class ProjectService {
   getAllProjects(
     page?: number,
     pageSize?: number
-  ): Observable<ApiResponse<ProjectDTO[]> | PaginatedResponse<ProjectDTO[]>> {
+  ): Observable<ProjectDTO[] | PaginatedResponse<ProjectDTO>> {
     let params = new HttpParams();
 
     if (page !== undefined && pageSize !== undefined) {
@@ -43,13 +43,10 @@ export class ProjectService {
         .set('pageSize', pageSize.toString());
     }
     return this.http
-      .get<ApiResponse<ProjectDTO[]> | PaginatedResponse<ProjectDTO[]>>(
-        this.apiUrl,
-        {
-          ...getAuthHeaders(),
-          params,
-        }
-      )
+      .get<ProjectDTO[] | PaginatedResponse<ProjectDTO>>(this.apiUrl, {
+        ...getAuthHeaders(),
+        params,
+      })
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(error, 'Failed to load projects')
@@ -57,9 +54,9 @@ export class ProjectService {
       );
   }
 
-  getProjectById(id: string): Observable<ApiResponse<ProjectDTO>> {
+  getProjectById(id: string): Observable<ProjectDTO> {
     return this.http
-      .get<ApiResponse<ProjectDTO>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .get<ProjectDTO>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -70,11 +67,9 @@ export class ProjectService {
       );
   }
 
-  getPublicationByProjectId(
-    projectId: string
-  ): Observable<ApiResponse<PublicationDTO>> {
+  getPublicationByProjectId(projectId: string): Observable<PublicationDTO> {
     return this.http
-      .get<ApiResponse<PublicationDTO>>(
+      .get<PublicationDTO>(
         `${this.apiUrl}/${projectId}/publication`,
         getAuthHeaders()
       )
@@ -88,12 +83,9 @@ export class ProjectService {
       );
   }
 
-  getPatentByProjectId(projectId: string): Observable<ApiResponse<PatentDTO>> {
+  getPatentByProjectId(projectId: string): Observable<PatentDTO> {
     return this.http
-      .get<ApiResponse<PatentDTO>>(
-        `${this.apiUrl}/${projectId}/patent`,
-        getAuthHeaders()
-      )
+      .get<PatentDTO>(`${this.apiUrl}/${projectId}/patent`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -106,12 +98,11 @@ export class ProjectService {
 
   getResearchByProjectId(projectId: string): Observable<ResearchDTO> {
     return this.http
-      .get<ApiResponse<ResearchDTO>>(
+      .get<ResearchDTO>(
         `${this.apiUrl}/${projectId}/research`,
         getAuthHeaders()
       )
       .pipe(
-        map((response) => response.data!),
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
@@ -121,12 +112,10 @@ export class ProjectService {
       );
   }
 
-  createProject(
-    request: CreateProjectRequest
-  ): Observable<ApiResponse<string>> {
+  createProject(request: CreateProjectRequest): Observable<string> {
     console.log('Creating project with request:', request);
     return this.http
-      .post<ApiResponse<string>>(this.apiUrl, request, getAuthHeaders())
+      .post<string>(this.apiUrl, request, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -137,16 +126,9 @@ export class ProjectService {
       );
   }
 
-  updateProject(
-    id: string,
-    request: UpdateProjectRequest
-  ): Observable<ApiResponse<string>> {
+  updateProject(id: string, request: UpdateProjectRequest): Observable<string> {
     return this.http
-      .put<ApiResponse<string>>(
-        `${this.apiUrl}/${id}`,
-        request,
-        getAuthHeaders()
-      )
+      .put<string>(`${this.apiUrl}/${id}`, request, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -157,9 +139,9 @@ export class ProjectService {
       );
   }
 
-  deleteProject(id: string): Observable<ApiResponse<void>> {
+  deleteProject(id: string): Observable<void> {
     return this.http
-      .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -173,7 +155,7 @@ export class ProjectService {
   getTypedProjectsByProjectId<T>(
     projectId: string,
     type: ProjectType
-  ): Observable<ApiResponse<T>> {
+  ): Observable<T> {
     const endpointMap = {
       [ProjectType.PUBLICATION]: 'publication',
       [ProjectType.PATENT]: 'patent',
@@ -181,7 +163,7 @@ export class ProjectService {
     };
 
     return this.http
-      .get<ApiResponse<T>>(
+      .get<T>(
         `${this.apiUrl}/${projectId}/${endpointMap[type]}`,
         getAuthHeaders()
       )
@@ -217,9 +199,9 @@ export class ProjectService {
       );
   }
 
-  getNewestProjects(limit: number = 10): Observable<ApiResponse<ProjectDTO[]>> {
+  getNewestProjects(limit: number = 10): Observable<ProjectDTO[]> {
     return this.http
-      .get<ApiResponse<ProjectDTO[]>>(
+      .get<ProjectDTO[]>(
         `${this.apiUrl}/newest?limit=${limit}`,
         getAuthHeaders()
       )

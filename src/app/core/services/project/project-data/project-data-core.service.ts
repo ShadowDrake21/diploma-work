@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { ProjectService } from '../models/project.service';
 import { AttachmentsService } from '../../attachments.service';
 import { catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
-import { ApiResponse } from '@models/api-response.model';
 import { ProjectDTO } from '@models/project.model';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { FileMetadataDTO } from '@models/file.model';
@@ -17,7 +16,7 @@ export class ProjectDataCoreService {
   protected readonly attachmentsService = inject(AttachmentsService);
   protected readonly notificationService = inject(NotificationService);
 
-  getProjectById(projectId: string): Observable<ApiResponse<ProjectDTO>> {
+  getProjectById(projectId: string): Observable<ProjectDTO> {
     return this.projectService
       .getProjectById(projectId)
       .pipe(catchError((error) => this.handleProjectError(error, 'load')));
@@ -37,13 +36,9 @@ export class ProjectDataCoreService {
   ): Observable<ProjectWithAttachments> {
     return this.getProjectById(projectId).pipe(
       switchMap((projectResponse) => {
-        if (!projectResponse.data) {
-          throw new Error('Project data not availabler');
-        }
-
-        return this.getAttachments(projectResponse.data!.type, projectId).pipe(
+        return this.getAttachments(projectResponse.type, projectId).pipe(
           map((attachments) => ({
-            project: projectResponse.data!,
+            project: projectResponse,
             attachments,
           })),
           catchError((error) => {
@@ -52,7 +47,7 @@ export class ProjectDataCoreService {
             );
 
             return of({
-              project: projectResponse.data!,
+              project: projectResponse,
               attachments: [],
             });
           })

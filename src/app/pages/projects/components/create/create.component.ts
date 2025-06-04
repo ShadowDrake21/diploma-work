@@ -85,21 +85,16 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     this.projectId = this.route.snapshot.queryParamMap.get('id');
 
     this.subscriptions.push(
-      this.userService
-        .getCurrentUser()
-        .pipe(map((result) => result.data!))
-        .subscribe({
-          next: (user: IUser) => {
-            this.creatorId = +user.id;
-          },
-          error: (error) => {
-            console.error('Failed to load user data:', error);
-            this.notificationService.showError(
-              'Failed to load user information'
-            );
-            this.router.navigate(['/']);
-          },
-        })
+      this.userService.getCurrentUser().subscribe({
+        next: (user: IUser) => {
+          this.creatorId = +user.id;
+        },
+        error: (error) => {
+          console.error('Failed to load user data:', error);
+          this.notificationService.showError('Failed to load user information');
+          this.router.navigate(['/']);
+        },
+      })
     );
 
     if (this.projectId) {

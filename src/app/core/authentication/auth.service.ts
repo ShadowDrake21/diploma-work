@@ -25,7 +25,6 @@ import {
   IResetPasswordRequest,
   IVerifyRequest,
 } from '@shared/types/auth.types';
-import { ApiResponse } from '@models/api-response.model';
 import { IJwtPayload } from '@shared/types/jwt.types';
 import { UserRole } from '@shared/enums/user.enum';
 
@@ -117,61 +116,34 @@ export class AuthService {
 
   public login(credentials: ILoginRequest): Observable<IAuthResponse> {
     return this.http
-      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/login`, credentials)
+      .post<IAuthResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap((response) =>
           this.handleLoginResponse(response, credentials.rememberMe)
         ),
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
+
         catchError((error) => this.handleAuthError(error))
       );
   }
 
   public register(userData: IRegisterRequest): Observable<string> {
     return this.http
-      .post<ApiResponse<string>>(`${this.apiUrl}/register`, userData)
-      .pipe(
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
-        catchError((error) => this.handleAuthError(error))
-      );
+      .post<string>(`${this.apiUrl}/register`, userData)
+      .pipe(catchError((error) => this.handleAuthError(error)));
   }
 
   public verifyUser(verifyData: IVerifyRequest): Observable<IAuthResponse> {
     return this.http
-      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/verify`, verifyData)
+      .post<IAuthResponse>(`${this.apiUrl}/verify`, verifyData)
       .pipe(
         tap((response) => this.handleLoginResponse(response, true)),
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
+
         catchError((error) => this.handleAuthError(error))
       );
   }
 
   public logout(): void {
-    this.http.post<ApiResponse<string>>(`${this.apiUrl}/logout`, {}).subscribe({
+    this.http.post<string>(`${this.apiUrl}/logout`, {}).subscribe({
       next: () => this.handleLogoutSuccess(),
       error: (error) => {
         console.error('Logout error:', error);
@@ -186,20 +158,12 @@ export class AuthService {
     this.isRefreshingToken = true;
 
     return this.http
-      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/refresh-token`, {
+      .post<IAuthResponse>(`${this.apiUrl}/refresh-token`, {
         rememberMe: this.getRememberSession(),
       })
       .pipe(
         tap((response) => this.handleRefreshResponse(response)),
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data?.authToken || null;
-        }),
+        map((response) => response.authToken || null),
         catchError((error) => {
           console.error('Token refresh failed:', error);
           this.tokenRefreshedSubject.next(null);
@@ -237,39 +201,14 @@ export class AuthService {
     request: IRequestPasswordReset
   ): Observable<string> {
     return this.http
-      .post<ApiResponse<string>>(
-        `${this.apiUrl}/request-password-reset`,
-        request
-      )
-      .pipe(
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
-        catchError((error) => this.handleAuthError(error))
-      );
+      .post<string>(`${this.apiUrl}/request-password-reset`, request)
+      .pipe(catchError((error) => this.handleAuthError(error)));
   }
 
   public resetPassword(request: IResetPasswordRequest): Observable<string> {
     return this.http
-      .post<ApiResponse<string>>(`${this.apiUrl}/reset-password`, request)
-      .pipe(
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
-        catchError((error) => this.handleAuthError(error))
-      );
+      .post<string>(`${this.apiUrl}/reset-password`, request)
+      .pipe(catchError((error) => this.handleAuthError(error)));
   }
 
   /* ------------------------- Error Handling ------------------------- */
@@ -299,7 +238,7 @@ export class AuthService {
 
     return throwError(() =>
       this.createApplicationError(
-        'An unexpected error occurred',
+        error.message || 'An unexpected error occurred',
         'SERVER_ERROR'
       )
     );
@@ -327,14 +266,14 @@ export class AuthService {
   }
 
   private handleLoginResponse(
-    response: ApiResponse<IAuthResponse>,
+    response: IAuthResponse,
     rememberMe: boolean
   ): void {
-    if (response.success && response.data?.authToken) {
+    if (response.authToken) {
       const storage = this.getStorage(rememberMe);
-      storage.setItem('authToken', response.data.authToken);
+      storage.setItem('authToken', response.authToken);
 
-      const decoded = this.decodeToken(response.data.authToken);
+      const decoded = this.decodeToken(response.authToken);
       if (!decoded) throw new Error('Invalid token');
 
       this.currentUserSubject.next(decoded);
@@ -342,17 +281,17 @@ export class AuthService {
     }
   }
 
-  private handleRefreshResponse(response: ApiResponse<IAuthResponse>): void {
-    if (response.success && response.data?.authToken) {
+  private handleRefreshResponse(response: IAuthResponse): void {
+    if (response.authToken) {
       const storage = this.getCurrentStorage();
-      storage.setItem('authToken', response.data.authToken);
+      storage.setItem('authToken', response.authToken);
 
-      const decoded = this.decodeToken(response.data.authToken);
+      const decoded = this.decodeToken(response.authToken);
       if (decoded) {
         this.currentUserSubject.next(decoded);
       }
 
-      this.tokenRefreshedSubject.next(response.data.authToken);
+      this.tokenRefreshedSubject.next(response.authToken);
     } else {
       this.tokenRefreshedSubject.next(null);
     }

@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import { PaginatedResponse } from '@models/api-response.model';
 import { PatentDTO } from '@models/patent.model';
 import { ProjectResponse, ProjectWithDetails } from '@models/project.model';
 import { PublicationDTO } from '@models/publication.model';
@@ -81,61 +81,59 @@ export class AdminService {
       );
   }
 
-  promoteToAdmin(userId: number): Observable<ApiResponse<IUser>> {
+  promoteToAdmin(userId: number): Observable<IUser> {
     this.loading.set(true);
     return this.http
-      .post<ApiResponse<IUser>>(`${this.apiUrl}/users/${userId}/promote`, {})
+      .post<IUser>(`${this.apiUrl}/users/${userId}/promote`, {})
       .pipe(
         tap(() =>
           this.notificationService.showSuccess('User promoted to admin')
         ),
-        catchError(this.handleError<ApiResponse<IUser>>('promote user')),
+        catchError(this.handleError<IUser>('promote user')),
         finalize(() => this.loading.set(false))
       );
   }
 
-  demoteFromAdmin(userId: number): Observable<ApiResponse<IUser>> {
+  demoteFromAdmin(userId: number): Observable<IUser> {
     this.loading.set(true);
     return this.http
-      .post<ApiResponse<IUser>>(`${this.apiUrl}/users/${userId}/demote`, {})
+      .post<IUser>(`${this.apiUrl}/users/${userId}/demote`, {})
       .pipe(
         tap(() =>
           this.notificationService.showSuccess('User demoted from admin')
         ),
-        catchError(this.handleError<ApiResponse<IUser>>('demote user')),
+        catchError(this.handleError<IUser>('demote user')),
         finalize(() => this.loading.set(false))
       );
   }
 
-  deactivateUser(userId: number): Observable<ApiResponse<void>> {
+  deactivateUser(userId: number): Observable<void> {
     this.loading.set(true);
     return this.http
-      .post<ApiResponse<void>>(`${this.apiUrl}/users/${userId}/deactivate`, {})
+      .post<void>(`${this.apiUrl}/users/${userId}/deactivate`, {})
       .pipe(
         tap(() => this.notificationService.showSuccess('User deactivated')),
-        catchError(this.handleError<ApiResponse<void>>('deactivate user')),
+        catchError(this.handleError<void>('deactivate user')),
         finalize(() => this.loading.set(false))
       );
   }
 
-  deleteUser(userId: number): Observable<ApiResponse<void>> {
+  deleteUser(userId: number): Observable<void> {
     this.loading.set(true);
-    return this.http
-      .delete<ApiResponse<void>>(`${this.apiUrl}/users/${userId}`)
-      .pipe(
-        tap(() => this.notificationService.showSuccess('User deleted')),
-        catchError(this.handleError<ApiResponse<void>>('delete user')),
-        finalize(() => this.loading.set(false))
-      );
+    return this.http.delete<void>(`${this.apiUrl}/users/${userId}`).pipe(
+      tap(() => this.notificationService.showSuccess('User deleted')),
+      catchError(this.handleError<void>('delete user')),
+      finalize(() => this.loading.set(false))
+    );
   }
 
-  reactivateUser(userId: number): Observable<ApiResponse<void>> {
+  reactivateUser(userId: number): Observable<void> {
     this.loading.set(true);
     return this.http
-      .post<ApiResponse<void>>(`${this.apiUrl}/users/${userId}/reactivate`, {})
+      .post<void>(`${this.apiUrl}/users/${userId}/reactivate`, {})
       .pipe(
         tap(() => this.notificationService.showSuccess('User reactivated')),
-        catchError(this.handleError<ApiResponse<void>>('reactivate user')),
+        catchError(this.handleError<void>('reactivate user')),
         finalize(() => this.loading.set(false))
       );
   }
@@ -224,41 +222,37 @@ export class AdminService {
       );
   }
 
-  deleteComment(commentId: string): Observable<ApiResponse<void>> {
+  deleteComment(commentId: string): Observable<void> {
     this.loading.set(true);
-    return this.http
-      .delete<ApiResponse<void>>(`${this.apiUrl}/comments/${commentId}`)
-      .pipe(
-        tap(() => this.notificationService.showSuccess('Comment deleted')),
-        catchError(this.handleError<ApiResponse<void>>('delete comment')),
-        finalize(() => this.loading.set(false))
-      );
+    return this.http.delete<void>(`${this.apiUrl}/comments/${commentId}`).pipe(
+      tap(() => this.notificationService.showSuccess('Comment deleted')),
+      catchError(this.handleError<void>('delete comment')),
+      finalize(() => this.loading.set(false))
+    );
   }
 
-  getRecentLogins(count: number = 10): Observable<ApiResponse<UserLogin[]>> {
+  getRecentLogins(count: number = 10): Observable<UserLogin[]> {
     this.loading.set(true);
     return this.http
-      .get<ApiResponse<UserLogin[]>>(
+      .get<UserLogin[]>(
         `${this.apiUrl}/recent-logins?count=${count}`,
         getAuthHeaders()
       )
       .pipe(
-        catchError(
-          this.handleError<ApiResponse<UserLogin[]>>('load recent logins')
-        ),
+        catchError(this.handleError<UserLogin[]>('load recent logins')),
         finalize(() => this.loading.set(false))
       );
   }
 
-  getLoginStats(hours: number = 24): Observable<ApiResponse<number>> {
+  getLoginStats(hours: number = 24): Observable<number> {
     this.loading.set(true);
     return this.http
-      .get<ApiResponse<number>>(
+      .get<number>(
         `${this.apiUrl}/login-stats?hours=${hours}`,
         getAuthHeaders()
       )
       .pipe(
-        catchError(this.handleError<ApiResponse<number>>('load login stats')),
+        catchError(this.handleError<number>('load login stats')),
         finalize(() => this.loading.set(false))
       );
   }

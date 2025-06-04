@@ -45,7 +45,7 @@ export const apiInterceptor: HttpInterceptorFn = (
   }
 
   function handleError(error: HttpErrorResponse): Observable<never> {
-    const errorResponse = error.error;
+    const errorResponse = error.error || error.message;
 
     if (isApiResponse(errorResponse)) {
       const apiError: ApiError = {

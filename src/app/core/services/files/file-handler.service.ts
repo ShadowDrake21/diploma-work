@@ -4,7 +4,6 @@ import { ProjectType } from '@shared/enums/categories.enum';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { FileMetadataDTO } from '@models/file.model';
 import { format } from 'date-fns';
-import { ApiResponse } from '@models/api-response.model';
 import { NotificationService } from '../notification.service';
 
 interface UploadResult {
@@ -40,9 +39,6 @@ export class FileHandlerService {
       .uploadFiles(entityType, entityId, files)
       .pipe(
         map((response) => {
-          if (!response.success) {
-            throw new Error(response.message || 'Upload failed');
-          }
           return this.handleUploadResponse(
             response,
             entityType,
@@ -54,7 +50,7 @@ export class FileHandlerService {
       );
   }
 
-  deleteFile(file: FileMetadataDTO): Observable<ApiResponse<string>> {
+  deleteFile(file: FileMetadataDTO): Observable<string> {
     if (!file?.fileName) {
       const error = new Error('Invalid file reference');
       this.notificationService.showError('Invalid file');
@@ -86,13 +82,13 @@ export class FileHandlerService {
   }
 
   private handleUploadResponse(
-    response: ApiResponse<string[]>,
+    response: string[],
     entityType: ProjectType,
     entityId: string,
     files: File[]
   ): UploadResult {
     const uploadedFiles = response
-      .data!.map((url, index) =>
+      .map((url, index) =>
         url
           ? this.createFileMetadata(url, entityType, entityId, files[index])
           : null
