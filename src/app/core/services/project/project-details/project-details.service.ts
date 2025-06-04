@@ -35,7 +35,7 @@ export class ProjectDetailsService implements OnDestroy {
       .pipe(
         takeUntil(this.destroyed$),
         tap({
-          next: (response) => this._project.next(response.data),
+          next: (response) => this._project.next(response),
           error: (error) => {
             console.error('Error loading project:', error);
             this.notificationService.showError(

@@ -10,7 +10,6 @@ import { forkJoin, map, Subscription, tap } from 'rxjs';
 import { DashboardService } from '@core/services/dashboard.service';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { ProjectDTO } from '@models/project.model';
-import { RouterLink } from '@angular/router';
 import { OnlineUsersComponent } from './components/online-users/online-users.component';
 import { ProjectsQuickLinksComponent } from '../../shared/components/projects-quick-links/projects-quick-links.component';
 import { NotificationService } from '@core/services/notification.service';
@@ -72,7 +71,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.projectService.getNewestProjects(7).pipe(
       tap({
         next: (projects) => {
-          this.newestProjects = projects.data || [];
+          this.newestProjects = projects || [];
         },
         error: (error) => this.handleProjectLoadError(error),
       }),

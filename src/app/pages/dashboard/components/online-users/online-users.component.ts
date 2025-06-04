@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { RecentUsersService } from '@core/services/users/recent-users.service';
+import { isUserArray } from '@core/services/users/utils/type-guards.utils';
 
 @Component({
   selector: 'dashboard-online-users',
@@ -52,7 +53,7 @@ export class OnlineUsersComponent {
 
   get activeUsers() {
     const result = this.recentUsersService.activeUsers();
-    return result && 'data' in result ? result.data : [];
+    return isUserArray(result) ? result : [];
   }
 
   refreshActiveUsers() {

@@ -47,17 +47,11 @@ export class ProfileInfoComponent implements OnDestroy {
       .updateUserProfile(this.formProfileData(profileData))
       .subscribe({
         next: (response) => {
-          if (response.success) {
-            const updatedUser = { ...this.user()!, ...profileData };
-            this.user.set(updatedUser);
-            currentUserSig.set(updatedUser);
-            this.notificationService.showSuccess(
-              'Profile updated successfully'
-            );
-            this.editMode.set(false);
-          } else {
-            this.error.set(response.message || 'Failed to update profile');
-          }
+          const updatedUser = { ...this.user()!, ...profileData };
+          this.user.set(updatedUser);
+          currentUserSig.set(updatedUser);
+          this.notificationService.showSuccess('Profile updated successfully');
+          this.editMode.set(false);
         },
         error: (err) => {
           this.error.set(
@@ -93,11 +87,7 @@ export class ProfileInfoComponent implements OnDestroy {
 
     const sub = this.userService.getCurrentUser().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.user.set(response.data!);
-        } else {
-          this.error.set(response.message || 'Failed to load profile data');
-        }
+        this.user.set(response);
       },
       error: (err) => {
         this.error.set(

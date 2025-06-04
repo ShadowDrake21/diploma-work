@@ -42,7 +42,7 @@ export class ProjectCommentService {
     this.commentService
       .getCommentsByProjectId(projectId)
       .pipe(
-        map((response) => this.transformComments(response.data!)),
+        map((response) => this.transformComments(response)),
         tap({
           next: (comments) => {
             this._comments.next(comments);
@@ -68,7 +68,6 @@ export class ProjectCommentService {
     }
 
     return this.commentService.createComment(comment).pipe(
-      map((res) => res.data!),
       tap({
         next: () => {
           this.refreshComments(comment.projectId);
@@ -93,7 +92,6 @@ export class ProjectCommentService {
 
   updateComment(commentId: string, newContent: string): Observable<IComment> {
     return this.commentService.updateComment(commentId, newContent).pipe(
-      map((res) => res.data!),
       tap({
         next: () => {
           this.refreshComments(this.currentProjectId!);
@@ -110,7 +108,6 @@ export class ProjectCommentService {
 
   deleteComment(commentId: string): Observable<void> {
     return this.commentService.deleteComment(commentId).pipe(
-      map((res) => res.data),
       tap({
         next: () => {
           this.refreshComments(this.currentProjectId!);
@@ -171,7 +168,6 @@ export class ProjectCommentService {
     this.updateCommentLikeState(commentId, like);
 
     return serviceCall.pipe(
-      map((res) => res.data!),
       tap({
         error: (err) => {
           this.updateCommentLikeState(commentId, !like);

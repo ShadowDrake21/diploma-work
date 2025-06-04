@@ -21,7 +21,6 @@ import { UserStatusChipComponent } from '../utils/user-status-chip/user-status-c
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
-import { ApiResponse } from '@models/api-response.model';
 
 @Component({
   selector: 'app-user-details',
@@ -81,15 +80,9 @@ export class UserDetailsComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          if (response.success) {
-            this.user.set(response.data!);
-            this.loadUserProjects();
-            this.notificationService.showSuccess(
-              'User data loaded successfully'
-            );
-          } else {
-            this.handleError(response.message || 'Failed to load user data');
-          }
+          this.user.set(response);
+          this.loadUserProjects();
+          this.notificationService.showSuccess('User data loaded successfully');
         },
         error: (err) => this.handleError(this.getUserFriendlyError(err)),
         complete: () => this.isLoading.set(false),
@@ -121,11 +114,7 @@ export class UserDetailsComponent implements OnInit {
 
     this.userService.getUserProjects(userId).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.userProjects.set(response.data || []);
-        } else {
-          this.notificationService.showError('Failed to load user projects');
-        }
+        this.userProjects.set(response || []);
       },
       error: (err) => {
         console.error('Failed to load user projects:', err);
@@ -256,15 +245,11 @@ export class UserDetailsComponent implements OnInit {
   ): Promise<void> {
     try {
       this.isProcessing.set(true);
-      const response = (await firstValueFrom(action())) as ApiResponse<any>;
+      const response = (await firstValueFrom(action())) as any;
 
-      if (response.success) {
-        this.notificationService.showSuccess(successMessage);
-        if (updatedUser) this.user.set(updatedUser);
-        if (onSuccess) onSuccess();
-      } else {
-        this.notificationService.showError(response.message || errorMessage);
-      }
+      this.notificationService.showSuccess(successMessage);
+      if (updatedUser) this.user.set(updatedUser);
+      if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error(`${errorCode}:`, err);
       const message = err.error?.message || errorMessage;

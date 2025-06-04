@@ -53,7 +53,6 @@ export class ProjectResearchFormComponent
 
   ngOnInit(): void {
     this.allUsers$ = this.userService.getAllUsers().pipe(
-      map((response) => response.data!),
       catchError((error) => {
         console.error('Error loading users:', error);
         this.notificationService.showError('Failed to load users');

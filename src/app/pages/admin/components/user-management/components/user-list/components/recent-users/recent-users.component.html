@@ -15,7 +15,7 @@
       <mat-spinner diameter="30"></mat-spinner>
       } @else {
       <div class="stat-value">
-        {{ loginStats()?.data || 0 }} logins in last 24 hours
+        {{ loginStats() || 0 }} logins in last 24 hours
       </div>
       }
     </mat-card-content>
@@ -40,7 +40,7 @@
       } @else {
       <table
         mat-table
-        [dataSource]="recentLogins()?.data || []"
+        [dataSource]="recentLogins() || []"
         class="mat-elevation-z8"
       >
         <ng-container matColumnDef="username">

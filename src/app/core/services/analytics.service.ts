@@ -12,7 +12,6 @@ import {
   CommentActivityDTO,
   SystemPerformanceDTO,
 } from '@models/analytics.model';
-import { ApiResponse } from '@models/api-response.model';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { NotificationService } from './notification.service';
 
@@ -52,18 +51,14 @@ export class AnalyticsService {
     this.loading.set(true);
     this.error.set(null);
 
-    return this.http
-      .get<ApiResponse<T>>(`${this.apiUrl}/${endpoint}`, { params })
-      .pipe(
-        map((response) =>
-          mapper ? mapper(response.data!) : response.data ?? null
-        ),
-        tap((data) => {
-          signalFn(data);
-          this.loading.set(false);
-        }),
-        catchError(this.handleError(endpoint, signalFn))
-      );
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { params }).pipe(
+      map((response) => (mapper ? mapper(response) : response ?? null)),
+      tap((data) => {
+        signalFn(data);
+        this.loading.set(false);
+      }),
+      catchError(this.handleError(endpoint, signalFn))
+    );
   }
 
   private handleError<T>(

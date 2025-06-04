@@ -48,7 +48,6 @@ export class ResearchProjectComponent implements OnInit, OnDestroy {
             ? forkJoin(
                 research.participantIds.map((participantId: number) =>
                   this.userService.getUserById(participantId).pipe(
-                    map((response) => response.data),
                     catchError((error) => {
                       this.participantsError = true;
                       this.notificationService.showError(
