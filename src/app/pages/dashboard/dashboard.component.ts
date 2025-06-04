@@ -1,7 +1,7 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
@@ -28,11 +28,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     OnlineUsersComponent,
     ProjectsQuickLinksComponent,
     MatProgressSpinnerModule,
+    AsyncPipe,
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss',
   host: {
-    class: 'dashboard',
+    class: 'flex flex-col min-h-[100vh] h-full',
   },
 })
 export class DashboardComponent implements OnInit, OnDestroy {
@@ -40,29 +40,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private readonly dashboardService = inject(DashboardService);
   private readonly notificationService = inject(NotificationService);
 
-  isLoading = true;
-  hasError = false;
-  errorMessage = '';
+  isLoading = signal(true);
+  hasError = signal(false);
+  errorMessage = signal<string | null>(null);
 
-  newestProjects: ProjectDTO[] = [];
-  metricsData: DashboardMetricCardItem[] = [];
+  newestProjects = signal<ProjectDTO[]>([]);
+  metricsData = signal<DashboardMetricCardItem[]>([]);
 
   private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
-    this.loadNewsestProjects();
-    this.loadMetrics();
+    this.loadData();
   }
 
   loadData(): void {
-    this.isLoading = true;
-    this.hasError = false;
+    this.isLoading.set(true);
+    this.hasError.set(false);
 
     forkJoin([this.loadNewsestProjects(), this.loadMetrics()]).subscribe({
-      complete: () => (this.isLoading = false),
+      complete: () => this.isLoading.set(false),
       error: (error) => {
         this.handleGlobalError(error);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }
@@ -71,7 +70,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.projectService.getNewestProjects(7).pipe(
       tap({
         next: (projects) => {
-          this.newestProjects = projects || [];
+          this.newestProjects.set(projects || []);
         },
         error: (error) => this.handleProjectLoadError(error),
       }),
@@ -82,7 +81,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadMetrics() {
     return this.dashboardService.getDashboardMetrics().pipe(
       tap({
-        next: (metrics) => (this.metricsData = this.transformMetrics(metrics)),
+        next: (metrics) => {
+          console.log('Dashboard metrics loaded:', metrics);
+          this.metricsData.set(this.transformMetrics(metrics));
+        },
         error: (error) => this.handleMetricsLoadError(error),
       }),
       map(() => void 0)
@@ -135,7 +137,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     this.notificationService.showError(message);
-    this.newestProjects = [];
+    this.newestProjects.set([]);
   }
 
   private handleMetricsLoadError(error: HttpErrorResponse): void {
@@ -147,23 +149,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     this.notificationService.showError(message);
-    this.metricsData = [];
+    this.metricsData.set([]);
   }
 
   private handleGlobalError(error: HttpErrorResponse): void {
     console.error('Dashboard initialization error:', error);
-    this.hasError = true;
+    this.hasError.set(true);
 
     if (error.status === 0) {
-      this.errorMessage =
-        'Unable to connect to the server. Please check your internet connection.';
+      this.errorMessage.set(
+        'Unable to connect to the server. Please check your internet connection.'
+      );
     } else if (error.status >= 500) {
-      this.errorMessage = 'Server error: Please try again later';
+      this.errorMessage.set('Server error: Please try again later');
     } else {
-      this.errorMessage = 'Failed to load dashboard data';
+      this.errorMessage.set('Failed to load dashboard data');
     }
 
-    this.notificationService.showError(this.errorMessage);
+    this.notificationService.showError(
+      this.errorMessage() || 'An error occurred'
+    );
   }
 
   retryLoading(): void {

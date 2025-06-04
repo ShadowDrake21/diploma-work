@@ -7,13 +7,7 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/authentication/auth.service';
-import {
-  catchError,
-  Observable,
-  switchMap,
-  switchMapTo,
-  throwError,
-} from 'rxjs';
+import { catchError, Observable, switchMap, throwError } from 'rxjs';
 
 export function tokenInterceptor(
   request: HttpRequest<unknown>,
@@ -34,6 +28,16 @@ export function tokenInterceptor(
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
+        const currentToken = authService.getToken();
+        if (currentToken) {
+          const decoded = authService.decodeToken(currentToken);
+          if (decoded && authService.isTokenExpired(decoded)) {
+            authService.clearAuthData();
+
+            router.navigate(['/authentication/sign-in']);
+            return throwError(() => new Error('Session expired'));
+          }
+        }
         return handleUnauthorizedError(request, next, authService, router);
       } else if (error.status === 403) {
         router.navigate(['/forbidden']);

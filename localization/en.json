@@ -1,0 +1,8 @@
+{
+  "dashboard": {
+    "subtitle1": "Main statistics",
+    "subtitle2": "Latest projects",
+    "empty_projects": "No recent projects found",
+    "subtitle3": "Latest active users"
+  }
+}

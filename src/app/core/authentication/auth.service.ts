@@ -27,6 +27,8 @@ import {
 } from '@shared/types/auth.types';
 import { IJwtPayload } from '@shared/types/jwt.types';
 import { UserRole } from '@shared/enums/user.enum';
+import { UserService } from '@core/services/users/user.service';
+import { currentUserSig } from '@core/shared/shared-signals';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +36,7 @@ import { UserRole } from '@shared/enums/user.enum';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
 
   private apiUrl = 'http://localhost:8080/api/auth';
 
@@ -175,10 +178,16 @@ export class AuthService {
 
   public checkAndRefreshToken(): Observable<string | null> {
     const token = this.getToken();
-    if (!token) return of(null);
+    if (!token) {
+      this.clearAuthData();
+      return of(null);
+    }
 
     const decoded = this.decodeToken(token);
-    if (!decoded || this.isTokenExpired(decoded)) return of(null);
+    if (!decoded || this.isTokenExpired(decoded)) {
+      this.clearAuthData();
+      return of(null);
+    }
 
     const timeLeft = this.getTokenTimeLeft(decoded);
     const refreshThreshold = 15 * 60 * 1000;
@@ -188,10 +197,18 @@ export class AuthService {
     return this.refreshToken().pipe(
       tap({
         next: (newToken) => this.handleRefreshResult(newToken, timeLeft),
-        error: () => this.handleRefreshError(timeLeft),
+        error: () => {
+          this.handleRefreshError(timeLeft);
+          if (timeLeft <= 0) {
+            this.clearAuthData();
+          }
+        },
       }),
       switchMap((newToken) => of(newToken || token)),
-      catchError(() => of(token))
+      catchError(() => {
+        this.clearAuthData();
+        return of(token);
+      })
     );
   }
 
@@ -254,15 +271,28 @@ export class AuthService {
   /* ------------------------- Private Helpers ------------------------- */
 
   private initializeAuthState(): void {
+    console.log('Initializing auth state...');
     const token = this.getToken();
-    if (!token) return;
+    console.log('Token found in storage:', !!token);
 
-    const decoded = this.decodeToken(token);
-    if (decoded && !this.isTokenExpired(decoded)) {
-      this.currentUserSubject.next(decoded);
-    } else {
-      this.clearAuthData();
+    if (token) {
+      try {
+        const decoded = this.decodeToken(token);
+        if (decoded) {
+          if (this.isTokenExpired(decoded)) {
+            this.clearAuthData();
+          } else {
+            this.currentUserSubject.next(decoded);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('Token decode error', e);
+      }
     }
+
+    console.log('Clearing auth data');
+    this.clearAuthData();
   }
 
   private handleLoginResponse(
@@ -320,12 +350,6 @@ export class AuthService {
     this.router.navigate(['/authentication/sign-in']);
   }
 
-  private clearAuthData(): void {
-    localStorage.removeItem('authToken');
-    sessionStorage.removeItem('authToken');
-    this.currentUserSubject.next(null);
-  }
-
   private getStorage(rememberMe: boolean): Storage {
     return rememberMe ? localStorage : sessionStorage;
   }
@@ -334,12 +358,21 @@ export class AuthService {
     return localStorage.getItem('authToken') ? localStorage : sessionStorage;
   }
 
-  private isTokenExpired(decodedToken: IJwtPayload): boolean {
+  public isTokenExpired(decodedToken: IJwtPayload): boolean {
     return decodedToken.exp ? decodedToken.exp < Date.now() / 1000 : false;
   }
 
   private getTokenTimeLeft(decodedToken: IJwtPayload): number {
     return decodedToken.exp * 1000 - Date.now();
+  }
+
+  public clearAuthData(): void {
+    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authToken');
+    localStorage.removeItem('rememberSession');
+    sessionStorage.removeItem('rememberSession');
+    this.currentUserSubject.next(null);
+    this.currentUserSubject.next(null);
   }
 }
 
