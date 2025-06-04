@@ -1,15 +1,4 @@
 .dropdown {
-  background: #f1f1f1;
-  color: rgb(122, 122, 122);
-  padding: 15px;
-  width: 400px;
-  position: absolute;
-  right: 0px;
-  top: 70px;
-  font-size: 14px;
-  line-height: 18px;
-  z-index: 50;
-
   &-toggler {
     cursor: pointer;
     width: 60px;

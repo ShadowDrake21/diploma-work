@@ -78,13 +78,6 @@ export class AppComponent implements OnInit {
           event.url.split('/').includes('not-found');
       });
 
-    if (this.authService.isAuthenticated()) {
-      const rememberMe = !!localStorage.getItem('authToken');
-      this.userStore.setRememberMe(rememberMe);
-
-      this.userStore.loadCurrentUser().subscribe();
-    }
-
     this.isAdmin = this.authService.isAdmin();
   }
 
