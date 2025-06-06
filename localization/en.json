@@ -15,5 +15,13 @@
       "add_project": "Add Project",
       "view_my_projects": "View My Projects"
     }
+  },
+  "sidenav": {
+    "admin": "Admin Panel",
+    "title1": "Navigation",
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "users": "Users",
+    "title2": "Recent users"
   }
 }

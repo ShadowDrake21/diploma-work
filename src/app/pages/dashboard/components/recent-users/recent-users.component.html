@@ -1,5 +1,7 @@
-<div class="recent-users">
-  <h3 class="recent-users__title">Recent users</h3>
+<div class="recent-users relative">
+  <h3 class="recent-users__title text-lg font-medium text-center">
+    Recent users
+  </h3>
 
   @if (isLoading()) {
   <mat-spinner diameter="30"></mat-spinner>
@@ -52,6 +54,7 @@
     mat-icon-button
     (click)="refreshActiveUsers()"
     [disabled]="isLoading()"
+    class="absolute top-3 right-5"
   >
     <mat-icon>refresh</mat-icon>
   </button>

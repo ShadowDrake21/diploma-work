@@ -1,32 +1,36 @@
-<section class="layout">
+<section class="flex flex-col min-h-screen relative">
   @if (!isAuth && !isSettings && !isErrorPages) {
   <shared-header (sidebarToggle)="toggleMenu()" [isSidebarOpened]="isOpened" />
   }
-  <mat-sidenav-container autosize>
+  <mat-sidenav-container class="flex-1 flex" autosize>
     @if (!isAuth && !isSettings && !isErrorPages) {
     <mat-sidenav
-      class="sidenav expanded"
+      class="pt-20 pb-[10px] !bg-[#eee]"
       [mode]="isMobile ? 'over' : 'side'"
       [opened]="!isOpened ? 'false' : 'true'"
+      [ngClass]="{
+        'w-64': !isCollapsed && !isMobile,
+        'w-0': isMobile && !isOpened,
+        'w-20': isCollapsed && !isMobile
+      }"
     >
-      <!-- [ngClass]="!isCollapsed ? 'expanded' : 'collapsed'" -->
-      <!-- [opened]="isMobile ? 'false' : 'true'" -->
-
-      <mat-nav-list class="sidenav-list">
+      <mat-nav-list class="flex flex-col justify-between">
         @if (isAdmin) {
         <a mat-list-item routerLink="/admin/dashboard">
-          <span class="entry">
+          <span class="flex items-center w-full gap-4 p-3">
             <mat-icon>admin_panel_settings</mat-icon>
-            <span>Admin Panel</span>
+            <span class="text-wrap">Панель адміністратора</span>
           </span>
         </a>
         }
-        <h3 class="sidenav-list__title">Navigation</h3>
+        <h3 class="px-[10px] pb-[10px] text-lg font-medium text-center">
+          Навігація
+        </h3>
         <div>
           <a mat-list-item routerLink="/">
-            <span class="entry">
+            <span class="flex items-center gap-4 p-3">
               <mat-icon>house</mat-icon>
-              <span>Dashboard</span>
+              <span>Головна сторінка</span>
             </span>
           </a>
           <a
@@ -34,25 +38,26 @@
             routerLink="/projects/list"
             [queryParams]="{ mode: 'all' }"
           >
-            <span class="entry">
+            <span class="flex items-center gap-4 p-3">
               <mat-icon>category</mat-icon>
-              <span>Products</span>
+              <span>Проєкти</span>
             </span>
           </a>
           <a mat-list-item routerLink="/users">
-            <span class="entry">
+            <span class="flex items-center gap-4 p-3">
               <mat-icon>group</mat-icon>
-              <span>Users</span>
+              <span>Користувачі</span>
             </span>
           </a>
         </div>
-        <div class="sidenav-list__additions">
+        <div class="flex flex-col gap-5">
           <sidebar-recent-users />
         </div>
       </mat-nav-list>
     </mat-sidenav>
     }
     <mat-sidenav-content
+      class="flex-1 min-h-screen overflow-x-hidden flex"
       [ngStyle]="
         !isAuth && !isSettings && !isErrorPages ? { 'padding-top': '80px' } : {}
       "

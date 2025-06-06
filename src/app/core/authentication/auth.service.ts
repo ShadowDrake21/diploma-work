@@ -161,6 +161,21 @@ export class AuthService {
 
   /* ------------------------- Token Management ------------------------- */
 
+  checkTokenStatus(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      this.router.navigate(['/authentication/sign-in']);
+      return false;
+    }
+    const decoded = this.decodeToken(token);
+    if (!decoded || this.isTokenExpired(decoded)) {
+      this.clearAuthData();
+      this.router.navigate(['/authentication/sign-in']);
+      return false;
+    }
+    return true;
+  }
+
   public refreshToken(): Observable<string | null> {
     this.isRefreshingToken = true;
 
