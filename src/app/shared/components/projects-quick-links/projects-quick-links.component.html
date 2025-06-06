@@ -1,12 +1,16 @@
-<div class="dashboard__actions">
-  <a class="dashboard__actions-link" routerLink="/projects/create"
-    ><span class="dashboard__actions-link__text">Add Project</span></a
+<div class="flex gap-[10px] pb-5">
+  <a
+    class="block no-underline text-inherit w-full p-[10px] text-center bg-black transition-all ease-in-out duration-300 hover:bg-[#707070]"
+    routerLink="/projects/create"
+    ><span class="text-white text-base font-medium">Додати проєкт</span></a
   >
   <a
-    class="dashboard__actions-link"
+    class="block no-underline text-inherit w-full p-[10px] text-center bg-black transition-all ease-in-out duration-300 hover:bg-[#707070]"
     [routerLink]="['/projects/list']"
     [queryParams]="{ mode: 'mine' }"
-    routerLinkActive="disabled"
-    ><span class="dashboard__actions-link__text">View My Projects</span></a
+    routerLinkActive="bg-gray-300 cursor-not-allowed text-gray-500"
+    ><span class="text-white text-base font-medium"
+      >Переглянути мої проекти</span
+    ></a
   >
 </div>

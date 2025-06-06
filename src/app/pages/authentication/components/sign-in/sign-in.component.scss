@@ -7,3 +7,13 @@
     )
   );
 }
+
+@media (max-width: 767px) {
+  .remember-me-checkbox {
+    @include mat.checkbox-overrides(
+      (
+        label-text-size: 14px,
+      )
+    );
+  }
+}

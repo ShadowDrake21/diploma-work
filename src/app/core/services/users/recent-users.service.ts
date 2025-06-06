@@ -7,10 +7,12 @@ import {
   catchError,
   of,
   Observable,
+  take,
 } from 'rxjs';
 import { UserService } from './user.service';
 import { NotificationService } from '../notification.service';
 import { IUser } from '@models/user.model';
+import { AuthService } from '@core/authentication/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,11 +20,19 @@ import { IUser } from '@models/user.model';
 export class RecentUsersService {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
 
   activeUsers = toSignal(
     interval(60000).pipe(
       startWith(null),
-      switchMap(() => this.getActiveUsersWithHandling()),
+      switchMap(() =>
+        this.authService.currentUser$.pipe(
+          take(1),
+          switchMap((user) =>
+            user ? this.getActiveUsersWithHandling() : of(null)
+          )
+        )
+      ),
       catchError((error) => {
         this.handleActiveUsersError(error);
         return of({ error: this.createErrorObject(error) });

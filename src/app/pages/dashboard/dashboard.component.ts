@@ -94,31 +94,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private transformMetrics(metrics: any): DashboardMetricCardItem[] {
     return [
       {
-        title: 'Total Products',
+        title: 'Усього проектів',
         value: metrics.totalProjects.toString(),
         icon: 'category',
         link: '/projects',
       },
       {
-        title: 'Total Publications',
+        title: 'Усього публікацій',
         value: metrics.totalPublications.toString(),
         icon: 'description',
         link: '/projects',
       },
       {
-        title: 'Total Patents',
+        title: 'Усього патентів',
         value: metrics.totalPatents.toString(),
         icon: 'gavel',
         link: '/projects',
       },
       {
-        title: 'Total Research Projects',
+        title: 'Усього досліджень',
         value: metrics.totalResearch.toString(),
         icon: 'science',
         link: '/projects',
       },
       {
-        title: 'Total Users',
+        title: 'Усього користувачів',
         value: metrics.totalUsers.toString(),
         icon: 'people',
         link: '/users',

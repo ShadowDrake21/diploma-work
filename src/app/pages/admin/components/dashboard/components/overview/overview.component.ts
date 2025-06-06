@@ -9,6 +9,7 @@ import { catchError, map, of, tap } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OverviewHasDataPipe } from '@pipes/overview-has-data.pipe';
 import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/authentication/auth.service';
 @Component({
   selector: 'app-overview',
   imports: [
@@ -25,6 +26,7 @@ import { NotificationService } from '@core/services/notification.service';
 export class OverviewComponent {
   private readonly analyticsService = inject(AnalyticsService);
   private readonly notificationService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
 
   systemOverview = this.analyticsService.systemOverview;
   userGrowth = this.analyticsService.userGrowth;
@@ -33,7 +35,9 @@ export class OverviewComponent {
   error = this.analyticsService.error;
 
   ngOnInit() {
-    this.loadData();
+    if (this.authService.isAuthenticated()) {
+      this.loadData();
+    }
   }
 
   loadData(): void {

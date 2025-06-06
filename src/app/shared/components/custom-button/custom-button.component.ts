@@ -5,7 +5,23 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'shared-custom-button',
   imports: [MatButtonModule, MatProgressSpinnerModule],
-  templateUrl: './custom-button.component.html',
+  template: `
+    <button
+      mat-flat-button
+      class=" w-full relative"
+      [type]="type()"
+      [disabled]="disabled() || isLoading()"
+      (click)="onPress.emit()"
+    >
+      <div class="flex items-center justify-center gap-2 uppercase">
+        @if (isLoading()) {
+        <mat-spinner diameter="20" class="my-0 mx-auto spinner"></mat-spinner>
+        } @else {
+        <ng-content></ng-content>
+        }
+      </div>
+    </button>
+  `,
   styleUrl: './custom-button.component.scss',
 })
 export class CustomButtonComponent {

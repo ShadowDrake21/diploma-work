@@ -144,12 +144,16 @@ export class SignUpComponent implements OnInit {
           if (error.error?.errorCode === 'EMAIL_IN_USE') {
             this.signUpForm.controls.email.setErrors({ emailInUse: true });
             this.errorMessages.email.set(error.error.message);
-          } else if (error.error?.errorCode === 'WEAK_PASSWORD') {
+          } else if (
+            error.error?.errorCode === 'WEAK_PASSWORD' ||
+            error.errorCode === 'WEAK_PASSWORD'
+          ) {
             this.signUpForm.controls.password.setErrors({ weakPassword: true });
             this.errorMessages.password.set(error.error.message);
           } else {
             const errorMessage =
               error.error?.message ||
+              error.message ||
               'An error occurred during registration. Please try again.';
             this.serverError.set(errorMessage);
             this.notificationService.showError(errorMessage);

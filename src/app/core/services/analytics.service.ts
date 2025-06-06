@@ -14,6 +14,7 @@ import {
 } from '@models/analytics.model';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { NotificationService } from './notification.service';
+import { AuthService } from '@core/authentication/auth.service';
 
 type AnalyticsEndpoint = {
   [K in keyof AnalyticsService]: K extends `get${infer T}`

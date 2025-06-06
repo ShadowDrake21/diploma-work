@@ -15,7 +15,9 @@
       <mat-spinner diameter="40"></mat-spinner>
     </div>
     } @else {
-    <ul class="flex w-full gap-[30px] list-none overflow-x-scroll pb-[10px]">
+    <ul
+      class="flex w-full gap-[10px] md:gap-5 min-[968px]:gap-[30px] list-none overflow-x-scroll pb-[10px] flex-col sm:flex-row"
+    >
       @for (item of metricsData(); track $index) {
       <li class="w-full">
         <shared-metric-card-item [data]="item" />
@@ -27,7 +29,7 @@
 
   <shared-projects-quick-links />
 
-  <div class="flex gap-5 flex-col">
+  <!-- <div class="flex gap-5 flex-col">
     <h3 class="text-center text-xl font-medium">Останні проєкти</h3>
     <div class="shrink-0 grow gap-5">
       @if (isLoading()) {
@@ -55,5 +57,6 @@
     <h3 class="text-center text-xl font-medium">Останні активні користувачі</h3>
     <dashboard-online-users />
   </div>
+   -->
   }
 </div>
