@@ -1,6 +1,5 @@
-html @if (loading()) {
+@if (loading()) {
 <div class="loading-spinner">
-  <!-- Add your loading spinner component here -->
   <p>Loading patent details...</p>
 </div>
 } @else if (error()) {
@@ -12,7 +11,7 @@ html @if (loading()) {
 <div class="patent">
   <div class="patent__section">
     <h4 class="patent__section-title">Primary author</h4>
-    <!-- TODO: Link -->
+
     <p class="patent__section-text">
       {{ patent()?.primaryAuthor?.username || "Not specified" }}
     </p>

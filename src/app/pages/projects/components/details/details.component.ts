@@ -9,7 +9,7 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { DatePipe, TitleCasePipe } from '@angular/common';
-import { finalize, Subscription } from 'rxjs';
+import { filter, finalize, Subscription, take } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { MatButtonModule } from '@angular/material/button';
@@ -87,23 +87,27 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   private loadProject(): void {
     this.projectLoading.set(true);
-
     this.projectDetailsService.loadProjectDetails(this.workId()!);
 
-    const sub = this.projectDetailsService.project$.pipe().subscribe({
-      next: (project) => {
-        if (project) {
-          this.handleProjectLoadSuccess(project);
-        } else {
-          this.notificationService.showError('Project not found');
-          this.router.navigate(['/projects/list']);
-        }
-        this.projectLoading.set(false);
-      },
-      error: (error) => {
-        this.handleProjectLoadError(error);
-      },
-    });
+    const sub = this.projectDetailsService.project$
+      .pipe(
+        filter((project) => project !== null),
+        take(1)
+      )
+      .subscribe({
+        next: (project) => {
+          if (project) {
+            this.handleProjectLoadSuccess(project);
+          } else {
+            this.notificationService.showError('Project not found');
+            this.router.navigate(['/projects/list']);
+          }
+          this.projectLoading.set(false);
+        },
+        error: (error) => {
+          this.handleProjectLoadError(error);
+        },
+      });
 
     this.subscriptions.push(sub);
   }

@@ -62,9 +62,32 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
   );
 
   private readonly subscriptions: Subscription[] = [];
+  private previousQueryParams: Record<string, string | null> = {};
 
   ngOnInit(): void {
     this.loadProjectsBasedOnRoute();
+  }
+
+  private getCurrentQueryParams(): Record<string, string | null> {
+    const params: Record<string, string | null> = {};
+    this.route.snapshot.queryParamMap.keys.forEach((keys) => {
+      params[keys] = this.route.snapshot.queryParamMap.get(keys);
+    });
+    return params;
+  }
+
+  private haveQueryParamsChanged(): boolean {
+    const currentParams = this.getCurrentQueryParams();
+    const keys = new Set([
+      ...Object.keys(currentParams),
+      ...Object.keys(this.previousQueryParams),
+    ]);
+    for (const key of keys) {
+      if (currentParams[key] !== this.previousQueryParams[key]) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private loadProjects(mode: string | null): Observable<void> {
@@ -86,6 +109,7 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
 
     return loader$.pipe(
       map((response) => {
+        console.log('Projects loaded:', response);
         if (!response.data) {
           throw new Error('No project data received');
         }
@@ -117,17 +141,20 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(event: PageEvent): void {
+    console.log('Page change event:', event);
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
     this.loadProjectsBasedOnRoute();
   }
 
   private loadProjectsBasedOnRoute(): void {
+    const paramsChanged = this.haveQueryParamsChanged();
+    if (paramsChanged) {
+      this.currentPage.set(0);
+      this.previousQueryParams = this.getCurrentQueryParams();
+    }
     const sub = this.route.queryParamMap
-      .pipe(
-        tap(() => this.currentPage.set(0)),
-        switchMap((params) => this.loadProjects(params.get('mode')))
-      )
+      .pipe(switchMap((params) => this.loadProjects(params.get('mode'))))
       .subscribe();
 
     this.subscriptions.push(sub);

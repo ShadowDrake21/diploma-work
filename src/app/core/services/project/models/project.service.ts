@@ -199,9 +199,11 @@ export class ProjectService {
       );
   }
 
-  getNewestProjects(limit: number = 10): Observable<ProjectDTO[]> {
+  getNewestProjects(
+    limit: number = 10
+  ): Observable<PaginatedResponse<ProjectDTO>> {
     return this.http
-      .get<ProjectDTO[]>(
+      .get<PaginatedResponse<ProjectDTO>>(
         `${this.apiUrl}/newest?limit=${limit}`,
         getAuthHeaders()
       )
