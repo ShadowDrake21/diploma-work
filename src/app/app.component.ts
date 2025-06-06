@@ -38,7 +38,6 @@ import { SessionWarningComponent } from '@shared/components/dialogs/session-warn
     RouterLink,
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
@@ -51,6 +50,7 @@ export class AppComponent implements OnInit {
   isMobile = true;
   isCollapsed = true;
   isOpened = true;
+  isExpanded = true;
 
   isAuth = true;
   isSettings = false;
@@ -84,12 +84,5 @@ export class AppComponent implements OnInit {
   toggleMenu() {
     this.sidenav.toggle();
     this.isOpened = !this.isOpened;
-    if (this.isMobile) {
-      this.sidenav.toggle();
-      this.isCollapsed = false;
-    } else {
-      this.sidenav.open();
-      this.isCollapsed = !this.isCollapsed;
-    }
   }
 }

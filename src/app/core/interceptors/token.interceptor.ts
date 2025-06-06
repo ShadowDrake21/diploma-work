@@ -20,27 +20,24 @@ export function tokenInterceptor(
     return next(request);
   }
 
-  const token = authService.getToken();
-  if (token) {
-    request = addTokenToRequest(request, token);
+  if (!authService.checkTokenStatus()) {
+    return throwError(() => new Error('Invalid session'));
   }
 
-  return next(request).pipe(
+  const token = authService.getToken();
+  const authReq = token
+    ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : request;
+
+  return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        const currentToken = authService.getToken();
-        if (currentToken) {
-          const decoded = authService.decodeToken(currentToken);
-          if (decoded && authService.isTokenExpired(decoded)) {
-            authService.clearAuthData();
-
-            router.navigate(['/authentication/sign-in']);
-            return throwError(() => new Error('Session expired'));
-          }
-        }
-        return handleUnauthorizedError(request, next, authService, router);
-      } else if (error.status === 403) {
+        return handleUnauthorizedError(authReq, next, authService, router);
+      } else if (error.status === 419) {
         router.navigate(['/forbidden']);
+        return throwError(
+          () => new Error('Forbidden: Insufficient permissions')
+        );
       }
       return throwError(() => error);
     })

@@ -2,13 +2,14 @@ import { inject, Injectable, OnDestroy } from '@angular/core';
 import { AuthService } from '@core/authentication/auth.service';
 import { catchError, of, Subscription, timer } from 'rxjs';
 import { NotificationService } from './notification.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SessionMonitorService implements OnDestroy {
   private readonly authService = inject(AuthService);
-  private readonly notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
   private checkInterval = 60 * 1000;
   private timerSubscription!: Subscription;
 
@@ -19,16 +20,19 @@ export class SessionMonitorService implements OnDestroy {
   private startMonitoring() {
     this.timerSubscription = timer(0, this.checkInterval).subscribe(() => {
       if (this.authService.isAuthenticated()) {
-        this.authService
-          .checkAndRefreshToken()
-          .pipe(
-            catchError((error) => {
-              console.error('Session check error:', error);
-              this.notificationService.showError('Session maintenance failed');
-              return of(null);
-            })
-          )
-          .subscribe();
+        this.authService.checkAndRefreshToken().subscribe({
+          next: (token) => {
+            if (!token) {
+              this.authService.logout();
+              this.router.navigate(['/authentication/sign-in']);
+            }
+          },
+          error: (error) => {
+            console.error('Token check failed:', error);
+            this.authService.logout();
+            this.router.navigate(['/authentication/sign-in']);
+          },
+        });
       }
     });
   }

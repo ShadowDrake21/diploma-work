@@ -29,7 +29,7 @@ public class SecurityConfig {
 	private final JwtUtil jwtUtil;
 	
 	private static final String[] PUBLIC_ENDPOINTS = { "/api/auth/**" };
-	private static final String[] AUTHENTICATED_ENDPOINTS = { "/api/comments/**" };
+	private static final String[] AUTHENTICATED_ENDPOINTS = { "/api/comments/**", "/api/dashboard/**" };
 	private static final String FRONTEND_ORIGIN = "http://localhost:4200";
 	private static final long CORS_MAX_AGE = 3600L;
 

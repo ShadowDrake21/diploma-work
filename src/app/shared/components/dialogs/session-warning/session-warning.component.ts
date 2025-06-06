@@ -58,13 +58,19 @@ export class SessionWarningComponent implements OnInit, OnDestroy {
 
     const timeLeft = decoded.exp * 1000 - Date.now();
 
+    if (timeLeft <= 0) {
+      this.authService.logout();
+      return;
+    }
+
     if (timeLeft < this.warningThreshold) {
       this.showWarningWithTimeout(timeLeft);
     } else {
       timer(timeLeft - this.warningThreshold)
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
-          this.showWarningWithTimeout(this.warningThreshold);
+          const newTimeLeft = decoded.exp * 1000 - Date.now();
+          this.showWarningWithTimeout(newTimeLeft);
         });
     }
   }
@@ -152,5 +158,6 @@ export class SessionWarningComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.stopCountdown();
+    this.dialog.closeAll();
   }
 }
