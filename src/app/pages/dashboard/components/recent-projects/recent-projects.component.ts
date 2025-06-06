@@ -36,8 +36,19 @@ export class RecentProjectsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (projects) => {
-          this.projects.set(projects || []);
-          this.isLoading.set(false);
+          if (projects.success) {
+            console.log('Loaded recent projects:', projects);
+            this.projects.set(projects.data || []);
+            this.isLoading.set(false);
+          } else {
+            console.error('Failed to load recent projects:', projects);
+            this.hasError.set(true);
+            this.errorMessage.set(projects.message || 'Unknown error');
+            this.notificationService.showError(
+              projects.message || 'Failed to load recent projects'
+            );
+            this.isLoading.set(false);
+          }
         },
         error: (error: HttpErrorResponse) => {
           this.handleProjectLoadError(error);

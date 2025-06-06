@@ -3,6 +3,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { PublicationDTO } from '@models/publication.model';
 import { ProjectFormCoreService } from './project-form-core.service';
 
+// TODO (07.06): EDIT OF FILES + ABSENCE OF PREPATCHED VALUES LIKE START DATE + HIDING OF ADMIN PANEL AFTER THE RELOAD
+
 @Injectable({
   providedIn: 'root',
 })

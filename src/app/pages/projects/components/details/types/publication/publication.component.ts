@@ -2,6 +2,7 @@ import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { NotificationService } from '@core/services/notification.service';
 import { ProjectService } from '@core/services/project/models/project.service';
+import { PublicationDTO } from '@models/publication.model';
 import { catchError, Observable, of } from 'rxjs';
 
 @Component({
@@ -17,7 +18,7 @@ export class PublicationComponent implements OnInit {
   @Input({ required: true })
   id!: string;
 
-  publication$!: Observable<any>;
+  publication$!: Observable<PublicationDTO | null>;
   error = false;
 
   ngOnInit(): void {

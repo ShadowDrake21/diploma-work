@@ -31,6 +31,7 @@ export function authInterceptor(
         router.navigate(['/authentication/sign-in']);
       } else if (error.status === 403) {
         router.navigate(['/forbidden']);
+        authService.clearAuthData();
       }
       return throwError(() => error);
     })
