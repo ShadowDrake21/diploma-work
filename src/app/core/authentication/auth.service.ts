@@ -3,7 +3,7 @@ import {
   HttpErrorResponse,
   HttpStatusCode,
 } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -54,6 +54,8 @@ export class AuthService {
 
   // State flags
   public isRefreshingToken = false;
+
+  public isAdminSig = signal(false);
 
   constructor() {
     this.initializeAuthState();
@@ -231,6 +233,13 @@ export class AuthService {
     );
   }
 
+  private updateAdminState(decoded: IJwtPayload | null): void {
+    const isAdmin =
+      decoded?.role === UserRole.ADMIN ||
+      decoded?.role === UserRole.SUPER_ADMIN;
+    this.isAdminSig.set(isAdmin);
+  }
+
   /* ------------------------- Password Reset ------------------------- */
 
   public requestPasswordReset(
@@ -328,6 +337,7 @@ export class AuthService {
       if (!decoded) throw new Error('Invalid token');
 
       this.currentUserSubject.next(decoded);
+      this.updateAdminState(decoded);
       this.setRememberSession(rememberMe);
     }
   }
@@ -340,6 +350,7 @@ export class AuthService {
       const decoded = this.decodeToken(response.authToken);
       if (decoded) {
         this.currentUserSubject.next(decoded);
+        this.updateAdminState(decoded);
       }
 
       this.tokenRefreshedSubject.next(response.authToken);
@@ -393,7 +404,7 @@ export class AuthService {
     localStorage.removeItem('rememberSession');
     sessionStorage.removeItem('rememberSession');
     this.currentUserSubject.next(null);
-    this.currentUserSubject.next(null);
+    this.updateAdminState(null);
   }
 }
 

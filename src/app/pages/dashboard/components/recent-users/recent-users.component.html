@@ -5,13 +5,6 @@
 
   @if (isLoading()) {
   <mat-spinner diameter="30"></mat-spinner>
-  } @else if (error()) {
-  <div class="error-message">
-    {{ error() }}
-    <button mat-button color="primary" (click)="refreshActiveUsers()">
-      Retry
-    </button>
-  </div>
   } @else {
   <ul class="recent-users__list">
     @for (user of activeUsers; track user.id) {
