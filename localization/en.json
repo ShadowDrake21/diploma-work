@@ -3,6 +3,17 @@
     "subtitle1": "Main statistics",
     "subtitle2": "Latest projects",
     "empty_projects": "No recent projects found",
-    "subtitle3": "Latest active users"
+    "subtitle3": "Latest active users",
+    "metrics": {
+      "total_projects": "Total Projects",
+      "total_publications": "Total Publications",
+      "total_patents": "Total Patents",
+      "total_researches": "Total Research Projects",
+      "total_users": "Total Users"
+    },
+    "quick_links": {
+      "add_project": "Add Project",
+      "view_my_projects": "View My Projects"
+    }
   }
 }

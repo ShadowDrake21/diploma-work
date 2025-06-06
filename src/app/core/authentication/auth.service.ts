@@ -29,6 +29,7 @@ import { IJwtPayload } from '@shared/types/jwt.types';
 import { UserRole } from '@shared/enums/user.enum';
 import { UserService } from '@core/services/users/user.service';
 import { currentUserSig } from '@core/shared/shared-signals';
+import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +37,7 @@ import { currentUserSig } from '@core/shared/shared-signals';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   private apiUrl = 'http://localhost:8080/api/auth';
 
@@ -139,7 +140,10 @@ export class AuthService {
     return this.http
       .post<IAuthResponse>(`${this.apiUrl}/verify`, verifyData)
       .pipe(
-        tap((response) => this.handleLoginResponse(response, true)),
+        tap((response) => {
+          this.notificationService.showSuccess('User verified successfully');
+          this.router.navigate(['/authentication/sign-in']);
+        }),
 
         catchError((error) => this.handleAuthError(error))
       );
@@ -231,6 +235,7 @@ export class AuthService {
   /* ------------------------- Error Handling ------------------------- */
 
   private handleAuthError(error: any): Observable<never> {
+    console.log('Handling authentication error:', error);
     if (error instanceof HttpErrorResponse) {
       if (error.status === HttpStatusCode.TooManyRequests) {
         const retryAfter = error.headers.get('Retry-After') || '60';
@@ -253,10 +258,11 @@ export class AuthService {
       return throwError(() => error);
     }
 
+    console.log('Unexpected error:', error);
     return throwError(() =>
       this.createApplicationError(
         error.message || 'An unexpected error occurred',
-        'SERVER_ERROR'
+        error.errorCode || 'SERVER_ERROR'
       )
     );
   }

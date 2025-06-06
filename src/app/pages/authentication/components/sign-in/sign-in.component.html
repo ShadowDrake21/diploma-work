@@ -1,7 +1,7 @@
 <div>
-  <div class="pb-[30px] text-center">
-    <h1 class="text-2xl font-semibold">Вхід до профілю</h1>
-    <h3 class="text-base font-normal">
+  <div class="md:pb-[30px] pb-[15px] text-center">
+    <h1 class="text-xl md:text-2xl font-semibold">Вхід до профілю</h1>
+    <h3 class="text-sm md:text-base font-normal">
       Раді знову Вас бачити! Введіть дані до авторизації
     </h3>
   </div>
@@ -14,17 +14,17 @@
   </div>
   }
   <form
-    class="flex flex-col gap-[10px] pb-5"
+    class="flex flex-col md:gap-[10px] gap-5 pb-5"
     [formGroup]="signInForm"
     (ngSubmit)="onSubmit()"
   >
-    <mat-form-field class="sign-in__form-field">
+    <mat-form-field>
       <mat-label>E-mail</mat-label>
       <input matInput type="email" formControlName="email" />
       <mat-icon matSuffix>person</mat-icon>
       @if (this.signInForm.controls.email.invalid &&
       signInForm.controls.email.touched) {
-      <mat-error>{{ errorMessages.email() }}</mat-error>
+      <mat-error class="h-full">{{ errorMessages.email() }}</mat-error>
       }
     </mat-form-field>
     <mat-form-field>
@@ -53,12 +53,14 @@
       <mat-error>{{ errorMessages.password() }}</mat-error>
       }
     </mat-form-field>
-    <div class="sign-in__form-options flex justify-between items-center">
+    <div
+      class="flex justify-center md:justify-between items-center flex-col md:flex-row"
+    >
       <mat-checkbox class="remember-me-checkbox" formControlName="rememberMe"
         >Запамʼятати мене</mat-checkbox
       >
       <a
-        class="sign-in__form-options__link no-underline font-medium text-inherit"
+        class="no-underline font-medium text-inherit text-sm md:text-base"
         routerLink="/authentication/recover-password"
         >Забули пароль?</a
       >
@@ -72,7 +74,7 @@
       Ввійти</shared-custom-button
     >
   </form>
-  <p class="text-center">
+  <p class="text-center md:text-base text-sm">
     Не маєте аккаунту?
     <a class="no-underline font-bold" routerLink="/authentication/sign-up"
       >Створити профіль</a

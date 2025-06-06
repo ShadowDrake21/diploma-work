@@ -1,5 +1,5 @@
 <div>
-  <h1 class="text-2xl font-semibold text-center pb-5">
+  <h1 class="text-xl md:text-2xl font-semibold text-center pb-3 md:pb-5">
     Реєстрація користувача
   </h1>
 
@@ -13,7 +13,7 @@
   }
 
   <form
-    class="flex flex-col gap-[10px] pb-5"
+    class="flex flex-col md:gap-[10px] gap-5 md:pb-5 pb-3"
     [formGroup]="signUpForm"
     (ngSubmit)="onSignUp()"
     [class.disabled]="formDisabled()"
@@ -81,7 +81,7 @@
       Зареєструватися</shared-custom-button
     >
   </form>
-  <p class="text-center">
+  <p class="text-center md:text-base text-sm">
     Вже маєте аккаунт?
     <a class="font-bold" routerLink="/authentication/sign-in">Авторизуватися</a>
   </p>

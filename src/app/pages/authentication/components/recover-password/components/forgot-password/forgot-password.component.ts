@@ -29,7 +29,6 @@ import { NotificationService } from '@core/services/notification.service';
     CustomButtonComponent,
   ],
   templateUrl: './forgot-password.component.html',
-  styleUrl: './forgot-password.component.scss',
 })
 export class ForgotPasswordComponent implements OnDestroy {
   private readonly router = inject(Router);
@@ -43,7 +42,6 @@ export class ForgotPasswordComponent implements OnDestroy {
 
   readonly matcher = new ErrorMatcher();
   readonly isLoading = signal(false);
-  readonly isSuccess = signal(false);
   readonly cooldown = signal(0);
   private cooldownInterval: any;
 

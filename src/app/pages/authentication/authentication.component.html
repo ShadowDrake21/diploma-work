@@ -1,22 +1,24 @@
 <section class="flex justify-center items-center min-h-[100vh]">
   <div
-    class="auth-container max-w-[450px] w-full pt-[50px] px-10 pb-[60px] rounded-[30px]"
+    class="max-w-[350px] md:max-w-[400px] lg:max-w-[450px] w-full pt-[30px] md:pt-[40px] lg:pt-[50px] px-10 pb-[20px] md:pb-[40px] lg:pb-[60px] rounded-[30px]"
     style="
       box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1),
         -4px -4px 10px rgba(0, 0, 0, 0.1);
     "
   >
-    <div class="auth-tabs flex justify-center gap-[10px] pb-[30px]">
+    <div
+      class="flex justify-center gap-[10px] pb-[10px] md:pb-[20px] lg:pb-[30px]"
+    >
       <a
         routerLink="/authentication/sign-in"
         routerLinkActive="text-red-600 border-red-500"
-        class="uppercase text-black font-medium bg-white border border-solid py-[10px] px-[15px] tracking-[0.2px] transition-all duration-300 hover:text-red-600 hover:border-red-400 border-black"
+        class="uppercase text-black font-medium bg-white border border-solid py-[5px] md:py-[10px] px-[10px] md:px-[15px] tracking-[0.2px] transition-all duration-300 hover:text-red-600 hover:border-red-400 border-black"
         >Вхід</a
       >
       <a
         routerLink="/authentication/sign-up"
         routerLinkActive="text-red-600 border-red-500"
-        class="uppercase text-black font-medium bg-white border border-solid py-[10px] px-[15px] tracking-[0.2px] transition-all duration-300 hover:text-red-600 hover:border-red-400 border-black"
+        class="uppercase text-black font-medium bg-white border border-solid py-[5px] md:py-[10px] px-[10px] md:px-[15px] tracking-[0.2px] transition-all duration-300 hover:text-red-600 hover:border-red-400 border-black"
         >Реєстрація</a
       >
     </div>
