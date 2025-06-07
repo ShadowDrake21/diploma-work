@@ -11,6 +11,10 @@
       <mat-option [value]="author.id">{{ author.username }}</mat-option>
       }
     </mat-select>
+    @if (patentsForm().controls.primaryAuthor.invalid &&
+    patentsForm().controls.primaryAuthor.touched) {
+    <mat-error>{{ formErrors.primaryAuthor.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Co-inventors</mat-label>
@@ -26,6 +30,10 @@
       <mat-option [value]="coInventor.id">{{ coInventor.username }}</mat-option>
       } }
     </mat-select>
+    @if (patentsForm().controls.coInventors.invalid &&
+    patentsForm().controls.coInventors.touched) {
+    <mat-error>{{ formErrors.coInventors.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Patent Registration Number</mat-label>
@@ -35,6 +43,10 @@
       matInput
       formControlName="registrationNumber"
     />
+    @if (patentsForm().controls.registrationNumber.invalid &&
+    patentsForm().controls.registrationNumber.touched) {
+    <mat-error>{{ formErrors.registrationNumber.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Date of Registration</mat-label>
@@ -46,6 +58,10 @@
     <mat-hint>MM/DD/YYYY</mat-hint>
     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
     <mat-datepicker #picker></mat-datepicker>
+    @if (patentsForm().controls.registrationDate.invalid &&
+    patentsForm().controls.registrationDate.touched) {
+    <mat-error>{{ formErrors.registrationDate.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Issuing Authority</mat-label>
@@ -55,6 +71,10 @@
       matInput
       formControlName="issuingAuthority"
     />
+    @if (patentsForm().controls.issuingAuthority.invalid &&
+    patentsForm().controls.issuingAuthority.touched) {
+    <mat-error>{{ formErrors.issuingAuthority.required }}</mat-error>
+    }
   </mat-form-field>
   <div>
     <button mat-button matStepperPrevious>Back</button>

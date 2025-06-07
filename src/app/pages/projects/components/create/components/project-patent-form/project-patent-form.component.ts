@@ -16,6 +16,7 @@ import {
   PatentFormGroup,
 } from '@shared/types/forms/project-form.types';
 import { NotificationService } from '@core/services/notification.service';
+import { PATENT_FORM_ERRORS } from '../errors/patent.errors';
 
 @Component({
   selector: 'create-project-patent-form',
@@ -44,6 +45,8 @@ export class ProjectPatentFormComponent
   patentsForm = input.required<PatentFormGroup>();
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
   selectedPrimaryAuthor: number | null = null;
+
+  formErrors = PATENT_FORM_ERRORS;
 
   ngOnInit(): void {
     this.allUsers$ = this.userService.getAllUsers().pipe(
