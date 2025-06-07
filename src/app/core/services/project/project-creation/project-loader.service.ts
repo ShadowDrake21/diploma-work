@@ -40,6 +40,7 @@ export class ProjectLoaderService {
   loadProject(projectId: string): Observable<any> {
     return this.projectDataService.getProjectWithAttachments(projectId).pipe(
       tap(({ project, attachments }) => {
+        console.log('Loaded project data:', project, attachments);
         try {
           this.projectFormService.patchTypeForm(this.typeForm, project.type);
           this.typeForm.disable();

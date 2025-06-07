@@ -56,7 +56,7 @@ export class AppComponent implements OnInit {
   isSettings = false;
   isErrorPages = false;
 
-  isAdmin = this.authService.isAdminSig;
+  isAdmin = false;
   isLoggedIn = this.authService.isAuthenticated();
 
   ngOnInit() {
@@ -77,6 +77,10 @@ export class AppComponent implements OnInit {
           event.url.split('/').includes('forbidden') ||
           event.url.split('/').includes('not-found');
       });
+
+    this.authService.currentUser$.subscribe(() => {
+      this.isAdmin = this.authService.isAdmin();
+    });
   }
 
   toggleMenu() {

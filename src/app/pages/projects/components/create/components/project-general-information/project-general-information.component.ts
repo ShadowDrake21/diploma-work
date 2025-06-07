@@ -2,10 +2,13 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   DestroyRef,
+  effect,
   inject,
   input,
   OnInit,
+  signal,
 } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +29,8 @@ import { GeneralInformationForm } from '@shared/types/forms/project-form.types';
 import { FileUploadListComponent } from './components/file-upload-list/file-upload-list.component';
 import { FileHandlerFacadeService } from '@core/services/files/file-handler-facade.service';
 import { NotificationService } from '@core/services/notification.service';
+import { AttachmentsService } from '@core/services/attachments.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'create-project-general-information',
@@ -44,27 +49,34 @@ import { NotificationService } from '@core/services/notification.service';
     MatListModule,
     MatIconModule,
     FileUploadListComponent,
+    MatProgressBarModule,
   ],
   templateUrl: './project-general-information.component.html',
   styleUrl: './project-general-information.component.scss',
 })
-export class ProjectGeneralInformationComponent implements OnInit {
+export class ProjectGeneralInformationComponent {
   private readonly tagService = inject(TagService);
   private readonly fileHandler = inject(FileHandlerFacadeService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
-  private notificationService = inject(NotificationService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly attachmentsService = inject(AttachmentsService);
 
   generalInformationForm = input.required<FormGroup<GeneralInformationForm>>();
   entityType = input.required<ProjectType | null | undefined>();
-  existingFiles = input.required<FileMetadataDTO[] | null | undefined>();
+  existingFiles = signal<FileMetadataDTO[] | null>(null);
+  private entityId = computed(() => this.getEntityId());
+
+  isFilesLoading = signal<boolean>(false);
 
   readonly tags$ = this.tagService.getAllTags();
 
-  ngOnInit(): void {
-    this.fileHandler.initialize(this.existingFiles() || []);
-    this.updateFormControl({ emitEvent: false });
+  constructor() {
+    effect(() => {
+      if (this.entityType() && this.entityId()) {
+        this.fetchExistingFiles();
+      }
+    });
   }
 
   onFilesSelected(files: File[]): void {
@@ -133,5 +145,37 @@ export class ProjectGeneralInformationComponent implements OnInit {
 
   private getEntityId(): string {
     return this.route.snapshot.queryParamMap.get('id') || '';
+  }
+
+  fetchExistingFiles() {
+    this.isFilesLoading.set(true);
+    const entityType = this.entityType();
+    const projectId = this.getEntityId();
+
+    if (projectId && entityType) {
+      this.attachmentsService
+        .getFilesByEntity(entityType, projectId)
+        .subscribe({
+          next: (files) => {
+            console.log('Fetched existing files:', files);
+            this.existingFiles.set(files);
+
+            console.log('Initializing file handler with:', files);
+            this.fileHandler.initialize(files);
+            this.updateFormControl({ emitEvent: false });
+
+            this.isFilesLoading.set(false);
+          },
+          error: (error) => {
+            console.error('Error fetching files:', error);
+            this.notificationService.showError('Failed to load files');
+            this.fileHandler.initialize([]);
+            this.isFilesLoading.set(false);
+          },
+        });
+    } else {
+      this.fileHandler.initialize([]);
+      this.isFilesLoading.set(false);
+    }
   }
 }

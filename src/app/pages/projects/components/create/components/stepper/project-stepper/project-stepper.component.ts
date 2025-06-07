@@ -1,4 +1,10 @@
-import { Component, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  SimpleChanges,
+} from '@angular/core';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ProjectFormService } from '@core/services/project/project-form/project-form.service';
 import { ProjectTypeStepComponent } from '../project-type-step/project-type-step.component';

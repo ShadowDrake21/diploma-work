@@ -38,6 +38,9 @@
     </mat-select>
   </mat-form-field>
 
+  @if(isFilesLoading()) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  } @else {
   <general-information-file-upload-list
     [uploadedFiles]="uploadedFiles"
     [pendingFiles]="pendingFiles"
@@ -47,6 +50,8 @@
     (filesSelected)="onFilesSelected($event)"
     (removeFile)="removeFile($event.index, $event.isPending)"
   />
+  }
+
   <div>
     <button mat-button matStepperPrevious>Back</button>
     <button
