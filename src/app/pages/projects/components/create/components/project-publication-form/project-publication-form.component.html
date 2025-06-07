@@ -19,11 +19,16 @@
         </span>
         }
       </mat-select-trigger>
+      <!-- todo -->
       <input placeholder="Jake Smith" />
       @for (author of allUsers; track author) {
       <mat-option [value]="author.id">{{ author.username }}</mat-option>
       }
     </mat-select>
+    @if (publicationsForm().controls.authors.invalid &&
+    publicationsForm().controls.authors.touched) {
+    <mat-error>{{ formErrors.authors.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Publication date</mat-label>
@@ -35,6 +40,13 @@
     <mat-hint>MM/DD/YYYY</mat-hint>
     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
     <mat-datepicker #picker></mat-datepicker>
+    <shared-form-error
+      [control]="publicationsForm().controls.publicationDate"
+      [errors]="[
+        { key: 'required', message: formErrors.publicationDate.required },
+        { key: 'futureDate', message: formErrors.publicationDate.futureDate }
+      ]"
+    />
   </mat-form-field>
   <mat-form-field>
     <mat-label>Publication source</mat-label>
@@ -44,6 +56,10 @@
       matInput
       formControlName="publicationSource"
     />
+    @if (publicationsForm().controls.publicationSource.invalid &&
+    publicationsForm().controls.publicationSource.touched) {
+    <mat-error>{{ formErrors.publicationSource.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>DOI/ISBN</mat-label>
@@ -53,6 +69,10 @@
       matInput
       formControlName="doiIsbn"
     />
+    @if (publicationsForm().controls.doiIsbn.invalid &&
+    publicationsForm().controls.doiIsbn.touched) {
+    <mat-error>{{ formErrors.doiIsbn.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Start pages</mat-label>
@@ -62,10 +82,24 @@
       matInput
       formControlName="startPage"
     />
+    <shared-form-error
+      [control]="publicationsForm().controls.startPage"
+      [errors]="[
+        { key: 'required', message: formErrors.startPage.required },
+        { key: 'invalidRange', message: formErrors.startPage.invalidRange }
+      ]"
+    />
   </mat-form-field>
   <mat-form-field>
     <mat-label>End pages</mat-label>
     <input type="number" placeholder="20" matInput formControlName="endPage" />
+    <shared-form-error
+      [control]="publicationsForm().controls.endPage"
+      [errors]="[
+        { key: 'required', message: formErrors.endPage.required },
+        { key: 'invalidRange', message: formErrors.endPage.invalidRange }
+      ]"
+    />
   </mat-form-field>
   <mat-form-field>
     <mat-label>Journal volume</mat-label>
@@ -75,6 +109,10 @@
       matInput
       formControlName="journalVolume"
     />
+    @if (publicationsForm().controls.journalVolume.invalid &&
+    publicationsForm().controls.journalVolume.touched) {
+    <mat-error>{{ formErrors.journalVolume.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Issue Number</mat-label>
@@ -84,6 +122,10 @@
       matInput
       formControlName="issueNumber"
     />
+    @if (publicationsForm().controls.issueNumber.invalid &&
+    publicationsForm().controls.issueNumber.touched) {
+    <mat-error>{{ formErrors.issueNumber.required }}</mat-error>
+    }
   </mat-form-field>
   <div>
     <button mat-button matStepperPrevious>Back</button>

@@ -18,6 +18,8 @@ import {
 import { UserService } from '@core/services/users/user.service';
 import { NotificationService } from '@core/services/notification.service';
 import { statuses } from '@shared/content/project.content';
+import { RESEARCH_PROJECT_ERRORS } from '../errors/research.errors';
+import { FormErrorComponentComponent } from '../../../../../../shared/components/form-error-component/form-error-component.component';
 
 @Component({
   selector: 'create-project-research-form',
@@ -32,6 +34,7 @@ import { statuses } from '@shared/content/project.content';
     MatSelectModule,
     MatAutocompleteModule,
     MatDatepickerModule,
+    FormErrorComponentComponent,
   ],
   templateUrl: './project-research-form.component.html',
   styleUrl: './project-research-form.component.scss',
@@ -44,12 +47,12 @@ export class ProjectResearchFormComponent
   private readonly notificationService = inject(NotificationService);
 
   researchProjectsForm = input.required<ResearchFormGroup>();
+  allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   statuses = statuses;
+  formErrors = RESEARCH_PROJECT_ERRORS;
 
   compareParticipants = (id1: string, id2: string) => this.compareIds(id1, id2);
-
-  allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   ngOnInit(): void {
     this.allUsers$ = this.userService.getAllUsers().pipe(
