@@ -45,6 +45,7 @@ export class OverviewComponent {
       .getSystemOverview()
       .pipe(
         catchError((error) => {
+          console.error('System overview error:', error);
           this.notificationService.showError('Failed to load system overview');
           return of(null);
         })
@@ -55,6 +56,7 @@ export class OverviewComponent {
       .getUserGrowth()
       .pipe(
         catchError((error) => {
+          console.error('User growth error:', error);
           this.notificationService.showError('Failed to load user growth data');
           return of(null);
         })
@@ -65,6 +67,7 @@ export class OverviewComponent {
       .getProjectDistribution()
       .pipe(
         catchError((error) => {
+          console.error('Project distribution error:', error);
           this.notificationService.showError(
             'Failed to load project distribution'
           );
@@ -79,20 +82,34 @@ export class OverviewComponent {
   }
 
   userGrowthChart$ = toObservable(this.userGrowth).pipe(
-    tap({
-      error: (error) => {
-        console.error('Error processing user growth data:', error);
-        this.notificationService.showError('Error processing user growth data');
-      },
+    map((data) => {
+      // Ensure we always have a valid data structure
+      const seriesData = Array.isArray(data)
+        ? data.map((item) => ({
+            name: item?.date ? new Date(item.date).toLocaleDateString() : 'N/A',
+            value: item?.newUsers || 0,
+          }))
+        : [];
+
+      return [
+        {
+          name: 'User Growth',
+          series: seriesData.length
+            ? seriesData
+            : [{ name: 'No data', value: 0 }],
+        },
+      ];
     }),
-    map((data) => ({
-      name: 'User Growth',
-      series: (data || []).map((item) => ({
-        name: item?.date ? new Date(item.date).toLocaleDateString() : 'N/A',
-        value: item?.newUsers || 0,
-      })),
-    })),
-    catchError(() => of({ name: 'User Growth', series: [] }))
+    catchError((error) => {
+      console.error('Error processing user growth data:', error);
+      this.notificationService.showError('Error processing user growth data');
+      return of([
+        {
+          name: 'User Growth',
+          series: [{ name: 'Error loading data', value: 0 }],
+        },
+      ]);
+    })
   );
 
   projectDistributionChart$ = toObservable(this.projectDistribution).pipe(
@@ -102,13 +119,17 @@ export class OverviewComponent {
         this.notificationService.showError('Error processing project data');
       },
     }),
-    map((data) =>
-      [
-        { name: 'Publications', value: data?.publicationCount || 0 },
-        { name: 'Patents', value: data?.patentCount || 0 },
-        { name: 'Research', value: data?.researchCount || 0 },
-      ].filter((item) => item.value >= 0)
-    ),
+    map((data) => {
+      const pubCount = data?.publicationCount ?? 0;
+      const patentCount = data?.patentCount ?? 0;
+      const researchCount = data?.researchCount ?? 0;
+
+      return [
+        { name: 'Publications', value: Math.max(0, pubCount) },
+        { name: 'Patents', value: Math.max(0, patentCount) },
+        { name: 'Research', value: Math.max(0, researchCount) },
+      ].filter((item) => item.value > 0);
+    }),
     catchError(() => of([]))
   );
 }

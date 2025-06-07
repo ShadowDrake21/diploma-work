@@ -66,10 +66,9 @@
         <mat-card-title>User Growth</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (userGrowthChart$ | async; as chartData) {
-        @if(chartData.series.length) {
         <ngx-charts-line-chart
-          [results]="[chartData]"
+          *ngIf="userGrowthChart$ | async as chartData; else loadingUserGrowth"
+          [results]="chartData"
           [xAxis]="true"
           [yAxis]="true"
           [showXAxisLabel]="true"
@@ -80,11 +79,10 @@
           [animations]="true"
         >
         </ngx-charts-line-chart>
-        }@else {
-        <div class="no-data">No user growth data available</div>
-        } } @else {
-        <mat-spinner diameter="40"></mat-spinner>
-        }
+
+        <ng-template #loadingUserGrowth>
+          <mat-spinner diameter="40"></mat-spinner>
+        </ng-template>
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
@@ -95,10 +93,11 @@
         <mat-card-title>Project Distribution</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (projectDistributionChart$ | async; as chartData) { @if(chartData |
-        overviewHasData){
-
         <ngx-charts-pie-chart
+          *ngIf="
+            projectDistributionChart$ | async as chartData;
+            else loadingProject
+          "
           [results]="chartData"
           [labels]="true"
           [doughnut]="true"
@@ -106,11 +105,10 @@
           [animations]="true"
         >
         </ngx-charts-pie-chart>
-        }@else {
-        <div class="no-data">No project distribution data available</div>
-        } } @else {
-        <mat-spinner diameter="40"></mat-spinner>
-        }
+
+        <ng-template #loadingProject>
+          <mat-spinner diameter="40"></mat-spinner>
+        </ng-template>
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
