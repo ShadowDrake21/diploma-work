@@ -22,34 +22,25 @@ public class ResearchAnalyticsService {
 	            // Handle totalBudget conversion
 	            Double totalBudget = 0.0;
 	            if (metrics.get("totalBudget") != null) {
-	                if (metrics.get("totalBudget") instanceof BigDecimal) {
-	                    totalBudget = ((BigDecimal) metrics.get("totalBudget")).doubleValue();
-	                } else if (metrics.get("totalBudget") instanceof Double) {
-	                    totalBudget = (Double) metrics.get("totalBudget");
-	                } else if (metrics.get("totalBudget") instanceof Number) {
-	                    totalBudget = ((Number) metrics.get("totalBudget")).doubleValue();
-	                }
-	            }
+	               totalBudget = convertToDouble(metrics.get("totalBudget"));
+	               }
 
 	            // Handle avgBudget conversion
 	            Double avgBudget = 0.0;
 	            if (metrics.get("avgBudget") != null) {
-	                if (metrics.get("avgBudget") instanceof BigDecimal) {
-	                    avgBudget = ((BigDecimal) metrics.get("avgBudget")).doubleValue();
-	                } else if (metrics.get("avgBudget") instanceof Double) {
-	                    avgBudget = (Double) metrics.get("avgBudget");
-	                } else if (metrics.get("avgBudget") instanceof Number) {
-	                    avgBudget = ((Number) metrics.get("avgBudget")).doubleValue();
-	                }
+	                avgBudget = convertToDouble(metrics.get("avgBudget"));
 	            }
+	            
+	            String mostCommotFundingSource = metrics.get("commonSource") != null ? 
+                        (String) metrics.get("commonSource") : "N/A";
+	            
+	            Long activeProjects = metrics.get("activeProjects") != null ? (Long) metrics.get("activeProjects") : 0L;
 
 	            return ResearchFundingDTO.builder()
 	                    .totalBudget(totalBudget)
 	                    .averageBudget(avgBudget)
-	                    .mostCommonFundingSource(metrics.get("commonSource") != null ? 
-	                        (String) metrics.get("commonSource") : "N/A")
-	                    .activeProjects(metrics.get("activeProjects") != null ? 
-	                        (Long) metrics.get("activeProjects") : 0L)
+	                    .mostCommonFundingSource(mostCommotFundingSource)
+	                    .activeProjects(activeProjects)
 	                    .build();
 	                    
 	        } catch (Exception e) {
@@ -62,4 +53,15 @@ public class ResearchAnalyticsService {
 	                    .build();
 	        }
 	    }
+	 
+	 private Double convertToDouble(Object value) {
+		    if (value instanceof BigDecimal) {
+		        return ((BigDecimal) value).doubleValue();
+		    } else if (value instanceof Double) {
+		        return (Double) value;
+		    } else if (value instanceof Number) {
+		        return ((Number) value).doubleValue();
+		    }
+		    return 0.0;
+		}
 }

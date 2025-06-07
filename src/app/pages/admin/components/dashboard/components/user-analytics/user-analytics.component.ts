@@ -1,5 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,7 +11,16 @@ import { AnalyticsService } from '@core/services/analytics.service';
 import { NotificationService } from '@core/services/notification.service';
 import { safeToLocaleDateString } from '@shared/utils/date.utils';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { catchError, combineLatest, map, of, switchMap } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 @Component({
   selector: 'app-user-analytics',
@@ -31,6 +40,7 @@ import { catchError, combineLatest, map, of, switchMap } from 'rxjs';
 export class UserAnalyticsComponent {
   private readonly analyticsService = inject(AnalyticsService);
   private readonly notificationService = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   startDate = signal<Date | null>(null);
   endDate = signal<Date | null>(null);
@@ -41,15 +51,22 @@ export class UserAnalyticsComponent {
     toObservable(this.startDate),
     toObservable(this.endDate),
   ]).pipe(
-    switchMap(([startDate, endDate]) => {
+    debounceTime(300),
+    distinctUntilChanged(),
+    tap(() => {
       this.loading.set(true);
       this.error.set(null);
+    }),
+    switchMap(([startDate, endDate]) => {
+      if (!startDate || !endDate) {
+        return of(null);
+      }
 
-      const start = startDate ? this.formatDate(startDate) : undefined;
-      const end = endDate ? this.formatDate(endDate) : undefined;
+      const start = this.formatDate(startDate);
+      const end = this.formatDate(endDate);
+
       return this.analyticsService.getUserGrowth(start, end).pipe(
         catchError((error) => {
-          console.error('Error fetching user growth data:', error);
           this.error.set(this.getErrorMessage(error));
           this.notificationService.showError(this.error()!);
           return of(null);
@@ -58,7 +75,6 @@ export class UserAnalyticsComponent {
     }),
 
     map((data) => {
-      this.loading.set(false);
       if (!data) {
         return [];
       }
@@ -79,13 +95,15 @@ export class UserAnalyticsComponent {
         },
       ];
     }),
+    tap(() => this.loading.set(false)),
     catchError((error) => {
       console.error('Error processing user growth data:', error);
       this.loading.set(false);
       this.error.set('Failed to process user data');
       this.notificationService.showError(this.error()!);
       return of([]);
-    })
+    }),
+    takeUntilDestroyed(this.destroyRef)
   );
 
   onStartDateChange(date: Date | null): void {

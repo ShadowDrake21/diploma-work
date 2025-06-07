@@ -1,3 +1,5 @@
+@let userGrowth = userGrowthChart$ | async;
+
 <mat-card>
   <mat-card-header>
     <mat-card-title>User Analytics</mat-card-title>
@@ -32,20 +34,19 @@
         <mat-datepicker #endPicker></mat-datepicker>
       </mat-form-field>
     </div>
-
-    @if (error()) {
+    @if (loading()) {
+    <div class="loading-spinner">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+    } @else if (error()) {
     <div class="error-message">
       <mat-icon color="warn">error_outline</mat-icon>
       {{ error() }}
     </div>
-    } @if (loading()) {
-    <div class="loading-spinner">
-      <mat-spinner diameter="40"></mat-spinner>
-    </div>
-    } @else { @if(userGrowthChart$ | async; as chartData){ @if(chartData.length
-    && chartData[0].series.length) {
+    } @else if(userGrowth){ @if(userGrowth.length &&
+    userGrowth[0].series.length) {
     <ngx-charts-line-chart
-      [results]="chartData"
+      [results]="userGrowth"
       [xAxis]="true"
       [yAxis]="true"
       [showXAxisLabel]="true"
@@ -56,8 +57,7 @@
       scheme="cool"
       [animations]="true"
     ></ngx-charts-line-chart>
-    } @else if (!error()) {
-    <div class="no-data">No user data available for selected period</div>
-    }} }
+    } @else { @if(startDate() && endDate()) { No user data available for
+    selected period } @else { Please select both start and end dates } }}
   </mat-card-content>
 </mat-card>

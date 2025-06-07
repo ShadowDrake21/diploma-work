@@ -8,7 +8,7 @@ import { AnalyticsService } from '@core/services/analytics.service';
 import { NotificationService } from '@core/services/notification.service';
 import { safeToLocaleDateString } from '@shared/utils/date.utils';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { catchError, EMPTY, map, of, switchMap } from 'rxjs';
+import { catchError, EMPTY, forkJoin, map, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-system-analytics',
@@ -85,26 +85,23 @@ export class SystemAnalyticsComponent implements OnInit {
   );
 
   ngOnInit() {
-    this.analyticsService.getSystemPerformance().subscribe();
-    this.analyticsService.getCommentActivity().subscribe();
+    this.loadData();
   }
 
   private loadData() {
     this.loading.set(true);
     this.error.set(null);
 
-    this.analyticsService
-      .getSystemPerformance()
-      .pipe(
-        switchMap(() => this.analyticsService.getCommentActivity()),
-        catchError((err) => {
-          this.handleDataLoadError(err);
-          return EMPTY;
-        })
-      )
-      .subscribe({
-        complete: () => this.loading.set(false),
-      });
+    forkJoin([
+      this.analyticsService.getSystemPerformance(),
+      this.analyticsService.getCommentActivity(),
+    ]).subscribe({
+      next: () => this.loading.set(false),
+      error: (err) => {
+        this.handleDataLoadError(err);
+        this.loading.set(false);
+      },
+    });
   }
 
   private handleDataLoadError(error: any) {

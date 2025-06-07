@@ -49,7 +49,11 @@
     <mat-card-content>
       <mat-divider></mat-divider>
 
-      <mat-tab-group animationDuration="200ms">
+      <mat-tab-group
+        animationDuration="200ms"
+        [(selectedIndex)]="selectedTabIndex"
+        (selectedIndexChange)="selectedTabIndex.set($event)"
+      >
         <mat-tab label="Details">
           <div class="details-content">
             <mat-list>
@@ -93,7 +97,11 @@
         <mat-tab label="Projects">
           <div class="projects-content">
             @if (userProjects().length > 0) {
-            <shared-profile-projects [projects]="userProjects()" />
+            <shared-profile-projects
+              [projects]="userProjects()"
+              (filters)="onFiltering($event)"
+              (pageChange)="onPageChange($event)"
+            />
             } @else {
             <div class="no-projects">
               <mat-icon>folder_off</mat-icon>
