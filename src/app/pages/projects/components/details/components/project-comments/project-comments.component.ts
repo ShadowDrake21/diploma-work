@@ -14,6 +14,10 @@ import { CommentComponent } from '@shared/components/comment/comment.component';
 import { ICreateComment } from '@models/comment.types';
 import { lastValueFrom, Observable, Subscription } from 'rxjs';
 import { ProjectCommentService } from '@core/services/project/project-details/comments/project-comment.service';
+import { NotificationService } from '@core/services/notification.service';
+import { JsonPipe } from '@angular/common';
+
+// TODO (when it's over): pagination
 
 @Component({
   selector: 'details-project-comments',
@@ -22,6 +26,7 @@ import { ProjectCommentService } from '@core/services/project/project-details/co
     MatProgressBarModule,
     FormsModule,
     MatButtonModule,
+    JsonPipe,
   ],
   templateUrl: './project-comments.component.html',
   styleUrl: './project-comments.component.scss',
@@ -29,6 +34,7 @@ import { ProjectCommentService } from '@core/services/project/project-details/co
 })
 export class ProjectCommentsComponent {
   private readonly projectCommentService = inject(ProjectCommentService);
+  private readonly notificationService = inject(NotificationService);
 
   readonly commentsLoading = signal(false);
   readonly newCommentContent = signal('');
@@ -69,7 +75,11 @@ export class ProjectCommentsComponent {
   }
 
   async postReply(parentCommentId: string) {
-    if (!this.replyContent().trim()) return;
+    if (!this.replyContent().trim() || !this.projectId()) {
+      this.notificationService.showError('Please enter reply content');
+
+      return;
+    }
 
     const comment: ICreateComment = {
       content: this.replyContent(),
@@ -77,13 +87,17 @@ export class ProjectCommentsComponent {
       parentCommentId,
     };
 
+    console.log('Sending reply:', comment);
+
     try {
       await this.withMinimumLoading(
         this.projectCommentService.postComment(comment)
       );
       this.replyContent.set('');
+      this.replyingToCommentId.set(null);
     } catch (error) {
       console.error('Error posting reply:', error);
+      this.notificationService.showError('Failed to post reply');
     }
   }
 

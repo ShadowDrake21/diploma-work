@@ -25,8 +25,10 @@ import com.backend.app.repository.ProjectRepository;
 import com.backend.app.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -57,6 +59,8 @@ public class CommentService {
     
     @Transactional
     public CommentDTO createComment(CreateCommentDTO createCommentDTO, Long userId) {
+    	log.info("Creating comment with DTO: {} {} {}", createCommentDTO.getContent(), createCommentDTO.getParentCommentId(), createCommentDTO.getProjectId());
+    	
     	Project project = projectRepository.findById(createCommentDTO.getProjectId()).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
     	
     	User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));

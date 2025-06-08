@@ -3,41 +3,41 @@
   Failed to load publication details. Please try again later.
 </div>
 } @else if (publication) {
-<div class="publication">
-  <div class="publication__authors publication__section">
-    <h4 class="publication__section-title">Authors</h4>
-    <ul class="publication__authors-list">
+<div class="flex justify-between gap-[20px] flex-wrap sm:flex-row flex-col">
+  <div class="sm:text-center text-left">
+    <h4 class="font-medium pb-[5px]">Authors</h4>
+    <ul class="list-none flex flex-col gap-[10px]">
       @for (author of publication.authors; track author) {
-      <li class="publication__authors-list__item">{{ author.username }}</li>
+      <li>{{ author.username }}</li>
       }
     </ul>
   </div>
-  <div class="publication__section">
-    <h4 class="publication__section-title">Publication date</h4>
-    <p class="publication__section-text">
+  <div class="sm:text-center text-left">
+    <h4 class="font-medium pb-[5px]">Publication date</h4>
+    <p>
       {{ publication.publicationDate | date : "mediumDate" }}
     </p>
   </div>
-  <div class="publication__section">
-    <h4 class="publication__section-title">Publication source</h4>
-    <p class="publication__section-text">{{ publication.publicationSource }}</p>
+  <div class="sm:text-center text-left">
+    <h4 class="font-medium pb-[5px]">Publication source</h4>
+    <p>{{ publication.publicationSource }}</p>
   </div>
-  <div class="publication__section">
-    <h4 class="publication__section-title">DOI/ISBN</h4>
+  <div class="sm:text-center text-left">
+    <h4 class="font-medium pb-[5px]">DOI/ISBN</h4>
     <p class="publication__section-text">{{ publication.doiIsbn }}</p>
   </div>
-  <div class="publication__section">
-    <h4 class="publication__section-title">Pages</h4>
+  <div class="sm:text-center text-left">
+    <h4 class="font-medium pb-[5px]">Pages</h4>
     <p class="publication__section-text">
       {{ publication.startPage }} - {{ publication.endPage }}
     </p>
   </div>
-  <div class="publication__section">
-    <h4 class="publication__section-title">Journal volume</h4>
+  <div class="sm:text-center text-left">
+    <h4 class="font-medium pb-[5px]">Journal volume</h4>
     <p class="publication__section-text">{{ publication.journalVolume }}</p>
   </div>
-  <div class="publication__section">
-    <h4 class="publication__section-title">Issue numbers</h4>
+  <div class="sm:text-center text-left">
+    <h4 class="font-medium pb-[5px]">Issue numbers</h4>
     <p class="publication__section-text">{{ publication.issueNumber }}</p>
   </div>
 </div>

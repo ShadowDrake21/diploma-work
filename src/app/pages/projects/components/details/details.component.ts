@@ -25,6 +25,7 @@ import { ProjectCommentService } from '@core/services/project/project-details/co
 import { ProjectAttachmentService } from '@core/services/project/project-details/attachments/project-attachment.service';
 import { ProjectTagService } from '@core/services/project/project-details/tags/project-tag.service';
 import { NotificationService } from '@core/services/notification.service';
+import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'project-details',
@@ -42,9 +43,9 @@ import { NotificationService } from '@core/services/notification.service';
     FormsModule,
     MatProgressBarModule,
     ProjectCommentsComponent,
+    LoaderComponent,
   ],
   templateUrl: './details.component.html',
-  styleUrl: './details.component.scss',
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);

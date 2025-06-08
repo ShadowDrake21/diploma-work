@@ -1,60 +1,55 @@
 @if (projectLoading()) {
-<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+<!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
+<div class="h-screen flex items-center justify-center">
+  <custom-loader />
+</div>
 } @else if (project()) {
-<div class="details">
-  <div class="details-header">
-    <div class="details-header__status">
-      <h4 class="details-header__status-title">
-        Status: {{ getStatusOnProgess(project()!.progress) }} or
+<div>
+  <div class="flex gap-[25px] pb-[25px] sm:flex-row flex-col">
+    <div class="w-full">
+      <h4 class="pb-[10px] lg:text-xl text-lg">
+        <span class="font-medium">Status:</span>
+        {{ getStatusOnProgess(project()!.progress) }} or
         {{ project()!.progress }}%
       </h4>
       <mat-progress-bar
-        class="details-header__status-progress"
         mode="determinate"
         [value]="project()!.progress"
       ></mat-progress-bar>
     </div>
-    <div class="details-header__btns">
+    <div class="flex-shrink-0 flex gap-[10px] sm:justify-center justify-end">
       @if(isCurrentUserOwner()) {
-      <button
-        mat-flat-button
-        class="details-header__btns-item"
-        (click)="onEdit()"
-      >
+      <button mat-flat-button (click)="onEdit()">
         Edit <mat-icon>edit_note</mat-icon>
       </button>
-      <button
-        mat-flat-button
-        class="details-header__btns-item"
-        (click)="onDelete()"
-        [disabled]="deleteLoading()"
-      >
+      <button mat-flat-button (click)="onDelete()" [disabled]="deleteLoading()">
         @if (!deleteLoading()) {
-        <ng-container> Delete <mat-icon>delete</mat-icon> </ng-container>
+        <ng-container
+          ><div class="flex items-center justify-center gap-[5px]">
+            <mat-icon>delete</mat-icon> Delete
+          </div></ng-container
+        >
         } @else { Deleting... }
       </button>
       }
-      <button mat-flat-button class="details-header__btns-item">
-        Share <mat-icon>share</mat-icon>
-      </button>
     </div>
   </div>
-  <div class="details-basic">
-    <h3 class="details-basic__section-title">Basic</h3>
-    <p class="details-basic__title details-basic__item">
-      <span class="details-subtitle">Title:</span> {{ project()!.title }}
+  <div class="pb-[25px]">
+    <h3 class="pb-[10px] lg:text-xl text-lg font-semibold">Basic</h3>
+    <p class="pb-[5px]">
+      <span class="font-semibold">Title:</span> {{ project()!.title }}
     </p>
-    <p class="details-basic__description details-basic__item">
-      <span class="details-subtitle">Description:</span>
+    <p class="pb-[5px]">
+      <span class="font-semibold">Description:</span>
       {{ project()!.description }}
     </p>
-    <p class="details-basic__lastupdated details-basic__item">
-      <span class="details-subtitle">Last updated:</span>
+    <p class="pb-[5px]">
+      <span class="font-semibold">Last updated:</span>
       {{ project()!.updatedAt | date : "medium" }}
     </p>
   </div>
-  <div class="details-content">
-    <h3 class="details-basic__section-title">
+  <div class="pb-[25px]">
+    <h3 class="text-xl font-semibold pb-[10px]">
       {{ project()!.type | titlecase }}
     </h3>
     @switch (project()!.type) { @case('PUBLICATION') {
@@ -66,42 +61,38 @@
     <p>Unknown work type</p>
     } }
   </div>
-  <div class="details-attachments">
-    <h3 class="details-attachments__title">Attachments Section</h3>
+  <div class="pb-[25px]">
+    <h3 class="lg:text-xl text-lg font-semibold pb-[10px]">
+      Attachments Section
+    </h3>
     @if(errorMessage()) {
-    <p class="error-message">{{ errorMessage() }}</p>
+    <p class="text-red-500 font-bold mb-4">{{ errorMessage() }}</p>
     }
-    <ul class="details-attachments__list">
+    <ul class="list-none flex gap-[15px] flex-wrap">
       @if (attachments()) { @for (attachment of attachments(); track
       attachment.id) {
-      <li class="details-attachments__list-item">
-        <h5 class="details-attachments__list-item__title">
+      <li>
+        <h5 class="text-center pb-[5px]">
           {{ attachment.fileName | truncateText : 20 }}
         </h5>
-        <a
-          mat-flat-button
-          class="details-attachments__list-item__btn"
-          [href]="attachment.fileUrl"
-          target="_blank"
-          download
-        >
+        <a mat-flat-button [href]="attachment.fileUrl" target="_blank" download>
           Download PDF <mat-icon>picture_as_pdf</mat-icon>
         </a>
       </li>
       }@empty {
-      <p>No attachments found.</p>
+      <p class="text-lg">No attachments found.</p>
       } } @else {
-      <p>Loading attachments...</p>
+      <p class="text-lg">Loading attachments...</p>
       }
     </ul>
   </div>
 
-  <div class="details-attachments">
-    <h3 class="details-attachments__title">Project tags:</h3>
-    <ul class="details-attachments__list">
+  <div class="pb-[25px]">
+    <h3 class="pb-[10px] lg:text-xl text-lg font-semibold">Project tags:</h3>
+    <ul class="list-none flex gap-[15px] flex-wrap">
       @if(tags() ) { @for (tag of tags()!; track tag.id) {
-      <li class="details-attachments__list-item">
-        <button mat-flat-button class="details-attachments__list-item__btn">
+      <li>
+        <button mat-flat-button>
           {{ tag.name }}
         </button>
       </li>
@@ -112,10 +103,16 @@
   <details-project-comments [projectId]="workId()" />
 </div>
 } @else {
-<div class="error-state">
-  <mat-icon class="error-icon">error_outline</mat-icon>
-  <h3>Project not available</h3>
-  <p>The requested project could not be loaded or doesn't exist.</p>
+<div
+  class="flex flex-col items-center gap-[10px] absolute top-0 left-0 right-0 bottom-0 justify-center px-2"
+>
+  <mat-icon class="text-red-500 text-center">error_outline</mat-icon>
+  <h3 class="sm:text-xl text-lg text-red-600 font-semibold text-center">
+    Project not available
+  </h3>
+  <p class="sm:text-lg text-base font-medium text-center">
+    The requested project could not be loaded or doesn't exist.
+  </p>
   <button mat-flat-button color="primary" (click)="goBack()">
     Back to Projects List
   </button>
