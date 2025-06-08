@@ -19,7 +19,6 @@
     } @else {
     <ul class="flex flex-wrap h-full gap-[30px]">
       @for (item of projects(); track $index) {
-
       <li>
         <shared-project-card [project]="item" />
       </li>

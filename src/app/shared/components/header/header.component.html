@@ -1,17 +1,28 @@
-<mat-toolbar class="header-toolbar">
-  <div class="header-toolbar__left">
-    <button
-      mat-icon-button
-      aria-label="Toggle sidebar"
-      (click)="onSidebarToggle()"
-      [class.active]="isSidebarOpened()"
+<mat-toolbar
+  class="px-4 h-16 !bg-[#e8eaf6] relative z-[100]"
+  style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)"
+>
+  <div
+    class="flex justify-between items-center max-w-[1440px] h-full px-5 mx-auto w-full"
+  >
+    <div class="flex items-center gap-4">
+      <button
+        mat-icon-button
+        aria-label="Toggle sidebar"
+        (click)="onSidebarToggle()"
+        [class.!bg-[#c5cae9]]="isSidebarOpened()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+      <img src="logo.png" alt="Application logo" class="h-10 object-contain" />
+    </div>
+    <h1
+      class="m-0 text-xl font-medium whitespace-nowrap overflow-hidden text-ellipsis md:max-w-full max-w-[200px] text-[#1a237e]"
     >
-      <mat-icon>menu</mat-icon>
-    </button>
-    <img src="logo.png" alt="Application logo" class="header-logo" />
-  </div>
-  <h1 class="header-title">{{ headerTitle() }}</h1>
-  <div class="header-toolbar__right">
-    <app-profile-dropdown />
+      {{ headerTitle() }}
+    </h1>
+    <div class="flex items-center">
+      <app-profile-dropdown />
+    </div>
   </div>
 </mat-toolbar>

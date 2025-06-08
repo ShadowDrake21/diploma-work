@@ -49,7 +49,7 @@ export class AppComponent implements OnInit {
   sidenav!: MatSidenav;
   isMobile = true;
   isCollapsed = true;
-  isOpened = true;
+  isOpened = false;
   isExpanded = true;
 
   isAuth = true;
@@ -60,13 +60,13 @@ export class AppComponent implements OnInit {
   isLoggedIn = this.authService.isAuthenticated();
 
   ngOnInit() {
-    this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
-      if (screenSize.matches) {
-        this.isMobile = true;
-      } else {
-        this.isMobile = false;
-      }
-    });
+    // this.observer.observe(['(max-width: 1200px)']).subscribe((screenSize) => {
+    //   if (screenSize.matches) {
+    //     this.isMobile = true;
+    //   } else {
+    //     this.isMobile = false;
+    //   }
+    // });
 
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
