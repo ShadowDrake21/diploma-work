@@ -8,11 +8,6 @@
       class="pt-20 pb-[10px] !bg-[#eee]"
       [mode]="isMobile ? 'over' : 'side'"
       [opened]="!isOpened ? 'false' : 'true'"
-      [ngClass]="{
-        'w-64': !isCollapsed && !isMobile,
-        'w-0': isMobile && !isOpened,
-        'w-20': isCollapsed && !isMobile
-      }"
     >
       <mat-nav-list class="flex flex-col justify-between">
         @if (isAdmin) {
@@ -57,7 +52,7 @@
     </mat-sidenav>
     }
     <mat-sidenav-content
-      class="flex-1 min-h-screen overflow-x-hidden flex"
+      class="flex-1 min-h-screen overflow-x-hidden flex w-full"
       [ngStyle]="
         !isAuth && !isSettings && !isErrorPages ? { 'padding-top': '80px' } : {}
       "

@@ -33,10 +33,10 @@ export function tokenInterceptor(
   }
 
   const timeLeft = authService.getTokenTimeLeft(decoded);
-  const refreshThreshold = 15 * 60 * 1000; // 15 minutes
+  const refreshThreshold = 5 * 60 * 1000; // 15 minutes
 
   if (timeLeft < refreshThreshold && timeLeft > 0) {
-    authService.sessionWarningSubject.next(timeLeft);
+    authService.showSessionWarning(timeLeft);
   }
 
   const authReq = request.clone({
@@ -46,72 +46,10 @@ export function tokenInterceptor(
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        return handleUnauthorizedError(authReq, next, authService, router);
+        authService.logout();
+        router.navigate(['/authentication/sign-in']);
       }
       return throwError(() => error);
     })
   );
-}
-function handleUnauthorizedError(
-  request: HttpRequest<unknown>,
-  next: HttpHandlerFn,
-  authService: AuthService,
-  router: Router
-): Observable<HttpEvent<unknown>> {
-  // First check if we should show session warning
-  const token = authService.getToken();
-  if (token) {
-    const decoded = authService.decodeToken(token);
-    if (decoded) {
-      const timeLeft = authService.getTokenTimeLeft(decoded);
-      if (timeLeft > 0) {
-        authService.sessionWarningSubject.next(timeLeft);
-        return throwError(() => new Error('Session about to expire'));
-      }
-    }
-  }
-
-  // If no time left or no token, proceed with refresh
-  if (!authService.isRefreshingToken) {
-    authService.isRefreshingToken = true;
-
-    return authService.refreshToken().pipe(
-      switchMap((newToken) => {
-        authService.isRefreshingToken = false;
-
-        if (newToken) {
-          const newRequest = request.clone({
-            setHeaders: { Authorization: `Bearer ${newToken}` },
-          });
-          return next(newRequest);
-        } else {
-          authService.clearAuthData();
-          router.navigate(['/authentication/sign-in']);
-          return throwError(() => new Error('Session expired'));
-        }
-      }),
-      catchError((error) => {
-        authService.isRefreshingToken = false;
-        authService.clearAuthData();
-        router.navigate(['/authentication/sign-in']);
-        return throwError(() => error);
-      })
-    );
-  } else {
-    // Wait for refresh to complete
-    return authService.tokenRefreshed$.pipe(
-      switchMap((newToken) => {
-        if (newToken) {
-          const newRequest = request.clone({
-            setHeaders: { Authorization: `Bearer ${newToken}` },
-          });
-          return next(newRequest);
-        } else {
-          authService.clearAuthData();
-          router.navigate(['/authentication/sign-in']);
-          return throwError(() => new Error('Session expired'));
-        }
-      })
-    );
-  }
 }
