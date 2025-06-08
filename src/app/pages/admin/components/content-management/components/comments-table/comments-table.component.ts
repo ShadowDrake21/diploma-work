@@ -16,6 +16,7 @@ import { BaseFormComponent } from '../../../../../../shared/abstract/base-form/b
 import { NotificationService } from '@core/services/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { retry } from 'rxjs';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-comments-table',
@@ -30,6 +31,7 @@ import { retry } from 'rxjs';
     MatProgressSpinnerModule,
     DatePipe,
     TruncateTextPipe,
+    LoaderComponent,
   ],
   templateUrl: './comments-table.component.html',
   styleUrl: './comments-table.component.scss',

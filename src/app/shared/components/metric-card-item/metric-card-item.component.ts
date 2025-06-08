@@ -9,7 +9,7 @@ import { MatIcon } from '@angular/material/icon';
   imports: [CommonModule, RouterLink, MatIcon],
   template: `
     <a
-      class="flex justify-center sm:justify-between items-center no-underline bg-black px-5 lg:px-[30px] py-[7px] lg:py-[15px] min-w-full  sm:min-w-[250px] xl:min-w-[300px] border-[2px] border-solid border-gray-300  text-white gap-[10px]"
+      class="flex justify-center sm:justify-between items-center no-underline bg-black px-5 lg:px-[30px] py-[7px] lg:py-[15px] min-w-full  sm:min-w-[250px] xl:w-[350px] border-[2px] border-solid border-gray-300  text-white gap-[10px]"
       routerLink="{{ data().link || '' }}"
     >
       <mat-icon>{{ data().icon }}</mat-icon>

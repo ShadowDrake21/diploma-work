@@ -20,82 +20,98 @@ export function tokenInterceptor(
     return next(request);
   }
 
-  if (!authService.checkTokenStatus()) {
-    return throwError(() => new Error('Invalid session'));
+  const token = authService.getToken();
+  if (!token) {
+    authService.clearAuthData();
+    return throwError(() => new Error('No token found'));
   }
 
-  const token = authService.getToken();
-  const authReq = token
-    ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-    : request;
+  const decoded = authService.decodeToken(token);
+  if (!decoded || authService.isTokenExpired(decoded)) {
+    authService.clearAuthData();
+    return throwError(() => new Error('Invalid or expired token'));
+  }
+
+  const timeLeft = authService.getTokenTimeLeft(decoded);
+  const refreshThreshold = 15 * 60 * 1000; // 15 minutes
+
+  if (timeLeft < refreshThreshold && timeLeft > 0) {
+    authService.sessionWarningSubject.next(timeLeft);
+  }
+
+  const authReq = request.clone({
+    setHeaders: { Authorization: `Bearer ${token}` },
+  });
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         return handleUnauthorizedError(authReq, next, authService, router);
-      } else if (error.status === 419) {
-        router.navigate(['/forbidden']);
-        return throwError(
-          () => new Error('Forbidden: Insufficient permissions')
-        );
       }
       return throwError(() => error);
     })
   );
-
-  function addTokenToRequest(
-    request: HttpRequest<unknown>,
-    token: string
-  ): HttpRequest<unknown> {
-    return request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+}
+function handleUnauthorizedError(
+  request: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  authService: AuthService,
+  router: Router
+): Observable<HttpEvent<unknown>> {
+  // First check if we should show session warning
+  const token = authService.getToken();
+  if (token) {
+    const decoded = authService.decodeToken(token);
+    if (decoded) {
+      const timeLeft = authService.getTokenTimeLeft(decoded);
+      if (timeLeft > 0) {
+        authService.sessionWarningSubject.next(timeLeft);
+        return throwError(() => new Error('Session about to expire'));
+      }
+    }
   }
 
-  function handleUnauthorizedError(
-    request: HttpRequest<unknown>,
-    next: HttpHandlerFn,
-    authService: AuthService,
-    router: Router
-  ): Observable<HttpEvent<unknown>> {
-    if (!authService.isRefreshingToken) {
-      authService.isRefreshingToken = true;
+  // If no time left or no token, proceed with refresh
+  if (!authService.isRefreshingToken) {
+    authService.isRefreshingToken = true;
 
-      return authService.refreshToken().pipe(
-        switchMap((newToken) => {
-          authService.isRefreshingToken = false;
+    return authService.refreshToken().pipe(
+      switchMap((newToken) => {
+        authService.isRefreshingToken = false;
 
-          if (newToken) {
-            const newRequest = addTokenToRequest(request, newToken);
-            return next(newRequest);
-          } else {
-            authService.logout();
-            router.navigate(['/authentication/sign-in']);
-            return throwError(() => new Error('Session expired'));
-          }
-        }),
-        catchError((refreshError) => {
-          authService.isRefreshingToken = false;
-          authService.logout();
+        if (newToken) {
+          const newRequest = request.clone({
+            setHeaders: { Authorization: `Bearer ${newToken}` },
+          });
+          return next(newRequest);
+        } else {
+          authService.clearAuthData();
           router.navigate(['/authentication/sign-in']);
-          return throwError(() => refreshError);
-        })
-      );
-    } else {
-      return authService.tokenRefreshed$.pipe(
-        switchMap((newToken) => {
-          if (newToken) {
-            const newRequest = addTokenToRequest(request, newToken);
-            return next(newRequest);
-          } else {
-            authService.logout();
-            router.navigate(['/authentication/sign-in']);
-            return throwError(() => new Error('Session expired'));
-          }
-        })
-      );
-    }
+          return throwError(() => new Error('Session expired'));
+        }
+      }),
+      catchError((error) => {
+        authService.isRefreshingToken = false;
+        authService.clearAuthData();
+        router.navigate(['/authentication/sign-in']);
+        return throwError(() => error);
+      })
+    );
+  } else {
+    // Wait for refresh to complete
+    return authService.tokenRefreshed$.pipe(
+      switchMap((newToken) => {
+        if (newToken) {
+          const newRequest = request.clone({
+            setHeaders: { Authorization: `Bearer ${newToken}` },
+          });
+          return next(newRequest);
+        } else {
+          authService.clearAuthData();
+          router.navigate(['/authentication/sign-in']);
+          return throwError(() => new Error('Session expired'));
+        }
+      })
+    );
   }
 }

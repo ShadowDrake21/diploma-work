@@ -4,7 +4,7 @@
   </h3>
 
   @if (isLoading()) {
-  <mat-spinner diameter="30"></mat-spinner>
+  <custom-loader [diameter]="30" />
   } @else {
   <ul class="recent-users__list">
     @for (user of activeUsers; track user.id) {

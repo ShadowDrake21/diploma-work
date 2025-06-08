@@ -18,6 +18,7 @@ import { MyCommentsComponent } from './components/my-comments/my-comments.compon
 import { ProjectSearchFilters } from '@shared/types/search.types';
 import { ProjectService } from '@core/services/project/models/project.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-profile',
@@ -37,6 +38,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     ProfileProjectsComponent,
     MyCommentsComponent,
     MatProgressSpinnerModule,
+    LoaderComponent,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',

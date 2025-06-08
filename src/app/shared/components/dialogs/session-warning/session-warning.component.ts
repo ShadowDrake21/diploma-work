@@ -46,46 +46,20 @@ export class SessionWarningComponent implements OnInit, OnDestroy {
   private countdownSub?: Subscription;
 
   ngOnInit() {
-    this.checkSession();
-    this.setupSessionWarningListener();
-  }
-
-  private checkSession() {
-    const token = this.authService.getToken();
-    if (!token) return;
-    const decoded = this.authService.decodeToken(token);
-    if (!decoded) return;
-
-    const timeLeft = decoded.exp * 1000 - Date.now();
-
-    if (timeLeft <= 0) {
-      this.authService.logout();
-      return;
-    }
-
-    if (timeLeft < this.warningThreshold) {
-      this.showWarningWithTimeout(timeLeft);
-    } else {
-      timer(timeLeft - this.warningThreshold)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(() => {
-          const newTimeLeft = decoded.exp * 1000 - Date.now();
-          this.showWarningWithTimeout(newTimeLeft);
-        });
-    }
-  }
-
-  private setupSessionWarningListener() {
     this.authService.sessionWarning$
       .pipe(takeUntil(this.destroy$))
       .subscribe((timeLeft) => {
-        this.showWarningWithTimeout(timeLeft);
+        if (timeLeft > 0) {
+          this.showWarningWithTimeout(timeLeft);
+        }
       });
   }
 
   private showWarningWithTimeout(timeLeft: number) {
-    const dialogRef = this.openWarningDialog();
-    this.startCountdown(timeLeft, dialogRef);
+    if (this.dialog.openDialogs.length === 0) {
+      const dialogRef = this.openWarningDialog();
+      this.startCountdown(timeLeft, dialogRef);
+    }
   }
 
   private startCountdown(timeLeft: number, dialogRef: any) {
@@ -137,13 +111,11 @@ export class SessionWarningComponent implements OnInit, OnDestroy {
 
   extendSession() {
     this.stopCountdown();
-    this.authService.setRememberSession(true);
     this.authService.refreshToken().subscribe({
       next: () => {
         this.dialog.closeAll();
       },
-      error: (error) => {
-        console.error('Error extending session:', error);
+      error: () => {
         this.dialog.closeAll();
       },
     });

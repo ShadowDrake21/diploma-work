@@ -19,6 +19,7 @@ import { SortingDirection } from '@shared/enums/sorting.enum';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { Observable } from 'rxjs';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-user-list',
@@ -35,6 +36,7 @@ import { Observable } from 'rxjs';
     UserStatusChipComponent,
     RecentUsersComponent,
     IsCurrentUserPipe,
+    LoaderComponent,
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',

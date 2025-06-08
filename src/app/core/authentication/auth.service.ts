@@ -43,7 +43,7 @@ export class AuthService {
 
   private currentUserSubject = new BehaviorSubject<IJwtPayload | null>(null);
   private rememberSessionSubject = new BehaviorSubject<boolean>(false);
-  private sessionWarningSubject = new Subject<number>();
+  public sessionWarningSubject = new Subject<number>();
   private tokenRefreshedSubject = new Subject<string | null>();
 
   // Public observables
@@ -213,24 +213,20 @@ export class AuthService {
     const timeLeft = this.getTokenTimeLeft(decoded);
     const refreshThreshold = 15 * 60 * 1000;
 
-    if (timeLeft > refreshThreshold) return of(token);
+    if (timeLeft < refreshThreshold && timeLeft > 0) {
+      this.sessionWarningSubject.next(timeLeft);
+    }
 
-    return this.refreshToken().pipe(
-      tap({
-        next: (newToken) => this.handleRefreshResult(newToken, timeLeft),
-        error: () => {
-          this.handleRefreshError(timeLeft);
-          if (timeLeft <= 0) {
-            this.clearAuthData();
-          }
-        },
-      }),
-      switchMap((newToken) => of(newToken || token)),
-      catchError(() => {
-        this.clearAuthData();
-        return of(token);
-      })
-    );
+    if (timeLeft <= refreshThreshold) {
+      return this.refreshToken().pipe(
+        catchError(() => {
+          if (timeLeft > 0) return of(token);
+          this.clearAuthData();
+          return of(null);
+        })
+      );
+    }
+    return of(token);
   }
 
   private updateAdminState(decoded: IJwtPayload | null): void {
@@ -394,7 +390,7 @@ export class AuthService {
     return decodedToken.exp ? decodedToken.exp < Date.now() / 1000 : false;
   }
 
-  private getTokenTimeLeft(decodedToken: IJwtPayload): number {
+  public getTokenTimeLeft(decodedToken: IJwtPayload): number {
     return decodedToken.exp * 1000 - Date.now();
   }
 

@@ -1,6 +1,6 @@
 @if (loading()) {
 <div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
+  <custom-loader [diameter]="60" />
   <p>Loading analytics data...</p>
 </div>
 } @else if (error()) {
@@ -45,7 +45,7 @@
         </div>
       </mat-card-content>
       } @else {
-      <mat-spinner diameter="40"></mat-spinner>
+      <custom-loader [diameter]="40" />
       }
     </mat-card>
   </mat-grid-tile>
@@ -78,7 +78,7 @@
           </div>
         </div> </mat-card-content
       >} @else {
-      <mat-spinner diameter="40"></mat-spinner>
+      <custom-loader [diameter]="40" />
       }
     </mat-card>
   </mat-grid-tile>
@@ -113,13 +113,13 @@
         </div>
       </mat-card-content>
       }@else {
-      <mat-spinner diameter="40"></mat-spinner>
+      <custom-loader [diameter]="40" />
       }
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
 } @else {
 <div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
+  <custom-loader [diameter]="60" />
 </div>
 }

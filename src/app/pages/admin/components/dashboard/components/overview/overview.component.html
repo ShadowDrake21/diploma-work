@@ -9,7 +9,7 @@
 </div>
 } @else if (loading()) {
 <div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
+  <custom-loader [diameter]="60" />
 </div>
 } @else if (systemOverview() || userGrowth() || projectDistribution()) {
 <mat-grid-list cols="2" rowHeight="400px">
@@ -55,7 +55,7 @@
         </div>
       </mat-card-content>
       } @else {
-      <mat-spinner diameter="40"></mat-spinner>
+      <custom-loader [diameter]="40" />
       }
     </mat-card>
   </mat-grid-tile>
@@ -81,7 +81,7 @@
         </ngx-charts-line-chart>
 
         <ng-template #loadingUserGrowth>
-          <mat-spinner diameter="40"></mat-spinner>
+          <custom-loader [diameter]="40" />
         </ng-template>
       </mat-card-content>
     </mat-card>
@@ -107,7 +107,7 @@
         </ngx-charts-pie-chart>
 
         <ng-template #loadingProject>
-          <mat-spinner diameter="40"></mat-spinner>
+          <custom-loader [diameter]="40" />
         </ng-template>
       </mat-card-content>
     </mat-card>

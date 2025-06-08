@@ -131,7 +131,7 @@
     [disabled]="projectForm.invalid || isUploading"
   >
     @if (isLoading()) {
-    <mat-spinner diameter="20"></mat-spinner>
+    <custom-loader [diameter]="20" />
     } @else { Save Changes}
   </button>
 </mat-dialog-actions>
