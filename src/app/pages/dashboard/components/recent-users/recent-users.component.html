@@ -1,23 +1,23 @@
-<div class="recent-users relative">
-  <h3 class="recent-users__title text-lg font-medium text-center">
-    Recent users
-  </h3>
+<div class="p-[10px] relative">
+  <h3 class="text-lg font-medium text-center">Останні користувачі</h3>
 
   @if (isLoading()) {
   <custom-loader [diameter]="30" />
   } @else {
-  <ul class="recent-users__list">
+  <ul class="flex flex-col gap-[10px] max-h-[300px] overflow-y-scroll">
     @for (user of activeUsers; track user.id) {
-    <li class="recent-users__list-item">
-      <div class="recent-users__list-item__img--wrapper">
+    <li class="flex gap-[10px]">
+      <div
+        class="flex-shrink-0 rounded-[50%] overflow-hidden w-[50px] h-[50px]"
+      >
         <img
           [src]="user.avatarUrl || 'assets/default-avatar.png'"
           alt="{{ user.username }}'s avatar"
-          class="recent-users__list-item__img"
+          class="object-cover w-[50px] h-[50px] block"
         />
       </div>
-      <div class="recent-users__list-item__info">
-        <h3 class="recent-users__list-item__info-name">
+      <div class="flex-grow">
+        <h3 class="break-all pb-[10px]">
           {{ user.username | truncateText : 30 }}
           <span>
             <mat-icon>{{
@@ -32,7 +32,7 @@
           >
         </h3>
 
-        <p class="recent-users__list-item__info-activity">
+        <p>
           {{ user.lastActive | date : "MMM d, h:mm a" }}
         </p>
       </div>

@@ -236,6 +236,10 @@ export class AuthService {
     this.isAdminSig.set(isAdmin);
   }
 
+  showSessionWarning(timeLeft: number) {
+    this.sessionWarningSubject.next(timeLeft);
+  }
+
   /* ------------------------- Password Reset ------------------------- */
 
   public requestPasswordReset(
@@ -355,18 +359,6 @@ export class AuthService {
     }
   }
 
-  private handleRefreshResult(newToken: string | null, timeLeft: number): void {
-    if (!newToken && timeLeft > 0) {
-      this.sessionWarningSubject.next(timeLeft);
-    }
-  }
-
-  private handleRefreshError(timeLeft: number): void {
-    if (timeLeft > 0) {
-      this.sessionWarningSubject.next(timeLeft);
-    }
-  }
-
   private handleLogoutSuccess(): void {
     this.clearAuthData();
     this.router.navigate(['/authentication/sign-in']);
@@ -386,12 +378,13 @@ export class AuthService {
     return localStorage.getItem('authToken') ? localStorage : sessionStorage;
   }
 
-  public isTokenExpired(decodedToken: IJwtPayload): boolean {
-    return decodedToken.exp ? decodedToken.exp < Date.now() / 1000 : false;
+  isTokenExpired(decodedToken: any): boolean {
+    return this.getTokenTimeLeft(decodedToken) <= 0;
   }
 
   public getTokenTimeLeft(decodedToken: IJwtPayload): number {
-    return decodedToken.exp * 1000 - Date.now();
+    const expirationDate = new Date(decodedToken.exp * 1000);
+    return expirationDate.getTime() - Date.now();
   }
 
   public clearAuthData(): void {

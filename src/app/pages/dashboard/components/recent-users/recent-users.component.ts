@@ -18,6 +18,5 @@ import { LoaderComponent } from '../../../../shared/components/loader/loader.com
     LoaderComponent,
   ],
   templateUrl: './recent-users.component.html',
-  styleUrl: './recent-users.component.scss',
 })
 export class RecentUsersComponent extends SharedRecentUsersBase {}
