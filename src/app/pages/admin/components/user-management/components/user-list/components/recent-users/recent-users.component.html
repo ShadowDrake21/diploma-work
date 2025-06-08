@@ -12,7 +12,7 @@
         </button>
       </div>
       } @else if (loginStats() === null) {
-      <mat-spinner diameter="30"></mat-spinner>
+      <custom-loader [diameter]="30" />
       } @else {
       <div class="stat-value">
         {{ loginStats() || 0 }} logins in last 24 hours
@@ -36,7 +36,7 @@
         </button>
       </div>
       } @else if(recentLogins() === null) {
-      <mat-spinner diameter="30"></mat-spinner>
+      <custom-loader [diameter]="30" />
       } @else {
       <table
         mat-table

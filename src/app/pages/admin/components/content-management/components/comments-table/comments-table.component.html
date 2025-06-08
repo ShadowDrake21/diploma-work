@@ -1,7 +1,7 @@
 <div class="table-container">
   @if (isLoading()) {
   <div class="loading-shade">
-    <mat-spinner diameter="50"></mat-spinner>
+    <custom-loader [diameter]="50" />
   </div>
   } @if(error()) {
   <div class="error-state">

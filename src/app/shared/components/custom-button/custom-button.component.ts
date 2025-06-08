@@ -1,10 +1,11 @@
 import { Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoaderComponent } from '../loader/loader.component';
 
 @Component({
   selector: 'shared-custom-button',
-  imports: [MatButtonModule, MatProgressSpinnerModule],
+  imports: [MatButtonModule, MatProgressSpinnerModule, LoaderComponent],
   template: `
     <button
       mat-flat-button
@@ -15,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     >
       <div class="flex items-center justify-center gap-2 uppercase">
         @if (isLoading()) {
-        <mat-spinner diameter="20" class="my-0 mx-auto spinner"></mat-spinner>
+        <custom-loader [diameter]="20" />
         } @else {
         <ng-content></ng-content>
         }

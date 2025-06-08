@@ -20,7 +20,7 @@
 </div>
 } @else if (loading()) {
 <div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
+  <custom-loader [diameter]="60" />
 </div>
 } @else { @if (systemPerformance() || commentActivity()) {
 <mat-grid-list cols="2" rowHeight="400px">
@@ -83,7 +83,7 @@
             </div>
           </div>
         </div></mat-card-content
-      >} @else {<mat-spinner diameter="40"></mat-spinner>}
+      >} @else {<custom-loader [diameter]="40" />}
     </mat-card>
   </mat-grid-tile>
 
@@ -110,7 +110,7 @@
         }@else {
         <div class="no-data">No comment activity data available</div>
         }}@else {
-        <mat-spinner diameter="40"></mat-spinner>
+        <custom-loader [diameter]="40" />
         }
       </mat-card-content>
     </mat-card>
@@ -135,7 +135,7 @@
         >
         </ngx-charts-gauge>
         }@else {
-        <mat-spinner diameter="40"></mat-spinner>
+        <custom-loader [diameter]="40" />
         }
       </mat-card-content>
     </mat-card>
@@ -156,7 +156,7 @@
         >
         </ngx-charts-gauge>
         }@else {
-        <mat-spinner diameter="40"></mat-spinner>
+        <custom-loader [diameter]="40" />
         }
       </mat-card-content>
     </mat-card>

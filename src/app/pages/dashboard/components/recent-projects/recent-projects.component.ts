@@ -7,10 +7,16 @@ import { ProjectService } from '@core/services/project/models/project.service';
 import { ProjectDTO } from '@models/project.model';
 import { map, Subject, takeUntil, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'dashboard-recent-projects',
-  imports: [MatIcon, MatProgressSpinnerModule, ProjectCardComponent],
+  imports: [
+    MatIcon,
+    MatProgressSpinnerModule,
+    ProjectCardComponent,
+    LoaderComponent,
+  ],
   templateUrl: './recent-projects.component.html',
   styleUrl: './recent-projects.component.scss',
 })

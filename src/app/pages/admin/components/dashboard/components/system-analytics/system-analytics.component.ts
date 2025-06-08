@@ -9,6 +9,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { safeToLocaleDateString } from '@shared/utils/date.utils';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { catchError, EMPTY, forkJoin, map, of, switchMap } from 'rxjs';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-system-analytics',
@@ -18,6 +19,7 @@ import { catchError, EMPTY, forkJoin, map, of, switchMap } from 'rxjs';
     NgxChartsModule,
     MatIcon,
     MatProgressSpinnerModule,
+    LoaderComponent,
   ],
   templateUrl: './system-analytics.component.html',
   styleUrl: './system-analytics.component.scss',

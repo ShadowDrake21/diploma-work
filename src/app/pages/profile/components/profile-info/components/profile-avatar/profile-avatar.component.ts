@@ -14,10 +14,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
 import { IUser } from '@models/user.model';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'profile-avatar',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    LoaderComponent,
+  ],
   templateUrl: './profile-avatar.component.html',
   styleUrl: './profile-avatar.component.scss',
 })

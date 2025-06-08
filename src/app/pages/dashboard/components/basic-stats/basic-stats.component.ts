@@ -14,10 +14,16 @@ import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { MetricCardItemComponent } from '../../../../shared/components/metric-card-item/metric-card-item.component';
 import { Subject, takeUntil, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'dashboard-basic-stats',
-  imports: [MatProgressSpinnerModule, MatIcon, MetricCardItemComponent],
+  imports: [
+    MatProgressSpinnerModule,
+    MatIcon,
+    MetricCardItemComponent,
+    LoaderComponent,
+  ],
   templateUrl: './basic-stats.component.html',
   styleUrl: './basic-stats.component.scss',
 })

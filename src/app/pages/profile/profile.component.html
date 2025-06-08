@@ -4,7 +4,7 @@
 
     @if (isLoading()) {
     <div class="loading-spinner">
-      <mat-spinner diameter="50"></mat-spinner>
+      <custom-loader [diameter]="50" />
       <p>Loading your projects...</p>
     </div>
     } @if (error()) {

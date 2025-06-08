@@ -36,6 +36,7 @@ import { FileHandlerFacadeService } from '@core/services/files/file-handler-faca
 import { FileUploadListComponent } from '../../../../../../../projects/components/create/components/project-general-information/components/file-upload-list/file-upload-list.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificationService } from '@core/services/notification.service';
+import { LoaderComponent } from '../../../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-project-edit-modal',
@@ -57,6 +58,7 @@ import { NotificationService } from '@core/services/notification.service';
     MatProgressSpinnerModule,
     MatSliderThumb,
     FileUploadListComponent,
+    LoaderComponent,
   ],
   templateUrl: './project-edit-modal.component.html',
   styleUrl: './project-edit-modal.component.scss',

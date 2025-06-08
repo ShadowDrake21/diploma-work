@@ -21,6 +21,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-user-analytics',
@@ -33,6 +34,7 @@ import {
     NgxChartsModule,
     MatProgressSpinnerModule,
     MatIcon,
+    LoaderComponent,
   ],
   templateUrl: './user-analytics.component.html',
   styleUrl: './user-analytics.component.scss',

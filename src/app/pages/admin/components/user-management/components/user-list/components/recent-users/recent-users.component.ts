@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { AdminService } from '@core/services/admin.service';
 import { UserService } from '@core/services/users/user.service';
+import { LoaderComponent } from '../../../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'admin-recent-users',
@@ -19,6 +20,7 @@ import { UserService } from '@core/services/users/user.service';
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
+    LoaderComponent,
   ],
   templateUrl: './recent-users.component.html',
   styleUrl: './recent-users.component.scss',

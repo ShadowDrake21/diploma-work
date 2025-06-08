@@ -27,6 +27,7 @@ import { PHONE_NUMBER_PATTERN } from '@core/constants/paterns';
 import { NotificationService } from '@core/services/notification.service';
 import { IUser, SocialLink } from '@models/user.model';
 import { ProfileForm } from '@shared/types/forms/profile-form.types';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'profile-edit',
@@ -40,6 +41,7 @@ import { ProfileForm } from '@shared/types/forms/profile-form.types';
     MatProgressSpinnerModule,
     FormsModule,
     MatIcon,
+    LoaderComponent,
   ],
   templateUrl: './profile-edit.component.html',
   styleUrl: './profile-edit.component.scss',

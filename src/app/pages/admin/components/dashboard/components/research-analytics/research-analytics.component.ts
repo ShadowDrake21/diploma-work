@@ -8,6 +8,7 @@ import { AnalyticsService } from '@core/services/analytics.service';
 import { NotificationService } from '@core/services/notification.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-research-analytics',
@@ -18,6 +19,7 @@ import { forkJoin, Subject, takeUntil } from 'rxjs';
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatIcon,
+    LoaderComponent,
   ],
   templateUrl: './research-analytics.component.html',
   styleUrl: './research-analytics.component.scss',

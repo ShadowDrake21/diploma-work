@@ -10,7 +10,7 @@
   </div>
   } @else if (isLoading()) {
   <div class="loading-state">
-    <mat-spinner diameter="40"></mat-spinner>
+    <custom-loader [diameter]="40" />
   </div>
   } @else {
   <ul

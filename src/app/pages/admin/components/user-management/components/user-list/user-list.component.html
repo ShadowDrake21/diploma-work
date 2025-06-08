@@ -5,7 +5,7 @@
 
   @if(isLoading()){
   <div class="loading-state">
-    <mat-spinner diameter="50"></mat-spinner>
+    <custom-loader [diameter]="50" />
     <p>Loading users...</p>
   </div>
   } @if(error() && !isLoading()) {
