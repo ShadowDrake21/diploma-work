@@ -3,7 +3,7 @@
   style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)"
 >
   <div
-    class="flex justify-between items-center max-w-[1440px] h-full px-5 mx-auto w-full"
+    class="flex justify-between items-center max-w-[1440px] h-full mx-auto w-full"
   >
     <div class="flex items-center gap-4">
       <button
@@ -17,11 +17,11 @@
       <img src="logo.png" alt="Application logo" class="h-10 object-contain" />
     </div>
     <h1
-      class="m-0 text-xl font-medium whitespace-nowrap overflow-hidden text-ellipsis md:max-w-full max-w-[200px] text-[#1a237e]"
+      class="m-0 text-xl font-medium whitespace-nowrap overflow-hidden text-ellipsis md:max-w-full max-w-[200px] text-[#1a237e] md:block hidden"
     >
       {{ headerTitle() }}
     </h1>
-    <div class="flex items-center">
+    <div class="flex items-center justify-center">
       <app-profile-dropdown />
     </div>
   </div>

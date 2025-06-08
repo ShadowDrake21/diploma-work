@@ -43,11 +43,11 @@
       (click)="onLikeToggle()"
       class="comment-action like-button"
       [disabled]="isLiking() || isCurrentUserComment()"
-      [class.liked]="comment().isLikedByCurrentUser"
+      [class.liked]="comment().likedByCurrentUser"
       [class.disabled]="comment().userId === currentUserId()"
     >
       <mat-icon>{{
-        comment().isLikedByCurrentUser ? "favorite" : "favorite_border"
+        comment().likedByCurrentUser ? "favorite" : "favorite_border"
       }}</mat-icon>
       @if(!isLiking()) {
       <span> {{ comment().likes }} </span>

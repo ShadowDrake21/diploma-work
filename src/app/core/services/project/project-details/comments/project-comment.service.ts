@@ -42,7 +42,6 @@ export class ProjectCommentService {
     this.commentService
       .getCommentsByProjectId(projectId)
       .pipe(
-        map((response) => this.transformComments(response)),
         tap({
           next: (comments) => {
             this._comments.next(comments);
@@ -122,27 +121,6 @@ export class ProjectCommentService {
     );
   }
 
-  private transformComments(comments: IComment[]): IComment[] {
-    const commentMap = new Map<string, IComment>();
-    const rootComments: IComment[] = [];
-
-    comments.forEach((comment) => {
-      commentMap.set(comment.id, { ...comment, replies: [] });
-    });
-
-    comments.forEach((comment) => {
-      const commentCopy = commentMap.get(comment.id)!;
-      if (comment.parentCommentId) {
-        const parent = commentMap.get(comment.parentCommentId);
-        parent?.replies?.push(commentCopy);
-      } else {
-        rootComments.push(commentCopy);
-      }
-    });
-
-    return rootComments;
-  }
-
   private findComment(
     comments: IComment[],
     commentId: string
@@ -187,7 +165,7 @@ export class ProjectCommentService {
 
     if (comment) {
       comment.likes += isLiked ? 1 : -1;
-      comment.isLikedByCurrentUser = isLiked;
+      comment.likedByCurrentUser = isLiked;
       this._comments.next(currentComments);
     }
   }

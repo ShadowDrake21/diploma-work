@@ -13,7 +13,7 @@ export interface IComment extends ICommentUser {
   projectId: string;
   projectTitle: string;
   parentCommentId?: string;
-  isLikedByCurrentUser: boolean;
+  likedByCurrentUser: boolean;
   replies?: IComment[];
 }
 
