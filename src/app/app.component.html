@@ -52,16 +52,16 @@
     </mat-sidenav>
     }
     <mat-sidenav-content
-      class="flex-1 min-h-screen overflow-x-hidden flex w-full"
+      class="flex-1 min-h-screen !overflow-x-hidden flex w-full max-w-[1440px] mx-auto px-5"
       [ngStyle]="
         !isAuth && !isSettings && !isErrorPages ? { 'padding-top': '80px' } : {}
       "
     >
       <main
-        class="flex-1 w-full px-20"
+        class="flex-1 w-full overflow-x-hidden"
         [ngStyle]="
           !isAuth && !isSettings && !isErrorPages
-            ? { padding: '10px 80px 50px' }
+            ? { padding: '10px 0 50px' }
             : {}
         "
       >
