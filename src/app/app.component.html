@@ -11,7 +11,7 @@
     >
       <mat-nav-list class="flex flex-col justify-between">
         @if (isAdmin) {
-        <a mat-list-item routerLink="/admin/dashboard">
+        <a mat-list-item routerLink="/admin/dashboard" (click)="closeSidebar()">
           <span class="flex items-center w-full gap-4 p-3">
             <mat-icon>admin_panel_settings</mat-icon>
             <span class="text-wrap">Панель адміністратора</span>
@@ -22,7 +22,7 @@
           Навігація
         </h3>
         <div>
-          <a mat-list-item routerLink="/">
+          <a mat-list-item routerLink="/" (click)="closeSidebar()">
             <span class="flex items-center gap-4 p-3">
               <mat-icon>house</mat-icon>
               <span>Головна сторінка</span>
@@ -32,13 +32,14 @@
             mat-list-item
             routerLink="/projects/list"
             [queryParams]="{ mode: 'all' }"
+            (click)="closeSidebar()"
           >
             <span class="flex items-center gap-4 p-3">
               <mat-icon>category</mat-icon>
               <span>Проєкти</span>
             </span>
           </a>
-          <a mat-list-item routerLink="/users">
+          <a mat-list-item routerLink="/users" (click)="closeSidebar()">
             <span class="flex items-center gap-4 p-3">
               <mat-icon>group</mat-icon>
               <span>Користувачі</span>

@@ -48,6 +48,12 @@ export interface ResponseUserDTO {
   username: string;
 }
 
+export interface ParticipantDTO {
+  id: number;
+  avatarUrl: string;
+  username: string;
+}
+
 export interface SocialLink {
   url: string;
   name: string;

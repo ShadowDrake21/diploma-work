@@ -5,17 +5,26 @@ import {
   TitleCasePipe,
 } from '@angular/common';
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NotificationService } from '@core/services/notification.service';
 import { ProjectService } from '@core/services/project/models/project.service';
 import { UserService } from '@core/services/users/user.service';
 import { ResearchDTO } from '@models/research.model';
+import { ParticipantDTO } from '@models/user.model';
 import { catchError, forkJoin, map, Observable, of, Subscription } from 'rxjs';
 
 @Component({
   selector: 'details-research-project',
-  imports: [CurrencyPipe, DatePipe, AsyncPipe, TitleCasePipe],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    AsyncPipe,
+    TitleCasePipe,
+    MatExpansionModule,
+    MatProgressBarModule,
+  ],
   templateUrl: './research-project.component.html',
-  styleUrl: './research-project.component.scss',
 })
 export class ResearchProjectComponent implements OnInit, OnDestroy {
   private readonly projectService = inject(ProjectService);
@@ -26,7 +35,7 @@ export class ResearchProjectComponent implements OnInit, OnDestroy {
   id!: string;
 
   research$!: Observable<ResearchDTO | null>;
-  participants$!: Observable<any>;
+  participants$!: Observable<ParticipantDTO[] | null>;
   researchError = false;
   participantsError = false;
   private subscriptions: Subscription[] = [];
@@ -56,6 +65,13 @@ export class ResearchProjectComponent implements OnInit, OnDestroy {
                       console.error('Participant load error:', error);
                       return of(null);
                     })
+                  )
+                )
+              ).pipe(
+                map((participants) =>
+                  participants.filter(
+                    (participant): participant is ParticipantDTO =>
+                      participant !== null
                   )
                 )
               )
