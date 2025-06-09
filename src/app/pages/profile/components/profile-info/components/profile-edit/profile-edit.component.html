@@ -1,104 +1,135 @@
-<form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile__form">
+<div>
   @if (formError()) {
-  <div class="form-error">
-    <mat-error>{{ formError() }}</mat-error>
+  <div class="text-lg font-semibold text-red-500 sm:text-start text-center">
+    {{ formError() }}
   </div>
   }
-  <div class="profile__form-fields">
-    <mat-form-field appearance="outline">
-      <mat-label>Phone Number</mat-label>
-      <input
-        matInput
-        formControlName="phoneNumber"
-        placeholder="+1 234-567-8901"
-      />
-      @if (profileForm.get('phoneNumber')?.invalid &&
-      (profileForm.get('phoneNumber')?.dirty ||
-      profileForm.get('phoneNumber')?.touched)) { @if
-      (profileForm.get('phoneNumber')?.hasError('pattern')) {
-      <mat-error>Please enter a valid phone number</mat-error>
-      } }
-    </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Date of Birth</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="dateOfBirth" />
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
+  <div>
+    <h3 class="text-lg font-semibold pb-[10px] sm:text-start text-center">
+      Edit Profile Information
+    </h3>
 
-    <mat-form-field appearance="outline">
-      <mat-label>User Type</mat-label>
-      <mat-select formControlName="userType">
-        <mat-option value="student">Student</mat-option>
-        <mat-option value="teacher">Teacher</mat-option>
-        <mat-option value="researcher">Researcher</mat-option>
-        <mat-option value="staff">Staff</mat-option>
-      </mat-select>
-      @if (profileForm.get('userType')?.invalid &&
-      (profileForm.get('userType')?.dirty ||
-      profileForm.get('userType')?.touched)) {
-      <mat-error>Please select a user type</mat-error>
-      }
-    </mat-form-field>
+    <form
+      class="flex flex-col md:gap-[10px] gap-5 pb-5"
+      [formGroup]="profileForm"
+    >
+      <mat-form-field>
+        <mat-label>Phone Number</mat-label>
+        <input
+          matInput
+          formControlName="phoneNumber"
+          placeholder="+1 234-567-8901"
+        />
+        @if (profileForm.get('phoneNumber')?.invalid &&
+        (profileForm.get('phoneNumber')?.dirty ||
+        profileForm.get('phoneNumber')?.touched)) { @if
+        (profileForm.get('phoneNumber')?.hasError('pattern')) {
+        <mat-error>Please enter a valid phone number</mat-error>
+        } }
+      </mat-form-field>
 
-    @if (profileForm.value.userType === 'student') {
-    <mat-form-field appearance="outline">
-      <mat-label>University Group</mat-label>
-      <input
-        matInput
-        formControlName="universityGroup"
-        [required]="profileForm.value.userType === 'student'"
-      />
-      @if (profileForm.get('universityGroup')?.invalid &&
-      (profileForm.get('universityGroup')?.dirty ||
-      profileForm.get('universityGroup')?.touched)) {
-      <mat-error>University group is required for students</mat-error>
-      }
-    </mat-form-field>
-    }
-    <div class="social-links-section">
-      <h3>Social Links</h3>
+      <mat-form-field>
+        <mat-label>Date of Birth</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          formControlName="dateOfBirth"
+        />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
 
-      <div class="social-link-input">
-        <mat-form-field appearance="outline">
-          <mat-label>Add Social Link</mat-label>
-          <input
-            matInput
-            [(ngModel)]="newLink"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="https://example.com"
-          />
-        </mat-form-field>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="addSocialLink()"
-          type="button"
-        >
-          Add
-        </button>
-      </div>
-
-      <div class="social-links-list" formArrayName="socialLinks">
-        @for (link of socialLinksArray.controls; track $index; let i = $index) {
-        <div class="social-link-item" [formGroupName]="i">
-          <mat-form-field appearance="outline">
-            <mat-label>Link Name</mat-label>
-            <input matInput formControlName="name" placeholder="Link name" />
-            @if (link.get('name')?.invalid && (link.get('name')?.dirty ||
-            link.get('name')?.touched)) {
-            <mat-error>Name is required</mat-error>
-            }
-          </mat-form-field>
-          <span class="link-url">{{ link.get("url")?.value }}</span>
-          <button mat-icon-button type="button" (click)="removeSocialLink(i)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
+      <mat-form-field>
+        <mat-label>User Type</mat-label>
+        <mat-select formControlName="userType">
+          <mat-option value="student">Student</mat-option>
+          <mat-option value="teacher">Teacher</mat-option>
+          <mat-option value="researcher">Researcher</mat-option>
+          <mat-option value="staff">Staff</mat-option>
+        </mat-select>
+        @if (profileForm.get('userType')?.invalid &&
+        (profileForm.get('userType')?.dirty ||
+        profileForm.get('userType')?.touched)) {
+        <mat-error>Please select a user type</mat-error>
         }
+      </mat-form-field>
+
+      @if (profileForm.value.userType === 'student') {
+      <mat-form-field>
+        <mat-label>University Group</mat-label>
+        <input
+          matInput
+          formControlName="universityGroup"
+          [required]="profileForm.value.userType === 'student'"
+        />
+        @if (profileForm.get('universityGroup')?.invalid &&
+        (profileForm.get('universityGroup')?.dirty ||
+        profileForm.get('universityGroup')?.touched)) {
+        <mat-error>University group is required for students</mat-error>
+        }
+      </mat-form-field>
+      }
+      <div>
+        <h3 class="text-lg font-semibold pb-[10px] sm:text-start text-center">
+          Social Links
+        </h3>
+
+        <div class="flex flex-col md:gap-[10px] gap-5 pb-5">
+          <div class="flex gap-3 items-center">
+            <mat-form-field>
+              <mat-label>Add Social Link</mat-label>
+              <input
+                class="w-full"
+                matInput
+                [(ngModel)]="newLink"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="https://example.com"
+              />
+            </mat-form-field>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="addSocialLink()"
+              type="button"
+            >
+              Add
+            </button>
+          </div>
+
+          <div
+            class="flex flex-col md:gap-[10px] gap-5"
+            formArrayName="socialLinks"
+          >
+            @for (link of socialLinksArray.controls; track $index; let i =
+            $index) {
+            <div class="flex items-center gap-2" [formGroupName]="i">
+              <mat-form-field>
+                <mat-label>Link Name</mat-label>
+                <input
+                  matInput
+                  formControlName="name"
+                  placeholder="Link name"
+                />
+                @if (link.get('name')?.invalid && (link.get('name')?.dirty ||
+                link.get('name')?.touched)) {
+                <mat-error>Name is required</mat-error>
+                }
+              </mat-form-field>
+              <span class="link-url">{{ link.get("url")?.value }}</span>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="removeSocialLink(i)"
+              >
+                <mat-icon class="text-red-500">delete</mat-icon>
+              </button>
+            </div>
+            }
+          </div>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
   <div class="profile__form-actions">
     <button
@@ -106,6 +137,7 @@
       color="primary"
       type="submit"
       [disabled]="isLoading()"
+      (click)="onSubmit()"
     >
       @if (isLoading()) {
       <custom-loader [diameter]="20" />
@@ -113,4 +145,4 @@
     </button>
     <button mat-button type="button" (click)="onCancel()">Cancel</button>
   </div>
-</form>
+</div>

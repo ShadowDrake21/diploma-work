@@ -9,6 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
+import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'profile-info',
@@ -18,9 +19,9 @@ import { MatIcon } from '@angular/material/icon';
     ProfileViewComponent,
     MatProgressBarModule,
     MatIcon,
+    LoaderComponent,
   ],
   templateUrl: './profile-info.component.html',
-  styleUrl: './profile-info.component.scss',
 })
 export class ProfileInfoComponent implements OnDestroy {
   private readonly userService = inject(UserService);

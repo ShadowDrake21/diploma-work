@@ -41,14 +41,13 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
     LoaderComponent,
   ],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.scss',
   providers: [provideNativeDateAdapter()],
 })
 export class ProfileComponent {
   private readonly projectService = inject(ProjectService);
 
   currentPage = signal(0);
-  pageSize = signal(8);
+  pageSize = signal(5);
   searchFilters = signal<ProjectSearchFilters>({});
   isLoading = signal(false);
   error = signal<string | null>(null);
@@ -115,6 +114,7 @@ export class ProfileComponent {
   }
 
   onPageChanged(event: PageEvent) {
+    console.log('Page changed:', event);
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
   }

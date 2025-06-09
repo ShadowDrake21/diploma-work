@@ -16,23 +16,19 @@ import { MatButton } from '@angular/material/button';
   ],
   templateUrl: './profile-projects.component.html',
 })
-export class ProfileProjectsComponent implements OnDestroy {
+export class ProfileProjectsComponent {
   projects = input.required<ProjectDTO[]>();
-  pageSize = input(8);
+  pageSize = input(5);
   currentPage = input(0);
+  totalItems = input(0);
   isFiltered = input(true);
   type = input<string>('projects');
 
   filters = output<ProjectSearchFilters>();
   pageChange = output<PageEvent>();
 
-  paginatedProjects = computed(() => {
-    const startIndex = this.currentPage() * this.pageSize();
-    const endIndex = startIndex + this.pageSize();
-    return this.projects().slice(startIndex, endIndex);
-  });
-
   onPageChange(event: PageEvent) {
+    console.log('Page changed ProfileProjectsComponent:', event);
     this.pageChange.emit(event);
   }
 
@@ -44,6 +40,4 @@ export class ProfileProjectsComponent implements OnDestroy {
   onFiltersReset() {
     this.filters.emit({});
   }
-
-  ngOnDestroy(): void {}
 }
