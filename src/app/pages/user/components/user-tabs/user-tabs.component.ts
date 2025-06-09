@@ -18,6 +18,9 @@ import { IUser } from '@models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import { ContactInformationComponent } from './components/contact-information/contact-information.component';
 import { NotificationService } from '@core/services/notification.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+type TabType = 'publications' | 'patents' | 'researches';
 
 @Component({
   selector: 'user-tabs',
@@ -27,9 +30,9 @@ import { NotificationService } from '@core/services/notification.service';
     ProfileProjectsComponent,
     UserCollaboratorsComponent,
     ContactInformationComponent,
+    MatProgressBarModule,
   ],
   templateUrl: './user-tabs.component.html',
-  styleUrl: './user-tabs.component.scss',
 })
 export class TabsComponent {
   private readonly userService = inject(UserService);
@@ -43,6 +46,12 @@ export class TabsComponent {
   projects = signal<ProjectDTO[]>([]);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
+
+  tabPagination = signal({
+    publications: { pageSize: 5, currentPage: 0 },
+    patents: { pageSize: 5, currentPage: 0 },
+    researches: { pageSize: 5, currentPage: 0 },
+  });
 
   publications = computed(
     () =>
@@ -75,6 +84,7 @@ export class TabsComponent {
   }
 
   private loadProjects(userId: number): void {
+    this.loading.set(true);
     this.userService
       .getProjectsWithDetails(userId)
       .pipe(
@@ -96,7 +106,14 @@ export class TabsComponent {
       });
   }
 
-  onPageChange(event: PageEvent): void {
+  onPageChange(event: PageEvent, tab: TabType): void {
+    this.tabPagination.update((prev) => ({
+      ...prev,
+      [tab]: {
+        pageSize: event.pageSize,
+        currentPage: event.pageIndex,
+      },
+    }));
     this.pageChange.emit(event);
   }
 }

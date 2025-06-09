@@ -18,6 +18,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RoleFormatPipe } from '@pipes/role-format.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
+import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 
 @Component({
   selector: 'app-user-profile',
@@ -31,9 +33,11 @@ import { MatIcon } from '@angular/material/icon';
     MatProgressSpinner,
     RoleFormatPipe,
     MatIcon,
+    LoaderComponent,
+    TruncateTextPipe,
   ],
   templateUrl: './user.component.html',
-  styleUrl: './user.component.scss',
+
   providers: [provideNativeDateAdapter()],
 })
 export class UserProfileComponent implements OnInit {
