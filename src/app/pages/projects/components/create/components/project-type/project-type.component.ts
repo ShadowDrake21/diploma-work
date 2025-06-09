@@ -6,6 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { types } from '@shared/content/project.content';
 import { ProjectType } from '@shared/enums/categories.enum';
+import { TYPE_FORM_ERRORS } from '../errors/type.errors';
 
 @Component({
   selector: 'create-project-type',
@@ -27,4 +28,5 @@ export class ProjectTypeComponent {
   >();
 
   types = types;
+  formErrors = TYPE_FORM_ERRORS;
 }

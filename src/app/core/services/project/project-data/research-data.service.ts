@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ProjectDataCoreService } from './project-data-core.service';
 import { ResearchService } from '../models/research.service';
 import { TypedProjectFormValues } from '@shared/types/services/project-data.types';
-import { Observable, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import {
   CreateResearchRequest,
   UpdateResearchRequest,
@@ -23,7 +23,7 @@ export class ResearchDataService extends ProjectDataCoreService {
       const request = this.buildCreateRequest(projectId, formValues.research);
       return this.researchService
         .create(request)
-        .pipe((error) => this.handleResearchError(error, 'create'));
+        .pipe(catchError((error) => this.handleResearchError(error, 'create')));
     } catch (error) {
       return this.handleBuildError(error as Error);
     }

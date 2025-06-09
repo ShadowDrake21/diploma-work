@@ -4,12 +4,12 @@ import { IUser } from '@shared/models/user.model';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { RoleFormatPipe } from '@pipes/role-format.pipe';
+import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 
 @Component({
   selector: 'shared-user-card',
-  imports: [MatButton, MatDividerModule, RoleFormatPipe],
+  imports: [MatButton, MatDividerModule, RoleFormatPipe, TruncateTextPipe],
   templateUrl: './user-card.component.html',
-  styleUrl: './user-card.component.scss',
 })
 export class UserCardComponent {
   private readonly router = inject(Router);
