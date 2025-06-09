@@ -1,9 +1,7 @@
 <mat-tab-group>
   @if (!error()) {
   <div class="text-lg font-semibold text-red-500 sm:text-start text-center">
-    {{
-      error() || " Failed to load publication details. Please try again later."
-    }}
+    {{ error() }}
   </div>
   } @if (loading()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -13,6 +11,7 @@
       [projects]="publications()"
       [pageSize]="tabPagination().publications.pageSize"
       [currentPage]="tabPagination().publications.currentPage"
+      [totalItems]="totalPublications()"
       (pageChange)="onPageChange($event, 'publications')"
       [isFiltered]="false"
       type="publications"
@@ -24,6 +23,7 @@
       [projects]="patents()"
       [pageSize]="tabPagination().patents.pageSize"
       [currentPage]="tabPagination().patents.currentPage"
+      [totalItems]="totalPatents()"
       (pageChange)="onPageChange($event, 'patents')"
       [isFiltered]="false"
       type="patents"
@@ -35,6 +35,7 @@
       [projects]="researches()"
       [pageSize]="tabPagination().researches.pageSize"
       [currentPage]="tabPagination().researches.currentPage"
+      [totalItems]="totalResearches()"
       (pageChange)="onPageChange($event, 'researches')"
       [isFiltered]="false"
       type="researches"

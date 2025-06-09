@@ -11,13 +11,13 @@
     />
     }
     <div class="flex flex-wrap gap-[30px] justify-center">
-      @for (project of paginatedProjects(); track $index) {
+      @for (project of projects(); track $index) {
       <shared-project-card [project]="project" />
       }
     </div>
-    @if(projects().length > pageSize()) {
+
     <mat-paginator
-      [length]="projects().length"
+      [length]="totalItems()"
       [pageSize]="pageSize()"
       [pageIndex]="currentPage()"
       [pageSizeOptions]="[5, 8, 10, 25]"
@@ -25,7 +25,6 @@
       aria-label="Select page"
     >
     </mat-paginator>
-    }
   </div>
   } @else {
   <div>

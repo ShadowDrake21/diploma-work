@@ -43,7 +43,7 @@ export class TabsComponent {
   currentPage = input.required<number>();
 
   pageChange = output<PageEvent>();
-  projects = signal<ProjectDTO[]>([]);
+  allProjects = signal<ProjectDTO[]>([]);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
 
@@ -53,25 +53,43 @@ export class TabsComponent {
     researches: { pageSize: 5, currentPage: 0 },
   });
 
-  publications = computed(
+  publications = computed(() => {
+    const filtered = this.allProjects().filter(
+      (p) => p.type === ProjectType.PUBLICATION
+    );
+    const { currentPage, pageSize } = this.tabPagination().publications;
+    return this.paginate(filtered, currentPage, pageSize);
+  });
+
+  patents = computed(() => {
+    const filtered = this.allProjects().filter(
+      (p) => p.type === ProjectType.PATENT
+    );
+    const { currentPage, pageSize } = this.tabPagination().patents;
+    return this.paginate(filtered, currentPage, pageSize);
+  });
+
+  researches = computed(() => {
+    const filtered = this.allProjects().filter(
+      (p) => p.type === ProjectType.RESEARCH
+    );
+    const { currentPage, pageSize } = this.tabPagination().researches;
+    return this.paginate(filtered, currentPage, pageSize);
+  });
+
+  totalPublications = computed(
     () =>
-      (this.projects() as ProjectDTO[] | undefined)?.filter(
-        (p: ProjectDTO) => p.type === ProjectType.PUBLICATION
-      ) || []
+      this.allProjects().filter((p) => p.type === ProjectType.PUBLICATION)
+        .length
   );
 
-  patents = computed(
-    () =>
-      (this.projects() as ProjectDTO[] | undefined)?.filter(
-        (p: ProjectDTO) => p.type === ProjectType.PATENT
-      ) || []
+  totalPatents = computed(
+    () => this.allProjects().filter((p) => p.type === ProjectType.PATENT).length
   );
 
-  researches = computed(
+  totalResearches = computed(
     () =>
-      (this.projects() as ProjectDTO[] | undefined)?.filter(
-        (p: ProjectDTO) => p.type === ProjectType.RESEARCH
-      ) || []
+      this.allProjects().filter((p) => p.type === ProjectType.RESEARCH).length
   );
 
   constructor() {
@@ -97,7 +115,7 @@ export class TabsComponent {
       )
       .subscribe({
         next: (projects) => {
-          this.projects.set(projects);
+          this.allProjects.set(projects);
           this.loading.set(false);
         },
         error: () => {
@@ -114,6 +132,10 @@ export class TabsComponent {
         currentPage: event.pageIndex,
       },
     }));
-    this.pageChange.emit(event);
+  }
+
+  private paginate(items: any[], page: number, pageSize: number): any[] {
+    const startIndex = page * pageSize;
+    return items.slice(startIndex, startIndex + pageSize);
   }
 }

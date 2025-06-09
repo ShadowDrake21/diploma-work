@@ -8,12 +8,14 @@
   />
 
   @if (previewUrl() || user()?.avatarUrl) {
-  <img
-    class="avatar-image"
-    [src]="previewUrl() || user()?.avatarUrl"
-    alt="Profile image"
-  />
-  } @else {
+  <div class="w-[500px] h-fit">
+    <img
+      [src]="previewUrl() || user()?.avatarUrl"
+      alt="Profile image"
+      class="w-full h-full object-cover"
+    />
+  </div>
+  } @else if (user()?.avatarUrl) { } @else {
   <div class="avatar-placeholder">
     <mat-icon>account_circle</mat-icon>
   </div>
@@ -43,7 +45,9 @@
     </button>
   </div>
   } @if (errorMessage()) {
-  <div class="error-message">{{ errorMessage() }}</div>
+  <div class="text-lg font-semibold text-red-500 sm:text-start text-center">
+    {{ errorMessage() }}
+  </div>
   } @if (isLoading()) {
   <custom-loader [diameter]="32" />
   }

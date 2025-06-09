@@ -44,7 +44,6 @@ import { LoaderComponent } from '../../../../../../shared/components/loader/load
     LoaderComponent,
   ],
   templateUrl: './profile-edit.component.html',
-  styleUrl: './profile-edit.component.scss',
 })
 export class ProfileEditComponent implements OnInit, OnChanges {
   private readonly notificationService = inject(NotificationService);

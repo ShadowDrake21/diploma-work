@@ -25,7 +25,6 @@ import { LoaderComponent } from '../../../../../../shared/components/loader/load
     LoaderComponent,
   ],
   templateUrl: './profile-avatar.component.html',
-  styleUrl: './profile-avatar.component.scss',
 })
 export class ProfileAvatarComponent implements OnDestroy {
   private readonly userService = inject(UserService);
@@ -97,6 +96,8 @@ export class ProfileAvatarComponent implements OnDestroy {
       return;
     }
 
+    this.isLoading.set(true);
+
     this.userService.updateUserAvatar(this.selectedFile()!).subscribe({
       next: (response) => {
         const newAvatarUrl = response.avatarUrl;
@@ -115,12 +116,15 @@ export class ProfileAvatarComponent implements OnDestroy {
         console.error('Avatar upload failed:', error);
         this.updateFailure.emit(error);
         this.handleUploadError(error);
+        this.isLoading.set(false);
       },
       complete: () => {
         this.isLoading.set(false);
       },
     });
   }
+
+  // TODO : FIX AVATAR + STYLE ADMIN
 
   private handleUploadError(error: any): void {
     let errorMessage = 'Failed to upload avatar';
