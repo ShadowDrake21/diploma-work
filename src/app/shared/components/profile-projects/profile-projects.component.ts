@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, OnDestroy, output } from '@angular/core';
 import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { ProjectDTO } from '@models/project.model';
@@ -15,9 +15,8 @@ import { MatButton } from '@angular/material/button';
     MatButton,
   ],
   templateUrl: './profile-projects.component.html',
-  styleUrl: './profile-projects.component.scss',
 })
-export class ProfileProjectsComponent {
+export class ProfileProjectsComponent implements OnDestroy {
   projects = input.required<ProjectDTO[]>();
   pageSize = input(8);
   currentPage = input(0);
@@ -45,4 +44,6 @@ export class ProfileProjectsComponent {
   onFiltersReset() {
     this.filters.emit({});
   }
+
+  ngOnDestroy(): void {}
 }

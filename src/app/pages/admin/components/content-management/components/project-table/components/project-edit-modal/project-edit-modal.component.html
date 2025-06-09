@@ -115,6 +115,7 @@
       [pendingFiles]="pendingFiles"
       [isUploading]="isUploading"
       [uploadProgress]="uploadProgress"
+      [isEditing]="true"
       (uploadRequested)="uploadFiles()"
       (filesSelected)="onFilesSelected($event)"
       (removeFile)="removeFile($event.index, $event.isPending)"
