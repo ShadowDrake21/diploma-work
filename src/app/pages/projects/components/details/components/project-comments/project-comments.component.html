@@ -1,6 +1,6 @@
 <div>
   <h3
-    class="details-comments__title pb-[10px] lg:text-xl text-lg font-semibold"
+    class="pb-[10px] lg:text-xl text-lg font-semibold sm:text-start text-center"
   >
     Comments Section
   </h3>
@@ -18,7 +18,7 @@
   @if(commentsLoading()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   } @else {
-  <div class="comments-list">
+  <div>
     @if(comments() && comments()!.length > 0) { @for (comment of comments()!;
     track comment.id) {
     <shared-comment
@@ -30,7 +30,7 @@
     />
 
     @if(replyingToCommentId() === comment.id) {
-    <div class="reply-input">
+    <div>
       <textarea
         [(ngModel)]="replyContent"
         placeholder="Write your reply..."
@@ -69,7 +69,9 @@
       }
     </div>
     } } } @else {
-    <p class="text-lg">No comments yet. Be the first to comment!</p>
+    <p class="text-lg sm:text-start text-center font-medium">
+      No comments yet. Be the first to comment!
+    </p>
     }
   </div>
   }

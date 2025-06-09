@@ -29,7 +29,6 @@ import { JsonPipe } from '@angular/common';
     JsonPipe,
   ],
   templateUrl: './project-comments.component.html',
-  styleUrl: './project-comments.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectCommentsComponent {

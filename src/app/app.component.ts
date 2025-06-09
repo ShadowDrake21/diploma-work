@@ -83,6 +83,11 @@ export class AppComponent implements OnInit {
     });
   }
 
+  closeSidebar() {
+    this.sidenav.close();
+    this.isOpened = false;
+  }
+
   toggleMenu() {
     this.sidenav.toggle();
     this.isOpened = !this.isOpened;

@@ -8,6 +8,7 @@ import {
   ICreateUser,
   IUpdateUserProfile,
   IUser,
+  ParticipantDTO,
 } from '@shared/models/user.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import {
@@ -93,12 +94,12 @@ export class UserService {
       );
   }
 
-  public getUserById(id: number): Observable<IAuthorizedUser> {
+  public getUserById(id: number): Observable<ParticipantDTO> {
     return this.http
-      .get<IAuthorizedUser>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .get<ParticipantDTO>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError<IAuthorizedUser>('getUserById', error)
+          this.handleError<ParticipantDTO>('getUserById', error)
         )
       );
   }
