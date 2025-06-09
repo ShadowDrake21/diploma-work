@@ -11,7 +11,7 @@
     />
     @if (generalInformationForm().controls.title.invalid &&
     generalInformationForm().controls.title.touched) {
-    <mat-error class="h-full">Назва проєкту є обовʼязкова</mat-error>
+    <mat-error class="h-full">{{ formErrors.title.required }}</mat-error>
     }
   </mat-form-field>
   <div style="display: flex; flex-direction: column">
@@ -34,7 +34,7 @@
     ></textarea>
     @if (generalInformationForm().controls.description.invalid &&
     generalInformationForm().controls.description.touched) {
-    <mat-error class="h-full">Опис проєкту є обовʼязковий</mat-error>
+    <mat-error class="h-full">{{ formErrors.description.required }}</mat-error>
     }
   </mat-form-field>
   <mat-form-field>
@@ -53,6 +53,7 @@
     [uploadedFiles]="uploadedFiles"
     [pendingFiles]="pendingFiles"
     [isUploading]="isUploading"
+    [isEditing]="isEditing()"
     [uploadProgress]="uploadProgress"
     (uploadRequested)="uploadFiles()"
     (filesSelected)="onFilesSelected($event)"

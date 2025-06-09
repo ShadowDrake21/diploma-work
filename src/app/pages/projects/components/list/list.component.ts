@@ -26,6 +26,8 @@ import {
   tap,
 } from 'rxjs';
 import { NotificationService } from '@core/services/notification.service';
+import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'projects-list',
@@ -35,9 +37,10 @@ import { NotificationService } from '@core/services/notification.service';
     MatPaginatorModule,
     MatProgressSpinnerModule,
     ProjectsQuickLinksComponent,
+    LoaderComponent,
+    MatButtonModule,
   ],
   templateUrl: './list.component.html',
-  styleUrl: './list.component.scss',
   providers: [provideNativeDateAdapter()],
 })
 export class ListProjectsComponent implements OnInit, OnDestroy {

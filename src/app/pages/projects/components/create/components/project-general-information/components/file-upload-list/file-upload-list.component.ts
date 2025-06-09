@@ -30,6 +30,7 @@ export class FileUploadListComponent {
   pendingFiles = input.required<File[]>();
   isUploading = input(false);
   uploadProgress = input(0);
+  isEditing = input.required<boolean>();
 
   @Output() filesSelected = new EventEmitter<File[]>();
   @Output() uploadRequested = new EventEmitter<void>();

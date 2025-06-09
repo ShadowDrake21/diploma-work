@@ -29,7 +29,7 @@
     {{ displayMessage() }}
   </p>
   @if (!errorOccurred()) { @if (users().length > 0) {
-  <div class="users__list">
+  <div class="grid gap-6 mb-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
     @for (user of users(); track user.id) {
     <shared-user-card [user]="user" />
     }

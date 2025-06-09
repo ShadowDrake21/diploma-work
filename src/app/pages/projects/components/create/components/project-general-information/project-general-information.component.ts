@@ -31,6 +31,7 @@ import { FileHandlerFacadeService } from '@core/services/files/file-handler-faca
 import { NotificationService } from '@core/services/notification.service';
 import { AttachmentsService } from '@core/services/attachments.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { GENERAL_INFORMATION_FORM_ERRORS } from '../errors/general-information.errors';
 
 @Component({
   selector: 'create-project-general-information',
@@ -66,8 +67,11 @@ export class ProjectGeneralInformationComponent {
   entityType = input.required<ProjectType | null | undefined>();
   existingFiles = signal<FileMetadataDTO[] | null>(null);
   private entityId = computed(() => this.getEntityId());
+  isEditing = computed(() => !!this.entityId());
 
   isFilesLoading = signal<boolean>(false);
+
+  formErrors = GENERAL_INFORMATION_FORM_ERRORS;
 
   readonly tags$ = this.tagService.getAllTags();
 
