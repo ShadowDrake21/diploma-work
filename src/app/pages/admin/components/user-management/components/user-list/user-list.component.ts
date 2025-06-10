@@ -21,6 +21,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { Observable } from 'rxjs';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { MatCard, MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-user-list',
@@ -38,6 +39,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
     RecentUsersComponent,
     IsCurrentUserPipe,
     LoaderComponent,
+    MatCardModule,
   ],
   templateUrl: './user-list.component.html',
 })
@@ -69,7 +71,7 @@ export class UserListComponent {
     'actions',
   ]);
 
-  showFirstLastButtons = signal(true);
+  isMobile = signal(true);
 
   constructor() {
     effect(() => {
@@ -80,13 +82,9 @@ export class UserListComponent {
   ngOnInit(): void {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
       if (screenSize.matches) {
-        this.showFirstLastButtons.set(false);
-        console.log(
-          'Mobile view detected, hiding first/last buttons',
-          this.showFirstLastButtons()
-        );
+        this.isMobile.set(false);
       } else {
-        this.showFirstLastButtons.set(true);
+        this.isMobile.set(true);
       }
     });
   }

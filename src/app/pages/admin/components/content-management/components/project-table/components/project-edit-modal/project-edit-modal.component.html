@@ -6,7 +6,7 @@
     class="edit-project-form"
     style="display: flex; flex-direction: column"
   >
-    <mat-form-field appearance="outline">
+    <mat-form-field>
       <mat-label>Title</mat-label>
       <input
         matInput
@@ -19,7 +19,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field>
       <mat-label>Description</mat-label>
       <textarea
         matInput
@@ -34,81 +34,27 @@
       }
     </mat-form-field>
 
-    <div class="form-row">
+    <div>
       <mat-label>Progress</mat-label>
-      <mat-slider min="0" max="100" step="1" showTickMarks discrete>
-        <input matSliderThumb [formControl]="projectForm.controls.progress" />
+      <mat-slider
+        min="0"
+        max="100"
+        step="1"
+        showTickMarks
+        discrete
+        class="!w-full !m-0"
+      >
+        <input matSliderThumb formControlName="progress" />
       </mat-slider>
     </div>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field>
       <mat-label>Tags</mat-label>
       <mat-select formControlName="tags" multiple [compareWith]="compareTags">
         @for (tag of allTags(); track tag.id) {
         <mat-option [value]="tag.id"> {{ tag.name }} </mat-option>}
       </mat-select>
     </mat-form-field>
-
-    <!-- <div class="attachments-section">
-      <h3>Attachments</h3>
-      <div class="file-upload-container">
-        <input
-          type="file"
-          #fileInput
-          multiple
-          (change)="onFileSelected($event)"
-          style="display: none"
-          accept="application/pdf"
-        />
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="fileInput.click()"
-          [disabled]="isUploading()"
-        >
-          <mat-icon>attach_file</mat-icon>
-          Add Files
-        </button>
-
-        @if (isUploading()) {
-        <mat-progress-bar
-          mode="determinate"
-          [value]="uploadProgress()"
-        ></mat-progress-bar>
-        }
-
-        <mat-list class="file-list">
-          @for (file of attachments(); track file.id) {
-          <mat-list-item>
-            <mat-icon matListItemIcon>description</mat-icon>
-            <div matListItemTitle>{{ file.fileName }}</div>
-            <div matListItemLine>
-              {{ file.fileSize ? (file.fileSize | fileSize) : "Size unknown" }}
-            </div>
-            <button
-              mat-icon-button
-              (click)="removeAttachment($index)"
-              matTooltip="Delete file"
-            >
-              <mat-icon color="warn">delete</mat-icon>
-            </button>
-            <a
-              mat-icon-button
-              [href]="file.fileUrl"
-              target="_blank"
-              matTooltip="View file"
-            >
-              <mat-icon>visibility</mat-icon>
-            </a>
-          </mat-list-item>
-          } @if (attachments().length === 0) {
-          <mat-list-item>
-            <div matListItemTitle>No attachments</div>
-          </mat-list-item>
-          }
-        </mat-list>
-      </div>
-    </div> -->
 
     <general-information-file-upload-list
       [uploadedFiles]="uploadedFiles"

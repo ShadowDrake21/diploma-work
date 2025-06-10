@@ -33,14 +33,12 @@ export class ProjectService {
 
   getAllProjects(
     page?: number,
-    pageSize?: number
+    size?: number
   ): Observable<ProjectDTO[] | PaginatedResponse<ProjectDTO>> {
     let params = new HttpParams();
 
-    if (page !== undefined && pageSize !== undefined) {
-      params = params
-        .set('page', page.toString())
-        .set('pageSize', pageSize.toString());
+    if (page !== undefined && size !== undefined) {
+      params = params.set('page', page.toString()).set('size', size.toString());
     }
     return this.http
       .get<ProjectDTO[] | PaginatedResponse<ProjectDTO>>(this.apiUrl, {
