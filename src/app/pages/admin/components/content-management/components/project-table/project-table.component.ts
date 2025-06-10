@@ -16,7 +16,6 @@ import { ProjectDTO } from '@models/project.model';
 import { Tag } from '@models/tag.model';
 import { FileSizePipe } from '@pipes/file-size.pipe';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
-import { ProjectType } from '@shared/enums/categories.enum';
 import { Pagination } from '@shared/types/util.types';
 import { ProjectEditModalComponent } from './components/project-edit-modal/project-edit-modal.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -45,9 +44,9 @@ import { ProjectProgressColorPipe } from './pipes/project-progress-color.pipe';
     TitleCasePipe,
     ProjectTypeNamePipe,
     ProjectProgressColorPipe,
+    TruncateTextPipe,
   ],
   templateUrl: './project-table.component.html',
-  styleUrl: './project-table.component.scss',
 })
 export class ProjectTableComponent implements OnInit {
   private readonly projectService = inject(ProjectService);

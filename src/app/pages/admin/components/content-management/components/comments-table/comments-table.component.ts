@@ -12,11 +12,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { IComment } from '@models/comment.types';
 import { ConfirmDialogComponent } from '@pages/admin/components/user-management/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { BaseFormComponent } from '../../../../../../shared/abstract/base-form/base-form.component';
 import { NotificationService } from '@core/services/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { retry } from 'rxjs';
-import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-comments-table',
@@ -39,7 +38,6 @@ import { LoaderComponent } from '../../../../../../shared/components/loader/load
 export class CommentsTableComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly dialog = inject(MatDialog);
-  private readonly _snackBar = inject(MatSnackBar);
   private readonly notificationService = inject(NotificationService);
 
   displayedColumns: string[] = [

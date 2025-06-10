@@ -31,6 +31,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { PageEvent } from '@angular/material/paginator';
 import { ProjectService } from '@core/services/project/models/project.service';
 import { ProjectSearchFilters } from '@shared/types/search.types';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-user-details',
@@ -47,9 +48,9 @@ import { ProjectSearchFilters } from '@shared/types/search.types';
     UserStatusChipComponent,
     ProfileProjectsComponent,
     IsCurrentUserPipe,
+    LoaderComponent,
   ],
   templateUrl: './user-details.component.html',
-  styleUrl: './user-details.component.scss',
 })
 export class UserDetailsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

@@ -42,12 +42,16 @@
       </mat-card-header>
       <mat-card-content>
         @if (error()) {
-        <div class="error-message">
-          {{ error() }}
-          <button mat-button color="primary" (click)="retryLoadData()">
-            Retry
-          </button>
+        <div>
+          <div
+            class="sm:text-xl text-lg text-red-600 font-semibold text-center"
+          >
+            {{ error() }}
+          </div>
         </div>
+        <button mat-button color="primary" (click)="retryLoadData()">
+          Retry
+        </button>
         } @else if(recentLogins() === null) {
         <custom-loader [diameter]="30" />
         } @else {

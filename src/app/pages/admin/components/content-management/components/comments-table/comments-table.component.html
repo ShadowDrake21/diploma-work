@@ -16,10 +16,6 @@
   <div class="empty-state">
     <mat-icon>comment</mat-icon>
     <p>No comments found</p>
-    <button mat-button (click)="refreshComments()">
-      <mat-icon>refresh</mat-icon>
-      Refresh
-    </button>
   </div>
   } @else {
   <table mat-table [dataSource]="comments()">
