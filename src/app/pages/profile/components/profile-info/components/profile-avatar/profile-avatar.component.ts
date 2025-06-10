@@ -97,31 +97,34 @@ export class ProfileAvatarComponent implements OnDestroy {
     }
 
     this.isLoading.set(true);
+    this.errorMessage.set('');
 
-    this.userService.updateUserAvatar(this.selectedFile()!).subscribe({
-      next: (response) => {
-        const newAvatarUrl = response.avatarUrl;
-        const currentUser = this.user();
-        if (currentUser) {
-          const updatedUser = {
-            ...currentUser,
-            avatarUrl: newAvatarUrl,
-          };
-          this.updateSuccess.emit(updatedUser);
-          this.notificationService.showSuccess('Avatar updated successfully');
-          this.resetUploadState();
-        }
+    this.userService.updateUserAvatar(file).subscribe({
+      next: (updatedUser) => {
+        this.previewUrl.set(updatedUser.avatarUrl!);
+
+        this.updateSuccess.emit(updatedUser);
+        this.notificationService.showSuccess('Avatar updated successfully');
+
+        setTimeout(() => this.resetUploadState(), 500);
       },
       error: (error) => {
         console.error('Avatar upload failed:', error);
         this.updateFailure.emit(error);
         this.handleUploadError(error);
-        this.isLoading.set(false);
       },
       complete: () => {
         this.isLoading.set(false);
       },
     });
+  }
+
+  get avatarUrl(): string | null {
+    return (
+      (this.previewUrl() || this.user()?.avatarUrl) +
+      '?v=' +
+      (this.user()?.updatedAt?.getTime() || Date.now())
+    );
   }
 
   // TODO : FIX AVATAR + STYLE ADMIN

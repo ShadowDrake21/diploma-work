@@ -215,14 +215,14 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserDTO updateAvatar(Long userId, MultipartFile file) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+	public UserDTO updateAvatar(String email, MultipartFile file) {
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 		if (user.getAvatarUrl() != null && !user.getAvatarUrl().equals(CreationUtils.getDefaultAvatarUrl())) {
 			s3Service.deleteFile(extractFileNameFromUrl(user.getAvatarUrl()));
 		}
 
-		String fileName = "avatars/" + userId + "/" + file.getOriginalFilename();
+		String fileName = "avatars/" + user.getId()+ "/" + file.getOriginalFilename();
 		String fileUrl = s3Service.uploadIndependentFile(file, fileName);
 
 		user.setAvatarUrl(fileUrl);

@@ -305,11 +305,11 @@ public class UserController {
 	@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
 	@PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<ApiResponse<UserDTO>> updateAvatar(
-			@Parameter(description = "Avatar image file") @RequestParam("file") MultipartFile file,
+			@Parameter(description = "Avatar image file") @RequestParam("avatar") MultipartFile file,
 			Authentication authentication) {
 		 try {
 	            String email = authentication.getName();
-	            UserDTO user = userService.getCurrentUser(email);
+	            UserDTO user = userService.updateAvatar(email, file);
 	            return ResponseEntity.ok(ApiResponse.success(
 	                    user,
 	                    UserMessages.getMessage(UserCodes.USER_FETCHED),

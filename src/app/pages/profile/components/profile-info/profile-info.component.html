@@ -16,7 +16,9 @@
       </button>
     </div>
     } @else if (user()) {
-    <div class="flex gap-[25px]">
+    <div
+      class="flex gap-[25px] min-[900px]:flex-row flex-col min-[900px]:items-start items-center w-full"
+    >
       <profile-avatar
         [user]="user()!"
         (updateSuccess)="handleAvatarSucess($event)"
