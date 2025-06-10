@@ -21,7 +21,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-user-analytics',
@@ -37,7 +37,6 @@ import { LoaderComponent } from '../../../../../../shared/components/loader/load
     LoaderComponent,
   ],
   templateUrl: './user-analytics.component.html',
-  styleUrl: './user-analytics.component.scss',
 })
 export class UserAnalyticsComponent {
   private readonly analyticsService = inject(AnalyticsService);
@@ -49,18 +48,26 @@ export class UserAnalyticsComponent {
   loading = signal(false);
   error = signal<string | null>(null);
 
+  dateRangeError = signal<string | null>(null);
+
   userGrowthChart$ = combineLatest([
     toObservable(this.startDate),
     toObservable(this.endDate),
   ]).pipe(
     debounceTime(300),
     distinctUntilChanged(),
-    tap(() => {
+    tap(([startDate, endDate]) => {
       this.loading.set(true);
       this.error.set(null);
+      this.dateRangeError.set(null);
+      if (startDate && endDate && startDate > endDate) {
+        this.dateRangeError.set('Start date must be before end date');
+        this.loading.set(false);
+        return;
+      }
     }),
     switchMap(([startDate, endDate]) => {
-      if (!startDate || !endDate) {
+      if (!startDate || !endDate || startDate > endDate) {
         return of(null);
       }
 
@@ -77,9 +84,8 @@ export class UserAnalyticsComponent {
     }),
 
     map((data) => {
-      if (!data) {
-        return [];
-      }
+      if (!data) return [];
+
       return [
         {
           name: 'New Users',

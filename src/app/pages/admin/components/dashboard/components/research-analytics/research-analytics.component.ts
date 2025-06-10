@@ -9,6 +9,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-research-analytics',
@@ -20,6 +21,7 @@ import { LoaderComponent } from '../../../../../../shared/components/loader/load
     MatTooltipModule,
     MatIcon,
     LoaderComponent,
+    MatButtonModule,
   ],
   templateUrl: './research-analytics.component.html',
   styleUrl: './research-analytics.component.scss',

@@ -1,14 +1,14 @@
 <nav class="w-full bg-[#2c3e50] text-white p-4">
-  <ul class="list-none p-0 m-0 flex w-full">
+  <ul class="list-none p-0 m-0 flex md:flex-row flex-col w-full">
     @for (item of navItems; track $index) {
     <li class="flex-1 text-center">
       <a
-        class="flex items-center py-4 px-6 no-underline text-white transition-all duration-300 justify-center hover:bg-[#396fa5]"
+        class="flex items-center gap-2 py-4 px-6 no-underline text-white transition-all duration-300 justify-center hover:bg-[#396fa5]"
         [routerLink]="item.path"
         routerLinkActive="bg-[#3498db]"
       >
         <mat-icon [fontIcon]="item.icon" />
-        {{ item.label }}
+        <span>{{ item.label }}</span>
       </a>
     </li>
     }

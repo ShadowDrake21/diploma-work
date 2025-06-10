@@ -10,7 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OverviewHasDataPipe } from '@pipes/overview-has-data.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/authentication/auth.service';
-import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
+import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-overview',
   imports: [
@@ -19,8 +20,8 @@ import { LoaderComponent } from '../../../../../../shared/components/loader/load
     MatIconModule,
     NgxChartsModule,
     MatProgressSpinnerModule,
-    OverviewHasDataPipe,
     LoaderComponent,
+    MatButtonModule,
   ],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.scss',

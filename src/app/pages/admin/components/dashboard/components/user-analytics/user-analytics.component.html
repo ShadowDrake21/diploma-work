@@ -1,63 +1,83 @@
 @let userGrowth = userGrowthChart$ | async;
 
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>User Analytics</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <div class="filter-row">
-      <mat-form-field>
-        <mat-label>Start Date</mat-label>
-        <input
-          matInput
-          [matDatepicker]="startPicker"
-          (dateChange)="onStartDateChange($event.value)"
-        />
-        <mat-datepicker-toggle
-          matSuffix
-          [for]="startPicker"
-        ></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
-      </mat-form-field>
+<div class="py-5">
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-xl font-bold sm:text-start text-center pb-5">
+      User Analytics
+    </h2>
 
-      <mat-form-field>
-        <mat-label>End Date</mat-label>
-        <input
-          matInput
-          [matDatepicker]="endPicker"
-          (dateChange)="onEndDateChange($event.value)"
-        />
-        <mat-datepicker-toggle
-          matSuffix
-          [for]="endPicker"
-        ></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
-      </mat-form-field>
+    <div class="flex flex-col gap-5">
+      <div
+        class="flex gap-4 justify-center items-center sm:flex-row flex-col px-2"
+      >
+        <mat-form-field>
+          <mat-label>Start Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="startPicker"
+            (dateChange)="onStartDateChange($event.value)"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="startPicker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>End Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="endPicker"
+            (dateChange)="onEndDateChange($event.value)"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="endPicker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+      @if (dateRangeError()) {
+      <div class="flex flex-col justify-center items-center gap-4 py-5">
+        <mat-icon class="text-red-500">error_outline</mat-icon>
+        <p class="text-lg font-semibold text-red-500 sm:text-left text-center">
+          {{ dateRangeError() }}
+        </p>
+      </div>
+      }@else if (loading()) {
+      <div class="flex justify-center items-center py-5">
+        <custom-loader [diameter]="60" />
+      </div>
+      } @else if (error()) {
+      <div class="error-message">
+        <mat-icon class="text-red-500">error_outline</mat-icon>
+        <p class="text-lg font-semibold text-red-500 sm:text-left text-center">
+          {{ error() }}
+        </p>
+      </div>
+      } @else if(userGrowth){ @if(userGrowth.length &&
+      userGrowth[0].series.length) {
+      <div>
+        <ngx-charts-line-chart
+          [results]="userGrowth"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Date"
+          yAxisLabel="Users"
+          [legend]="true"
+          scheme="cool"
+          [animations]="true"
+        ></ngx-charts-line-chart>
+      </div>
+      } @else {
+      <p class="text-center font-medium text-lg">
+        @if(startDate() && endDate()) { No user data available for selected
+        period } @else { Please select both start and end dates }
+      </p>
+      }}
     </div>
-    @if (loading()) {
-    <div class="loading-spinner">
-      <custom-loader [diameter]="40" />
-    </div>
-    } @else if (error()) {
-    <div class="error-message">
-      <mat-icon color="warn">error_outline</mat-icon>
-      {{ error() }}
-    </div>
-    } @else if(userGrowth){ @if(userGrowth.length &&
-    userGrowth[0].series.length) {
-    <ngx-charts-line-chart
-      [results]="userGrowth"
-      [xAxis]="true"
-      [yAxis]="true"
-      [showXAxisLabel]="true"
-      [showYAxisLabel]="true"
-      xAxisLabel="Date"
-      yAxisLabel="Users"
-      [legend]="true"
-      scheme="cool"
-      [animations]="true"
-    ></ngx-charts-line-chart>
-    } @else { @if(startDate() && endDate()) { No user data available for
-    selected period } @else { Please select both start and end dates } }}
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

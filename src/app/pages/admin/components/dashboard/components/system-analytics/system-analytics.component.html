@@ -1,170 +1,188 @@
 @if (error()) {
-<div class="error-container">
-  <mat-card appearance="outlined" class="error-card">
-    <mat-card-header>
-      <mat-card-title>Error Loading Analytics</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="error-content">
-        <mat-icon color="warn">error_outline</mat-icon>
-        <p>{{ error() }}</p>
-      </div>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="retry()">
-        <mat-icon>refresh</mat-icon>
-        Retry
-      </button>
-    </mat-card-actions>
-  </mat-card>
+<div class="py-5">
+  <div class="flex justify-center items-center flex-col gap-4">
+    <mat-icon class="text-red-500">error_outline</mat-icon>
+    <p class="text-lg font-semibold text-red-500 sm:text-left text-center">
+      {{ error() }}
+    </p>
+  </div>
+  <button mat-button(click)="retry()">
+    <mat-icon class="text-red-500">refresh</mat-icon>
+    <span class="text-red-500">Try Again</span>
+  </button>
 </div>
 } @else if (loading()) {
-<div class="loading-container">
+<div class="flex justify-center items-center py-5">
   <custom-loader [diameter]="60" />
 </div>
 } @else { @if (systemPerformance() || commentActivity()) {
-<mat-grid-list cols="2" rowHeight="400px">
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>System Performance</mat-card-title>
-      </mat-card-header>
-      @if (systemPerformance(); as performance){
-      <mat-card-content>
-        <div class="metric-grid">
-          <div class="metric-item">
-            <mat-icon>speed</mat-icon>
-            <div>
-              <h3>
-                {{ performance.averageResponseTime | number : "1.0-2" }}ms
-              </h3>
-              <p>Avg. Response Time</p>
-            </div>
-          </div>
-          <div class="metric-item">
-            <mat-icon>timer</mat-icon>
-            <div>
-              <h3>{{ performance.uptimePercentage | number : "1.2-2" }}%</h3>
-              <p>Uptime</p>
-            </div>
-          </div>
-          <div class="metric-item">
-            <mat-icon>memory</mat-icon>
-            <div>
-              <h3>{{ performance.memoryUsage | number : "1.2-2" }}%</h3>
-              <p>Memory Usage</p>
-            </div>
-          </div>
-          <div class="metric-item">
-            <mat-icon>device_hub</mat-icon>
-            <div>
-              <h3>{{ performance.cpuUsage | number : "1.2-2" }}%</h3>
-              <p>CPU Usage</p>
-            </div>
-          </div>
+<div class="flex flex-col gap-5 py-5">
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
+      System Performance
+    </h3>
 
-          <!-- Row 3 -->
-          <div class="metric-item">
-            <mat-icon>people</mat-icon>
-            <div>
-              <h3>{{ performance.activeConnections }}</h3>
-              <p>Active Sessions</p>
-            </div>
-          </div>
-          <div class="metric-item">
-            <mat-icon>storage</mat-icon>
-            <div>
-              <h3>
-                {{ performance.activeDbConnections }}/{{
-                  performance.maxDbConnections
-                }}
-              </h3>
-              <p>DB Connections</p>
-            </div>
-          </div>
-        </div></mat-card-content
-      >} @else {<custom-loader [diameter]="40" />}
-    </mat-card>
-  </mat-grid-tile>
+    @if (systemPerformance(); as performance){
 
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Comment Activity</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if(commentActivityChart$ | async; as chartData) { @if
-        (chartData.length) {
-        <ngx-charts-line-chart
-          [results]="chartData"
-          [xAxis]="true"
-          [yAxis]="true"
-          [showXAxisLabel]="true"
-          [showYAxisLabel]="true"
-          xAxisLabel="Date"
-          yAxisLabel="Activity"
-          [legend]="true"
-          [scheme]="'vivid'"
+    <div
+      class="grid sm:grid-cols-2 gap-4 p-4 flex-wrap grid-cols-1 sm:items-start items-center"
+    >
+      <div
+        class="flex items-center gap-4 sm:flex-row flex-col p-4 rounded bg-[#00000005]"
+      >
+        <mat-icon class="text-[2rem] !w-8 !h-8 text-[#3f51b5]">speed</mat-icon>
+        <div class="text-center">
+          <h3 class="m-0 text-2xl font-medium">
+            {{ performance.averageResponseTime | number : "1.0-2" }}ms
+          </h3>
+          <p class="m-0 text-[#666]">Avg. Response Time</p>
+        </div>
+      </div>
+      <div
+        class="flex items-center gap-4 sm:flex-row flex-col p-4 rounded bg-[#00000005]"
+      >
+        <mat-icon class="text-[2rem] !w-8 !h-8 text-[#3f51b5]">timer</mat-icon>
+        <div class="text-center">
+          <h3 class="m-0 text-2xl font-medium">
+            {{ performance.uptimePercentage | number : "1.2-2" }}%
+          </h3>
+          <p class="m-0 text-[#666]">Uptime</p>
+        </div>
+      </div>
+      <div
+        class="flex items-center gap-4 sm:flex-row flex-col p-4 rounded bg-[#00000005]"
+      >
+        <mat-icon class="text-[2rem] !w-8 !h-8 text-[#3f51b5]">memory</mat-icon>
+        <div class="text-center">
+          <h3 class="m-0 text-2xl font-medium">
+            {{ performance.memoryUsage | number : "1.2-2" }}%
+          </h3>
+          <p class="m-0 text-[#666]">Memory Usage</p>
+        </div>
+      </div>
+      <div
+        class="flex items-center gap-4 sm:flex-row flex-col p-4 rounded bg-[#00000005]"
+      >
+        <mat-icon class="text-[2rem] !w-8 !h-8 text-[#3f51b5]"
+          >device_hub</mat-icon
         >
-        </ngx-charts-line-chart>
-        }@else {
-        <div class="no-data">No comment activity data available</div>
-        }}@else {
-        <custom-loader [diameter]="40" />
-        }
-      </mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
-</mat-grid-list>
+        <div class="text-center">
+          <h3 class="m-0 text-2xl font-medium">
+            {{ performance.cpuUsage | number : "1.2-2" }}%
+          </h3>
+          <p class="m-0 text-[#666]">CPU Usage</p>
+        </div>
+      </div>
 
-@if (systemPerformance()) {
+      <div
+        class="flex items-center gap-4 sm:flex-row flex-col p-4 rounded bg-[#00000005]"
+      >
+        <mat-icon class="text-[2rem] !w-8 !h-8 text-[#3f51b5]">people</mat-icon>
+        <div class="text-center">
+          <h3 class="m-0 text-2xl font-medium">
+            {{ performance.activeConnections }}
+          </h3>
+          <p class="m-0 text-[#666]">Active Sessions</p>
+        </div>
+      </div>
+      <div
+        class="flex items-center gap-4 sm:flex-row flex-col p-4 rounded bg-[#00000005]"
+      >
+        <mat-icon class="text-[2rem] !w-8 !h-8 text-[#3f51b5]"
+          >storage</mat-icon
+        >
+        <div class="text-center">
+          <h3 class="m-0 text-2xl font-medium">
+            {{ performance.activeDbConnections }}/{{
+              performance.maxDbConnections
+            }}
+          </h3>
+          <p class="m-0 text-[#666]">DB Connections</p>
+        </div>
+      </div>
+    </div>
+    } @else {<custom-loader [diameter]="40" />}
+  </div>
 
-<mat-grid-list cols="2" rowHeight="300px">
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Memory Usage</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if(memoryUsageGauge$ | async; as data){
-        <ngx-charts-gauge
-          [results]="data"
-          [max]="100"
-          [units]="'%'"
-          [scheme]="'cool'"
-        >
-        </ngx-charts-gauge>
-        }@else {
-        <custom-loader [diameter]="40" />
-        }
-      </mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>CPU Usage</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if(cpuUsageGauge$ | async; as data){
-        <ngx-charts-gauge
-          *ngIf=""
-          [results]="data"
-          [max]="100"
-          [units]="'%'"
-          [scheme]="'fire'"
-        >
-        </ngx-charts-gauge>
-        }@else {
-        <custom-loader [diameter]="40" />
-        }
-      </mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
-</mat-grid-list>
-} } @else {
-<div class="no-data-container">
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
+      Comment Activity
+    </h3>
+    <div>
+      @if(commentActivityChart$ | async; as chartData) { @if
+      (chartData[0].series.length > 0 || chartData[1].series.length > 0) {
+      <ngx-charts-line-chart
+        [results]="chartData"
+        [xAxis]="true"
+        [yAxis]="true"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        xAxisLabel="Date"
+        yAxisLabel="Activity"
+        [legend]="true"
+        [scheme]="'vivid'"
+      >
+      </ngx-charts-line-chart>
+      }@else {
+      <div class="no-data">No comment activity data available</div>
+      }}@else {
+      <custom-loader [diameter]="40" />
+      }
+    </div>
+  </div>
+
+  @if (systemPerformance()) {
+
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
+      Memory Usage
+    </h3>
+
+    <div>
+      @if(memoryUsageGauge$ | async; as data){
+      <ngx-charts-gauge
+        [results]="data"
+        [max]="100"
+        [units]="'%'"
+        [scheme]="'cool'"
+      >
+      </ngx-charts-gauge>
+      }@else {
+      <custom-loader [diameter]="40" />
+      }
+    </div>
+  </div>
+
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
+      CPU Usage
+    </h3>
+
+    <div>
+      @if((cpuUsageGauge$ | async); as data){ @if(data && data[0] &&
+      (data[0].value || data[0].value === 0) && !(data[0].value | isNan)) {
+      <ngx-charts-gauge
+        [results]="data"
+        [max]="100"
+        [units]="'%'"
+        [scheme]="'fire'"
+      >
+      </ngx-charts-gauge>
+      } @else {
+      <div class="no-data">I Invalid CPU data: {{ data | json }}</div>
+      } }@else {
+      <custom-loader [diameter]="40" />
+      }
+    </div>
+  </div>
+
+  }
+</div>
+} @else {
+<div class="flex justify-center items-center flex-col gap-4 py-5">
   <mat-icon>info</mat-icon>
-  <p>No analytics data available</p>
+  <p class="text-lg font-semibold text-black sm:text-start text-center">
+    No analytics data available
+  </p>
 </div>
 } }
