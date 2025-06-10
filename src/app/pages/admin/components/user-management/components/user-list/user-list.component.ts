@@ -19,7 +19,8 @@ import { SortingDirection } from '@shared/enums/sorting.enum';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { Observable } from 'rxjs';
-import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-user-list',
@@ -39,13 +40,13 @@ import { LoaderComponent } from '../../../../../../shared/components/loader/load
     LoaderComponent,
   ],
   templateUrl: './user-list.component.html',
-  styleUrl: './user-list.component.scss',
 })
 export class UserListComponent {
   private readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly dialog = inject(MatDialog);
   private readonly notificationService = inject(NotificationService);
+  private readonly observer = inject(BreakpointObserver);
 
   users = signal<IUser[]>([]);
   isLoading = signal<boolean>(false);
@@ -68,9 +69,25 @@ export class UserListComponent {
     'actions',
   ]);
 
+  showFirstLastButtons = signal(true);
+
   constructor() {
     effect(() => {
       this.loadUsers();
+    });
+  }
+
+  ngOnInit(): void {
+    this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
+      if (screenSize.matches) {
+        this.showFirstLastButtons.set(false);
+        console.log(
+          'Mobile view detected, hiding first/last buttons',
+          this.showFirstLastButtons()
+        );
+      } else {
+        this.showFirstLastButtons.set(true);
+      }
     });
   }
 

@@ -1,19 +1,20 @@
-<div class="user-container">
-  <div class="header">
-    <h1>User Management</h1>
-  </div>
+<div class="p-6">
+  <h2 class="text-xl font-semibold pb-[10px] sm:text-start text-center">
+    User Management
+  </h2>
 
   @if(isLoading()){
   <div class="loading-state">
     <custom-loader [diameter]="50" />
-    <p>Loading users...</p>
   </div>
   } @if(error() && !isLoading()) {
   <div class="error-state mat-elevation-z2">
-    <mat-icon>error_outline</mat-icon>
+    <mat-icon class="text-red-500 text-center">error_outline</mat-icon>
     <div class="error-message">
-      <h3>Something went wrong</h3>
-      <p>{{ error() }}</p>
+      <h3 class="sm:text-xl text-lg text-red-600 font-semibold text-center">
+        Something went wrong
+      </h3>
+      <p class="sm:text-lg text-base font-medium text-center">{{ error() }}</p>
     </div>
     <button
       mat-stroked-button
@@ -26,7 +27,7 @@
     </button>
   </div>
   } @if(!isLoading() && !error()) {
-  <div class="table-container mat-elevation-z2">
+  <div class="mb-[25px] overflow-x-scroll">
     <table
       mat-table
       [dataSource]="users()"
@@ -36,7 +37,9 @@
     >
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-        <td mat-cell *matCellDef="let user">{{ user.id }}</td>
+        <td mat-cell *matCellDef="let user" class="font-medium">
+          {{ user.id }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="avatar">
@@ -45,7 +48,7 @@
           <img
             [src]="user.avatarUrl || 'assets/default-avatar.png'"
             alt="{{ user.username }}'s avatar"
-            class="avatar"
+            class="w-40 h-40 object-cover"
           />
         </td>
       </ng-container>
@@ -179,7 +182,7 @@
       [pageIndex]="currentPage()"
       (page)="onPageChange($event)"
       aria-label="Select page of users"
-      showFirstLastButtons
+      [showFirstLastButtons]="showFirstLastButtons()"
     >
     </mat-paginator>
   </div>
