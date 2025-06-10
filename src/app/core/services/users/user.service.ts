@@ -162,7 +162,7 @@ export class UserService {
 
   public updateUserAvatar(file: File): Observable<IUser> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('avatar', file);
     return this.http
       .post<IUser>(`${this.apiUrl}/me/avatar`, formData, getAuthHeaders())
       .pipe(

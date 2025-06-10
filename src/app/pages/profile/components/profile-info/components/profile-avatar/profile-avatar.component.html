@@ -8,7 +8,7 @@
   />
 
   @if (previewUrl() || user()?.avatarUrl) {
-  <div class="w-[500px] h-fit">
+  <div class="max-w-[500px] h-fit">
     <img
       [src]="previewUrl() || user()?.avatarUrl"
       alt="Profile image"

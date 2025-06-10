@@ -1,4 +1,10 @@
-import { Component, inject, OnDestroy, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { UserService } from '@core/services/users/user.service';
 import { Subscription } from 'rxjs';
 import { IUpdateUserProfile, IUser } from '@models/user.model';
@@ -26,6 +32,7 @@ import { LoaderComponent } from '../../../../shared/components/loader/loader.com
 export class ProfileInfoComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private subscriptions: Subscription[] = [];
 
   readonly editMode = signal(false);
@@ -68,6 +75,7 @@ export class ProfileInfoComponent implements OnDestroy {
   handleAvatarSucess(updatedUser: IUser): void {
     this.user.set(updatedUser);
     currentUserSig.set(updatedUser);
+    this.cdr.detectChanges();
     this.notificationService.showSuccess('Avatar updated successfully');
   }
 

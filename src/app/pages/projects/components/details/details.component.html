@@ -60,7 +60,9 @@
     <details-patent [id]="project()!.id" />
     } @case('RESEARCH') { <details-research-project [id]="project()!.id" /> }
     @default {
-    <p>Unknown work type</p>
+    <p class="text-lg font-semibold sm:text-left text-center">
+      Unknown work type
+    </p>
     } }
   </div>
   <div class="pb-[25px]">

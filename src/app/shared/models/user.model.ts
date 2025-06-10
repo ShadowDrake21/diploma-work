@@ -17,7 +17,8 @@ export interface IUser {
   lastActive?: string | Date;
   tags: string[];
   active: boolean;
-  createdAt?: string | Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   verified?: boolean;
   socialLinks?: SocialLink[];
 }
