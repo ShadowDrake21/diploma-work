@@ -9,7 +9,8 @@ import { NotificationService } from '@core/services/notification.service';
 import { safeToLocaleDateString } from '@shared/utils/date.utils';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { catchError, EMPTY, forkJoin, map, of, switchMap } from 'rxjs';
-import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
+import { IsNanPipe } from '@pipes/is-nan.pipe';
 
 @Component({
   selector: 'app-system-analytics',
@@ -20,9 +21,9 @@ import { LoaderComponent } from '../../../../../../shared/components/loader/load
     MatIcon,
     MatProgressSpinnerModule,
     LoaderComponent,
+    IsNanPipe,
   ],
   templateUrl: './system-analytics.component.html',
-  styleUrl: './system-analytics.component.scss',
 })
 export class SystemAnalyticsComponent implements OnInit {
   private readonly analyticsService = inject(AnalyticsService);
@@ -50,7 +51,7 @@ export class SystemAnalyticsComponent implements OnInit {
     map((perf) => [
       {
         name: 'CPU',
-        value: perf?.cpuUsage || 0,
+        value: perf?.cpuUsage ? Number(perf.cpuUsage) : 0,
       },
     ]),
     catchError(() => {
@@ -61,28 +62,42 @@ export class SystemAnalyticsComponent implements OnInit {
 
   commentActivityChart$ = toObservable(this.commentActivity).pipe(
     map((data) => {
-      if (!data) return [];
+      if (!data || data.length === 0) {
+        return [
+          {
+            name: 'Comments',
+            series: [],
+          },
+          {
+            name: 'Likes',
+            series: [],
+          },
+        ];
+      }
 
       return [
         {
           name: 'Comments',
           series: data!.map((item) => ({
             name: safeToLocaleDateString(item.date),
-            value: item.newComments,
+            value: item.newComments || 0,
           })),
         },
         {
           name: 'Likes',
           series: data!.map((item) => ({
             name: safeToLocaleDateString(item.date),
-            value: item.likes,
+            value: item.likes || 0,
           })),
         },
       ];
     }),
     catchError(() => {
       this.error.set('Failed to load comment activity data');
-      return of([]);
+      return of([
+        { name: 'Comments', series: [] },
+        { name: 'Likes', series: [] },
+      ]);
     })
   );
 
