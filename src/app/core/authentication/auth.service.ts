@@ -3,7 +3,7 @@ import {
   HttpErrorResponse,
   HttpStatusCode,
 } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -25,9 +25,11 @@ import {
   IResetPasswordRequest,
   IVerifyRequest,
 } from '@shared/types/auth.types';
-import { ApiResponse } from '@models/api-response.model';
 import { IJwtPayload } from '@shared/types/jwt.types';
 import { UserRole } from '@shared/enums/user.enum';
+import { UserService } from '@core/services/users/user.service';
+import { currentUserSig } from '@core/shared/shared-signals';
+import { NotificationService } from '@core/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -35,12 +37,13 @@ import { UserRole } from '@shared/enums/user.enum';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   private apiUrl = 'http://localhost:8080/api/auth';
 
   private currentUserSubject = new BehaviorSubject<IJwtPayload | null>(null);
   private rememberSessionSubject = new BehaviorSubject<boolean>(false);
-  private sessionWarningSubject = new Subject<number>();
+  public sessionWarningSubject = new Subject<number>();
   private tokenRefreshedSubject = new Subject<string | null>();
 
   // Public observables
@@ -51,6 +54,8 @@ export class AuthService {
 
   // State flags
   public isRefreshingToken = false;
+
+  public isAdminSig = signal(false);
 
   constructor() {
     this.initializeAuthState();
@@ -117,61 +122,37 @@ export class AuthService {
 
   public login(credentials: ILoginRequest): Observable<IAuthResponse> {
     return this.http
-      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/login`, credentials)
+      .post<IAuthResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap((response) =>
           this.handleLoginResponse(response, credentials.rememberMe)
         ),
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
+
         catchError((error) => this.handleAuthError(error))
       );
   }
 
   public register(userData: IRegisterRequest): Observable<string> {
     return this.http
-      .post<ApiResponse<string>>(`${this.apiUrl}/register`, userData)
-      .pipe(
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
-        catchError((error) => this.handleAuthError(error))
-      );
+      .post<string>(`${this.apiUrl}/register`, userData)
+      .pipe(catchError((error) => this.handleAuthError(error)));
   }
 
   public verifyUser(verifyData: IVerifyRequest): Observable<IAuthResponse> {
     return this.http
-      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/verify`, verifyData)
+      .post<IAuthResponse>(`${this.apiUrl}/verify`, verifyData)
       .pipe(
-        tap((response) => this.handleLoginResponse(response, true)),
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
+        tap((response) => {
+          this.notificationService.showSuccess('User verified successfully');
+          this.router.navigate(['/authentication/sign-in']);
         }),
+
         catchError((error) => this.handleAuthError(error))
       );
   }
 
   public logout(): void {
-    this.http.post<ApiResponse<string>>(`${this.apiUrl}/logout`, {}).subscribe({
+    this.http.post<string>(`${this.apiUrl}/logout`, {}).subscribe({
       next: () => this.handleLogoutSuccess(),
       error: (error) => {
         console.error('Logout error:', error);
@@ -182,24 +163,31 @@ export class AuthService {
 
   /* ------------------------- Token Management ------------------------- */
 
+  checkTokenStatus(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      this.router.navigate(['/authentication/sign-in']);
+      return false;
+    }
+    const decoded = this.decodeToken(token);
+    if (!decoded || this.isTokenExpired(decoded)) {
+      this.clearAuthData();
+      this.router.navigate(['/authentication/sign-in']);
+      return false;
+    }
+    return true;
+  }
+
   public refreshToken(): Observable<string | null> {
     this.isRefreshingToken = true;
 
     return this.http
-      .post<ApiResponse<IAuthResponse>>(`${this.apiUrl}/refresh-token`, {
+      .post<IAuthResponse>(`${this.apiUrl}/refresh-token`, {
         rememberMe: this.getRememberSession(),
       })
       .pipe(
         tap((response) => this.handleRefreshResponse(response)),
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data?.authToken || null;
-        }),
+        map((response) => response.authToken || null),
         catchError((error) => {
           console.error('Token refresh failed:', error);
           this.tokenRefreshedSubject.next(null);
@@ -211,24 +199,45 @@ export class AuthService {
 
   public checkAndRefreshToken(): Observable<string | null> {
     const token = this.getToken();
-    if (!token) return of(null);
+    if (!token) {
+      this.clearAuthData();
+      return of(null);
+    }
 
     const decoded = this.decodeToken(token);
-    if (!decoded || this.isTokenExpired(decoded)) return of(null);
+    if (!decoded || this.isTokenExpired(decoded)) {
+      this.clearAuthData();
+      return of(null);
+    }
 
     const timeLeft = this.getTokenTimeLeft(decoded);
     const refreshThreshold = 15 * 60 * 1000;
 
-    if (timeLeft > refreshThreshold) return of(token);
+    if (timeLeft < refreshThreshold && timeLeft > 0) {
+      this.sessionWarningSubject.next(timeLeft);
+    }
 
-    return this.refreshToken().pipe(
-      tap({
-        next: (newToken) => this.handleRefreshResult(newToken, timeLeft),
-        error: () => this.handleRefreshError(timeLeft),
-      }),
-      switchMap((newToken) => of(newToken || token)),
-      catchError(() => of(token))
-    );
+    if (timeLeft <= refreshThreshold) {
+      return this.refreshToken().pipe(
+        catchError(() => {
+          if (timeLeft > 0) return of(token);
+          this.clearAuthData();
+          return of(null);
+        })
+      );
+    }
+    return of(token);
+  }
+
+  private updateAdminState(decoded: IJwtPayload | null): void {
+    const isAdmin =
+      decoded?.role === UserRole.ADMIN ||
+      decoded?.role === UserRole.SUPER_ADMIN;
+    this.isAdminSig.set(isAdmin);
+  }
+
+  showSessionWarning(timeLeft: number) {
+    this.sessionWarningSubject.next(timeLeft);
   }
 
   /* ------------------------- Password Reset ------------------------- */
@@ -237,44 +246,20 @@ export class AuthService {
     request: IRequestPasswordReset
   ): Observable<string> {
     return this.http
-      .post<ApiResponse<string>>(
-        `${this.apiUrl}/request-password-reset`,
-        request
-      )
-      .pipe(
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
-        catchError((error) => this.handleAuthError(error))
-      );
+      .post<string>(`${this.apiUrl}/request-password-reset`, request)
+      .pipe(catchError((error) => this.handleAuthError(error)));
   }
 
   public resetPassword(request: IResetPasswordRequest): Observable<string> {
     return this.http
-      .post<ApiResponse<string>>(`${this.apiUrl}/reset-password`, request)
-      .pipe(
-        map((response) => {
-          if (!response.success) {
-            throw this.createApplicationError(
-              response.message!,
-              response.errorCode
-            );
-          }
-          return response.data!;
-        }),
-        catchError((error) => this.handleAuthError(error))
-      );
+      .post<string>(`${this.apiUrl}/reset-password`, request)
+      .pipe(catchError((error) => this.handleAuthError(error)));
   }
 
   /* ------------------------- Error Handling ------------------------- */
 
   private handleAuthError(error: any): Observable<never> {
+    console.log('Handling authentication error:', error);
     if (error instanceof HttpErrorResponse) {
       if (error.status === HttpStatusCode.TooManyRequests) {
         const retryAfter = error.headers.get('Retry-After') || '60';
@@ -297,10 +282,11 @@ export class AuthService {
       return throwError(() => error);
     }
 
+    console.log('Unexpected error:', error);
     return throwError(() =>
       this.createApplicationError(
-        'An unexpected error occurred',
-        'SERVER_ERROR'
+        error.message || 'An unexpected error occurred',
+        error.errorCode || 'SERVER_ERROR'
       )
     );
   }
@@ -315,58 +301,61 @@ export class AuthService {
   /* ------------------------- Private Helpers ------------------------- */
 
   private initializeAuthState(): void {
+    console.log('Initializing auth state...');
     const token = this.getToken();
-    if (!token) return;
+    console.log('Token found in storage:', !!token);
 
-    const decoded = this.decodeToken(token);
-    if (decoded && !this.isTokenExpired(decoded)) {
-      this.currentUserSubject.next(decoded);
-    } else {
-      this.clearAuthData();
+    if (token) {
+      try {
+        const decoded = this.decodeToken(token);
+        if (decoded) {
+          if (this.isTokenExpired(decoded)) {
+            this.clearAuthData();
+          } else {
+            this.currentUserSubject.next(decoded);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('Token decode error', e);
+      }
     }
+
+    console.log('Clearing auth data');
+    this.clearAuthData();
   }
 
   private handleLoginResponse(
-    response: ApiResponse<IAuthResponse>,
+    response: IAuthResponse,
     rememberMe: boolean
   ): void {
-    if (response.success && response.data?.authToken) {
+    if (response.authToken) {
       const storage = this.getStorage(rememberMe);
-      storage.setItem('authToken', response.data.authToken);
+      storage.setItem('authToken', response.authToken);
 
-      const decoded = this.decodeToken(response.data.authToken);
+      const decoded = this.decodeToken(response.authToken);
       if (!decoded) throw new Error('Invalid token');
 
       this.currentUserSubject.next(decoded);
+      this.updateAdminState(decoded);
       this.setRememberSession(rememberMe);
     }
   }
 
-  private handleRefreshResponse(response: ApiResponse<IAuthResponse>): void {
-    if (response.success && response.data?.authToken) {
+  private handleRefreshResponse(response: IAuthResponse): void {
+    if (response.authToken) {
       const storage = this.getCurrentStorage();
-      storage.setItem('authToken', response.data.authToken);
+      storage.setItem('authToken', response.authToken);
 
-      const decoded = this.decodeToken(response.data.authToken);
+      const decoded = this.decodeToken(response.authToken);
       if (decoded) {
         this.currentUserSubject.next(decoded);
+        this.updateAdminState(decoded);
       }
 
-      this.tokenRefreshedSubject.next(response.data.authToken);
+      this.tokenRefreshedSubject.next(response.authToken);
     } else {
       this.tokenRefreshedSubject.next(null);
-    }
-  }
-
-  private handleRefreshResult(newToken: string | null, timeLeft: number): void {
-    if (!newToken && timeLeft > 0) {
-      this.sessionWarningSubject.next(timeLeft);
-    }
-  }
-
-  private handleRefreshError(timeLeft: number): void {
-    if (timeLeft > 0) {
-      this.sessionWarningSubject.next(timeLeft);
     }
   }
 
@@ -381,12 +370,6 @@ export class AuthService {
     this.router.navigate(['/authentication/sign-in']);
   }
 
-  private clearAuthData(): void {
-    localStorage.removeItem('authToken');
-    sessionStorage.removeItem('authToken');
-    this.currentUserSubject.next(null);
-  }
-
   private getStorage(rememberMe: boolean): Storage {
     return rememberMe ? localStorage : sessionStorage;
   }
@@ -395,12 +378,22 @@ export class AuthService {
     return localStorage.getItem('authToken') ? localStorage : sessionStorage;
   }
 
-  private isTokenExpired(decodedToken: IJwtPayload): boolean {
-    return decodedToken.exp ? decodedToken.exp < Date.now() / 1000 : false;
+  isTokenExpired(decodedToken: any): boolean {
+    return this.getTokenTimeLeft(decodedToken) <= 0;
   }
 
-  private getTokenTimeLeft(decodedToken: IJwtPayload): number {
-    return decodedToken.exp * 1000 - Date.now();
+  public getTokenTimeLeft(decodedToken: IJwtPayload): number {
+    const expirationDate = new Date(decodedToken.exp * 1000);
+    return expirationDate.getTime() - Date.now();
+  }
+
+  public clearAuthData(): void {
+    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authToken');
+    localStorage.removeItem('rememberSession');
+    sessionStorage.removeItem('rememberSession');
+    this.currentUserSubject.next(null);
+    this.updateAdminState(null);
   }
 }
 

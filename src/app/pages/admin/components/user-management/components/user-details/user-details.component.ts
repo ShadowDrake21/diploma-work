@@ -10,7 +10,14 @@ import { AdminService } from '@core/services/admin.service';
 import { UserService } from '@core/services/users/user.service';
 import { ProjectDTO } from '@models/project.model';
 import { IUser } from '@models/user.model';
-import { firstValueFrom, switchMap } from 'rxjs';
+import {
+  catchError,
+  firstValueFrom,
+  switchMap,
+  take,
+  tap,
+  throwError,
+} from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
@@ -21,7 +28,10 @@ import { UserStatusChipComponent } from '../utils/user-status-chip/user-status-c
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
-import { ApiResponse } from '@models/api-response.model';
+import { PageEvent } from '@angular/material/paginator';
+import { ProjectService } from '@core/services/project/models/project.service';
+import { ProjectSearchFilters } from '@shared/types/search.types';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-user-details',
@@ -38,9 +48,9 @@ import { ApiResponse } from '@models/api-response.model';
     UserStatusChipComponent,
     ProfileProjectsComponent,
     IsCurrentUserPipe,
+    LoaderComponent,
   ],
   templateUrl: './user-details.component.html',
-  styleUrl: './user-details.component.scss',
 })
 export class UserDetailsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -48,6 +58,7 @@ export class UserDetailsComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private readonly projectService = inject(ProjectService);
   private readonly dialog = inject(MatDialog);
 
   readonly user = signal<IUser | null>(null);
@@ -55,6 +66,12 @@ export class UserDetailsComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly userProjects = signal<ProjectDTO[]>([]);
   readonly isProcessing = signal<boolean>(false);
+  filters = signal<ProjectSearchFilters>({});
+
+  currentPage = signal(0);
+  pageSize = signal(10);
+  totalItems = signal(0);
+  readonly selectedTabIndex = signal(0);
 
   readonly UserRole = UserRole;
 
@@ -71,25 +88,29 @@ export class UserDetailsComponent implements OnInit {
 
     this.route.params
       .pipe(
+        take(1),
         switchMap((params) => {
           const userId = params['id'];
-          if (!isNaN(userId)) {
+          console.log(`Loading user data for ID: ${userId}`);
+          if (isNaN(userId)) {
             throw new Error('Invalid user ID');
           }
-          return this.userService.getFullUserById(userId);
+
+          const idNumber = Number(userId);
+          return this.userService.getFullUserById(idNumber).pipe(
+            tap((response) => console.log('API response:', response)),
+            catchError((err) => {
+              console.error('Error in getFullUserById:', err);
+              return throwError(() => err); // Re-throw the error
+            })
+          );
         })
       )
       .subscribe({
         next: (response) => {
-          if (response.success) {
-            this.user.set(response.data!);
-            this.loadUserProjects();
-            this.notificationService.showSuccess(
-              'User data loaded successfully'
-            );
-          } else {
-            this.handleError(response.message || 'Failed to load user data');
-          }
+          this.user.set(response);
+          this.loadUserProjects();
+          this.notificationService.showSuccess('User data loaded successfully');
         },
         error: (err) => this.handleError(this.getUserFriendlyError(err)),
         complete: () => this.isLoading.set(false),
@@ -116,22 +137,9 @@ export class UserDetailsComponent implements OnInit {
   }
 
   loadUserProjects(): void {
-    const userId = this.user()?.id;
-    if (!userId) return;
-
-    this.userService.getUserProjects(userId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.userProjects.set(response.data || []);
-        } else {
-          this.notificationService.showError('Failed to load user projects');
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load user projects:', err);
-        this.notificationService.showError('Failed to load user projects');
-      },
-    });
+    this.filters.set({});
+    this.currentPage.set(0);
+    this.loadProjects();
   }
 
   async promoteUser(): Promise<void> {
@@ -256,15 +264,11 @@ export class UserDetailsComponent implements OnInit {
   ): Promise<void> {
     try {
       this.isProcessing.set(true);
-      const response = (await firstValueFrom(action())) as ApiResponse<any>;
+      const response = (await firstValueFrom(action())) as any;
 
-      if (response.success) {
-        this.notificationService.showSuccess(successMessage);
-        if (updatedUser) this.user.set(updatedUser);
-        if (onSuccess) onSuccess();
-      } else {
-        this.notificationService.showError(response.message || errorMessage);
-      }
+      this.notificationService.showSuccess(successMessage);
+      if (updatedUser) this.user.set(updatedUser);
+      if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error(`${errorCode}:`, err);
       const message = err.error?.message || errorMessage;
@@ -272,6 +276,45 @@ export class UserDetailsComponent implements OnInit {
     } finally {
       this.isProcessing.set(false);
     }
+  }
+
+  loadProjects() {
+    const userId = this.user()?.id;
+    if (!userId) return;
+
+    const currentTab = this.selectedTabIndex();
+
+    this.isLoading.set(true);
+    this.projectService
+      .getMyProjects(this.filters(), this.currentPage(), this.pageSize())
+      .subscribe({
+        next: (response) => {
+          this.userProjects.set(response.data || []);
+          this.totalItems.set(response.totalItems || 0);
+
+          this.selectedTabIndex.set(currentTab);
+        },
+        error: (err) => {
+          console.error('Failed to load filtered projects:', err);
+          this.notificationService.showError('Failed to load projects');
+          this.isLoading.set(false);
+
+          this.selectedTabIndex.set(currentTab);
+        },
+        complete: () => this.isLoading.set(false),
+      });
+  }
+
+  onFiltering(filters: ProjectSearchFilters): void {
+    this.currentPage.set(0);
+    this.filters.set(filters);
+    this.loadProjects();
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageSize.set(event.pageSize);
+    this.currentPage.set(event.pageIndex);
+    this.loadProjects();
   }
 
   goBack(): void {

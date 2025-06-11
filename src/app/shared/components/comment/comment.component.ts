@@ -27,7 +27,6 @@ import { MatIcon } from '@angular/material/icon';
     MatIcon,
   ],
   templateUrl: './comment.component.html',
-  styleUrls: ['./comment.component.scss'],
 })
 export class CommentComponent {
   private readonly authService = inject(AuthService);
@@ -61,7 +60,7 @@ export class CommentComponent {
     if (this.isLiking() || this.isCurrentUserComment()) return;
 
     this.isLiking.set(true);
-    const action = this.comment().isLikedByCurrentUser ? 'unlike' : 'like';
+    const action = this.comment().likedByCurrentUser ? 'unlike' : 'like';
     this.like.emit([action, this.comment().id]);
 
     setTimeout(() => this.isLiking.set(false), 2000);

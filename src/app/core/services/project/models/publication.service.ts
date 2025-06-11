@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import { PaginatedResponse } from '@models/api-response.model';
 import {
   CreatePublicationRequest,
   PublicationDTO,
@@ -19,19 +19,17 @@ export class PublicationService {
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly apiUrl = BASE_URL + 'publications';
 
-  getAllPublications(): Observable<ApiResponse<PublicationDTO[]>>;
+  getAllPublications(): Observable<PublicationDTO[]>;
 
   getAllPublications(
     page: number,
     pageSize: number
-  ): Observable<PaginatedResponse<PublicationDTO[]>>;
+  ): Observable<PaginatedResponse<PublicationDTO>>;
 
   getAllPublications(
     page?: number,
     pageSize?: number
-  ): Observable<
-    ApiResponse<PublicationDTO[]> | PaginatedResponse<PublicationDTO[]>
-  > {
+  ): Observable<PublicationDTO[] | PaginatedResponse<PublicationDTO>> {
     let params = new HttpParams();
 
     if (page !== undefined && pageSize !== undefined) {
@@ -40,13 +38,10 @@ export class PublicationService {
         .set('pageSize', pageSize.toString());
     }
     return this.http
-      .get<ApiResponse<PublicationDTO[]> | PaginatedResponse<PublicationDTO[]>>(
-        this.apiUrl,
-        {
-          ...getAuthHeaders(),
-          params,
-        }
-      )
+      .get<PublicationDTO[] | PaginatedResponse<PublicationDTO>>(this.apiUrl, {
+        ...getAuthHeaders(),
+        params,
+      })
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -57,12 +52,9 @@ export class PublicationService {
       );
   }
 
-  getPublicationById(id: string): Observable<ApiResponse<PublicationDTO>> {
+  getPublicationById(id: string): Observable<PublicationDTO> {
     return this.http
-      .get<ApiResponse<PublicationDTO>>(
-        `${this.apiUrl}/${id}`,
-        getAuthHeaders()
-      )
+      .get<PublicationDTO>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -75,9 +67,9 @@ export class PublicationService {
 
   createPublication(
     request: CreatePublicationRequest
-  ): Observable<ApiResponse<PublicationDTO>> {
+  ): Observable<PublicationDTO> {
     return this.http
-      .post<ApiResponse<PublicationDTO>>(this.apiUrl, request, getAuthHeaders())
+      .post<PublicationDTO>(this.apiUrl, request, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -88,18 +80,12 @@ export class PublicationService {
       );
   }
 
-  // TODO: finish authors publication
-
   updatePublication(
     id: string,
     request: UpdatePublicationRequest
-  ): Observable<ApiResponse<PublicationDTO>> {
+  ): Observable<PublicationDTO> {
     return this.http
-      .put<ApiResponse<PublicationDTO>>(
-        `${this.apiUrl}/${id}`,
-        request,
-        getAuthHeaders()
-      )
+      .put<PublicationDTO>(`${this.apiUrl}/${id}`, request, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(
@@ -110,9 +96,9 @@ export class PublicationService {
       );
   }
 
-  deletePublication(id: string): Observable<ApiResponse<void>> {
+  deletePublication(id: string): Observable<void> {
     return this.http
-      .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
           this.errorHandler.handleServiceError(

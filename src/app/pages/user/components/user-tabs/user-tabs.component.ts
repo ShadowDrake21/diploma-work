@@ -18,6 +18,9 @@ import { IUser } from '@models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import { ContactInformationComponent } from './components/contact-information/contact-information.component';
 import { NotificationService } from '@core/services/notification.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+type TabType = 'publications' | 'patents' | 'researches';
 
 @Component({
   selector: 'user-tabs',
@@ -27,9 +30,9 @@ import { NotificationService } from '@core/services/notification.service';
     ProfileProjectsComponent,
     UserCollaboratorsComponent,
     ContactInformationComponent,
+    MatProgressBarModule,
   ],
   templateUrl: './user-tabs.component.html',
-  styleUrl: './user-tabs.component.scss',
 })
 export class TabsComponent {
   private readonly userService = inject(UserService);
@@ -40,29 +43,53 @@ export class TabsComponent {
   currentPage = input.required<number>();
 
   pageChange = output<PageEvent>();
-  projects = signal<ProjectDTO[]>([]);
+  allProjects = signal<ProjectDTO[]>([]);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
 
-  publications = computed(
+  tabPagination = signal({
+    publications: { pageSize: 5, currentPage: 0 },
+    patents: { pageSize: 5, currentPage: 0 },
+    researches: { pageSize: 5, currentPage: 0 },
+  });
+
+  publications = computed(() => {
+    const filtered = this.allProjects().filter(
+      (p) => p.type === ProjectType.PUBLICATION
+    );
+    const { currentPage, pageSize } = this.tabPagination().publications;
+    return this.paginate(filtered, currentPage, pageSize);
+  });
+
+  patents = computed(() => {
+    const filtered = this.allProjects().filter(
+      (p) => p.type === ProjectType.PATENT
+    );
+    const { currentPage, pageSize } = this.tabPagination().patents;
+    return this.paginate(filtered, currentPage, pageSize);
+  });
+
+  researches = computed(() => {
+    const filtered = this.allProjects().filter(
+      (p) => p.type === ProjectType.RESEARCH
+    );
+    const { currentPage, pageSize } = this.tabPagination().researches;
+    return this.paginate(filtered, currentPage, pageSize);
+  });
+
+  totalPublications = computed(
     () =>
-      (this.projects() as ProjectDTO[] | undefined)?.filter(
-        (p: ProjectDTO) => p.type === ProjectType.PUBLICATION
-      ) || []
+      this.allProjects().filter((p) => p.type === ProjectType.PUBLICATION)
+        .length
   );
 
-  patents = computed(
-    () =>
-      (this.projects() as ProjectDTO[] | undefined)?.filter(
-        (p: ProjectDTO) => p.type === ProjectType.PATENT
-      ) || []
+  totalPatents = computed(
+    () => this.allProjects().filter((p) => p.type === ProjectType.PATENT).length
   );
 
-  researches = computed(
+  totalResearches = computed(
     () =>
-      (this.projects() as ProjectDTO[] | undefined)?.filter(
-        (p: ProjectDTO) => p.type === ProjectType.RESEARCH
-      ) || []
+      this.allProjects().filter((p) => p.type === ProjectType.RESEARCH).length
   );
 
   constructor() {
@@ -75,6 +102,7 @@ export class TabsComponent {
   }
 
   private loadProjects(userId: number): void {
+    this.loading.set(true);
     this.userService
       .getProjectsWithDetails(userId)
       .pipe(
@@ -87,7 +115,7 @@ export class TabsComponent {
       )
       .subscribe({
         next: (projects) => {
-          this.projects.set(projects);
+          this.allProjects.set(projects);
           this.loading.set(false);
         },
         error: () => {
@@ -96,7 +124,18 @@ export class TabsComponent {
       });
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageChange.emit(event);
+  onPageChange(event: PageEvent, tab: TabType): void {
+    this.tabPagination.update((prev) => ({
+      ...prev,
+      [tab]: {
+        pageSize: event.pageSize,
+        currentPage: event.pageIndex,
+      },
+    }));
+  }
+
+  private paginate(items: any[], page: number, pageSize: number): any[] {
+    const startIndex = page * pageSize;
+    return items.slice(startIndex, startIndex + pageSize);
   }
 }

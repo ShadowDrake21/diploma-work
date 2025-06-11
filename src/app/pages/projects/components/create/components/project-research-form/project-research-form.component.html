@@ -13,6 +13,10 @@
       }}</mat-option>
       }
     </mat-select>
+    @if (researchProjectsForm().controls.participantIds.invalid &&
+    researchProjectsForm().controls.participantIds.touched) {
+    <mat-error>{{ formErrors.participantIds.required }}</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field>
@@ -23,6 +27,10 @@
       matInput
       formControlName="budget"
     />
+    @if (researchProjectsForm().controls.budget.invalid &&
+    researchProjectsForm().controls.budget.touched) {
+    <mat-error>{{ formErrors.budget.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Start date</mat-label>
@@ -33,6 +41,13 @@
       [for]="pickerFirst"
     ></mat-datepicker-toggle>
     <mat-datepicker #pickerFirst></mat-datepicker>
+    <shared-form-error
+      [control]="researchProjectsForm().controls.startDate"
+      [errors]="[
+        { key: 'required', message: formErrors.startDate.required },
+        { key: 'beforeEnd', message: formErrors.startDate.beforeEnd }
+      ]"
+    />
   </mat-form-field>
   <mat-form-field>
     <mat-label>End date</mat-label>
@@ -43,6 +58,13 @@
       [for]="pickerSecond"
     ></mat-datepicker-toggle>
     <mat-datepicker #pickerSecond></mat-datepicker>
+    <shared-form-error
+      [control]="researchProjectsForm().controls.endDate"
+      [errors]="[
+        { key: 'required', message: formErrors.endDate.required },
+        { key: 'beforeStart', message: formErrors.endDate.beforeStart }
+      ]"
+    />
   </mat-form-field>
   <mat-form-field>
     <mat-label>Status</mat-label>
@@ -51,6 +73,10 @@
       <mat-option [value]="status.value">{{ status.viewValue }}</mat-option>
       }
     </mat-select>
+    @if (researchProjectsForm().controls.status.invalid &&
+    researchProjectsForm().controls.status.touched) {
+    <mat-error>{{ formErrors.status.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Funding Source</mat-label>
@@ -61,6 +87,10 @@
       formControlName="fundingSource"
       [value]="researchProjectsForm().controls.fundingSource.value"
     />
+    @if (researchProjectsForm().controls.fundingSource.invalid &&
+    researchProjectsForm().controls.fundingSource.touched) {
+    <mat-error>{{ formErrors.fundingSource.required }}</mat-error>
+    }
   </mat-form-field>
   <div>
     <button mat-button matStepperPrevious>Back</button>

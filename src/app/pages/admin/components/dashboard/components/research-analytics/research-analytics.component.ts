@@ -8,6 +8,8 @@ import { AnalyticsService } from '@core/services/analytics.service';
 import { NotificationService } from '@core/services/notification.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-research-analytics',
@@ -18,9 +20,10 @@ import { forkJoin, Subject, takeUntil } from 'rxjs';
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatIcon,
+    LoaderComponent,
+    MatButtonModule,
   ],
   templateUrl: './research-analytics.component.html',
-  styleUrl: './research-analytics.component.scss',
 })
 export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
   private readonly analyticsService = inject(AnalyticsService);

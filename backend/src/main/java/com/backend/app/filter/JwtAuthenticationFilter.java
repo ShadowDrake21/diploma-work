@@ -43,9 +43,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Value("${jwt.secret}")
 	private String jwtSecretKey;
-	
-	@Value("${jwt.session-prolongation-threshold}")
-	private long sessionProlongationThreshold;
     
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request, 
@@ -56,21 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String jwt = extractJwtFromRequest(request);
 			
 			if(jwt != null) {
-				if(tokenBlacklist.isBlacklisted(jwt)) {
-					sendUnauthorizedError(response, "Token has been revoked");
-					return;
-				}
-				
-				Claims claims = validateAndParseJwt(jwt);
-			
-				 
-				 if(shouldProlongSession(claims)) {
-					 String newToken = prolongToken(jwt, claims);
-					 response.setHeader("X-New-Token", newToken);
-					 response.setHeader("X-Auto-Prolong", "true");
-					 }
-				 
-				authenticateRequest(claims);
+				validateAndProcessToken(jwt, response);
 			}
 			
 			filterChain.doFilter(request, response);
@@ -84,25 +67,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		
 	}
 	
-	private boolean shouldProlongSession(Claims claims) {
-		if(isRememberMeToken(claims)) {
-			return false;
+	private void validateAndProcessToken(String jwt, HttpServletResponse response) {
+		if(tokenBlacklist.isBlacklisted(jwt)) {
+			 throw new SecurityException("Token has been revoked");
 		}
 		
-		Date expiration = claims.getExpiration();
-		long timeLeft = expiration.getTime() - System.currentTimeMillis();
-		
-		return timeLeft > 0 && timeLeft < sessionProlongationThreshold;
-	}
-	
-	private String prolongToken(String oldToken, Claims claims) {
-		tokenBlacklist.addToBlacklist(oldToken);
-		
-		Long userId = claims.get(USER_ID_CLAIM, Long.class);
-		String email = claims.getSubject();
-		boolean rememberMe = isRememberMeToken(claims);
-		
-		return jwtUtil.generateToken(email, userId, rememberMe);
+		  Claims claims = validateAndParseJwt(jwt);
+	        authenticateRequest(claims);
 	}
 	
 	 private String extractJwtFromRequest(HttpServletRequest request) {
@@ -147,13 +118,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	        byte[] decodedKey = Base64.getDecoder().decode(jwtSecretKey);
 	        return Keys.hmacShaKeyFor(decodedKey);
 	    } 
-	    
-	    private boolean isRememberMeToken(Claims claims) {
-	    	Date expiration = claims.getExpiration();
-	    	Date now = new Date();
-	    	long tokenLifetime = expiration.getTime() - now.getTime();
-	    	
-	    	return tokenLifetime > (7 * 24 * 60 * 60 * 1000);
-	    }
 
 }

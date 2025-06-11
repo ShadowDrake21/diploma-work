@@ -1,7 +1,6 @@
 import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
-import { ApiResponse } from '@models/api-response.model';
 import { FileMetadataDTO } from '@models/file.model';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { getAuthHeaders } from '@core/utils/auth.utils';
@@ -40,14 +39,12 @@ export class AttachmentsService {
       entityId
     );
 
-    return this.http
-      .get<ApiResponse<FileMetadataDTO[]>>(endpoint, getAuthHeaders())
-      .pipe(
-        map((response) => response.data || []),
-        catchError((error) =>
-          this.handleError(error, 'Failed to load attachments', [])
-        )
-      );
+    return this.http.get<FileMetadataDTO[]>(endpoint, getAuthHeaders()).pipe(
+      map((response) => response || []),
+      catchError((error) =>
+        this.handleError(error, 'Failed to load attachments', [])
+      )
+    );
   }
 
   /**
@@ -61,7 +58,7 @@ export class AttachmentsService {
     file: File,
     entityType: ProjectType,
     uuid: string
-  ): Observable<ApiResponse<string>> {
+  ): Observable<string> {
     if (!file) {
       return throwError(() => new Error('No file provided for upload'));
     }
@@ -69,7 +66,7 @@ export class AttachmentsService {
     const formData = this.createFormData(file, entityType, uuid);
 
     return this.http
-      .post<ApiResponse<string>>(`${this.apiUrl}/upload`, formData, {
+      .post<string>(`${this.apiUrl}/upload`, formData, {
         reportProgress: true,
         observe: 'events',
         responseType: 'json',
@@ -77,12 +74,12 @@ export class AttachmentsService {
       })
       .pipe(
         filter((event) => event.type === HttpEventType.Response),
-        map((event) => (event as HttpResponse<ApiResponse<string>>).body!),
+        map((event) => (event as HttpResponse<string>).body!),
         catchError((error) =>
-          this.handleError<ApiResponse<string>>(
+          this.handleError<string>(
             error,
             `Failed to upload file: ${file.name}`,
-            this.createErrorResponse(`Failed to upload file: ${file.name}`)
+            ''
           )
         )
       );
@@ -99,9 +96,13 @@ export class AttachmentsService {
     entityType: ProjectType,
     entityId: string,
     files: File[]
-  ): Observable<ApiResponse<string[]>> {
+  ): Observable<string[]> {
     if (!files?.length) {
-      return of(this.createSuccessResponse([], 'No files to upload'));
+      return this.handleError<string[]>(
+        'No files to upload',
+        'No files to upload',
+        []
+      );
     }
 
     if (files.length === 1) {
@@ -122,26 +123,22 @@ export class AttachmentsService {
     entityType: ProjectType,
     entityId: string,
     files: (File | FileMetadataDTO)[]
-  ): Observable<ApiResponse<string[]>> {
+  ): Observable<string[]> {
     if (!files?.length) {
-      return of(this.createSuccessResponse([], 'No files to update'));
+      return this.handleError<string[]>(
+        'No files to upload',
+        'No files to upload',
+        []
+      );
     }
 
     const formData = this.createUpdateFormData(files, entityType, entityId);
 
     return this.http
-      .post<ApiResponse<string[]>>(
-        `${this.apiUrl}/update-files`,
-        formData,
-        getAuthHeaders()
-      )
+      .post<string[]>(`${this.apiUrl}/update-files`, formData, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError(
-            error,
-            'Failed to update files',
-            this.createErrorResponse('Failed to update files', [])
-          )
+          this.handleError(error, 'Failed to update files', [])
         )
       );
   }
@@ -150,7 +147,7 @@ export class AttachmentsService {
     entityType: string,
     entityId: string,
     fileName: string
-  ): Observable<ApiResponse<string>> {
+  ): Observable<string> {
     const endpoint = this.buildEndpoint(
       'delete',
       encodeURIComponent(entityType.toLowerCase()),
@@ -159,15 +156,15 @@ export class AttachmentsService {
     );
 
     return this.http
-      .delete<ApiResponse<string>>(endpoint, {
+      .delete<string>(endpoint, {
         ...getAuthHeaders(),
       })
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<string>>(
+          this.handleError<string>(
             error,
             `Failed to delete file: ${fileName}`,
-            this.createErrorResponse(`Failed to delete file: ${fileName}`)
+            ''
           )
         )
       );
@@ -178,18 +175,11 @@ export class AttachmentsService {
     file: File,
     entityType: ProjectType,
     entityId: string
-  ): Observable<ApiResponse<string[]>> {
+  ): Observable<string[]> {
     return this.uploadFile(file, entityType, entityId).pipe(
-      map((response) => ({
-        ...response,
-        data: response.data ? [response.data] : [],
-      })),
+      map((response) => (response ? [response] : [])),
       catchError((error) =>
-        this.handleError(
-          error,
-          `Failed to upload file: ${file.name}`,
-          this.createErrorResponse(`Failed to upload file: ${file.name}`, [])
-        )
+        this.handleError(error, `Failed to upload file: ${file.name}`, [])
       )
     );
   }
@@ -198,44 +188,21 @@ export class AttachmentsService {
     entityType: ProjectType,
     entityId: string,
     files: File[]
-  ): Observable<ApiResponse<string[]>> {
+  ): Observable<string[]> {
     const uploadObservables = files.map((file) =>
       this.uploadFile(file, entityType, entityId).pipe(
-        map((response) => response.data!),
         catchError(() => of(null))
       )
     );
     return forkJoin(uploadObservables).pipe(
       map((results) => {
         const successfulUploads = results.filter((url): url is string => !!url);
-        return this.createBatchResponse(successfulUploads, files.length);
+        return successfulUploads;
       }),
       catchError((error) =>
-        this.handleError(
-          error,
-          'Failed to upload multiple files',
-          this.createErrorResponse('Failed to upload multiple files', [])
-        )
+        this.handleError(error, 'Failed to upload multiple files', [])
       )
     );
-  }
-
-  private createBatchResponse(
-    urls: string[],
-    totalFiles: number
-  ): ApiResponse<string[]> {
-    const successCount = urls.length;
-    const message =
-      successCount === totalFiles
-        ? 'All files uploaded successfully'
-        : `Uploaded ${successCount} of ${totalFiles} files`;
-
-    return {
-      success: successCount > 0,
-      message,
-      data: urls,
-      timestamp: new Date().toISOString(),
-    };
   }
 
   private createFormData(
@@ -279,26 +246,5 @@ export class AttachmentsService {
     console.error(userMessage, error);
     this.notificationService.showError(userMessage);
     return of(fallback);
-  }
-
-  private createSuccessResponse<T>(data: T, message: string): ApiResponse<T> {
-    return {
-      success: true,
-      message,
-      data,
-      timestamp: new Date().toISOString(),
-    };
-  }
-
-  private createErrorResponse<T>(
-    message: string,
-    data: T | null = null
-  ): ApiResponse<T> {
-    return {
-      success: false,
-      message,
-      data: data as T,
-      timestamp: new Date().toISOString(),
-    };
   }
 }

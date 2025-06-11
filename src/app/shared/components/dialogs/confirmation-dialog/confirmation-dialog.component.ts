@@ -1,9 +1,10 @@
 import { Component, Inject } from '@angular/core';
+import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-confirmation-dialog',
-  imports: [MatDialogModule],
+  imports: [MatDialogModule, MatButtonModule],
   template: `
     <h2 mat-dialog-title>Confirm Deletion</h2>
     <mat-dialog-content>
@@ -12,7 +13,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
     <mat-dialog-actions align="end" class="flex gap-5">
       <button mat-button mat-dialog-close class="cursor-pointer">Cancel</button>
       <button
-        mat-raised-button
+        mat-button
         color="warn"
         [mat-dialog-close]="true"
         class="cursor-pointer"
@@ -21,7 +22,6 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
       </button>
     </mat-dialog-actions>
   `,
-  styleUrl: './confirmation-dialog.component.scss',
 })
 export class ConfirmationDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: { message: string }) {}

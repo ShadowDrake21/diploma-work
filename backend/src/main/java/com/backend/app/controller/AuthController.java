@@ -71,25 +71,39 @@ public class AuthController {
 			if (request.getPassword() == null || request.getPassword().isEmpty()) {
 				return ResponseEntity.badRequest().body(ApiResponse.error(AuthMessages.getMessage(AuthCodes.PASSWORD_REQUIRED), AuthCodes.PASSWORD_REQUIRED));
 			}
-			
-			Optional<User> optionalUser = userService.getUserByEmail(request.getEmail());
+			log.info("Login attempt for email: {}", request.getEmail());
+	        
+	        Optional<User> optionalUser = userService.getUserByEmail(request.getEmail());
+	        
+	        if (optionalUser.isEmpty()) {
+	            log.warn("User not found for email: {}", request.getEmail());
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                .body(ApiResponse.error(AuthMessages.getMessage(AuthCodes.INVALID_CREDENTIALS), "INVALID_CREDENTIALS"));
+	        }
 
-			if (optionalUser.isEmpty()
-					) {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(AuthMessages.getMessage(AuthCodes.INVALID_CREDENTIALS), "INVALID_CREDENTIALS"));
-			}
-
-			User user = optionalUser.get();
-			
-			 if (!user.isVerified()) {
-	                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-	                    .body(ApiResponse.error(AuthMessages.getMessage(AuthCodes.ACCOUNT_NOT_VERIFIED), "ACCOUNT_NOT_VERIFIED"));
-	            }
-			 if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-	                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-	                    .body(ApiResponse.error(AuthMessages.getMessage(AuthCodes.INVALID_CREDENTIALS), "INVALID_CREDENTIALS"));
-	            }
-			 
+	        User user = optionalUser.get();
+	        log.info("User found: {}", user);
+	        
+	        if (!user.isVerified()) {
+	            log.warn("Account not verified for email: {}", request.getEmail());
+	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	                .body(ApiResponse.error(AuthMessages.getMessage(AuthCodes.ACCOUNT_NOT_VERIFIED), "ACCOUNT_NOT_VERIFIED"));
+	        }
+	        
+	        log.info("Password comparison - input: {}, stored hash: {}", request.getPassword(), user.getPassword());
+	        boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+	        log.info("Password matches: {}", passwordMatches);
+	        
+	        String testEncoded = passwordEncoder.encode("Drake21");
+	        log.info("Test encoding of 'Drake21': {}", testEncoded);
+	        boolean testMatch = passwordEncoder.matches("Drake21", testEncoded);
+	        log.info("Test match result: {}", testMatch);
+	        
+	        if (!passwordMatches) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                .body(ApiResponse.error(AuthMessages.getMessage(AuthCodes.INVALID_CREDENTIALS), "INVALID_CREDENTIALS"));
+	        }
+	        
 			String token = jwtUtil.generateToken(user.getEmail(), user.getId(), request.isRememberMe());
 
 			userLoginService.recordUserLogin(user, httpRequest);
@@ -156,8 +170,7 @@ public class AuthController {
     	                		AuthCodes.EMAIL_IN_USE));
     		}
     		
-    		String encodedPassword = passwordEncoder.encode(request.getPassword());
-    		userService.savePendingUser(request.getUsername(), request.getEmail(), encodedPassword, Role.USER);
+    		userService.savePendingUser(request.getUsername(), request.getEmail(), request.getPassword(), Role.USER);
 
     		return ResponseEntity.ok(ApiResponse.success(AuthMessages.getMessage(AuthCodes.VERIFICATION_SENT),
             		AuthCodes.VERIFICATION_SENT));

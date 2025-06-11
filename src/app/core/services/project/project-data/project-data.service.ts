@@ -33,15 +33,18 @@ export class ProjectDataService extends ProjectDataCoreService {
   ): Observable<any> {
     return this.projectService.createProject(projectData).pipe(
       switchMap((projectResponse) => {
-        const projectId = projectResponse.data!;
         const operations = [
-          this.createTypedProject(projectId, projectData.type, formValues),
+          this.createTypedProject(
+            projectResponse,
+            projectData.type,
+            formValues
+          ),
         ];
 
         if (attachments.length > 0) {
           operations.push(
             this.attachmentsService
-              .uploadFiles(projectData.type, projectId, attachments)
+              .uploadFiles(projectData.type, projectResponse, attachments)
               .pipe(
                 catchError((error) =>
                   this.handleAttachmentError(error, 'upload')
@@ -52,7 +55,7 @@ export class ProjectDataService extends ProjectDataCoreService {
         return forkJoin(operations).pipe(
           catchError((error) => {
             console.error('Transaction failed, rolling back', error);
-            return this.rollbackCreate(projectId, error);
+            return this.rollbackCreate(projectResponse, error);
           })
         );
       }),
@@ -68,8 +71,6 @@ export class ProjectDataService extends ProjectDataCoreService {
   ): Observable<any> {
     return this.projectService.getProjectById(projectId).pipe(
       switchMap((originalProject) => {
-        const originalData = originalProject.data!;
-
         return this.projectService.updateProject(projectId, projectData).pipe(
           switchMap(() => {
             if (
@@ -103,7 +104,7 @@ export class ProjectDataService extends ProjectDataCoreService {
             return forkJoin(operations).pipe(
               catchError((error) => {
                 console.error('Transaction failed, rolling back', error);
-                return this.rollbackUpdate(projectId, originalData, error);
+                return this.rollbackUpdate(projectId, originalProject, error);
               })
             );
           }),

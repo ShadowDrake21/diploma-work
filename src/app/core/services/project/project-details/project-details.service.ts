@@ -23,7 +23,7 @@ export class ProjectDetailsService implements OnDestroy {
   private destroyed$ = new Subject<void>();
   private currentProjectId: string | null = null;
 
-  private _project = new BehaviorSubject<ProjectDTO | undefined>(undefined);
+  private _project = new BehaviorSubject<ProjectDTO | null>(null);
   project$ = this._project.asObservable();
 
   loadProjectDetails(projectId: string): void {
@@ -34,23 +34,18 @@ export class ProjectDetailsService implements OnDestroy {
       .getProjectById(projectId)
       .pipe(
         takeUntil(this.destroyed$),
-        tap({
-          next: (response) => this._project.next(response.data),
-          error: (error) => {
-            console.error('Error loading project:', error);
-            this.notificationService.showError(
-              error.status === 404
-                ? 'Project not found'
-                : 'Failed to load project details'
-            );
-          },
-        }),
         catchError(() => {
-          this._project.next(undefined);
-          return of(undefined);
+          this._project.next(null);
+          return of(null);
         })
       )
-      .subscribe();
+      .subscribe((response) => {
+        if (response) {
+          this._project.next(response);
+        } else {
+          this._project.next(null);
+        }
+      });
   }
 
   deleteProject(projectId: string): Observable<any> {
@@ -73,7 +68,7 @@ export class ProjectDetailsService implements OnDestroy {
   }
 
   resetState(): void {
-    this._project.next(undefined);
+    this._project.next(null);
     this.currentProjectId = null;
   }
 

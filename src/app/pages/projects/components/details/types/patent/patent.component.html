@@ -1,61 +1,63 @@
-html @if (loading()) {
-<div class="loading-spinner">
-  <!-- Add your loading spinner component here -->
-  <p>Loading patent details...</p>
+@if (loading()) {
+<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @else if (error) {
+<div
+  class="flex sm:justify-start justify-center items-center gap-4 flex-wrap px-2"
+>
+  <div class="text-lg font-semibold text-red-500 sm:text-left text-center">
+    Failed to load patent details. Please try again later.
+  </div>
+  <button mat-button (click)="retry()">Retry</button>
 </div>
-} @else if (error()) {
-<div class="error-message">
-  <p>{{ error() }}</p>
-  <button (click)="retry()">Retry</button>
-</div>
-} @else if ( patent()) {
-<div class="patent">
-  <div class="patent__section">
-    <h4 class="patent__section-title">Primary author</h4>
-    <!-- TODO: Link -->
-    <p class="patent__section-text">
+} @else if (patent()) {
+<div
+  class="flex justify-between sm:text-start text-center gap-[20px] flex-wrap sm:flex-row flex-col"
+>
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">Primary author</h4>
+    <p>
       {{ patent()?.primaryAuthor?.username || "Not specified" }}
     </p>
   </div>
-
-  <div class="patent__coinventors patent__section">
-    <h4 class="patent__section-title">Co-inventors</h4>
-    @if (coInventors() && coInventors().length > 0) {
-
-    <ul class="patent__coinventors-list">
-      @for (coInventor of coInventors(); track coInventor) {
-      <li class="patent__coinventors-list__item">
-        {{ coInventor?.username || "Unknown" }}
-      </li>
-      }
-    </ul>
-    }@else {
-    <p class="patent__section-text">No co-inventors specified</p>
-    }
-  </div>
-  <div class="patent__section">
-    <h4 class="patent__section-title">Registration number</h4>
-    <p class="patent__section-text">
+  @if (coInventors() && coInventors().length > 0) {
+  <mat-accordion>
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title class="w-full text-center flex justify-center !mr-0">
+          <h4 class="font-medium pb-[5px] text-center">Co-inventors</h4>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <ul class="list-none flex flex-col gap-[10px]">
+        @for (coInventor of coInventors(); track coInventor) {
+        <li class="text-center">{{ coInventor.username }}</li>
+        }
+      </ul>
+    </mat-expansion-panel>
+  </mat-accordion>
+  }
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">Registration number</h4>
+    <p>
       {{ patent()?.registrationNumber || "Not specified" }}
     </p>
   </div>
-  <div class="patent__section">
-    <h4 class="patent__section-title">Registration date</h4>
-    <p class="patent__section-text">
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">Registration date</h4>
+    <p>
       @if (patent()?.registrationDate) {
       {{ patent()?.registrationDate | date : "mediumDate" }}
       } @else { Not specified }
     </p>
   </div>
-  <div class="patent__section">
-    <h4 class="patent__section-title">Issuing authority</h4>
-    <p class="patent__section-text">
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">Issuing authority</h4>
+    <p>
       {{ patent()?.issuingAuthority || "Not specified" }}
     </p>
   </div>
 </div>
 } @else {
-<div class="no-data">
-  <p>No patent details available</p>
+<div class="text-lg font-semibold text-black sm:text-start text-center">
+  No patent details available
 </div>
 }

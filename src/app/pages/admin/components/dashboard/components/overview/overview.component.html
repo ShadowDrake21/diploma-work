@@ -1,75 +1,93 @@
 @if (error()) {
-<div class="error-state">
-  <mat-icon>error_outline</mat-icon>
-  <p>{{ error() }}</p>
-  <button mat-button (click)="loadData()">
-    <mat-icon>refresh</mat-icon>
-    Try Again
-  </button>
+<div class="py-5">
+  <div class="flex justify-center items-center flex-col gap-4">
+    <mat-icon class="text-red-500">error_outline</mat-icon>
+    <p class="text-lg font-semibold text-red-500 sm:text-left text-center">
+      {{ error() }}
+    </p>
+    <button mat-button (click)="loadData()">
+      <mat-icon class="text-red-500">refresh</mat-icon>
+      <span class="text-red-500">Try Again</span>
+    </button>
+  </div>
 </div>
 } @else if (loading()) {
-<div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
+<div class="flex justify-center items-center py-5">
+  <custom-loader [diameter]="60" />
 </div>
 } @else if (systemOverview() || userGrowth() || projectDistribution()) {
-<mat-grid-list cols="2" rowHeight="400px">
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>System Overview</mat-card-title>
-        <button mat-icon-button (click)="refreshData()">
-          <mat-icon>refresh</mat-icon>
-        </button>
-      </mat-card-header>
-      @if (systemOverview(); as overview) {
-      <mat-card-content>
-        <div class="metric-grid">
-          <div class="metric-item" matTooltip="Total registered users">
-            <mat-icon>people</mat-icon>
-            <div>
-              <h3>{{ overview.totalUsers }}</h3>
-              <p>Total Users</p>
-            </div>
-          </div>
-          <div class="metric-item" matTooltip="Users active in last 30 days">
-            <mat-icon>person</mat-icon>
-            <div>
-              <h3>{{ overview.activeUsers }}</h3>
-              <p>Active Users</p>
-            </div>
-          </div>
-          <div class="metric-item" matTooltip="All projects in the system">
-            <mat-icon>folder</mat-icon>
-            <div>
-              <h3>{{ overview.totalProjects }}</h3>
-              <p>Total Projects</p>
-            </div>
-          </div>
-          <div class="metric-item" matTooltip="Current active sessions">
-            <mat-icon>wifi</mat-icon>
-            <div>
-              <h3>{{ overview.activeSessions }}</h3>
-              <p>Active Sessions</p>
-            </div>
+<div>
+  <div
+    class="flex gap-3 my-5 items-center sm:justify-between justify-center sm:flex-row flex-col"
+  >
+    <h2 class="text-xl font-bold sm:text-start text-center">System Overview</h2>
+    <button mat-icon-button (click)="refreshData()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+  <div class="flex flex-col gap-5">
+    @if (systemOverview(); as overview) {
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex flex-wrap gap-10 sm:justify-between justify-center">
+        <div
+          class="flex justify-center gap-[15px] items-center"
+          matTooltip="Total registered users"
+        >
+          <mat-icon>people</mat-icon>
+          <div class="flex flex-col items-center">
+            <h3 class="text-2xl font-bold">{{ overview.totalUsers }}</h3>
+            <p class="font-medium">Total Users</p>
           </div>
         </div>
-      </mat-card-content>
-      } @else {
-      <mat-spinner diameter="40"></mat-spinner>
-      }
-    </mat-card>
-  </mat-grid-tile>
+        <div
+          class="flex justify-center gap-[15px] items-center"
+          matTooltip="Users active in last 30 days"
+        >
+          <mat-icon>person</mat-icon>
+          <div class="flex flex-col items-center">
+            <h3 class="text-2xl font-bold">{{ overview.activeUsers }}</h3>
+            <p class="font-medium">Active Users</p>
+          </div>
+        </div>
+        <div
+          class="flex justify-center gap-[15px] items-center"
+          matTooltip="All projects in the system"
+        >
+          <mat-icon>folder</mat-icon>
+          <div class="flex flex-col items-center">
+            <h3 class="text-2xl font-bold">
+              {{ overview.totalProjects }}
+            </h3>
+            <p class="font-medium">Total Projects</p>
+          </div>
+        </div>
+        <div
+          class="flex justify-center gap-[15px] items-center"
+          matTooltip="Current active sessions"
+        >
+          <mat-icon>wifi</mat-icon>
+          <div class="flex flex-col items-center">
+            <h3 class="text-2xl font-bold">
+              {{ overview.activeSessions }}
+            </h3>
+            <p class="font-medium">Active Sessions</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    } @else {
+    <custom-loader [diameter]="40" />
+    }
 
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>User Growth</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if (userGrowthChart$ | async; as chartData) {
-        @if(chartData.series.length) {
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
+        User Growth
+      </h3>
+
+      <div>
         <ngx-charts-line-chart
-          [results]="[chartData]"
+          *ngIf="userGrowthChart$ | async as chartData; else loadingUserGrowth"
+          [results]="chartData"
           [xAxis]="true"
           [yAxis]="true"
           [showXAxisLabel]="true"
@@ -80,25 +98,24 @@
           [animations]="true"
         >
         </ngx-charts-line-chart>
-        }@else {
-        <div class="no-data">No user growth data available</div>
-        } } @else {
-        <mat-spinner diameter="40"></mat-spinner>
-        }
-      </mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
 
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Project Distribution</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if (projectDistributionChart$ | async; as chartData) { @if(chartData |
-        overviewHasData){
+        <ng-template #loadingUserGrowth>
+          <custom-loader [diameter]="40" />
+        </ng-template>
+      </div>
+    </div>
 
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
+        Project Distribution
+      </h3>
+
+      <div>
         <ngx-charts-pie-chart
+          *ngIf="
+            projectDistributionChart$ | async as chartData;
+            else loadingProject
+          "
           [results]="chartData"
           [labels]="true"
           [doughnut]="true"
@@ -106,22 +123,25 @@
           [animations]="true"
         >
         </ngx-charts-pie-chart>
-        }@else {
-        <div class="no-data">No project distribution data available</div>
-        } } @else {
-        <mat-spinner diameter="40"></mat-spinner>
-        }
-      </mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
-</mat-grid-list>
-}@else {
-<div class="empty-state">
-  <mat-icon>info</mat-icon>
-  <p>No data available</p>
-  <button mat-button (click)="loadData()">
-    <mat-icon>refresh</mat-icon>
-    Load Data
-  </button>
+
+        <ng-template #loadingProject>
+          <custom-loader [diameter]="40" />
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+} @else {
+<div class="py-5">
+  <div class="flex justify-center items-center flex-col gap-4">
+    <mat-icon>info</mat-icon>
+    <p class="text-lg font-semibold text-black sm:text-start text-center">
+      No data available
+    </p>
+    <button mat-button (click)="loadData()">
+      <mat-icon>refresh</mat-icon>
+      Load Data
+    </button>
+  </div>
 </div>
 }

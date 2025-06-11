@@ -6,6 +6,5 @@ import { NavigationComponent } from './components/utils/navigation/navigation.co
   selector: 'app-admin',
   imports: [RouterOutlet, NavigationComponent],
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.scss',
 })
 export class AdminComponent {}

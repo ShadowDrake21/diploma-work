@@ -12,9 +12,9 @@ import {
   CommentActivityDTO,
   SystemPerformanceDTO,
 } from '@models/analytics.model';
-import { ApiResponse } from '@models/api-response.model';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { catchError, finalize, map, Observable, of, tap } from 'rxjs';
 import { NotificationService } from './notification.service';
+import { AuthService } from '@core/authentication/auth.service';
 
 type AnalyticsEndpoint = {
   [K in keyof AnalyticsService]: K extends `get${infer T}`
@@ -49,21 +49,28 @@ export class AnalyticsService {
     params?: HttpParams,
     mapper?: (data: T) => T
   ): Observable<T | null> {
+    console.log(`Starting request to ${endpoint}`);
+
     this.loading.set(true);
     this.error.set(null);
 
-    return this.http
-      .get<ApiResponse<T>>(`${this.apiUrl}/${endpoint}`, { params })
-      .pipe(
-        map((response) =>
-          mapper ? mapper(response.data!) : response.data ?? null
-        ),
-        tap((data) => {
-          signalFn(data);
-          this.loading.set(false);
-        }),
-        catchError(this.handleError(endpoint, signalFn))
-      );
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { params }).pipe(
+      tap((response) => console.log(`Response from ${endpoint}:`, response)),
+      map((response) => (mapper ? mapper(response) : response ?? null)),
+      tap((data) => {
+        signalFn(data);
+        this.loading.set(false);
+        console.log(`Completed request to ${endpoint}`);
+      }),
+      catchError((err) => {
+        console.error(`Error in ${endpoint}:`, err);
+        return this.handleError(endpoint, signalFn)(err);
+      }),
+      finalize(() => {
+        this.loading.set(false);
+        console.log(`Finalized request to ${endpoint}`);
+      })
+    );
   }
 
   private handleError<T>(

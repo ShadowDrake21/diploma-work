@@ -26,7 +26,6 @@ import { DEFAULT_AVATAR_URL } from '@core/constants/default-variables';
     MatIcon,
   ],
   templateUrl: './profile-dropdown.component.html',
-  styleUrl: './profile-dropdown.component.scss',
 })
 export class ProfileDropdownComponent {
   private readonly authService = inject(AuthService);

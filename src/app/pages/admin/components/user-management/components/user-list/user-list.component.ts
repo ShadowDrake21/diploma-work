@@ -19,6 +19,9 @@ import { SortingDirection } from '@shared/enums/sorting.enum';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { Observable } from 'rxjs';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { MatCard, MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-user-list',
@@ -35,15 +38,17 @@ import { Observable } from 'rxjs';
     UserStatusChipComponent,
     RecentUsersComponent,
     IsCurrentUserPipe,
+    LoaderComponent,
+    MatCardModule,
   ],
   templateUrl: './user-list.component.html',
-  styleUrl: './user-list.component.scss',
 })
 export class UserListComponent {
   private readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly dialog = inject(MatDialog);
   private readonly notificationService = inject(NotificationService);
+  private readonly observer = inject(BreakpointObserver);
 
   users = signal<IUser[]>([]);
   isLoading = signal<boolean>(false);
@@ -66,9 +71,21 @@ export class UserListComponent {
     'actions',
   ]);
 
+  isMobile = signal(true);
+
   constructor() {
     effect(() => {
       this.loadUsers();
+    });
+  }
+
+  ngOnInit(): void {
+    this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
+      if (screenSize.matches) {
+        this.isMobile.set(false);
+      } else {
+        this.isMobile.set(true);
+      }
     });
   }
 

@@ -6,7 +6,7 @@ import {
   HttpRequest,
   HttpResponse,
 } from '@angular/common/http';
-import { ApiResponse } from '@models/api-response.model';
+import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
 import { ApiError } from '@models/error.model';
 import { catchError, map, Observable, throwError } from 'rxjs';
 
@@ -29,6 +29,10 @@ export const apiInterceptor: HttpInterceptorFn = (
   ): HttpResponse<any> {
     const body = response.body;
 
+    if (isPaginatedResponse(body)) {
+      return response;
+    }
+
     if (isApiResponse(body)) {
       if (body.success) {
         return response.clone({ body: body.data });
@@ -45,9 +49,9 @@ export const apiInterceptor: HttpInterceptorFn = (
   }
 
   function handleError(error: HttpErrorResponse): Observable<never> {
-    const errorResponse = error.error;
+    const errorResponse = error.error || error.message;
 
-    if (isApiResponse(errorResponse)) {
+    if (isApiResponse(errorResponse) && !isPaginatedResponse(errorResponse)) {
       const apiError: ApiError = {
         message: errorResponse.message || 'Request failed',
         errorCode: errorResponse.errorCode || 'UNKNOWN_ERROR',
@@ -67,5 +71,9 @@ export const apiInterceptor: HttpInterceptorFn = (
 
   function isApiResponse(obj: any): obj is ApiResponse<any> {
     return obj && typeof obj === 'object' && 'success' in obj && 'data' in obj;
+  }
+
+  function isPaginatedResponse(obj: any): obj is PaginatedResponse<any> {
+    return isApiResponse(obj) && 'page' in obj && 'totalItems' in obj;
   }
 };

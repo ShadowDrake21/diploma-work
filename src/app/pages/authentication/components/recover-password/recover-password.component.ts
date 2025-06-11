@@ -5,6 +5,5 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-recover-password',
   imports: [RouterOutlet],
   templateUrl: './recover-password.component.html',
-  styleUrl: './recover-password.component.scss',
 })
 export class RecoverPasswordComponent {}

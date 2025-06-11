@@ -1,17 +1,18 @@
 <mat-tab-group>
-  @if (error()) {
-  <div class="error-message">
+  @if (!error()) {
+  <div class="text-lg font-semibold text-red-500 sm:text-start text-center">
     {{ error() }}
   </div>
   } @if (loading()) {
-  <div class="loading-spinner">Loading...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   } @if (!error() && !loading()) {
   <mat-tab label="Publications">
     <shared-profile-projects
       [projects]="publications()"
-      [pageSize]="pageSize()"
-      [currentPage]="currentPage()"
-      (pageChange)="onPageChange($event)"
+      [pageSize]="tabPagination().publications.pageSize"
+      [currentPage]="tabPagination().publications.currentPage"
+      [totalItems]="totalPublications()"
+      (pageChange)="onPageChange($event, 'publications')"
       [isFiltered]="false"
       type="publications"
     />
@@ -20,9 +21,10 @@
   <mat-tab label="Patents">
     <shared-profile-projects
       [projects]="patents()"
-      [pageSize]="pageSize()"
-      [currentPage]="currentPage()"
-      (pageChange)="onPageChange($event)"
+      [pageSize]="tabPagination().patents.pageSize"
+      [currentPage]="tabPagination().patents.currentPage"
+      [totalItems]="totalPatents()"
+      (pageChange)="onPageChange($event, 'patents')"
       [isFiltered]="false"
       type="patents"
     />
@@ -31,9 +33,10 @@
   <mat-tab label="Research Projects">
     <shared-profile-projects
       [projects]="researches()"
-      [pageSize]="pageSize()"
-      [currentPage]="currentPage()"
-      (pageChange)="onPageChange($event)"
+      [pageSize]="tabPagination().researches.pageSize"
+      [currentPage]="tabPagination().researches.currentPage"
+      [totalItems]="totalResearches()"
+      (pageChange)="onPageChange($event, 'researches')"
       [isFiltered]="false"
       type="researches"
     />

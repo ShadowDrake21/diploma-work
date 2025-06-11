@@ -1,24 +1,39 @@
 <div
-  class="profile-dropdown__wrapper"
+  class="flex justify-center items-center w-[60px] h-[60px]"
   clickOutside
   (clickOutside)="closeProfile()"
 >
-  <div class="profile-dropdown__container">
-    <div class="dropdown-container">
-      <div class="dropdown-toggler" (click)="toggleProfile()">
+  <div class="relative w-full h-full">
+    <div
+      class="w-full h-full min-[600px]:block flex justify-center items-center"
+    >
+      <div
+        class="cursor-pointer min-[600px]:w-[60px] min-[600px]:h-[60px] w-[50px] h-[50px] rounded-[50%] overflow-hidden flex justify-center items-center"
+        (click)="toggleProfile()"
+      >
         <img
           [src]="getAvatarUrl()"
           alt="avatar"
-          class="dropdown-toggler__image"
+          class="min-[600px]:w-[60px] min-[600px]:h-[60px] w-[50px] h-[50px] object-cover"
         />
       </div>
       @if(isProfileOpened()) {
-      <div class="dropdown profile-dropdown">
-        <div class="dropdown-user-info">
-          <img [src]="getAvatarUrl()" alt="User avatar" class="user-avatar" />
-          <div class="user-details">
-            <h5 class="user-name">{{ currentUser()?.username || "User" }}</h5>
-            <p class="user-email">
+      <div
+        class="p-[15px] w-[250px] absolute right-0 min-[600px]:top-[65px] top-[60px] text-sm leading-4 z-50 text-[#7a7a7a] bg-[#f1f1f1]"
+      >
+        <div class="flex flex-col gap-[10px] mb-[15px]">
+          <img
+            [src]="getAvatarUrl()"
+            alt="User avatar"
+            class="max-w-full max-h-[300px] object-cover w-full h-full sm:block hidden"
+          />
+          <div class="text-center">
+            <h5 class="!font-medium !text-xl pb-1">
+              {{
+                currentUser()?.username || "User" | truncateText : 15 : false
+              }}
+            </h5>
+            <p class="!text-[#7a7a7a] !text-sm">
               {{ currentUser()?.email || "" | truncateText : 22 : false }}
             </p>
           </div>
@@ -26,24 +41,27 @@
 
         <mat-divider></mat-divider>
 
-        <nav class="dropdown-menu">
+        <nav>
           @for (item of profileMenuItems; track $index) {
           <a
-            class="dropdown-item"
+            class="flex gap-5 items-center justify-center p-2 w-full hover:bg-[#e8eaf6] transition-colors duration-150"
             [routerLink]="item.link"
             (click)="closeProfile()"
           >
             <mat-icon>{{ item.icon }}</mat-icon>
-            <span>{{ item.title }}</span>
+            <span class="font-medium">{{ item.title }}</span>
           </a>
           }
         </nav>
 
         <mat-divider></mat-divider>
 
-        <button class="dropdown-item logout-button" (click)="onLogout()">
+        <button
+          class="flex gap-5 items-center justify-center p-2 w-full hover:bg-[#e8eaf6] transition-colors duration-150"
+          (click)="onLogout()"
+        >
           <mat-icon>logout</mat-icon>
-          <span>Sign out</span>
+          <span class="font-medium">Sign out</span>
         </button>
       </div>
       }

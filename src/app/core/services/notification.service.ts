@@ -26,9 +26,10 @@ export class NotificationService {
     const config: MatSnackBarConfig = {
       duration,
       panelClass: [`notification-${type}`],
-      horizontalPosition: 'right',
-      verticalPosition: 'top',
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
     };
+    this.snackBar.open(message, '❌', config);
 
     // this.snackBar.open(message, this.translate.instant('common.close'), config);
   }

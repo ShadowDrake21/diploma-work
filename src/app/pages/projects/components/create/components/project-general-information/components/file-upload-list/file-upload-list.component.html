@@ -17,7 +17,7 @@
     mat-button
     color="accent"
     (click)="uploadRequested.emit()"
-    [disabled]="!pendingFiles().length || isUploading()"
+    [disabled]="!pendingFiles().length || isUploading() || !isEditing()"
   >
     <mat-icon>cloud_upload</mat-icon>
     Upload Selected ({{ pendingFiles().length }})

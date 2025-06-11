@@ -1,7 +1,9 @@
-<div class="user-detail-container">
+<div>
   @if(isLoading()) {
-  <div class="loading-spinner">
-    <mat-spinner></mat-spinner>
+  <div
+    class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
+  >
+    <custom-loader [diameter]="50" />
   </div>
   } @else if (error()) {
   <div class="error-message">
@@ -19,37 +21,40 @@
     </div>
   </div>
   } @else if(user()) {
-  <div class="user-header">
-    <button mat-icon-button (click)="goBack()">
+  <div class="pb-[10px]">
+    <button mat-button (click)="goBack()" class="!text-black">
       <mat-icon>arrow_back</mat-icon>
+      Back
     </button>
-    <h2>User Details</h2>
   </div>
 
-  <mat-card class="user-card">
-    <mat-card-header>
+  <mat-card>
+    <mat-card-header class="flex items-center gap-[10px] justify-center !pb-5">
       <img
         mat-card-avatar
         [src]="user()?.avatarUrl || 'assets/default-avatar.png'"
         alt="User avatar"
-        onerror="this.src='assets/default-avatar.png'"
+        class="!w-20 !h-20 rounded-full object-cover"
       />
-      <mat-card-title>{{ user()?.username }}</mat-card-title>
-      <mat-card-subtitle>{{ user()?.email }}</mat-card-subtitle>
-      <mat-card-subtitle>
-        <span class="user-meta">
-          <app-user-role-chip [role]="user()?.role!"></app-user-role-chip>
-          <app-user-status-chip
-            [active]="user()?.active!"
-          ></app-user-status-chip>
-        </span>
-      </mat-card-subtitle>
+      <div class="flex gap-[5px] flex-col">
+        <mat-card-title>{{ user()?.username }}</mat-card-title>
+        <mat-card-subtitle>{{ user()?.email }}</mat-card-subtitle>
+        <mat-card-subtitle>
+          <div class="flex gap-[10px]">
+            <app-user-role-chip [role]="user()?.role!"></app-user-role-chip>
+            <app-user-status-chip
+              [active]="user()?.active!"
+            ></app-user-status-chip>
+          </div>
+        </mat-card-subtitle>
+      </div>
     </mat-card-header>
-
     <mat-card-content>
-      <mat-divider></mat-divider>
-
-      <mat-tab-group animationDuration="200ms">
+      <mat-tab-group
+        animationDuration="200ms"
+        [(selectedIndex)]="selectedTabIndex"
+        (selectedIndexChange)="selectedTabIndex.set($event)"
+      >
         <mat-tab label="Details">
           <div class="details-content">
             <mat-list>
@@ -93,7 +98,11 @@
         <mat-tab label="Projects">
           <div class="projects-content">
             @if (userProjects().length > 0) {
-            <shared-profile-projects [projects]="userProjects()" />
+            <shared-profile-projects
+              [projects]="userProjects()"
+              (filters)="onFiltering($event)"
+              (pageChange)="onPageChange($event)"
+            />
             } @else {
             <div class="no-projects">
               <mat-icon>folder_off</mat-icon>
@@ -130,7 +139,7 @@
 
     @if(!(user()?.id | isCurrentUser) ){
 
-    <mat-card-actions align="end">
+    <mat-card-actions align="end" class="flex flex-col sm:flex-row gap-[10px]">
       @if(user()?.role === UserRole.USER) {
       <button
         mat-raised-button

@@ -55,7 +55,7 @@ public class AdminAnalyticsController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved system overview")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/overview")
+    @GetMapping("/systemOverview")
     public ResponseEntity<ApiResponse<SystemOverviewDTO>> getSystemOverview(){
     	try {
     		SystemOverviewDTO overview = systemAnalyticsService.getSystemOverview();
@@ -82,7 +82,7 @@ public class AdminAnalyticsController {
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid date range")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/users/growth")
+    @GetMapping("/userGrowth")
     public ResponseEntity<ApiResponse<List<UserGrowthDTO>>> getUserGrowthAnalytics(
     		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -117,7 +117,7 @@ public class AdminAnalyticsController {
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved project distribution")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/projects/distribution")
+    @GetMapping("/projectDistribution")
     public ResponseEntity<ApiResponse<ProjectDistributionDTO>> getProjectTypeDistribution() {
     	try {
     		ProjectDistributionDTO distribution = projectAnalyticsService.getProjectTypeDistribution();
@@ -143,7 +143,7 @@ public class AdminAnalyticsController {
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved project progress")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/projects/progress")
+    @GetMapping("/projectProgress")
     public ResponseEntity<ApiResponse<List<ProjectProgressDTO>>> getProjectProgressAnalytics() {
     	try {
 			List<ProjectProgressDTO> progressData = projectAnalyticsService.getProjectProgressAnalytics();
@@ -170,7 +170,7 @@ public class AdminAnalyticsController {
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No publication data found")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/publications")
+    @GetMapping("/publicationMetrics")
     public ResponseEntity<ApiResponse<PublicationMetricsDTO>> getPublicationMetrics() {
     	try {
 			PublicationMetricsDTO metrics = publicationAnalyticsService.getPublicationMetrics();
@@ -203,7 +203,7 @@ public class AdminAnalyticsController {
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No patent data found")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/patents")
+    @GetMapping("/patentMetrics")
     public ResponseEntity<ApiResponse<PatentMetricsDTO>> getPatentMetrics() {
     	try {
     		PatentMetricsDTO metrics = patentAnalyticsService.getPatentMetrics();
@@ -234,18 +234,11 @@ public class AdminAnalyticsController {
     @Operation(summary = "Get research funding analytics")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved research funding data")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
-     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No research funding data found")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/research/funding")
+    @GetMapping("/researchFunding")
     public ResponseEntity<ApiResponse<ResearchFundingDTO>> getResearchFundingAnalytics() {
     		try {
                 ResearchFundingDTO fundingData = researchAnalyticsService.getResearchFundingAnalytics();
-                if (fundingData.getActiveProjects() == 0) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ApiResponse.error(
-                            AnalyticsMessages.getMessage(AnalyticsCodes.NO_RESEARCH_DATA),
-                            AnalyticsCodes.NO_RESEARCH_DATA));
-                }
                 return ResponseEntity.ok(ApiResponse.success(
                     fundingData,
                     AnalyticsMessages.getMessage(AnalyticsCodes.RESEARCH_FUNDING_FETCHED)));
@@ -269,7 +262,7 @@ public class AdminAnalyticsController {
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid days parameter")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/comments/activity")
+    @GetMapping("/commentActivity")
     public ResponseEntity<ApiResponse<List<CommentActivityDTO>>> getCommentActivityAnalytics(
             @RequestParam(defaultValue = "7") int days) {
     	try {
@@ -302,7 +295,7 @@ public class AdminAnalyticsController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved system performance")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden, admin access required")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    @GetMapping("/system/performance")
+    @GetMapping("/systemPerformance")
     public ResponseEntity<ApiResponse<SystemPerformanceDTO>> getSystemPerformanceMetrics() {
     	 try {
              SystemPerformanceDTO performanceData = systemAnalyticsService.getSystemPerformanceMetrics();

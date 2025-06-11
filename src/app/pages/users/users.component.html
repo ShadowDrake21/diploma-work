@@ -1,12 +1,12 @@
-<div class="users" style="height: 100%; position: relative">
-  <div class="users__form">
-    <mat-form-field class="users__form-field">
+<div class="h-full relative">
+  <div class="flex justify-center items-start gap-5 py-5 w-full">
+    <mat-form-field class="flex w-full">
       <mat-label>Search users by name or email</mat-label>
       <input
         matInput
         type="text"
         [formControl]="searchControl"
-        class="users__form-field__input"
+        class="flex w-full"
       />
       @if (searchControl.value) {
       <button
@@ -21,15 +21,17 @@
     </mat-form-field>
   </div>
   @if(isLoading()) {
-  <div class="users__loader-wrapper">
-    <div class="loader"></div>
+  <div
+    class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
+  >
+    <custom-loader [diameter]="50" />
   </div>
   } @else {
-  <p class="users__paragraph">
+  <p class="font-bold">
     {{ displayMessage() }}
   </p>
   @if (!errorOccurred()) { @if (users().length > 0) {
-  <div class="users__list">
+  <div class="grid gap-6 mb-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
     @for (user of users(); track user.id) {
     <shared-user-card [user]="user" />
     }
@@ -44,19 +46,24 @@
     aria-label="Select page"
   ></mat-paginator>
   } @else {
-  <p class="users__list__empty">
-    @if (searchQuery()) { No users found for:
-    <strong>{{ searchQuery() }}</strong
-    >} @else { No users found }
-  </p>
+  <div
+    class="absolute top-0 bottom-0 left-0 right-0 flex flex-col items-center justify-center gap-4"
+  >
+    <p class="text-lg font-semibold text-red-500 sm:text-start text-center">
+      @if (searchQuery()) { No users found for:
+      <strong>{{ searchQuery() }}</strong
+      >} @else { No users found }
+    </p>
+  </div>
   } }@else {
-  <div class="users__error">
-    <mat-icon class="users__error-icon">error_outline</mat-icon>
-    <p class="users__error-message">
+  <div class="flex justify-center items-center flex-col gap-4">
+    <mat-icon class="text-red-500">error_outline</mat-icon>
+    <p class="text-lg font-semibold text-red-500 sm:text-left text-center">
       Failed to load users. Please try again later.
     </p>
-    <button mat-raised-button color="primary" (click)="reloadUsers()">
-      Retry
+    <button mat-button (click)="reloadUsers()">
+      <mat-icon class="text-red-500">refresh</mat-icon>
+      <span class="text-red-500">Try Again</span>
     </button>
   </div>
   }}

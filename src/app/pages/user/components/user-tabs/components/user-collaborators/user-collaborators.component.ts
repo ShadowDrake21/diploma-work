@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
@@ -10,9 +11,14 @@ import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'user-collaborators',
-  imports: [CommonModule, UserCardComponent, MatListModule, MatPaginatorModule],
+  imports: [
+    CommonModule,
+    UserCardComponent,
+    MatListModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
+  ],
   templateUrl: './user-collaborators.component.html',
-  styleUrl: './user-collaborators.component.scss',
 })
 export class UserCollaboratorsComponent {
   private readonly userService = inject(UserService);

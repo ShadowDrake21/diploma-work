@@ -30,19 +30,16 @@ export class ProjectFormService extends ProjectFormCoreService {
   constructor() {
     super();
     this.subscriptions.push(
-      this.userService
-        .getCurrentUser()
-        .pipe(map((result) => result.data))
-        .subscribe({
-          next: (user) => {
-            if (user && user.id) {
-              this.creatorId = +user.id;
-            }
-          },
-          error: (err) => {
-            console.error('Failed to get current user', err);
-          },
-        })
+      this.userService.getCurrentUser().subscribe({
+        next: (user) => {
+          if (user && user.id) {
+            this.creatorId = +user.id;
+          }
+        },
+        error: (err) => {
+          console.error('Failed to get current user', err);
+        },
+      })
     );
   }
 

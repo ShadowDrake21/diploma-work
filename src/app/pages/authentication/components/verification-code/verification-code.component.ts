@@ -12,7 +12,6 @@ const CODE_LENGTH = 6;
   selector: 'app-verification-code',
   imports: [CustomButtonComponent],
   templateUrl: './verification-code.component.html',
-  styleUrl: './verification-code.component.scss',
 })
 export class VerificationCodeComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);

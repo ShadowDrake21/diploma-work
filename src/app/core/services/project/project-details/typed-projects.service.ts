@@ -3,7 +3,6 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { ProjectService } from '../models/project.service';
 import { NotificationService } from '@core/services/notification.service';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { ApiResponse } from '@models/api-response.model';
 import { ResearchDTO } from '@models/research.model';
 import { PatentDTO } from '@models/patent.model';
 import { PublicationDTO } from '@models/publication.model';
@@ -24,7 +23,7 @@ export class TypedProjectsService {
         );
         return of(null);
       }),
-      map((response) => response?.data || null)
+      map((response) => response || null)
     );
   }
 
@@ -35,7 +34,7 @@ export class TypedProjectsService {
         this.notificationService.showError('Failed to load patent details');
         return of(null);
       }),
-      map((response) => response?.data || null)
+      map((response) => response || null)
     );
   }
 
@@ -52,7 +51,7 @@ export class TypedProjectsService {
   getTypedProject<T>(
     projectId: string,
     type: ProjectType
-  ): Observable<ApiResponse<T> | null> {
+  ): Observable<T | null> {
     const methodMap = {
       [ProjectType.PUBLICATION]: this.getPublication.bind(this),
       [ProjectType.PATENT]: this.getPatent.bind(this),
@@ -66,6 +65,6 @@ export class TypedProjectsService {
       return of(null);
     }
 
-    return methodMap[type](projectId) as Observable<ApiResponse<T> | null>;
+    return methodMap[type](projectId) as Observable<T | null>;
   }
 }

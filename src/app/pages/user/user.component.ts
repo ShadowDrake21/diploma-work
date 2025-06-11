@@ -1,10 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
@@ -24,6 +18,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RoleFormatPipe } from '@pipes/role-format.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
+import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 
 @Component({
   selector: 'app-user-profile',
@@ -37,9 +33,11 @@ import { MatIcon } from '@angular/material/icon';
     MatProgressSpinner,
     RoleFormatPipe,
     MatIcon,
+    LoaderComponent,
+    TruncateTextPipe,
   ],
   templateUrl: './user.component.html',
-  styleUrl: './user.component.scss',
+
   providers: [provideNativeDateAdapter()],
 })
 export class UserProfileComponent implements OnInit {
@@ -122,9 +120,9 @@ export class UserProfileComponent implements OnInit {
         })
       )
       .subscribe((user) => {
-        if (user && user.data) {
-          this.user.set(user.data);
-          this.headerService.setTitle(`User: ${user.data.username}`);
+        if (user) {
+          this.user.set(user);
+          this.headerService.setTitle(`User: ${user.username}`);
           this.loadUserProjects();
         } else {
           this.error.set('User not found');

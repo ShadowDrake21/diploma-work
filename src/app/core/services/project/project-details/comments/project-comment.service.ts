@@ -42,7 +42,6 @@ export class ProjectCommentService {
     this.commentService
       .getCommentsByProjectId(projectId)
       .pipe(
-        map((response) => this.transformComments(response.data!)),
         tap({
           next: (comments) => {
             this._comments.next(comments);
@@ -68,7 +67,6 @@ export class ProjectCommentService {
     }
 
     return this.commentService.createComment(comment).pipe(
-      map((res) => res.data!),
       tap({
         next: () => {
           this.refreshComments(comment.projectId);
@@ -93,7 +91,6 @@ export class ProjectCommentService {
 
   updateComment(commentId: string, newContent: string): Observable<IComment> {
     return this.commentService.updateComment(commentId, newContent).pipe(
-      map((res) => res.data!),
       tap({
         next: () => {
           this.refreshComments(this.currentProjectId!);
@@ -110,7 +107,6 @@ export class ProjectCommentService {
 
   deleteComment(commentId: string): Observable<void> {
     return this.commentService.deleteComment(commentId).pipe(
-      map((res) => res.data),
       tap({
         next: () => {
           this.refreshComments(this.currentProjectId!);
@@ -123,27 +119,6 @@ export class ProjectCommentService {
       }),
       catchError((error) => throwError(() => error))
     );
-  }
-
-  private transformComments(comments: IComment[]): IComment[] {
-    const commentMap = new Map<string, IComment>();
-    const rootComments: IComment[] = [];
-
-    comments.forEach((comment) => {
-      commentMap.set(comment.id, { ...comment, replies: [] });
-    });
-
-    comments.forEach((comment) => {
-      const commentCopy = commentMap.get(comment.id)!;
-      if (comment.parentCommentId) {
-        const parent = commentMap.get(comment.parentCommentId);
-        parent?.replies?.push(commentCopy);
-      } else {
-        rootComments.push(commentCopy);
-      }
-    });
-
-    return rootComments;
   }
 
   private findComment(
@@ -171,7 +146,6 @@ export class ProjectCommentService {
     this.updateCommentLikeState(commentId, like);
 
     return serviceCall.pipe(
-      map((res) => res.data!),
       tap({
         error: (err) => {
           this.updateCommentLikeState(commentId, !like);
@@ -191,7 +165,7 @@ export class ProjectCommentService {
 
     if (comment) {
       comment.likes += isLiked ? 1 : -1;
-      comment.isLikedByCurrentUser = isLiked;
+      comment.likedByCurrentUser = isLiked;
       this._comments.next(currentComments);
     }
   }

@@ -7,13 +7,7 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/authentication/auth.service';
-import {
-  catchError,
-  Observable,
-  switchMap,
-  switchMapTo,
-  throwError,
-} from 'rxjs';
+import { catchError, Observable, switchMap, throwError } from 'rxjs';
 
 export function tokenInterceptor(
   request: HttpRequest<unknown>,
@@ -27,74 +21,35 @@ export function tokenInterceptor(
   }
 
   const token = authService.getToken();
-  if (token) {
-    request = addTokenToRequest(request, token);
+  if (!token) {
+    authService.clearAuthData();
+    return throwError(() => new Error('No token found'));
   }
 
-  return next(request).pipe(
+  const decoded = authService.decodeToken(token);
+  if (!decoded || authService.isTokenExpired(decoded)) {
+    authService.clearAuthData();
+    return throwError(() => new Error('Invalid or expired token'));
+  }
+
+  const timeLeft = authService.getTokenTimeLeft(decoded);
+  const refreshThreshold = 5 * 60 * 1000; // 15 minutes
+
+  if (timeLeft < refreshThreshold && timeLeft > 0) {
+    authService.showSessionWarning(timeLeft);
+  }
+
+  const authReq = request.clone({
+    setHeaders: { Authorization: `Bearer ${token}` },
+  });
+
+  return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        return handleUnauthorizedError(request, next, authService, router);
-      } else if (error.status === 403) {
-        router.navigate(['/forbidden']);
+        authService.logout();
+        router.navigate(['/authentication/sign-in']);
       }
       return throwError(() => error);
     })
   );
-
-  function addTokenToRequest(
-    request: HttpRequest<unknown>,
-    token: string
-  ): HttpRequest<unknown> {
-    return request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-
-  function handleUnauthorizedError(
-    request: HttpRequest<unknown>,
-    next: HttpHandlerFn,
-    authService: AuthService,
-    router: Router
-  ): Observable<HttpEvent<unknown>> {
-    if (!authService.isRefreshingToken) {
-      authService.isRefreshingToken = true;
-
-      return authService.refreshToken().pipe(
-        switchMap((newToken) => {
-          authService.isRefreshingToken = false;
-
-          if (newToken) {
-            const newRequest = addTokenToRequest(request, newToken);
-            return next(newRequest);
-          } else {
-            authService.logout();
-            router.navigate(['/authentication/sign-in']);
-            return throwError(() => new Error('Session expired'));
-          }
-        }),
-        catchError((refreshError) => {
-          authService.isRefreshingToken = false;
-          authService.logout();
-          router.navigate(['/authentication/sign-in']);
-          return throwError(() => refreshError);
-        })
-      );
-    } else {
-      return authService.tokenRefreshed$.pipe(
-        switchMap((newToken) => {
-          if (newToken) {
-            const newRequest = addTokenToRequest(request, newToken);
-            return next(newRequest);
-          } else {
-            authService.logout();
-            router.navigate(['/authentication/sign-in']);
-            return throwError(() => new Error('Session expired'));
-          }
-        })
-      );
-    }
-  }
 }

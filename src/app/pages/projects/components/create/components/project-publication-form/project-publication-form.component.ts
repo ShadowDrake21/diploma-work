@@ -17,6 +17,8 @@ import {
 import { UserService } from '@core/services/users/user.service';
 import { AuthorNamePipe } from '@pipes/author-name.pipe';
 import { NotificationService } from '@core/services/notification.service';
+import { PUBLICATION_FORM_ERRORS } from '../errors/publication.errors';
+import { FormErrorComponentComponent } from '../../../../../../shared/components/form-error-component/form-error-component.component';
 
 @Component({
   selector: 'create-project-publication-form',
@@ -32,6 +34,7 @@ import { NotificationService } from '@core/services/notification.service';
     MatAutocompleteModule,
     MatDatepickerModule,
     AuthorNamePipe,
+    FormErrorComponentComponent,
   ],
   templateUrl: './project-publication-form.component.html',
   styleUrl: './project-publication-form.component.scss',
@@ -44,11 +47,12 @@ export class ProjectPublicationFormComponent
   private readonly notificationService = inject(NotificationService);
   publicationsForm = input.required<PublicationFormGroup>();
 
+  formErrors = PUBLICATION_FORM_ERRORS;
+
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
 
   ngOnInit(): void {
     this.allUsers$ = this.userService.getAllUsers().pipe(
-      map((response) => response.data!),
       catchError((error) => {
         console.error('Error loading users:', error);
         this.notificationService.showError('Failed to load authors');

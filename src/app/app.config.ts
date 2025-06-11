@@ -1,4 +1,10 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import {
+  APP_INITIALIZER,
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -7,6 +13,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { tokenInterceptor } from '@core/interceptors/token.interceptor';
 import { apiInterceptor } from '@core/interceptors/api.interceptor';
+import { AppInitializerService } from '@core/services/app-initializer.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,5 +23,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor, tokenInterceptor, apiInterceptor])
     ),
+    provideAppInitializer(() => {
+      const initialized = inject(AppInitializerService);
+      return initialized.initialize();
+    }),
   ],
 };

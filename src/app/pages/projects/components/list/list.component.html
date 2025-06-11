@@ -1,23 +1,27 @@
-<div class="list">
+@if (isLoading()) {
+<div
+  class="absolute top-0 bottom-0 left-0 right-0 flex flex-col items-center justify-center"
+>
+  <custom-loader />
+</div>
+} @else { @if(isEmptyState()) {
+<div
+  class="absolute top-0 bottom-0 left-0 right-0 flex flex-col items-center justify-center gap-4"
+>
+  <p class="text-lg font-semibold text-red-500 sm:text-start text-center">
+    @if(isMineMode()) { You don't have any projects matching your criteria }
+    @else { No projects found matching your criteria }
+  </p>
+  <button mat-stroked-button (click)="onFiltersReset()">Reset filters</button>
+</div>
+} @else {
+<div class="flex flex-col gap-6 p-4">
   <shared-projects-quick-links />
   <profile-filter-panel
     (filtersApplied)="onFiltering($event)"
     (filtersReset)="onFiltersReset()"
   />
-  @if (isLoading()) {
-  <div class="loading-spinner">
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-  </div>
-  } @else { @if(isEmptyState()) {
-  <div class="empty-state">
-    <p>
-      @if(isMineMode()) { You don't have any projects matching your criteria }
-      @else { No projects found matching your criteria }
-    </p>
-    <button mat-stroked-button (click)="onFiltersReset()">Reset filters</button>
-  </div>
-  } @else {
-  <div class="list__projects">
+  <div class="grid gap-6 mb-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
     @for (project of projects(); track project.id) {
     <shared-project-card [project]="project" />
     }
@@ -30,8 +34,9 @@
     [pageSizeOptions]="[5, 10, 20, 50]"
     (page)="onPageChange($event)"
     aria-label="Select page"
-    class="projects-paginator"
+    class="mt-auto"
   >
   </mat-paginator>
-  } }}
+  }
 </div>
+}}
