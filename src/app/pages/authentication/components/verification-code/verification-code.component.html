@@ -1,12 +1,12 @@
-<div class="verification-code">
-  <div class="verification-code__inner">
-    <h3 class="verification-code__title">
+<div class="relative max-w-full">
+  <div>
+    <h3 class="pb-[10px] text-center md:text-base text-sm">
       Введіть код, який ми відправили на Вашу пошту
     </h3>
-    <div class="verification-code__inputs">
+    <div class="flex max-w-full pb-[30px]">
       @for (_ of inputValues(); track $index) {
       <input
-        class="verification-code__inputs-item"
+        class="w-[16.6666666667%] my-0 mx-[5px] text-center lg:leading-[80px] md:leading-[72px] leading-[65px] lg:text-[50px] md:text-[42px] text-[35px] border border-solid border-[#ccc] outline-none transition-all duration-200 ease-in-out rounded-[3px] focus:border-[#001a80] selection:bg-transparent [box-shadow:0_0_5px_#ccc_inset] selection:[box-shadow:0_0_5px_rgb(28,0,128)_inset]"
         type="text"
         maxlength="1"
         inputmode="numeric"
@@ -30,10 +30,7 @@
     >
   </div>
   @if(verificationMessage()) {
-  <div
-    class="verification-code__message"
-    [class.error]="verificationMessage().includes('Invalid')"
-  >
+  <div [class.error]="verificationMessage().includes('Invalid')">
     {{ verificationMessage() }}
   </div>
   }

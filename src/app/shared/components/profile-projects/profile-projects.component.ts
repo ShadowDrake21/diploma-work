@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, OnDestroy, output } from '@angular/core';
 import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { ProjectDTO } from '@models/project.model';
@@ -15,25 +15,20 @@ import { MatButton } from '@angular/material/button';
     MatButton,
   ],
   templateUrl: './profile-projects.component.html',
-  styleUrl: './profile-projects.component.scss',
 })
 export class ProfileProjectsComponent {
   projects = input.required<ProjectDTO[]>();
-  pageSize = input(8);
+  pageSize = input(5);
   currentPage = input(0);
+  totalItems = input(0);
   isFiltered = input(true);
   type = input<string>('projects');
 
   filters = output<ProjectSearchFilters>();
   pageChange = output<PageEvent>();
 
-  paginatedProjects = computed(() => {
-    const startIndex = this.currentPage() * this.pageSize();
-    const endIndex = startIndex + this.pageSize();
-    return this.projects().slice(startIndex, endIndex);
-  });
-
   onPageChange(event: PageEvent) {
+    console.log('Page changed ProfileProjectsComponent:', event);
     this.pageChange.emit(event);
   }
 

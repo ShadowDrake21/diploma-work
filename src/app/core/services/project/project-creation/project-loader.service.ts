@@ -12,7 +12,6 @@ import {
   tap,
   throwError,
 } from 'rxjs';
-import { ApiResponse } from '@models/api-response.model';
 import { PublicationDTO } from '@models/publication.model';
 import { PatentDTO } from '@models/patent.model';
 import { ResearchDTO } from '@models/research.model';
@@ -41,6 +40,7 @@ export class ProjectLoaderService {
   loadProject(projectId: string): Observable<any> {
     return this.projectDataService.getProjectWithAttachments(projectId).pipe(
       tap(({ project, attachments }) => {
+        console.log('Loaded project data:', project, attachments);
         try {
           this.projectFormService.patchTypeForm(this.typeForm, project.type);
           this.typeForm.disable();
@@ -92,11 +92,11 @@ export class ProjectLoaderService {
     switch (type) {
       case ProjectType.PUBLICATION:
         return this.projectService.getPublicationByProjectId(projectId).pipe(
-          tap((publication: ApiResponse<PublicationDTO>) => {
+          tap((publication: PublicationDTO) => {
             try {
               this.projectFormService.patchSpecificForm(
                 this.publicationsForm,
-                publication.data,
+                publication,
                 ProjectType.PUBLICATION
               );
             } catch (error) {
@@ -113,11 +113,11 @@ export class ProjectLoaderService {
         );
       case ProjectType.PATENT:
         return this.projectService.getPatentByProjectId(projectId).pipe(
-          tap((patent: ApiResponse<PatentDTO>) => {
+          tap((patent: PatentDTO) => {
             try {
               this.projectFormService.patchSpecificForm(
                 this.patentsForm,
-                patent.data,
+                patent,
                 ProjectType.PATENT
               );
             } catch (error) {

@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'admin-navigation',
   imports: [CommonModule, RouterLink, RouterLinkActive, MatIconModule],
   templateUrl: './navigation.component.html',
-  styleUrl: './navigation.component.scss',
 })
 export class NavigationComponent {
   navItems = [

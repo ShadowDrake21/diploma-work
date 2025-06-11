@@ -2,7 +2,7 @@ import { ProjectType } from '@shared/enums/categories.enum';
 import { PublicationDTO } from './publication.model';
 import { PatentDTO } from './patent.model';
 import { ResearchDTO } from './research.model';
-import { IUser } from './user.model';
+import { Tag } from './tag.model';
 
 export type ProjectDTO = {
   id: string;
@@ -19,11 +19,6 @@ export type ProjectDTO = {
   patent?: PatentDTO;
   research?: ResearchDTO;
 };
-
-interface Publication {
-  source?: string;
-  doiIsbn?: string;
-}
 
 export type CreateProjectRequest = {
   title: string;
@@ -42,13 +37,6 @@ export interface UpdateProjectRequest {
   type?: ProjectType;
 }
 
-export interface SearchProjectResponse {
-  items: ProjectDTO[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
 export interface ProjectResponse
   extends Omit<ProjectDTO, 'creator' | 'tagIds'> {
   tag: Tag[];
@@ -59,26 +47,7 @@ export interface ProjectResponse
   };
 }
 
-export interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
-
 export interface ProjectWithDetails {
   project: ProjectDTO;
   details: PatentDTO | PublicationDTO | ResearchDTO | null;
-}
-
-export interface ProjectWithPublication {
-  project: ProjectDTO;
-  publication: PublicationDTO;
-}
-export interface ProjectWithPatent {
-  project: ProjectDTO;
-  patent: PatentDTO;
-}
-export interface ProjectWithResearch {
-  project: ProjectDTO;
-  research: ResearchDTO;
 }

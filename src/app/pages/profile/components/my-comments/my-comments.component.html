@@ -1,27 +1,43 @@
-<section class="comments-section">
-  <h2>My Comments</h2>
+<section
+  class="mt-8 p-6 bg-white rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.05)]"
+>
+  <h3
+    class="mb-6 font-medium pb-[5px] lg:text-xl text-lg sm:text-left text-center"
+  >
+    My Comments
+  </h3>
 
   @if(comments().data!.length) { @for(comment of comments().data; track
   comment.id) {
-  <mat-card class="comment-card">
-    <mat-card-content
-      style="display: flex; justify-content: space-between; align-items: center"
-    >
-      <div>
-        <p>{{ comment.content }}</p>
-        <div class="comment-meta">
-          <span>Posted on {{ comment.createdAt | date }}</span>
-          <span>• {{ comment.likes }} likes</span>
-          <span>• Project: {{ comment.projectTitle }}</span>
+  <mat-card
+    class="mb-4 !border-l-4 !border-solid !border-indigo-500 transition-transform duration-200 hover:translate-x-1"
+  >
+    <mat-card-content>
+      <div
+        class="flex justify-between items-center gap-5 min-[450px]:flex-row flex-col min-[450px]:text-left text-center"
+      >
+        <div class="flex-1 flex-shrink-0">
+          <p>{{ comment.content }}</p>
+          <div
+            class="flex sm:gap-4 gap-2 mt-2 text-xs text-[#666] sm:flex-row flex-col"
+          >
+            <span class="flex items-center"
+              >Posted on {{ comment.createdAt | date }}</span
+            >
+            <span class="flex items-center">• {{ comment.likes }} likes</span>
+            <span class="flex items-center"
+              >• Project: {{ comment.projectTitle | truncateText : 50 }}</span
+            >
+          </div>
         </div>
-      </div>
-      <div>
-        <a
-          mat-button
-          color="primary"
-          [routerLink]="['/projects', comment.projectId]"
-          >Go to project</a
-        >
+        <div>
+          <a
+            mat-button
+            color="primary"
+            [routerLink]="['/projects', comment.projectId]"
+            >Go to project</a
+          >
+        </div>
       </div>
     </mat-card-content>
   </mat-card>
@@ -37,6 +53,8 @@
   >
   </mat-paginator>
   } @else {
-  <p class="no-comments">You haven't posted any comments yet.</p>
+  <p class="sm:text-lg text-base font-medium text-center">
+    You haven't posted any comments yet.
+  </p>
   }
 </section>

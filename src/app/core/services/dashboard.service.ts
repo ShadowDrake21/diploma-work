@@ -23,7 +23,7 @@ export class DashboardService {
   };
 
   getDashboardMetrics(): Observable<DashboardMetrics> {
-    const url = `${this.apiUrl}/metrics$`;
+    const url = `${this.apiUrl}/metrics`;
 
     return this.http.get<DashboardMetrics>(url, getAuthHeaders()).pipe(
       catchError((error: HttpErrorResponse) => {

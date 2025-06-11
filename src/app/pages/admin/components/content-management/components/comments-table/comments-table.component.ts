@@ -12,10 +12,11 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { IComment } from '@models/comment.types';
 import { ConfirmDialogComponent } from '@pages/admin/components/user-management/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { BaseFormComponent } from '../../../../../../shared/abstract/base-form/base-form.component';
 import { NotificationService } from '@core/services/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { retry } from 'rxjs';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-comments-table',
@@ -30,15 +31,15 @@ import { retry } from 'rxjs';
     MatProgressSpinnerModule,
     DatePipe,
     TruncateTextPipe,
+    LoaderComponent,
   ],
   templateUrl: './comments-table.component.html',
-  styleUrl: './comments-table.component.scss',
 })
 export class CommentsTableComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly dialog = inject(MatDialog);
-  private readonly _snackBar = inject(MatSnackBar);
   private readonly notificationService = inject(NotificationService);
+  private readonly observer = inject(BreakpointObserver);
 
   displayedColumns: string[] = [
     'content',
@@ -55,9 +56,18 @@ export class CommentsTableComponent implements OnInit {
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
   error = signal<string | null>(null);
+  isMobile = signal(true);
 
   ngOnInit(): void {
     this.loadComments();
+
+    this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
+      if (screenSize.matches) {
+        this.isMobile.set(false);
+      } else {
+        this.isMobile.set(true);
+      }
+    });
   }
 
   loadComments() {

@@ -36,7 +36,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
     MatExpansionModule,
   ],
   templateUrl: './filter-panel.component.html',
-  styleUrl: './filter-panel.component.scss',
+
   providers: [provideNativeDateAdapter()],
 })
 export class FilterPanelComponent implements OnInit {

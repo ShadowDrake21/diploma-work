@@ -1,21 +1,23 @@
-<div class="profile-projects">
-  <h4 class="profile-projects__title">My {{ type().toLowerCase() }}</h4>
+<div>
+  <h4 class="py-5 text-xl font-medium sm:text-start text-center">
+    My {{ type().toLowerCase() }}
+  </h4>
   @if(projects().length > 0) {
-  <div class="profile-projects__container">
+  <div class="flex flex-col gap-5 pb-5">
     @if(isFiltered()) {
     <profile-filter-panel
       (filtersApplied)="onFiltersApplied($event)"
       (filtersReset)="onFiltersReset()"
     />
     }
-    <div class="profile-projects__list">
-      @for (project of paginatedProjects(); track $index) {
+    <div class="flex flex-wrap gap-[30px] justify-center">
+      @for (project of projects(); track $index) {
       <shared-project-card [project]="project" />
       }
     </div>
-    @if(projects().length > pageSize()) {
+
     <mat-paginator
-      [length]="projects().length"
+      [length]="totalItems()"
       [pageSize]="pageSize()"
       [pageIndex]="currentPage()"
       [pageSizeOptions]="[5, 8, 10, 25]"
@@ -23,11 +25,12 @@
       aria-label="Select page"
     >
     </mat-paginator>
-    }
   </div>
   } @else {
   <div>
-    <p class="profile-projects__empty">No {{ type().toLowerCase() }} found.</p>
+    <p class="text-lg font-semibold sm:text-start text-center">
+      No {{ type().toLowerCase() }} found.
+    </p>
     @if(isFiltered()) {
     <button mat-button (click)="onFiltersReset()">Reset filtration</button>
     }

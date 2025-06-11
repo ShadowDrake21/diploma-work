@@ -61,12 +61,3 @@ export interface SystemPerformanceDTO {
   maxDbConnections: number;
   threadCount: number;
 }
-
-export interface ChartSeries {
-  name: string;
-  value: number;
-}
-export interface NamedChartSeries {
-  name: string;
-  series: ChartSeries[];
-}

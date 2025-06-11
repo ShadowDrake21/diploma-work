@@ -8,6 +8,7 @@ import {
   ICreateUser,
   IUpdateUserProfile,
   IUser,
+  ParticipantDTO,
 } from '@shared/models/user.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
 import {
@@ -21,7 +22,7 @@ import {
 } from 'rxjs';
 import { ProjectService } from '../project/models/project.service';
 import { ProjectDTO } from '@models/project.model';
-import { ApiResponse, PaginatedResponse } from '@models/api-response.model';
+import { PaginatedResponse } from '@models/api-response.model';
 import { NotificationService } from '../notification.service';
 
 @Injectable({
@@ -75,135 +76,95 @@ export class UserService {
       );
   }
 
-  public getAllUsers(): Observable<ApiResponse<IUser[]>> {
+  public getAllUsers(): Observable<IUser[]> {
     return this.http
-      .get<ApiResponse<IUser[]>>(`${this.apiUrl}/list`, getAuthHeaders())
+      .get<IUser[]>(`${this.apiUrl}/list`, getAuthHeaders())
+      .pipe(
+        catchError((error) => this.handleError<IUser[]>('getAllUsers', error))
+      );
+  }
+
+  public createUser(user: ICreateUser): Observable<IAuthorizedUser> {
+    return this.http
+      .post<IAuthorizedUser>(this.apiUrl, user, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<IUser[]>>('getAllUsers', error)
+          this.handleError<IAuthorizedUser>('createUser', error)
         )
       );
   }
 
-  public createUser(
-    user: ICreateUser
-  ): Observable<ApiResponse<IAuthorizedUser>> {
+  public getUserById(id: number): Observable<ParticipantDTO> {
     return this.http
-      .post<ApiResponse<IAuthorizedUser>>(this.apiUrl, user, getAuthHeaders())
+      .get<ParticipantDTO>(`${this.apiUrl}/${id}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<IAuthorizedUser>>('createUser', error)
+          this.handleError<ParticipantDTO>('getUserById', error)
         )
       );
   }
 
-  public getUserById(id: number): Observable<ApiResponse<IAuthorizedUser>> {
+  public getFullUserById(id: number): Observable<IUser> {
     return this.http
-      .get<ApiResponse<IAuthorizedUser>>(
-        `${this.apiUrl}/${id}`,
-        getAuthHeaders()
-      )
+      .get<IUser>(`${this.apiUrl}/${id}/info`, getAuthHeaders())
+      .pipe(
+        catchError((error) => this.handleError<IUser>('getFullUserById', error))
+      );
+  }
+
+  public getUserByEmail(email: string): Observable<IAuthorizedUser> {
+    return this.http
+      .get<IAuthorizedUser>(`${this.apiUrl}/email/${email}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<IAuthorizedUser>>('getUserById', error)
+          this.handleError<IAuthorizedUser>('getUserByEmail', error)
         )
       );
   }
 
-  public getFullUserById(id: number): Observable<ApiResponse<IUser>> {
+  public getUsersByRole(role: string): Observable<IAuthorizedUser[]> {
     return this.http
-      .get<ApiResponse<IUser>>(`${this.apiUrl}/${id}/info`, getAuthHeaders())
+      .get<IAuthorizedUser[]>(`${this.apiUrl}/role/${role}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<IUser>>('getFullUserById', error)
+          this.handleError<IAuthorizedUser[]>('getUsersByRole', error)
         )
       );
   }
 
-  public getUserByEmail(
-    email: string
-  ): Observable<ApiResponse<IAuthorizedUser>> {
+  public userExistsByEmail(email: string): Observable<boolean> {
     return this.http
-      .get<ApiResponse<IAuthorizedUser>>(
-        `${this.apiUrl}/email/${email}`,
-        getAuthHeaders()
-      )
+      .get<boolean>(`${this.apiUrl}/exists/${email}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<IAuthorizedUser>>(
-            'getUserByEmail',
-            error
-          )
+          this.handleError<boolean>('userExistsByEmail', error)
         )
       );
   }
 
-  public getUsersByRole(
-    role: string
-  ): Observable<ApiResponse<IAuthorizedUser[]>> {
+  public getCurrentUser(): Observable<IUser> {
     return this.http
-      .get<ApiResponse<IAuthorizedUser[]>>(
-        `${this.apiUrl}/role/${role}`,
-        getAuthHeaders()
-      )
+      .get<IUser>(`${this.apiUrl}/me`, getAuthHeaders())
+      .pipe(
+        catchError((error) => this.handleError<IUser>('getCurrentUser', error))
+      );
+  }
+
+  public updateUserProfile(profileData: IUpdateUserProfile): Observable<IUser> {
+    return this.http
+      .patch<IUser>(`${this.apiUrl}/me/profile`, profileData, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<IAuthorizedUser[]>>(
-            'getUsersByRole',
-            error
-          )
+          this.handleError<IUser>('updateUserProfile', error)
         )
       );
   }
 
-  public userExistsByEmail(email: string): Observable<ApiResponse<boolean>> {
-    return this.http
-      .get<ApiResponse<boolean>>(
-        `${this.apiUrl}/exists/${email}`,
-        getAuthHeaders()
-      )
-      .pipe(
-        catchError((error) =>
-          this.handleError<ApiResponse<boolean>>('userExistsByEmail', error)
-        )
-      );
-  }
-
-  public getCurrentUser(): Observable<ApiResponse<IUser>> {
-    return this.http
-      .get<ApiResponse<IUser>>(`${this.apiUrl}/me`, getAuthHeaders())
-      .pipe(
-        catchError((error) =>
-          this.handleError<ApiResponse<IUser>>('getCurrentUser', error)
-        )
-      );
-  }
-
-  public updateUserProfile(
-    profileData: IUpdateUserProfile
-  ): Observable<ApiResponse<IUser>> {
-    return this.http
-      .patch<ApiResponse<IUser>>(
-        `${this.apiUrl}/me/profile`,
-        profileData,
-        getAuthHeaders()
-      )
-      .pipe(
-        catchError((error) =>
-          this.handleError<ApiResponse<IUser>>('updateUserProfile', error)
-        )
-      );
-  }
-
-  public updateUserAvatar(file: File): Observable<ApiResponse<IUser>> {
+  public updateUserAvatar(file: File): Observable<IUser> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('avatar', file);
     return this.http
-      .post<ApiResponse<IUser>>(
-        `${this.apiUrl}/me/avatar`,
-        formData,
-        getAuthHeaders()
-      )
+      .post<IUser>(`${this.apiUrl}/me/avatar`, formData, getAuthHeaders())
       .pipe(
         catchError((error) => {
           if (error.status === 413) {
@@ -211,25 +172,17 @@ export class UserService {
           } else if (error.status === 415) {
             this.notificationService.showError('Unsupported file type');
           }
-          return this.handleError<ApiResponse<IUser>>(
-            'updateUserAvatar',
-            error
-          );
+          return this.handleError<IUser>('updateUserAvatar', error);
         })
       );
   }
 
-  public getUserProjects(
-    userId: number
-  ): Observable<ApiResponse<ProjectDTO[]>> {
+  public getUserProjects(userId: number): Observable<ProjectDTO[]> {
     return this.http
-      .get<ApiResponse<ProjectDTO[]>>(
-        `${this.apiUrl}/${userId}/projects`,
-        getAuthHeaders()
-      )
+      .get<ProjectDTO[]>(`${this.apiUrl}/${userId}/projects`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<ProjectDTO[]>>('getUserProjects', error)
+          this.handleError<ProjectDTO[]>('getUserProjects', error)
         )
       );
   }
@@ -257,10 +210,10 @@ export class UserService {
   getProjectsWithDetails(userId: number): Observable<ProjectDTO[]> {
     return this.getUserProjects(userId).pipe(
       switchMap((projects) => {
-        if (!projects.data) return of([]);
+        if (!projects) return of([]);
 
         return forkJoin(
-          projects.data!.map((project) => {
+          projects.map((project) => {
             let details$: Observable<any>;
 
             switch (project.type) {
@@ -286,9 +239,7 @@ export class UserService {
             return details$.pipe(
               map((details) => ({
                 ...project,
-                ...(details?.data
-                  ? { [project.type.toLowerCase()]: details.data }
-                  : {}),
+                ...(details ? { [project.type.toLowerCase()]: details } : {}),
               }))
             );
           })
@@ -303,18 +254,15 @@ export class UserService {
   getRecentlyActiveUsers(
     minutes: number = 50,
     count: number = 7
-  ): Observable<ApiResponse<IUser[]>> {
+  ): Observable<IUser[]> {
     return this.http
-      .get<ApiResponse<IUser[]>>(
+      .get<IUser[]>(
         `${this.apiUrl}/recent-active-users?minutes=${minutes}&count=${count}`,
         getAuthHeaders()
       )
       .pipe(
         catchError((error) =>
-          this.handleError<ApiResponse<IUser[]>>(
-            'getRecentlyActiveUsers',
-            error
-          )
+          this.handleError<IUser[]>('getRecentlyActiveUsers', error)
         )
       );
   }
@@ -340,13 +288,9 @@ export class UserService {
   }
 
   // Delete User by ID
-  public deleteUser(id: number): Observable<ApiResponse<void>> {
+  public deleteUser(id: number): Observable<void> {
     return this.http
-      .delete<ApiResponse<void>>(`${this.apiUrl}/${id}`, getAuthHeaders())
-      .pipe(
-        catchError((error) =>
-          this.handleError<ApiResponse<void>>('deleteUser', error)
-        )
-      );
+      .delete<void>(`${this.apiUrl}/${id}`, getAuthHeaders())
+      .pipe(catchError((error) => this.handleError<void>('deleteUser', error)));
   }
 }

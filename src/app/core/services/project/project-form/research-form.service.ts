@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProjectFormCoreService } from './project-form-core.service';
 import { statuses } from '@shared/content/project.content';
+import { DateValidators } from '@pages/authentication/validators/date.validator';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +21,12 @@ export class ResearchFormService extends ProjectFormCoreService {
       ]),
       startDate: new FormControl<Date | null>(new Date(), [
         Validators.required,
+        DateValidators.validateStartDate('endDate'),
       ]),
-      endDate: new FormControl<Date | null>(new Date(), [Validators.required]),
+      endDate: new FormControl<Date | null>(new Date(), [
+        Validators.required,
+        DateValidators.validateEndDate('startDate'),
+      ]),
       status: new FormControl<string | null>(statuses[0].value, [
         Validators.required,
       ]),

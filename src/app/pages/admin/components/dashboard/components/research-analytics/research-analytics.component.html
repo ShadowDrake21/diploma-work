@@ -1,125 +1,192 @@
 @if (loading()) {
-<div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
-  <p>Loading analytics data...</p>
+<div class="flex justify-center items-center py-5">
+  <custom-loader [diameter]="60" />
 </div>
 } @else if (error()) {
-<div class="error-container">
-  <mat-icon class="error-icon">error_outline</mat-icon>
-  <h3>Failed to load analytics</h3>
-  <p>{{ error() }}</p>
-  <button mat-raised-button color="primary" (click)="refreshData()">
-    <mat-icon>refresh</mat-icon>
-    Retry
-  </button>
+<div class="py-5">
+  <div class="flex justify-center items-center flex-col gap-4">
+    <mat-icon class="text-red-500">error_outline</mat-icon>
+    <h3 class="text-lg font-semibold text-red-500">Failed to load analytics</h3>
+    <p class="text-base text-red-500 sm:text-left text-center">
+      {{
+        error() || "Failed to load publication details. Please try again later."
+      }}
+    </p>
+    <button mat-button (click)="refreshData()">
+      <mat-icon class="text-red-500">refresh</mat-icon>
+      <span class="text-red-500">Retry</span>
+    </button>
+  </div>
 </div>
 } @else if (researchFunding() || publicationMetrics() || patentMetrics()) {
-<mat-grid-list cols="2" rowHeight="300px">
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Research Funding</mat-card-title>
-        <button mat-icon-button (click)="refreshPublicationMetrics()">
-          <mat-icon>refresh</mat-icon>
-        </button>
-      </mat-card-header>
-      @if (researchFunding(); as funding) {
-      <mat-card-content>
-        <div class="metric-grid">
-          <div class="metric-item" matTooltip="Total allocated budget">
-            <h3>${{ funding.totalBudget | number : "1.0-0" }}</h3>
-            <p>Total Budget</p>
-          </div>
-          <div class="metric-item" matTooltip="Average project budget">
-            <h3>${{ funding.averageBudget | number : "1.0-0" }}</h3>
-            <p>Average Budget</p>
-          </div>
-          <div class="metric-item" matTooltip="Currently active projects">
-            <h3>{{ funding.activeProjects }}</h3>
-            <p>Active Projects</p>
-          </div>
-          <div class="metric-item" matTooltip="Most common funding source">
-            <h3>{{ funding.mostCommonFundingSource }}</h3>
-            <p>Top Funding Source</p>
-          </div>
-        </div>
-      </mat-card-content>
-      } @else {
-      <mat-spinner diameter="40"></mat-spinner>
-      }
-    </mat-card>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Publication Metrics</mat-card-title>
+<div class="flex flex-col gap-5 py-5">
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex flex-col gap-5">
+      <div
+        class="flex flex-wrap gap-3 sm:justify-between justify-center sm:flex-row flex-col sm:items-start items-center pb-5"
+      >
+        <h3 class="text-lg font-semibold sm:text-start text-center">
+          Research Funding
+        </h3>
         <button mat-icon-button (click)="refreshResearchFunding()">
           <mat-icon>refresh</mat-icon>
         </button>
-      </mat-card-header>
-      @if(publicationMetrics(); as metrics) {
-      <mat-card-content>
-        <div class="metric-grid">
-          <div class="metric-item" matTooltip="Total publications">
-            <h3>{{ metrics.totalPublications }}</h3>
-            <p>Total Publications</p>
-          </div>
-          <div class="metric-item" matTooltip="Average pages per publication">
-            <h3>{{ metrics.averagePages | number : "1.1-1" }}</h3>
-            <p>Avg. Pages</p>
-          </div>
-          <div class="metric-item" matTooltip="Publications this year">
-            <h3>{{ metrics.publicationsThisYear }}</h3>
-            <p>This Year</p>
-          </div>
-          <div class="metric-item" matTooltip="Most common publication source">
-            <h3>{{ metrics.mostCommonSource }}</h3>
-            <p>Top Source</p>
-          </div>
-        </div> </mat-card-content
-      >} @else {
-      <mat-spinner diameter="40"></mat-spinner>
+      </div>
+      @if (researchFunding(); as funding) {
+      <div class="flex flex-wrap gap-10 sm:justify-between justify-center">
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Total allocated budget"
+        >
+          <h3 class="text-2xl font-bold">
+            ${{ funding.totalBudget | number : "1.0-0" }}
+          </h3>
+          <p class="font-medium">Total Budget</p>
+        </div>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Average project budget"
+        >
+          <h3 class="text-2xl font-bold">
+            ${{ funding.averageBudget | number : "1.0-0" }}
+          </h3>
+          <p class="font-medium">Average Budget</p>
+        </div>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Currently active projects"
+        >
+          <h3 class="text-2xl font-bold">{{ funding.activeProjects }}</h3>
+          <p class="font-medium">Active Projects</p>
+        </div>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Most common funding source"
+        >
+          <h3 class="text-2xl font-bold">
+            {{ funding.mostCommonFundingSource }}
+          </h3>
+          <p class="font-medium">Top Funding Source</p>
+        </div>
+      </div>
+      } @else {
+      <custom-loader [diameter]="40" />
       }
-    </mat-card>
-  </mat-grid-tile>
+    </div>
+  </div>
 
-  <mat-grid-tile colspan="2">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Patent Metrics</mat-card-title>
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex flex-col gap-5">
+      <div
+        class="flex flex-wrap gap-3 sm:justify-between justify-center sm:flex-row flex-col sm:items-start items-center pb-5"
+      >
+        <h3 class="text-lg font-semibold sm:text-start text-center">
+          Publication Metrics
+        </h3>
+        <button mat-icon-button (click)="refreshPublicationMetrics()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+      @if(publicationMetrics(); as metrics) {
+      <div class="flex flex-wrap gap-10 sm:justify-between justify-center">
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Total publications"
+        >
+          <h3 class="text-2xl font-bold">
+            {{ metrics.totalPublications }}
+          </h3>
+          <p class="font-medium">Total Publications</p>
+        </div>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Average pages per publication"
+        >
+          <h3 class="text-2xl font-bold">
+            {{ metrics.averagePages | number : "1.1-1" }}
+          </h3>
+          <p class="font-medium">Average Pages</p>
+        </div>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Publications this year"
+        >
+          <h3 class="text-2xl font-bold">{{ metrics.publicationsThisYear }}</h3>
+          <p class="font-medium">This Year</p>
+        </div>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Most common publication source"
+        >
+          <h3 class="text-2xl font-bold">
+            {{ metrics.mostCommonSource }}
+          </h3>
+          <p class="font-medium">Top Source</p>
+        </div>
+      </div>
+      } @else {
+      <custom-loader [diameter]="40" />
+      }
+    </div>
+  </div>
+
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex flex-col gap-5">
+      <div
+        class="flex flex-wrap gap-3 sm:justify-between justify-center sm:flex-row flex-col sm:items-start items-center pb-5"
+      >
+        <h3 class="text-lg font-semibold sm:text-start text-center">
+          Patent Metrics
+        </h3>
         <button mat-icon-button (click)="refreshPatentMetrics()">
           <mat-icon>refresh</mat-icon>
         </button>
-      </mat-card-header>
-      @if(patentMetrics(); as metrics){
-      <mat-card-content>
-        <div class="metric-grid">
-          <div class="metric-item" matTooltip="Total patents">
-            <h3>{{ metrics.totalPatents }}</h3>
-            <p>Total Patents</p>
-          </div>
-          <div class="metric-item" matTooltip="Average inventors per patent">
-            <h3>{{ metrics.averageInventors | number : "1.1-1" }}</h3>
-            <p>Avg. Inventors</p>
-          </div>
-          <div class="metric-item" matTooltip="Patents filed this year">
-            <h3>{{ metrics.patentsThisYear }}</h3>
-            <p>This Year</p>
-          </div>
-          <div class="metric-item" matTooltip="Most common patent authority">
-            <h3>{{ metrics.mostCommonAuthority }}</h3>
-            <p>Top Authority</p>
-          </div>
+      </div>
+      @if(patentMetrics(); as metrics) {
+      <div class="flex flex-wrap gap-10 sm:justify-between justify-center">
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Total patents"
+        >
+          <h3 class="text-2xl font-bold">
+            {{ metrics.totalPatents }}
+          </h3>
+          <p class="font-medium">Total Patents</p>
         </div>
-      </mat-card-content>
-      }@else {
-      <mat-spinner diameter="40"></mat-spinner>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Average inventors per patent"
+        >
+          <h3 class="text-2xl font-bold">
+            {{ metrics.averageInventors | number : "1.1-1" }}
+          </h3>
+          <p class="font-medium">Average Inventors</p>
+        </div>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Patents filed this year"
+        >
+          <h3 class="text-2xl font-bold">{{ metrics.patentsThisYear }}</h3>
+          <p class="font-medium">This Year</p>
+        </div>
+        <div
+          class="flex flex-col justify-center gap-[15px] items-center"
+          matTooltip="Most common patent authority"
+        >
+          <h3 class="text-2xl font-bold">
+            {{ metrics.mostCommonAuthority }}
+          </h3>
+          <p class="font-medium">Top Authority</p>
+        </div>
+      </div>
+      } @else {
+      <custom-loader [diameter]="40" />
       }
-    </mat-card>
-  </mat-grid-tile>
-</mat-grid-list>
+    </div>
+  </div>
+</div>
 } @else {
 <div class="loading-container">
-  <mat-spinner diameter="60"></mat-spinner>
+  <custom-loader [diameter]="60" />
 </div>
 }

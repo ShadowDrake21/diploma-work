@@ -17,7 +17,8 @@ export interface IUser {
   lastActive?: string | Date;
   tags: string[];
   active: boolean;
-  createdAt?: string | Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   verified?: boolean;
   socialLinks?: SocialLink[];
 }
@@ -45,6 +46,12 @@ export interface IUpdateUserProfile {
 
 export interface ResponseUserDTO {
   id: number;
+  username: string;
+}
+
+export interface ParticipantDTO {
+  id: number;
+  avatarUrl: string;
   username: string;
 }
 

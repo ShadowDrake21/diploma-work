@@ -1,55 +1,62 @@
 @let participants = participants$ | async; @let researchProject = (research$ |
 async); @if (researchError) {
-<div class="error-message">
+<div class="text-lg font-semibold text-red-500 sm:text-start text-center">
   Failed to load research details. Please try again later.
 </div>
 } @else if (researchProject) {
-
-<div class="research-project">
-  <div class="research-project__authors research-project__section">
-    <h4 class="research-project__section-title">Participant</h4>
-    @if (participantsError) {
-    <div class="partial-error">Some participant details couldn't be loaded</div>
-    }
-    <ul class="research-project__authors-list">
-      @for(participant of participants; track participant) {
-      <li class="research-project__authors-list__item">
-        {{ participant.username }}
-      </li>
+<div
+  class="flex justify-between sm:text-start text-center gap-[20px] flex-wrap sm:flex-row flex-col"
+>
+  <mat-accordion>
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title class="w-full text-center flex justify-center !mr-0">
+          <h4 class="font-medium pb-[5px] text-center">Participants</h4>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      @if (participantsError) {
+      <div class="font-semibold text-red-500 sm:text-start text-center">
+        Some participant details couldn't be loaded
+      </div>
       }
-    </ul>
-  </div>
-  <div class="research-project__section">
-    <h4 class="research-project__section-title">Budget</h4>
-    <p class="research-project__section-text">
+      <ul class="list-none flex flex-col gap-[10px]">
+        @for (participant of participants; track participant.id) {
+        <li class="text-center">{{ participant.username }}</li>
+        }
+      </ul>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">Budget</h4>
+    <p>
       {{ researchProject.budget | currency : "USD" }}
     </p>
   </div>
-  <div class="research-project__section">
-    <h4 class="research-project__section-title">Start date</h4>
-    <p class="research-project__section-text">
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">Start date</h4>
+    <p>
       {{ researchProject.startDate | date : "mediumDate" }}
     </p>
   </div>
-  <div class="research-project__section">
-    <h4 class="research-project__section-title">End date</h4>
-    <p class="research-project__section-text">
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">End date</h4>
+    <p>
       {{ researchProject.endDate | date : "mediumDate" }}
     </p>
   </div>
-  <div class="research-project__section">
-    <h4 class="research-project__section-title">Status</h4>
-    <p class="research-project__section-text">
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">Status</h4>
+    <p>
       {{ researchProject.status | titlecase }}
     </p>
   </div>
-  <div class="research-project__section">
-    <h4 class="research-project__section-title">Funding source</h4>
-    <p class="research-project__section-text">
+  <div class="text-center">
+    <h4 class="font-medium pb-[5px]">Funding source</h4>
+    <p>
       {{ researchProject.fundingSource }}
     </p>
   </div>
 </div>
 } @else {
-<div class="loading-message">Loading research details...</div>
+<mat-progress-bar mode="indeterminate"></mat-progress-bar>
 }

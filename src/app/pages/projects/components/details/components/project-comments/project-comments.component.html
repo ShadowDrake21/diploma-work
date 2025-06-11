@@ -1,27 +1,24 @@
-<div class="details-comments">
-  <h3 class="details-comments__title">Comments Section</h3>
-
-  <div
-    style="
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-bottom: 20px;
-    "
+<div>
+  <h3
+    class="pb-[10px] lg:text-xl text-lg font-semibold sm:text-start text-center"
   >
+    Comments Section
+  </h3>
+
+  <div class="flex flex-col gap-[10px] pb-5">
     <textarea
       [(ngModel)]="newCommentContent"
-      style="width: 100%; resize: none; height: 100px; padding: 10px 15px"
+      class="border border-gray-300 border-solid w-full resize-none h-[100px] py-[10px] px-[15px]"
       placeholder="Write a comment..."
     ></textarea>
-    <button mat-flat-button style="width: 100%" (click)="postComment()">
+    <button mat-flat-button class="w-full" (click)="postComment()">
       Post comment
     </button>
   </div>
   @if(commentsLoading()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   } @else {
-  <div class="comments-list">
+  <div>
     @if(comments() && comments()!.length > 0) { @for (comment of comments()!;
     track comment.id) {
     <shared-comment
@@ -33,17 +30,17 @@
     />
 
     @if(replyingToCommentId() === comment.id) {
-    <div class="reply-input">
+    <div>
       <textarea
         [(ngModel)]="replyContent"
         placeholder="Write your reply..."
-        style="width: 100%; resize: none; height: 150px; padding: 10px 15px"
+        class="w-full resize-none h-[150px] py-[10px] px-[15px]"
       ></textarea>
-      <div class="reply-buttons" style="display: flex">
+      <div class="flex">
         <button
           mat-button
           (click)="postReply(comment.id)"
-          style="flex: 1"
+          class="flex-1"
           mat-stroked-button
         >
           Post reply
@@ -51,7 +48,7 @@
         <button
           mat-button
           (click)="cancelReply()"
-          style="flex: 1"
+          class="flex-1"
           mat-stroked-button
         >
           Cancel
@@ -72,7 +69,9 @@
       }
     </div>
     } } } @else {
-    <p>No comments yet. Be the first to comment!</p>
+    <p class="text-lg sm:text-start text-center font-medium">
+      No comments yet. Be the first to comment!
+    </p>
     }
   </div>
   }

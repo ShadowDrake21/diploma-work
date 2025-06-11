@@ -6,6 +6,9 @@
       <mat-option [value]="type.value">{{ type.viewValue }}</mat-option>
       }
     </mat-select>
+    @if (typeForm().controls.type.invalid && typeForm().controls.type.touched) {
+    <mat-error>{{ formErrors.type.required }}</mat-error>
+    }
   </mat-form-field>
   <div>
     <button mat-button matStepperNext [disabled]="typeForm().invalid">

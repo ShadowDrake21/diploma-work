@@ -1,36 +1,44 @@
-<div class="user">
+<div>
   @if (hasError()) {
-  <div class="error-state">
-    <mat-icon class="error-icon">error_outline</mat-icon>
-    <h3 class="error-message">{{ error() }}</h3>
+  <div
+    class="absolute left-0 right-0 top-0 bottom-0 flex flex-col gap-3 items-center justify-center"
+  >
+    <mat-icon class="text-red-500">error_outline</mat-icon>
+    <h3 class="text-lg font-semibold text-red-500 sm:text-start text-center">
+      {{ error() }}
+    </h3>
     <button mat-raised-button color="primary" (click)="retryLoading()">
       Retry
     </button>
   </div>
   } @else {
-  <div class="user-inner">
-    <div class="user-img__wrapper">
-      <img [src]="user()?.avatarUrl" class="user-img" />
+  <div class="flex gap-5 justify-center sm:flex-row flex-col">
+    <div
+      class="flex-shrink-0 lg:w-[350px] sm:w-[300px] w-full lg:h-[350px] sm:h-[300px] h-full"
+    >
+      <img [src]="user()?.avatarUrl" class="object-cover w-full h-full" />
     </div>
-    <div class="user-content">
-      <div class="user-content__info">
-        <p class="user-content__info-item">
-          <span class="user-content__info-item__span">Name:</span>
+    <div>
+      <div class="flex flex-col gap-[10px] pb-[10px] sm:text-left text-center">
+        <p>
+          <span class="font-bold">Name:</span>
           {{ user()?.username }}
         </p>
-        <p class="user-content__info-item">
-          <span class="user-content__info-item__span">Role:</span>
+        <p>
+          <span class="font-bold">Role:</span>
           {{ user()?.role | roleFormat }}
         </p>
-        <p class="user-content__info-item">
-          <span class="user-content__info-item__span">Affiliation:</span>
-          {{ user()?.affiliation }}
+        <p>
+          <span class="font-bold">Affiliation:</span>
+          {{ user()?.affiliation || "" | truncateText : 100 }}
         </p>
       </div>
 
-      <ul class="user-content__metric-list">
+      <ul
+        class="w-full list-none flex flex-col justify-between gap-[15px] pb-[15px] overflow-x-scroll"
+      >
         @for (item of userMetrics(); track $index) {
-        <li class="user-content__metric-list__item">
+        <li>
           <shared-metric-card-item [data]="item" />
         </li>
         }
@@ -45,8 +53,10 @@
     (pageChange)="onPageChange($event)"
   />
   } @else if (isLoading()) {
-  <div class="user-content__loading">
-    <mat-spinner [diameter]="50" [strokeWidth]="5"></mat-spinner>
+  <div
+    class="absolute left-0 right-0 top-0 bottom-0 flex items-center justify-center"
+  >
+    <custom-loader />
   </div>
   }}
 </div>

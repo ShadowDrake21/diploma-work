@@ -24,6 +24,8 @@ import {
 import { switchMap } from 'rxjs';
 import { UserStore } from '@core/services/stores/user-store.service';
 import { NotificationService } from '@core/services/notification.service';
+import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
+import { ErrorTruncateTextPipe } from '@pipes/error-truncate-text.pipe';
 
 @Component({
   selector: 'auth-sign-in',
@@ -37,6 +39,7 @@ import { NotificationService } from '@core/services/notification.service';
     MatIconModule,
     ReactiveFormsModule,
     CustomButtonComponent,
+    ErrorTruncateTextPipe,
   ],
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',

@@ -52,8 +52,3 @@ export interface ResearchForm {
 export type PublicationFormGroup = FormGroup<PublicationForm>;
 export type PatentFormGroup = FormGroup<PatentForm>;
 export type ResearchFormGroup = FormGroup<ResearchForm>;
-
-export type ProjectFormGroup =
-  | PublicationFormGroup
-  | PatentFormGroup
-  | ResearchFormGroup;

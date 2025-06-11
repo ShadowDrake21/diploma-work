@@ -9,6 +9,10 @@
       placeholder="Creation of a new graphics render model"
       formControlName="title"
     />
+    @if (generalInformationForm().controls.title.invalid &&
+    generalInformationForm().controls.title.touched) {
+    <mat-error class="h-full">{{ formErrors.title.required }}</mat-error>
+    }
   </mat-form-field>
   <div style="display: flex; flex-direction: column">
     <mat-label>Progress</mat-label>
@@ -28,6 +32,10 @@
       style="resize: none"
       rows="4"
     ></textarea>
+    @if (generalInformationForm().controls.description.invalid &&
+    generalInformationForm().controls.description.touched) {
+    <mat-error class="h-full">{{ formErrors.description.required }}</mat-error>
+    }
   </mat-form-field>
   <mat-form-field>
     <mat-label>Tags</mat-label>
@@ -38,15 +46,21 @@
     </mat-select>
   </mat-form-field>
 
+  @if(isFilesLoading()) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  } @else {
   <general-information-file-upload-list
     [uploadedFiles]="uploadedFiles"
     [pendingFiles]="pendingFiles"
     [isUploading]="isUploading"
+    [isEditing]="isEditing()"
     [uploadProgress]="uploadProgress"
     (uploadRequested)="uploadFiles()"
     (filesSelected)="onFilesSelected($event)"
     (removeFile)="removeFile($event.index, $event.isPending)"
   />
+  }
+
   <div>
     <button mat-button matStepperPrevious>Back</button>
     <button

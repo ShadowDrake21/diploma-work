@@ -14,12 +14,17 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
 import { IUser } from '@models/user.model';
+import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'profile-avatar',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    LoaderComponent,
+  ],
   templateUrl: './profile-avatar.component.html',
-  styleUrl: './profile-avatar.component.scss',
 })
 export class ProfileAvatarComponent implements OnDestroy {
   private readonly userService = inject(UserService);
@@ -91,21 +96,17 @@ export class ProfileAvatarComponent implements OnDestroy {
       return;
     }
 
-    this.userService.updateUserAvatar(this.selectedFile()!).subscribe({
-      next: (response) => {
-        if (response.data) {
-          const newAvatarUrl = response.data.avatarUrl;
-          const currentUser = this.user();
-          if (currentUser) {
-            const updatedUser = {
-              ...currentUser,
-              avatarUrl: newAvatarUrl,
-            };
-            this.updateSuccess.emit(updatedUser);
-            this.notificationService.showSuccess('Avatar updated successfully');
-            this.resetUploadState();
-          }
-        }
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    this.userService.updateUserAvatar(file).subscribe({
+      next: (updatedUser) => {
+        this.previewUrl.set(updatedUser.avatarUrl!);
+
+        this.updateSuccess.emit(updatedUser);
+        this.notificationService.showSuccess('Avatar updated successfully');
+
+        setTimeout(() => this.resetUploadState(), 500);
       },
       error: (error) => {
         console.error('Avatar upload failed:', error);
@@ -117,6 +118,16 @@ export class ProfileAvatarComponent implements OnDestroy {
       },
     });
   }
+
+  get avatarUrl(): string | null {
+    return (
+      (this.previewUrl() || this.user()?.avatarUrl) +
+      '?v=' +
+      (this.user()?.updatedAt?.getTime() || Date.now())
+    );
+  }
+
+  // TODO : FIX AVATAR + STYLE ADMIN
 
   private handleUploadError(error: any): void {
     let errorMessage = 'Failed to upload avatar';

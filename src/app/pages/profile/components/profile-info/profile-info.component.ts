@@ -1,4 +1,10 @@
-import { Component, inject, OnDestroy, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { UserService } from '@core/services/users/user.service';
 import { Subscription } from 'rxjs';
 import { IUpdateUserProfile, IUser } from '@models/user.model';
@@ -9,6 +15,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
+import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'profile-info',
@@ -18,13 +25,14 @@ import { MatIcon } from '@angular/material/icon';
     ProfileViewComponent,
     MatProgressBarModule,
     MatIcon,
+    LoaderComponent,
   ],
   templateUrl: './profile-info.component.html',
-  styleUrl: './profile-info.component.scss',
 })
 export class ProfileInfoComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private subscriptions: Subscription[] = [];
 
   readonly editMode = signal(false);
@@ -47,17 +55,11 @@ export class ProfileInfoComponent implements OnDestroy {
       .updateUserProfile(this.formProfileData(profileData))
       .subscribe({
         next: (response) => {
-          if (response.success) {
-            const updatedUser = { ...this.user()!, ...profileData };
-            this.user.set(updatedUser);
-            currentUserSig.set(updatedUser);
-            this.notificationService.showSuccess(
-              'Profile updated successfully'
-            );
-            this.editMode.set(false);
-          } else {
-            this.error.set(response.message || 'Failed to update profile');
-          }
+          const updatedUser = { ...this.user()!, ...profileData };
+          this.user.set(updatedUser);
+          currentUserSig.set(updatedUser);
+          this.notificationService.showSuccess('Profile updated successfully');
+          this.editMode.set(false);
         },
         error: (err) => {
           this.error.set(
@@ -73,6 +75,7 @@ export class ProfileInfoComponent implements OnDestroy {
   handleAvatarSucess(updatedUser: IUser): void {
     this.user.set(updatedUser);
     currentUserSig.set(updatedUser);
+    this.cdr.detectChanges();
     this.notificationService.showSuccess('Avatar updated successfully');
   }
 
@@ -93,11 +96,7 @@ export class ProfileInfoComponent implements OnDestroy {
 
     const sub = this.userService.getCurrentUser().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.user.set(response.data!);
-        } else {
-          this.error.set(response.message || 'Failed to load profile data');
-        }
+        this.user.set(response);
       },
       error: (err) => {
         this.error.set(

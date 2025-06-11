@@ -1,19 +1,20 @@
-<div class="comment" [class.reply]="isReply()">
-  <div class="comment-header">
+<div
+  class="bg-white rounded-lg p-4 mb-4 shadow-sm border"
+  [class]="isReply() ? 'ml-8 bg-gray-50' : ''"
+>
+  <div class="flex items-center mb-2">
     <img
       [src]="comment().userAvatarUrl || 'assets/default-avatar.jpg'"
       alt="User avatar"
-      class="comment-avatar"
+      class="w-[50px] h-[50px] rounded-[50%] mr-2 object-cover"
     />
-    <div class="comment-user-info">
-      <span class="comment-username">{{ comment().userName }}</span>
-      <span class="comment-date">{{
-        comment().createdAt | date : "medium"
-      }}</span>
+    <div class="flex flex-col">
+      <span class="font-bold text-sm">{{ comment().userName }}</span>
+      <span class="text-xs">{{ comment().createdAt | date : "medium" }}</span>
     </div>
   </div>
 
-  <div class="comment-content">
+  <div class="mb-2">
     @if (!isEditing()) {
     <p>{{ comment().content }}</p>
     } @else {
@@ -21,7 +22,9 @@
       [(ngModel)]="editedContent"
       class="comment-edit-textarea"
     ></textarea>
-    <div class="comment-edit-actions">
+    <div
+      class="w-full min-h-[80px] p-2 border border-solid border-gray-300 rounded mb-2 resize-none"
+    >
       <button (click)="onCancel()" mat-raised-button>
         <mat-icon>cancel</mat-icon> Cancel
       </button>
@@ -33,21 +36,33 @@
   </div>
 
   @if (!isEditing()) {
-  <div class="comment-actions">
+  <div class="flex gap-2 justify-end">
     @if (!isCurrentUserComment()) {
-    <button (click)="onReply()" class="comment-action">
+    <button
+      (click)="onReply()"
+      class="bg-none border-none text-gray-600 cursor-pointer text-xs py-1 px-2 hover:text-gray-800"
+    >
       <mat-icon>reply</mat-icon> Reply
     </button>
     }
     <button
       (click)="onLikeToggle()"
-      class="comment-action like-button"
+      class="bg-none border-none text-xs py-1 px-2 transition-colors"
+      [class.text-indigo-600]="comment().likedByCurrentUser"
+      [class.font-bold]="comment().likedByCurrentUser"
+      [class.text-gray-400]="comment().userId === currentUserId()"
+      [class.cursor-not-allowed]="comment().userId === currentUserId()"
+      [class.opacity-50]="comment().userId === currentUserId()"
+      [class.text-gray-600]="
+        !comment().likedByCurrentUser && comment().userId !== currentUserId()
+      "
+      [class.hover:text-gray-800]="
+        !comment().likedByCurrentUser && comment().userId !== currentUserId()
+      "
       [disabled]="isLiking() || isCurrentUserComment()"
-      [class.liked]="comment().isLikedByCurrentUser"
-      [class.disabled]="comment().userId === currentUserId()"
     >
       <mat-icon>{{
-        comment().isLikedByCurrentUser ? "favorite" : "favorite_border"
+        comment().likedByCurrentUser ? "favorite" : "favorite_border"
       }}</mat-icon>
       @if(!isLiking()) {
       <span> {{ comment().likes }} </span>
@@ -57,10 +72,16 @@
     </button>
     @if (isCurrentUserComment()) {
 
-    <button (click)="onEdit()" class="comment-action">
+    <button
+      (click)="onEdit()"
+      class="bg-none border-none text-gray-600 cursor-pointer text-xs py-1 px-2 hover:text-gray-800"
+    >
       <mat-icon>edit</mat-icon> Edit
     </button>
-    <button (click)="onDelete()" class="comment-action">
+    <button
+      (click)="onDelete()"
+      class="bg-none border-none text-gray-600 cursor-pointer text-xs py-1 px-2 hover:text-gray-800"
+    >
       <mat-icon>delete</mat-icon> Delete
     </button>
     }

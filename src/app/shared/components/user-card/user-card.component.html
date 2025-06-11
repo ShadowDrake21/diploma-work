@@ -1,50 +1,52 @@
-<div class="user-card">
-  <img [src]="user().avatarUrl" class="user-card__image" alt="user-image" />
+<div class="w-[275px] h-[325px] relative group">
+  <img
+    [src]="user().avatarUrl"
+    class="w-full h-full object-cover object-center"
+    alt="user-image"
+  />
 
-  <div class="user-card__content">
-    <div class="user-card__content-header">
-      <h3 class="user-card__content-header__item">{{ user().username }}</h3>
-      <h4 class="user-card__content-header__item">{{ user().email }}</h4>
+  <div
+    class="opacity-0 absolute bg-[#ffffffcc] w-full h-full top-0 left-0 p-[10px] flex flex-col justify-between text-center gap-[10px] group-hover:opacity-100"
+    style="text-wrap: auto"
+  >
+    <div class="flex flex-col items-center gap-2]">
+      <h3 class="text-lg font-bold">
+        {{ user().username | truncateText : 15 }}
+      </h3>
+      <h4 class="text-base font-semibold">
+        {{ user().email | truncateText : 20 }}
+      </h4>
     </div>
-    <div class="user-card__content-body">
-      <div class="user-card__content-body__part">
+    <div class="flex flex-col gap-[10px] w-full break-words">
+      <div class="flex flex-col gap-[5px]">
         <p class="user-card__content-body__part-item">
-          <span class="user-card__content-subtitle">Role:</span>
+          <span class="font-bold">Role:</span>
           {{ user().role | roleFormat }}
         </p>
 
         <p class="user-card__content-body__part-item">
-          <span class="user-card__content-subtitle">Affiliation:</span>
-          {{ user().affiliation }}
+          <span class="font-bold">Affiliation:</span>
+          {{ user().affiliation | truncateText : 30 }}
         </p>
       </div>
       <mat-divider />
-      <div class="user-card__content-body__part">
-        <p class="user-card__content-body__part-item">
-          <span class="user-card__content-subtitle">Publications:</span>
+      <div class="flex flex-col gap-[5px]">
+        <p>
+          <span class="font-bold">Publications:</span>
           {{ user().publicationCount }}
         </p>
-        <p class="user-card__content-body__part-item">
-          <span class="user-card__content-subtitle">Patents:</span>
+        <p>
+          <span class="font-bold">Patents:</span>
           {{ user().patentCount }}
         </p>
-        <p class="user-card__content-body__part-item">
-          <span class="user-card__content-subtitle">Research projects:</span>
+        <p>
+          <span class="font-bold">Research projects:</span>
           {{ user().researchCount }}
         </p>
       </div>
     </div>
-    <div class="user-card__content-actions">
-      <button
-        mat-button
-        class="user-card__content-actions__btn"
-        (click)="goToProfile()"
-      >
-        View Profile
-      </button>
-      <button mat-button class="user-card__content-actions__btn">
-        Go to chat
-      </button>
+    <div class="pb-2">
+      <button mat-button class="" (click)="goToProfile()">View Profile</button>
     </div>
   </div>
 </div>

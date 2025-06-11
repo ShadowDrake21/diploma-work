@@ -1,24 +1,32 @@
-<div class="profile">
-  <div class="profile__inner">
+<div>
+  <div class="flex flex-col gap-[25px]">
     <profile-info />
 
     @if (isLoading()) {
-    <div class="loading-spinner">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p>Loading your projects...</p>
+    <div class="flex justify-center items-center py-10">
+      <custom-loader [diameter]="50" />
     </div>
-    } @if (error()) {
-    <div class="error-message">
-      <mat-icon>error_outline</mat-icon>
-      <p>{{ error() }}</p>
-      <button mat-raised-button color="primary" (click)="onFiltersReset()">
+    } @else if (error()) {
+    <div class="flex flex-col items-center gap-[20px]">
+      <mat-icon class="text-red-500">error_outline</mat-icon>
+      <p class="text-lg font-semibold text-red-500 sm:text-start text-center">
+        {{ error() }}
+      </p>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onFiltersReset()"
+        class="!text-red-500"
+      >
         Retry
       </button>
     </div>
-    } @if(!isLoading() && !error()) {
+    } @else if(!isLoading() && !error()) {
     <shared-profile-projects
       [projects]="myProjects()"
       [currentPage]="currentPage()"
+      [pageSize]="pageSize()"
+      [totalItems]="totalItems()"
       (filters)="onFiltersChanged($event)"
       (pageChange)="onPageChanged($event)"
     />

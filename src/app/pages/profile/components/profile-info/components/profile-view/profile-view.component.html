@@ -1,46 +1,57 @@
-<div class="profile__info">
-  <h2 class="profile__header">Profile Information</h2>
+<div>
+  <h2 class="text-xl font-semibold pb-[10px] sm:text-start text-center">
+    Profile Information
+  </h2>
 
-  <div class="profile__info-section">
-    <p class="profile__info-text">Name: {{ user().username }}</p>
-    <p class="profile__info-text">Email: {{ user().email }}</p>
-    <p class="profile__info-text">Role: {{ user().role }}</p>
-    <p class="profile__info-text">Type: {{ user().userType }}</p>
+  <div>
+    <div
+      class="flex gap-10 pb-10 xl:flex-row min-[900px]:flex-col flex-row flex-wrap justify-center"
+    >
+      <div class="flex flex-col gap-[10px]">
+        <h3 class="text-lg font-semibold pb-[10px] sm:text-start text-center">
+          Basic Information
+        </h3>
+        <p><span class="font-medium">Name:</span> {{ user().username }}</p>
+        <p><span class="font-medium">Email:</span> {{ user().email }}</p>
+        <p><span class="font-medium">Role:</span> {{ user().role }}</p>
+        <p><span class="font-medium">Type:</span> {{ user().userType }}</p>
 
-    @if (user().userType === 'student') {
-    <p class="profile__info-text">
-      Group: {{ user().universityGroup || "Not specified" }}
-    </p>
-    }
-    <p class="profile__info-text">
-      Date of Birth:
-      {{ (user().dateOfBirth | date : "longDate") || "Not provided" }}
-    </p>
+        @if (user().userType === 'student') {
+        <p>
+          <span class="font-medium">Group:</span>
+          {{ user().universityGroup || "Not specified" }}
+        </p>
+        }
+        <p>
+          <span class="font-medium">Date of Birth:</span>
+          {{ (user().dateOfBirth | date : "longDate") || "Not provided" }}
+        </p>
 
-    <p class="profile__info-text">
-      Phone: {{ user().phoneNumber || "Not provided" }}
-    </p>
-
-    @if (socialLinks.length>0) {
-    <div>
-      <h3>Social Links</h3>
-      @for (link of socialLinks; track $index) {
-      <p class="profile__info-text">
-        {{ link.name || "Link " + ($index + 1) }}:
-        <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{
-          link.url
-        }}</a>
-      </p>
+        <p>
+          <span class="font-medium">Phone:</span>
+          {{ user().phoneNumber || "Not provided" }}
+        </p>
+      </div>
+      @if (socialLinks.length>0) {
+      <div class="flex flex-col gap-[10px]">
+        <h3 class="text-lg font-semibold pb-[10px] sm:text-start text-center">
+          Social Links
+        </h3>
+        @for (link of socialLinks; track $index) {
+        <p>
+          <span class="font-medium">{{
+            link.name || "Link " + ($index + 1)
+          }}</span
+          >:
+          <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{
+            link.url
+          }}</a>
+        </p>
+        }
+      </div>
       }
     </div>
-    }
-
-    <button
-      mat-flat-button
-      color="primary"
-      (click)="onEdit()"
-      style="width: 100%"
-    >
+    <button mat-flat-button color="primary" (click)="onEdit()" class="w-full">
       Edit
     </button>
   </div>

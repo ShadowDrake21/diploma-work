@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   interval,
@@ -7,71 +7,79 @@ import {
   catchError,
   of,
   Observable,
+  take,
+  Subject,
+  takeUntil,
+  tap,
 } from 'rxjs';
 import { UserService } from './user.service';
 import { NotificationService } from '../notification.service';
-import { ApiResponse } from '@models/api-response.model';
 import { IUser } from '@models/user.model';
+import { AuthService } from '@core/authentication/auth.service';
+
+interface ErrorResult {
+  error: {
+    message: string;
+  };
+}
 
 @Injectable({
   providedIn: 'root',
 })
-export class RecentUsersService {
+export class RecentUsersService implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
+  private destroy$ = new Subject<void>();
 
-  activeUsers = toSignal(
-    interval(60000).pipe(
-      startWith(null),
-      switchMap(() => this.getActiveUsersWithHandling()),
-      catchError((error) => {
-        this.handleActiveUsersError(error);
-        return of({ error: this.createErrorObject(error) });
-      })
-    ),
-    { initialValue: null }
-  );
+  private _activeUsers = signal<IUser[] | ErrorResult | null>(null);
+  public activeUsers = this._activeUsers.asReadonly();
+
+  constructor() {
+    this.setupPolling();
+  }
+
+  private setupPolling(): void {
+    interval(60000)
+      .pipe(
+        startWith(0),
+        switchMap(() => this.fetchActiveUsers()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
+  }
 
   refreshActiveUsers() {
-    this.activeUsers = toSignal(
-      this.getActiveUsersWithHandling().pipe(
-        catchError((error) => {
-          this.handleActiveUsersError(error);
-          return of({ error: this.createErrorObject(error) });
-        })
-      ),
-      {
-        initialValue: null,
-      }
-    );
+    this.fetchActiveUsers().pipe(takeUntil(this.destroy$)).subscribe();
   }
 
-  private getActiveUsersWithHandling(): Observable<ApiResponse<
-    IUser[]
-  > | null> {
-    return this.userService.getRecentlyActiveUsers().pipe(
-      catchError((error) => {
-        this.handleActiveUsersError(error);
-        return of(null);
+  private fetchActiveUsers(): Observable<IUser[] | null> {
+    return this.authService.currentUser$.pipe(
+      take(1),
+      switchMap((user) => {
+        if (!user) return of(null);
+        return this.userService.getRecentlyActiveUsers().pipe(
+          tap((users) => this._activeUsers.set(users)),
+          catchError((error) => {
+            const errorResult: ErrorResult = {
+              error: {
+                message:
+                  error.status === 403
+                    ? 'You do not have permission to view active users'
+                    : 'Failed to load active users',
+              },
+            };
+            this._activeUsers.set(errorResult);
+            this.notificationService.showError(errorResult.error.message);
+            return of(null);
+          })
+        );
       })
     );
   }
 
-  private handleActiveUsersError(error: any): void {
-    console.error('Error fetching active users:', error);
-    this.notificationService.showError(
-      error.status === 403
-        ? 'You do not have permission to view active users'
-        : 'Failed to load active users'
-    );
-  }
-
-  private createErrorObject(error: any): { message: string } {
-    return {
-      message:
-        error.status === 403
-          ? 'You do not have permission to view active users'
-          : 'Failed to load active users',
-    };
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

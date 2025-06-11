@@ -8,7 +8,6 @@ import { IUser, SocialLink } from '@models/user.model';
   selector: 'profile-view',
   imports: [MatButtonModule, DatePipe],
   templateUrl: './profile-view.component.html',
-  styleUrl: './profile-view.component.scss',
 })
 export class ProfileViewComponent {
   private readonly notificationService = inject(NotificationService);

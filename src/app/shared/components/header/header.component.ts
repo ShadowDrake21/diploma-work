@@ -17,7 +17,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
     ProfileDropdownComponent,
   ],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss',
   host: {
     class: 'shared-header',
     style: 'position: absolute; z-index: 100; width: 100%;',
