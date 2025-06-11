@@ -3,7 +3,7 @@
 <div class="py-5">
   <div class="bg-white p-6 rounded-lg shadow-md">
     <h2 class="text-xl font-bold sm:text-start text-center pb-5">
-      User Analytics
+      Аналітика користувачів
     </h2>
 
     <div class="flex flex-col gap-5">
@@ -25,7 +25,7 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>End Date</mat-label>
+          <mat-label>Дата завершення</mat-label>
           <input
             matInput
             [matDatepicker]="endPicker"
@@ -74,8 +74,8 @@
       </div>
       } @else {
       <p class="text-center font-medium text-lg">
-        @if(startDate() && endDate()) { No user data available for selected
-        period } @else { Please select both start and end dates }
+        @if(startDate() && endDate()) { Немає даних користувачів за вибраний
+        період } @else { Будь ласка, виберіть дату початку та дату завершення }
       </p>
       }}
     </div>

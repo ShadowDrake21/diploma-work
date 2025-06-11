@@ -61,7 +61,7 @@ export class UserAnalyticsComponent {
       this.error.set(null);
       this.dateRangeError.set(null);
       if (startDate && endDate && startDate > endDate) {
-        this.dateRangeError.set('Start date must be before end date');
+        this.dateRangeError.set('Дата початку має бути раніше дати завершення');
         this.loading.set(false);
         return;
       }
@@ -88,14 +88,14 @@ export class UserAnalyticsComponent {
 
       return [
         {
-          name: 'New Users',
+          name: 'Нові користувачі',
           series: data!.map((item) => ({
             name: safeToLocaleDateString(item.date),
             value: item.newUsers,
           })),
         },
         {
-          name: 'Active Users',
+          name: 'Активні користувачі',
           series: data!.map((item) => ({
             name: safeToLocaleDateString(item.date),
             value: item.activeUsers,
@@ -107,7 +107,7 @@ export class UserAnalyticsComponent {
     catchError((error) => {
       console.error('Error processing user growth data:', error);
       this.loading.set(false);
-      this.error.set('Failed to process user data');
+      this.error.set('Не вдалося обробити дані користувача');
       this.notificationService.showError(this.error()!);
       return of([]);
     }),
@@ -127,14 +127,14 @@ export class UserAnalyticsComponent {
 
   private getErrorMessage(error: any): string {
     if (error.status === 0) {
-      return 'Network error: Unable to connect to analytics service';
+      return 'Помилка мережі: Не вдалося підключитися до служби аналітики';
     }
     if (error.status === 403) {
-      return 'Unauthorized: You do not have permission to view user analytics';
+      return 'Неавторизовано: У вас немає дозволу на перегляд аналітики користувачів';
     }
     if (error.status === 404) {
-      return 'User analytics data not found for selected period';
+      return 'Дані аналітики користувачів не знайдено за вибраний період';
     }
-    return 'Failed to load user analytics data';
+    return 'Не вдалося завантажити дані аналітики користувачів';
   }
 }
