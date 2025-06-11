@@ -74,12 +74,12 @@ export class ProfileComponent {
             catchError((error) => {
               this.isLoading.set(false);
               this.error.set(
-                this.getErrorMessage(error, 'Failed to load projects')
+                this.getErrorMessage(error, 'Не вдалося завантажити проекти')
               );
               console.error('Project loading error:', error);
               return of({
                 success: false,
-                message: 'Failed to load projects',
+                message: 'Не вдалося завантажити проекти',
                 data: [],
                 totalItems: 0,
                 totalPages: 0,
@@ -131,13 +131,13 @@ export class ProfileComponent {
 
   private getErrorMessage(error: any, defaultMessage: string): string {
     if (error.status === 404) {
-      return 'No projects found matching your criteria';
+      return 'Не знайдено проектів, що відповідають вашим критеріям';
     }
     if (error.status === 403) {
-      return 'You do not have permission to view these projects';
+      return 'У вас немає дозволу на перегляд цих проектів';
     }
     if (error.status === 400) {
-      return 'Invalid search parameters';
+      return 'Недійсні параметри пошуку';
     }
     return defaultMessage;
   }
