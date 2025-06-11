@@ -1,0 +1,89 @@
+{
+  "code": {
+    "loadUserData": {
+      "error1": "Invalid user ID",
+      "success": "User data loaded successfully"
+    },
+    "getUserFriendlyError": {
+      "status_404": "User not found",
+      "status_403": "You do not have permission to view this user",
+      "status_400": "Invalid request",
+      "default": "An unexpected error occurred"
+    },
+    "promoteUser": {
+      "confirmation": {
+        "title": "Promote User",
+        "message": "Are you sure you want to promote ${this.user()?.username} to admin?",
+        "confirm": "Promote"
+      },
+      "success": "User promoted successfully",
+      "error": "Failed to promote user"
+    },
+
+    "demoteUser": {
+      "confirmation": {
+        "title": "Demote User",
+        "message": "Are you sure you want to demote ${this.user()?.username} to regular user?",
+        "confirm": "Demote"
+      },
+      "success": "Admin demoted successfully",
+      "error": "Failed to demote user"
+    },
+    "deactivateUser": {
+      "confirmation": {
+        "title": "Deactivate User",
+        "message": "Are you sure you want to deactivate ${this.user()?.username}?",
+        "confirm": "Deactivate"
+      },
+      "success": "User deactivated successfully",
+      "error": "Failed to deactivate user"
+    },
+    "reactivateUser": {
+      "confirmation": {
+        "title": "Reactivate User",
+        "message": "Are you sure you want to reactivate ${this.user()?.username}?",
+        "confirm": "Reactivate"
+      },
+      "success": "User reactivated successfully",
+      "error": "Failed to reactivate user"
+    },
+    "deleteUser": {
+      "confirmation": {
+        "title": "Delete User",
+        "message": "Are you sure you want to permanently delete ${this.user()?.username}?",
+        "confirm": "Delete"
+      },
+      "success": "User deleted successfully",
+      "error": "Failed to delete user"
+    },
+    "loadProjects": {
+      "error": "Failed to load projects"
+    }
+  },
+  "html": {
+    "retry": "Retry",
+    "back_to_users": "Back to Users",
+    "back": "Back",
+    "list": {
+      "username": "Username",
+      "email": "Email",
+      "phone": "Phone",
+      "affiliation": "Affiliation",
+      "joined": "Joined"
+    },
+    "no_project": "No projects found",
+    "statistics": {
+      "publication": "Publication",
+      "patents": "Patents",
+      "research_projects": "Research Projects"
+    },
+    "not_provided": "Not provided",
+    "actions": {
+      "promote": "Promote to Admin",
+      "demote": "Demote to User",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "delete": "Delete User"
+    }
+  }
+}

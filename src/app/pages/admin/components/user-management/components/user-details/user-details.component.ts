@@ -93,7 +93,7 @@ export class UserDetailsComponent implements OnInit {
           const userId = params['id'];
           console.log(`Loading user data for ID: ${userId}`);
           if (isNaN(userId)) {
-            throw new Error('Invalid user ID');
+            throw new Error('Недійсний ID користувача');
           }
 
           const idNumber = Number(userId);
@@ -110,7 +110,9 @@ export class UserDetailsComponent implements OnInit {
         next: (response) => {
           this.user.set(response);
           this.loadUserProjects();
-          this.notificationService.showSuccess('User data loaded successfully');
+          this.notificationService.showSuccess(
+            'Дані користувача завантажено успішно'
+          );
         },
         error: (err) => this.handleError(this.getUserFriendlyError(err)),
         complete: () => this.isLoading.set(false),
@@ -129,11 +131,11 @@ export class UserDetailsComponent implements OnInit {
   }
 
   private getUserFriendlyError(error: any): string {
-    if (error.status === 404) return 'User not found';
+    if (error.status === 404) return 'Користувача не знайдено';
     if (error.status === 403)
-      return 'You do not have permission to view this user';
-    if (error.status === 400) return 'Invalid request';
-    return error.message || 'An unexpected error occurred';
+      return 'Ви не маєте дозволу переглядати цього користувача';
+    if (error.status === 400) return 'Недійсний запит';
+    return error.message || 'Виникла неочікувана помилка';
   }
 
   loadUserProjects(): void {
@@ -144,17 +146,19 @@ export class UserDetailsComponent implements OnInit {
 
   async promoteUser(): Promise<void> {
     const confirmed = await this.showConfirmation(
-      'Promote User',
-      `Are you sure you want to promote ${this.user()?.username} to admin?`,
-      'Promote'
+      'Підвищити користувача',
+      `Ви впевнені, що хочете підвищити ${
+        this.user()?.username
+      } до адміністратора?`,
+      'Підвищити'
     );
 
     if (confirmed) {
       this.executeUserAction(
         () => this.adminService.promoteToAdmin(this.user()!.id),
         { ...this.user()!, role: UserRole.ADMIN },
-        'User promoted successfully',
-        'Failed to promote user',
+        'Користувача успішно підвищено',
+        'Не вдалося підвищити користувача',
         'PROMOTE_ERROR'
       );
     }
@@ -162,19 +166,19 @@ export class UserDetailsComponent implements OnInit {
 
   async demoteUser(): Promise<void> {
     const confirmed = await this.showConfirmation(
-      'Demote User',
-      `Are you sure you want to demote ${
+      'Понизити користувача',
+      `Ви впевнені, що хочете понизити статус ${
         this.user()?.username
-      } to regular user?`,
-      'Demote'
+      } до звичайного користувача?`,
+      'Понизити'
     );
 
     if (confirmed) {
       await this.executeUserAction(
         () => this.adminService.demoteFromAdmin(this.user()!.id),
         { ...this.user()!, role: UserRole.USER },
-        'Admin demoted successfully',
-        'Failed to demote user',
+        'Адміністратора успішно понижено',
+        'Не вдалося понизити користувача',
         'DEMOTE_ERROR'
       );
     }
@@ -182,17 +186,17 @@ export class UserDetailsComponent implements OnInit {
 
   async deactivateUser(): Promise<void> {
     const confirmed = await this.showConfirmation(
-      'Deactivate User',
-      `Are you sure you want to deactivate ${this.user()?.username}?`,
-      'Deactivate'
+      'Деактивувати користувача',
+      `Ви впевнені, що хочете деактивувати ${this.user()?.username}?`,
+      'Деактивувати'
     );
 
     if (confirmed) {
       await this.executeUserAction(
         () => this.adminService.deactivateUser(this.user()!.id),
         { ...this.user()!, active: false },
-        'User deactivated successfully',
-        'Failed to deactivate user',
+        'Користувач успішно деактивовано',
+        'Не вдалося деактивувати користувача',
         'DEACTIVATE_ERROR'
       );
     }
@@ -200,17 +204,17 @@ export class UserDetailsComponent implements OnInit {
 
   async reactivateUser(): Promise<void> {
     const confirmed = await this.showConfirmation(
-      'Reactivate User',
-      `Are you sure you want to reactivate ${this.user()?.username}?`,
-      'Deactivate'
+      'Реактивувати користувача',
+      `Ви впевнені, що хочете реактивувати ${this.user()?.username}?`,
+      'Реактивувати'
     );
 
     if (confirmed) {
       await this.executeUserAction(
         () => this.adminService.reactivateUser(this.user()!.id),
         { ...this.user()!, active: true },
-        'User reactivated successfully',
-        'Failed to reactivate user',
+        'Користувача успішно реактивовано',
+        'Не вдалося реактивувати користувача',
         'REACTIVATE_ERROR'
       );
     }
@@ -218,9 +222,9 @@ export class UserDetailsComponent implements OnInit {
 
   async deleteUser(): Promise<void> {
     const confirmed = await this.showConfirmation(
-      'Delete User',
-      `Are you sure you want to permanently delete ${this.user()?.username}?`,
-      'Delete',
+      'Видалити користувача',
+      `Ви впевнені, що бажаєте назавжди видалити${this.user()?.username}?`,
+      'Видалити',
       true
     );
 
@@ -228,15 +232,14 @@ export class UserDetailsComponent implements OnInit {
       await this.executeUserAction(
         () => this.adminService.deleteUser(this.user()!.id),
         null,
-        'User deleted successfully',
-        'Failed to delete user',
+        'Користувача успішно видалено',
+        'Не вдалося видалити користувача',
         'DELETE_ERROR',
         () => this.router.navigate(['/admin/users'])
       );
     }
   }
 
-  // helper
   private async showConfirmation(
     title: string,
     message: string,
@@ -296,7 +299,7 @@ export class UserDetailsComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to load filtered projects:', err);
-          this.notificationService.showError('Failed to load projects');
+          this.notificationService.showError('Не вдалося завантажити проекти');
           this.isLoading.set(false);
 
           this.selectedTabIndex.set(currentTab);
