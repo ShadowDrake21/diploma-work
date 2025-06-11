@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/authentication/auth.service';
 import { ErrorMatcher } from '@shared/utils/errorMatcher.utils';
-import { CustomButtonComponent } from '../../../../../../shared/components/custom-button/custom-button.component';
+import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { NotificationService } from '@core/services/notification.service';
 
 @Component({
@@ -60,7 +60,7 @@ export class ForgotPasswordComponent implements OnDestroy {
           console.log(response);
           this.startCooldownTimer(60);
           this.notificationService.showSuccess(
-            'Password reset link sent to your email'
+            'Посилання для зміни пароля надіслано на вашу електронну адресу'
           );
         },
         error: (error) => {
@@ -75,11 +75,11 @@ export class ForgotPasswordComponent implements OnDestroy {
   private handleRequestError(error: any): void {
     console.error('Password reset request failed:', error);
 
-    let errorMessage = 'Failed to send password reset link';
+    let errorMessage = 'Не вдалося надіслати посилання для зміни пароля';
     if (error?.code === 'USER_NOT_FOUND') {
-      errorMessage = 'No account found with this email';
+      errorMessage = 'Обліковий запис із цією електронною адресою не знайдено';
     } else if (error?.status === 429) {
-      errorMessage = 'Too many requests. Please try again later.';
+      errorMessage = 'Забагато запитів. Спробуйте ще раз пізніше.';
       this.startCooldownTimer(error.headers?.get('Retry-After') || 60);
     }
 
