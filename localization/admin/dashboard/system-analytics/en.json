@@ -1,0 +1,66 @@
+{
+  "code": {
+    "memoryUsageGauge$": {
+      "success": {
+        "name": "Memory"
+      },
+      "error": {
+        "text": "Failed to load memory usage data",
+        "name": "Memory"
+      }
+    },
+    "cpuUsageGauge$": {
+      "success": {
+        "name": "CPU"
+      },
+      "error": {
+        "text": "Failed to load CPU usage data",
+        "name": "CPU"
+      }
+    },
+    "commentActivityChart$": {
+      "success": {
+        "name1": "Comments",
+        "name2": "Likes"
+      },
+      "error": {
+        "text": "Failed to load comment activity data",
+        "name1": "Comments",
+        "name2": "Likes"
+      }
+    },
+    "handleDataLoadError": {
+      "status_0": "Network error: Unable to connect to analytics service",
+      "status_403": "Unauthorized: You do not have permission to view analytics",
+      "default": "Failed to load system analytics data"
+    }
+  },
+  "html": {
+    "error": {
+      "retry": "Retry"
+    },
+    "system_performance": {
+      "title": "System Performance",
+      "options": {
+        "option1": "Avg. Response Time",
+        "option2": "Uptime",
+        "option3": "Memory Usage",
+        "option4": "CPU Usage",
+        "option5": "Active Sessions",
+        "option6": "DB Connections"
+      }
+    },
+    "comment_activity": {
+      "title": "Comment Activity",
+      "no_data": "No comment activity data available"
+    },
+    "memory_usage": {
+      "title": "Memory Usage"
+    },
+    "cpu_usage": {
+      "title": "CPU Usage",
+      "invalid_data": "Invalid CPU data"
+    },
+    "no_data": "No analytics data available"
+  }
+}
