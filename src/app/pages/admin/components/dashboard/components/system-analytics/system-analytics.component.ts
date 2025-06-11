@@ -5,7 +5,6 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AnalyticsService } from '@core/services/analytics.service';
-import { NotificationService } from '@core/services/notification.service';
 import { safeToLocaleDateString } from '@shared/utils/date.utils';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { catchError, EMPTY, forkJoin, map, of, switchMap } from 'rxjs';
@@ -37,13 +36,13 @@ export class SystemAnalyticsComponent implements OnInit {
   memoryUsageGauge$ = toObservable(this.systemPerformance).pipe(
     map((perf) => [
       {
-        name: 'Memory',
+        name: "Пам'ять",
         value: perf?.memoryUsage || 0,
       },
     ]),
     catchError(() => {
-      this.error.set('Failed to load memory usage data');
-      return of([{ name: 'Memory', value: 0 }]);
+      this.error.set("Не вдалося завантажити дані про використання пам'яті");
+      return of([{ name: "Пам'ять", value: 0 }]);
     })
   );
 
@@ -55,7 +54,7 @@ export class SystemAnalyticsComponent implements OnInit {
       },
     ]),
     catchError(() => {
-      this.error.set('Failed to load CPU usage data');
+      this.error.set('Не вдалося завантажити дані про використання процесора');
       return of([{ name: 'CPU', value: 0 }]);
     })
   );
@@ -65,11 +64,11 @@ export class SystemAnalyticsComponent implements OnInit {
       if (!data || data.length === 0) {
         return [
           {
-            name: 'Comments',
+            name: 'Коментарі',
             series: [],
           },
           {
-            name: 'Likes',
+            name: 'Лайки',
             series: [],
           },
         ];
@@ -77,14 +76,14 @@ export class SystemAnalyticsComponent implements OnInit {
 
       return [
         {
-          name: 'Comments',
+          name: 'Коментарі',
           series: data!.map((item) => ({
             name: safeToLocaleDateString(item.date),
             value: item.newComments || 0,
           })),
         },
         {
-          name: 'Likes',
+          name: 'Лайки',
           series: data!.map((item) => ({
             name: safeToLocaleDateString(item.date),
             value: item.likes || 0,
@@ -93,10 +92,10 @@ export class SystemAnalyticsComponent implements OnInit {
       ];
     }),
     catchError(() => {
-      this.error.set('Failed to load comment activity data');
+      this.error.set('Не вдалося завантажити дані про коментарі');
       return of([
-        { name: 'Comments', series: [] },
-        { name: 'Likes', series: [] },
+        { name: 'Коментарі', series: [] },
+        { name: 'Лайки', series: [] },
       ]);
     })
   );
@@ -126,13 +125,15 @@ export class SystemAnalyticsComponent implements OnInit {
     this.loading.set(false);
 
     if (error.status === 0) {
-      this.error.set('Network error: Unable to connect to analytics service');
+      this.error.set(
+        'Помилка мережі: Не вдалося підключитися до служби аналітики'
+      );
     } else if (error.status === 403) {
       this.error.set(
-        'Unauthorized: You do not have permission to view analytics'
+        'Неавторизовано: У вас немає дозволу на перегляд аналітики'
       );
     } else {
-      this.error.set('Failed to load system analytics data');
+      this.error.set('Не вдалося завантажити дані системної аналітики');
     }
   }
 
