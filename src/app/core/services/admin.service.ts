@@ -50,12 +50,12 @@ export class AdminService {
 
   private getErrorMessage(error: any, operation: string): string {
     if (error.status === 403) {
-      return 'You do not have permission to perform this action';
+      return 'У вас немає дозволу на виконання цієї дії';
     }
     if (error.status === 404) {
-      return 'The requested resource was not found';
+      return 'Запитаний ресурс не знайдено';
     }
-    return `Failed to ${operation}. Please try again.`;
+    return `Не вдалося: ${operation}. Будь ласка, спробуйте ще раз.`;
   }
 
   getAllUsers(
@@ -87,7 +87,9 @@ export class AdminService {
       .post<IUser>(`${this.apiUrl}/users/${userId}/promote`, {})
       .pipe(
         tap(() =>
-          this.notificationService.showSuccess('User promoted to admin')
+          this.notificationService.showSuccess(
+            'Користувача підвищено до адміністратора'
+          )
         ),
         catchError(this.handleError<IUser>('promote user')),
         finalize(() => this.loading.set(false))
@@ -100,7 +102,9 @@ export class AdminService {
       .post<IUser>(`${this.apiUrl}/users/${userId}/demote`, {})
       .pipe(
         tap(() =>
-          this.notificationService.showSuccess('User demoted from admin')
+          this.notificationService.showSuccess(
+            'Користувача понижено з адміністратора'
+          )
         ),
         catchError(this.handleError<IUser>('demote user')),
         finalize(() => this.loading.set(false))
@@ -112,7 +116,9 @@ export class AdminService {
     return this.http
       .post<void>(`${this.apiUrl}/users/${userId}/deactivate`, {})
       .pipe(
-        tap(() => this.notificationService.showSuccess('User deactivated')),
+        tap(() =>
+          this.notificationService.showSuccess('Користувач деактивовано')
+        ),
         catchError(this.handleError<void>('deactivate user')),
         finalize(() => this.loading.set(false))
       );
@@ -121,7 +127,7 @@ export class AdminService {
   deleteUser(userId: number): Observable<void> {
     this.loading.set(true);
     return this.http.delete<void>(`${this.apiUrl}/users/${userId}`).pipe(
-      tap(() => this.notificationService.showSuccess('User deleted')),
+      tap(() => this.notificationService.showSuccess('Користувача видалено')),
       catchError(this.handleError<void>('delete user')),
       finalize(() => this.loading.set(false))
     );
@@ -132,7 +138,9 @@ export class AdminService {
     return this.http
       .post<void>(`${this.apiUrl}/users/${userId}/reactivate`, {})
       .pipe(
-        tap(() => this.notificationService.showSuccess('User reactivated')),
+        tap(() =>
+          this.notificationService.showSuccess('Користувача реактивовано')
+        ),
         catchError(this.handleError<void>('reactivate user')),
         finalize(() => this.loading.set(false))
       );
@@ -225,7 +233,7 @@ export class AdminService {
   deleteComment(commentId: string): Observable<void> {
     this.loading.set(true);
     return this.http.delete<void>(`${this.apiUrl}/comments/${commentId}`).pipe(
-      tap(() => this.notificationService.showSuccess('Comment deleted')),
+      tap(() => this.notificationService.showSuccess('Коментар видалено')),
       catchError(this.handleError<void>('delete comment')),
       finalize(() => this.loading.set(false))
     );

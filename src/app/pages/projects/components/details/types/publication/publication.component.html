@@ -1,6 +1,6 @@
 @let publication = (publication$ | async); @if (error) {
 <div class="text-lg font-semibold text-red-500 sm:text-start text-center">
-  Failed to load publication details. Please try again later.
+  Не вдалося завантажити деталі публікації. Спробуйте пізніше.
 </div>
 } @else if (publication) {
 <div
@@ -10,7 +10,7 @@
     <mat-expansion-panel hideToggle>
       <mat-expansion-panel-header>
         <mat-panel-title class="w-full text-center flex justify-center !mr-0">
-          <h4 class="font-medium pb-[5px] text-center">Authors</h4>
+          <h4 class="font-medium pb-[5px] text-center">Автори</h4>
         </mat-panel-title>
       </mat-expansion-panel-header>
       <ul class="list-none flex flex-col gap-[10px]">
@@ -22,13 +22,13 @@
   </mat-accordion>
 
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Publication date</h4>
+    <h4 class="font-medium pb-[5px]">Дата публікації</h4>
     <p>
       {{ publication.publicationDate | date : "mediumDate" }}
     </p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Publication source</h4>
+    <h4 class="font-medium pb-[5px]">Джерело публікації</h4>
     <p>{{ publication.publicationSource }}</p>
   </div>
   <div class="text-center">
@@ -36,15 +36,15 @@
     <p>{{ publication.doiIsbn }}</p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Pages</h4>
+    <h4 class="font-medium pb-[5px]">Сторінки</h4>
     <p>{{ publication.startPage }} - {{ publication.endPage }}</p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Journal volume</h4>
+    <h4 class="font-medium pb-[5px]">Обсяг журналу</h4>
     <p>{{ publication.journalVolume }}</p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Issue numbers</h4>
+    <h4 class="font-medium pb-[5px]">Номери випусків</h4>
     <p>{{ publication.issueNumber }}</p>
   </div>
 </div>

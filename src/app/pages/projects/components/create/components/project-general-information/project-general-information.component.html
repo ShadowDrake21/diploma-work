@@ -3,10 +3,10 @@
   class="project-general-information__form"
 >
   <mat-form-field>
-    <mat-label>Title</mat-label>
+    <mat-label>Назва</mat-label>
     <input
       matInput
-      placeholder="Creation of a new graphics render model"
+      placeholder="Створення нової моделі рендерингу графіки"
       formControlName="title"
     />
     @if (generalInformationForm().controls.title.invalid &&
@@ -15,7 +15,7 @@
     }
   </mat-form-field>
   <div style="display: flex; flex-direction: column">
-    <mat-label>Progress</mat-label>
+    <mat-label>Прогрес</mat-label>
     <mat-slider min="0" max="100" step="1" showTickMarks discrete>
       <input
         matSliderThumb
@@ -24,10 +24,10 @@
     </mat-slider>
   </div>
   <mat-form-field>
-    <mat-label>Description</mat-label>
+    <mat-label>Опис</mat-label>
     <textarea
       matInput
-      placeholder="A new model for the graphics render"
+      placeholder="Нова модель для рендерингу графіки"
       formControlName="description"
       style="resize: none"
       rows="4"
@@ -38,7 +38,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Tags</mat-label>
+    <mat-label>Теги</mat-label>
     <mat-select formControlName="tags" multiple [compareWith]="compareTags">
       @for (tag of tags$ | async; track tag.id) {
       <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
@@ -68,7 +68,7 @@
       matStepperNext
       [disabled]="generalInformationForm().invalid"
     >
-      Next
+      Далі
     </button>
   </div>
 </form>

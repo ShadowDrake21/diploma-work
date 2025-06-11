@@ -31,7 +31,8 @@ export class PatentDataService extends ProjectDataCoreService {
   ): Observable<any> {
     try {
       const typedProjectId = formValues.patent?.id;
-      if (!typedProjectId) throw new Error('Patent ID is required for update');
+      if (!typedProjectId)
+        throw new Error('Для оновлення потрібен ідентифікатор патенту');
 
       const request = this.buildUpdateRequest(
         projectId,
@@ -49,8 +50,8 @@ export class PatentDataService extends ProjectDataCoreService {
   private handlePatentError(error: any, operation: string): Observable<never> {
     const message =
       operation === 'create'
-        ? 'Failed to create patent record'
-        : 'Failed to update patent record';
+        ? 'Не вдалося створити патентний запис'
+        : 'Не вдалося оновити патентний запис';
 
     this.notificationService.showError(message);
     console.error(`Patent ${operation} error:`, error);
@@ -68,7 +69,7 @@ export class PatentDataService extends ProjectDataCoreService {
     formValue: any
   ): CreatePatentRequest {
     if (!formValue?.primaryAuthor) {
-      throw new Error('Primary author is required');
+      throw new Error('Потрібно вказати основного автора');
     }
 
     return {

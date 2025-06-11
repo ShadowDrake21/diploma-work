@@ -58,7 +58,9 @@ export class ProjectResearchFormComponent
     this.allUsers$ = this.userService.getAllUsers().pipe(
       catchError((error) => {
         console.error('Error loading users:', error);
-        this.notificationService.showError('Failed to load users');
+        this.notificationService.showError(
+          'Не вдалося завантажити користувачів'
+        );
         return of([]);
       })
     );

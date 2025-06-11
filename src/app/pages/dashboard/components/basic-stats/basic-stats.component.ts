@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DashboardService } from '@core/services/dashboard.service';
 import { NotificationService } from '@core/services/notification.service';
 import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
-import { MetricCardItemComponent } from '../../../../shared/components/metric-card-item/metric-card-item.component';
+import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
 import { Subject, takeUntil, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
@@ -96,9 +96,9 @@ export class BasicStatsComponent implements OnInit, OnDestroy {
     this.isLoading.set(false);
     this.hasError.set(true);
 
-    let message = 'Failed to load dashboard metrics';
+    let message = 'Не вдалося завантажити показники інформаційної панелі';
     if (error.status === 0) {
-      message = 'Network error: Please check your internet connection';
+      message = 'Помилка мережі: Перевірте підключення до Інтернету';
     }
 
     this.errorMessage.set(message);

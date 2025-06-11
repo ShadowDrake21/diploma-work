@@ -20,33 +20,35 @@
     <div class="flex flex-col gap-[10px] w-full break-words">
       <div class="flex flex-col gap-[5px]">
         <p class="user-card__content-body__part-item">
-          <span class="font-bold">Role:</span>
+          <span class="font-bold">Роль:</span>
           {{ user().role | roleFormat }}
         </p>
 
         <p class="user-card__content-body__part-item">
-          <span class="font-bold">Affiliation:</span>
+          <span class="font-bold">Приналежність:</span>
           {{ user().affiliation | truncateText : 30 }}
         </p>
       </div>
       <mat-divider />
       <div class="flex flex-col gap-[5px]">
         <p>
-          <span class="font-bold">Publications:</span>
+          <span class="font-bold">Публікації:</span>
           {{ user().publicationCount }}
         </p>
         <p>
-          <span class="font-bold">Patents:</span>
+          <span class="font-bold">Патенти:</span>
           {{ user().patentCount }}
         </p>
         <p>
-          <span class="font-bold">Research projects:</span>
+          <span class="font-bold">Дослідницькі проекти:</span>
           {{ user().researchCount }}
         </p>
       </div>
     </div>
     <div class="pb-2">
-      <button mat-button class="" (click)="goToProfile()">View Profile</button>
+      <button mat-button class="" (click)="goToProfile()">
+        Переглянути профіль
+      </button>
     </div>
   </div>
 </div>

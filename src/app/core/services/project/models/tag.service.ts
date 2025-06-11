@@ -19,7 +19,10 @@ export class TagService {
       .get<Tag[]>(`${this.apiUrl}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.errorHandler.handleServiceError(error, `Failed to load tags`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Не вдалося завантажити теги`
+          )
         )
       );
   }
@@ -31,7 +34,7 @@ export class TagService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load tag with ID ${id}`
+            `Не вдалося завантажити тег з ідентифікатором ${id}`
           )
         )
       );
@@ -42,7 +45,7 @@ export class TagService {
       .post<Tag>(`${this.apiUrl}`, tag, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.errorHandler.handleServiceError(error, `Failed to create tag`)
+          this.errorHandler.handleServiceError(error, `Не вдалося створити тег`)
         )
       );
   }
@@ -54,7 +57,7 @@ export class TagService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to update tag with ID ${id}`
+            `Не вдалося оновити тег з ідентифікатором ${id}`
           )
         )
       );
@@ -67,7 +70,7 @@ export class TagService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to delete tag with ID ${id}`
+            `Не вдалося видалити тег з ідентифікатором ${id}`
           )
         )
       );

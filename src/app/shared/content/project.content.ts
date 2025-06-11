@@ -1,14 +1,14 @@
 import { Filter } from '@shared/types/filters.types';
 
 export const types: Filter[] = [
-  { value: 'PUBLICATION', viewValue: 'Publication' },
-  { value: 'PATENT', viewValue: 'Patent' },
-  { value: 'RESEARCH', viewValue: 'Research Project' },
+  { value: 'PUBLICATION', viewValue: 'Публікації' },
+  { value: 'PATENT', viewValue: 'Патенти' },
+  { value: 'RESEARCH', viewValue: 'Дослідницькі проєкти' },
 ];
 
 export const statuses: Filter[] = [
-  { value: 'proposed', viewValue: 'Proposed' },
-  { value: 'in-progress', viewValue: 'In Progress' },
-  { value: 'completed', viewValue: 'Completed' },
-  { value: 'cancelled', viewValue: 'Cancelled' },
+  { value: 'proposed', viewValue: 'Запропоновано' },
+  { value: 'in-progress', viewValue: 'У процесі' },
+  { value: 'completed', viewValue: 'Завершено' },
+  { value: 'cancelled', viewValue: 'Скасовано' },
 ];

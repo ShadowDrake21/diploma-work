@@ -36,7 +36,9 @@ export class ProjectAttachmentService implements OnDestroy {
           },
           error: (error) => {
             this._loading.next(false);
-            this.notificationService.showError('Failed to load attachments.');
+            this.notificationService.showError(
+              'Не вдалося завантажити вкладені файли.'
+            );
             console.error('Error loading attachments:', error);
           },
         }),

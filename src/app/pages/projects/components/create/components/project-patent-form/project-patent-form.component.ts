@@ -52,7 +52,9 @@ export class ProjectPatentFormComponent
     this.allUsers$ = this.userService.getAllUsers().pipe(
       catchError((error) => {
         console.error('Error loading users:', error);
-        this.notificationService.showError('Failed to load inventors');
+        this.notificationService.showError(
+          'Не вдалося завантажити винахідників'
+        );
         return of([]);
       })
     );

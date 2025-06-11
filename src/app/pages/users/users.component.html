@@ -1,7 +1,7 @@
 <div class="h-full relative">
   <div class="flex justify-center items-start gap-5 py-5 w-full">
     <mat-form-field class="flex w-full">
-      <mat-label>Search users by name or email</mat-label>
+      <mat-label>Пошук користувачів за іменем або електронною поштою</mat-label>
       <input
         matInput
         type="text"
@@ -50,20 +50,20 @@
     class="absolute top-0 bottom-0 left-0 right-0 flex flex-col items-center justify-center gap-4"
   >
     <p class="text-lg font-semibold text-red-500 sm:text-start text-center">
-      @if (searchQuery()) { No users found for:
+      @if (searchQuery()) { Не знайдено користувачів для запиту:
       <strong>{{ searchQuery() }}</strong
-      >} @else { No users found }
+      >} @else { Користувачів не знайдено }
     </p>
   </div>
   } }@else {
   <div class="flex justify-center items-center flex-col gap-4">
     <mat-icon class="text-red-500">error_outline</mat-icon>
     <p class="text-lg font-semibold text-red-500 sm:text-left text-center">
-      Failed to load users. Please try again later.
+      Не вдалося завантажити користувачів. Спробуйте пізніше.
     </p>
     <button mat-button (click)="reloadUsers()">
       <mat-icon class="text-red-500">refresh</mat-icon>
-      <span class="text-red-500">Try Again</span>
+      <span class="text-red-500">Спробуйте ще раз</span>
     </button>
   </div>
   }}

@@ -1,7 +1,7 @@
 @let participants = participants$ | async; @let researchProject = (research$ |
 async); @if (researchError) {
 <div class="text-lg font-semibold text-red-500 sm:text-start text-center">
-  Failed to load research details. Please try again later.
+  Не вдалося завантажити деталі дослідження. Спробуйте ще раз пізніше.
 </div>
 } @else if (researchProject) {
 <div
@@ -11,12 +11,12 @@ async); @if (researchError) {
     <mat-expansion-panel hideToggle>
       <mat-expansion-panel-header>
         <mat-panel-title class="w-full text-center flex justify-center !mr-0">
-          <h4 class="font-medium pb-[5px] text-center">Participants</h4>
+          <h4 class="font-medium pb-[5px] text-center">Учасники</h4>
         </mat-panel-title>
       </mat-expansion-panel-header>
       @if (participantsError) {
       <div class="font-semibold text-red-500 sm:text-start text-center">
-        Some participant details couldn't be loaded
+        Не вдалося завантажити деякі дані учасників
       </div>
       }
       <ul class="list-none flex flex-col gap-[10px]">
@@ -27,31 +27,31 @@ async); @if (researchError) {
     </mat-expansion-panel>
   </mat-accordion>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Budget</h4>
+    <h4 class="font-medium pb-[5px]">Бюджет</h4>
     <p>
       {{ researchProject.budget | currency : "USD" }}
     </p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Start date</h4>
+    <h4 class="font-medium pb-[5px]">Дата початку</h4>
     <p>
       {{ researchProject.startDate | date : "mediumDate" }}
     </p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">End date</h4>
+    <h4 class="font-medium pb-[5px]">Дата завершення</h4>
     <p>
       {{ researchProject.endDate | date : "mediumDate" }}
     </p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Status</h4>
+    <h4 class="font-medium pb-[5px]">Статус</h4>
     <p>
       {{ researchProject.status | titlecase }}
     </p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Funding source</h4>
+    <h4 class="font-medium pb-[5px]">Джерело фінансування</h4>
     <p>
       {{ researchProject.fundingSource }}
     </p>

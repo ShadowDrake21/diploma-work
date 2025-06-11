@@ -2,7 +2,7 @@
 
 <form [formGroup]="patentsForm()" class="project-patent__form">
   <mat-form-field>
-    <mat-label>Primary author</mat-label>
+    <mat-label>Основний автор</mat-label>
     <mat-select
       formControlName="primaryAuthor"
       [compareWith]="comparePrimaryAuthors"
@@ -17,7 +17,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Co-inventors</mat-label>
+    <mat-label>Співвинахідники</mat-label>
     <mat-select
       formControlName="coInventors"
       multiple
@@ -36,7 +36,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Patent Registration Number</mat-label>
+    <mat-label>Номер реєстрації патенту</mat-label>
     <input
       type="text"
       placeholder="US 7,654,321 B1"
@@ -49,7 +49,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Date of Registration</mat-label>
+    <mat-label>Дата реєстрації</mat-label>
     <input
       matInput
       [matDatepicker]="picker"
@@ -64,7 +64,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Issuing Authority</mat-label>
+    <mat-label>Орган видачі</mat-label>
     <input
       type="text"
       placeholder="Issuing State"
@@ -77,7 +77,7 @@
     }
   </mat-form-field>
   <div>
-    <button mat-button matStepperPrevious>Back</button>
-    <button mat-button matStepperNext>Next</button>
+    <button mat-button matStepperPrevious>Назад</button>
+    <button mat-button matStepperNext>Далі</button>
   </div>
 </form>

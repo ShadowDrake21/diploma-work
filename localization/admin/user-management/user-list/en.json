@@ -1,0 +1,95 @@
+{
+  "code": {
+    "load_users": {
+      "error_fallback": "Failed to load users"
+    },
+    "promoteUser": {
+      "dialog": {
+        "title": "Promote User",
+        "text": "Are you sure you want to promote ${user.username} to admin?",
+        "confirm": "Promote"
+      },
+      "success": "User promoted to admin successfully",
+      "action_type": "promote"
+    },
+    "demoteUser": {
+      "dialog": {
+        "title": "Demote User",
+        "text": "Are you sure you want to demote ${user.username} to regular user?",
+        "confirm": "Demote"
+      },
+      "success": "Admin demoted successfully",
+      "action_type": "demote"
+    },
+    "deactivateUser": {
+      "dialog": {
+        "title": "Deactivate User",
+        "text": "Are you sure you want to deactivate ${user.username}?",
+        "confirm": "Deactivate"
+      },
+      "success": "User deactivated successfully",
+      "action_type": "deactivate"
+    },
+    "reactivateUser": {
+      "dialog": {
+        "title": "Reactivate User",
+        "text": "Are you sure you want to reactivate ${user.username}?",
+        "confirm": "Reactivate"
+      },
+      "success": "User reactivated successfully",
+      "action_type": "reactivate"
+    },
+    "deleteUser": {
+      "dialog": {
+        "title": "Delete User",
+        "text": "Are you sure you want to permanently delete ${user.username}? This action cannot be undone.",
+        "confirm": "Delete"
+      },
+      "success": "User deleted successfully",
+      "action_type": "delete"
+    },
+
+    "getErrorMessage": {
+      "status_0": "Network error: Unable to connect to server",
+      "status_403": "Unauthorized: You do not have permission to view users",
+      "status_404": "No users found",
+      "default": "Failed to load users"
+    },
+    "getActionErrorMessage": {
+      "status_403": "You don't have permission to ${actionType} users",
+      "status_409": "Cannot ${actionType} user: ${error.error.message}",
+      "default": "Failed to ${actionType} user"
+    }
+  },
+  "html": {
+    "title": "User Management",
+    "error_title": "Something went wrong",
+    "refresh_btn": "Try Again",
+    "card_title": "All Users",
+
+    "table_cols": {
+      "avatar": "Avatar",
+      "username": "Username",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "joined": "Joined",
+      "actions": {
+        "title": "Actions",
+        "menu": {
+          "view_details": "View Details",
+
+          "promote_to_admin": "Promote to Admin",
+          "demote_to_user": "Demote to User",
+          "deactivate": "Deactivate",
+          "reactivate": "Reactivate",
+          "delete": "Delete"
+        }
+      }
+    },
+    "error": {
+      "not_found": "No users found",
+      "description": "There are currently no users in the system"
+    }
+  }
+}

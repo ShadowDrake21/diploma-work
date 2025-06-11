@@ -17,7 +17,7 @@ import { AuthService } from '@core/authentication/auth.service';
         class="text-xl p-3 border border-solid border-black text-black bg-transparent no-underline transition-all duration-500 ease-in-out hover:text-white hover:bg-black active:text-white active:bg-black"
         (click)="onGoBack()"
       >
-        Go Back
+        Назад
       </button>
     </div>
   `,

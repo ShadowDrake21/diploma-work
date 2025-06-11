@@ -6,17 +6,19 @@
     <custom-loader [diameter]="50" />
   </div>
   } @else if (error()) {
-  <div class="error-message">
-    <mat-icon color="warn">error</mat-icon>
-    <span>{{ error() }}</span>
+  <div class="flex justify-center items-center flex-col gap-4 py-5">
+    <mat-icon class="text-red-500">error</mat-icon>
+    <p class="text-lg font-semibold text-red-500 sm:text-left text-center">
+      {{ error() }}
+    </p>
     <div class="error-actions">
-      <button mat-raised-button color="primary" (click)="reloadData()">
-        <mat-icon>refresh</mat-icon>
-        Retry
+      <button mat-button (click)="reloadData()">
+        <mat-icon class="text-red-500">refresh</mat-icon>
+        <span class="text-red-500">Повторити спробу</span>
       </button>
-      <button mat-button color="primary" (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-        Back to Users
+      <button mat-button (click)="goBack()">
+        <mat-icon class="text-red-500">arrow_back</mat-icon>
+        <span class="text-red-500">Назад до користувачів</span>
       </button>
     </div>
   </div>
@@ -24,7 +26,7 @@
   <div class="pb-[10px]">
     <button mat-button (click)="goBack()" class="!text-black">
       <mat-icon>arrow_back</mat-icon>
-      Back
+      Назад
     </button>
   </div>
 
@@ -55,12 +57,12 @@
         [(selectedIndex)]="selectedTabIndex"
         (selectedIndexChange)="selectedTabIndex.set($event)"
       >
-        <mat-tab label="Details">
-          <div class="details-content">
+        <mat-tab label="Деталі">
+          <div>
             <mat-list>
               <mat-list-item>
                 <mat-icon matListItemIcon>person</mat-icon>
-                <div matListItemTitle>Username</div>
+                <div matListItemTitle>Ім'я користувача</div>
                 <div matListItemLine>{{ user()?.username }}</div>
               </mat-list-item>
 
@@ -72,21 +74,21 @@
 
               <mat-list-item>
                 <mat-icon matListItemIcon>phone</mat-icon>
-                <div matListItemTitle>Phone</div>
+                <div matListItemTitle>Телефон</div>
                 <div matListItemLine>
-                  {{ user()?.phoneNumber || "Not provided" }}
+                  {{ user()?.phoneNumber || "Не надано" }}
                 </div>
               </mat-list-item>
 
               <mat-list-item>
                 <mat-icon matListItemIcon>school</mat-icon>
-                <div matListItemTitle>Affiliation</div>
+                <div matListItemTitle>Приналежність</div>
                 <div matListItemLine>{{ user()?.affiliation }}</div>
               </mat-list-item>
 
               <mat-list-item>
                 <mat-icon matListItemIcon>calendar_today</mat-icon>
-                <div matListItemTitle>Joined</div>
+                <div matListItemTitle>Приєднався</div>
                 <div matListItemLine>
                   {{ user()?.createdAt | date : "mediumDate" }}
                 </div>
@@ -95,8 +97,8 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Projects">
-          <div class="projects-content">
+        <mat-tab label="Проєкти">
+          <div>
             @if (userProjects().length > 0) {
             <shared-profile-projects
               [projects]="userProjects()"
@@ -104,31 +106,35 @@
               (pageChange)="onPageChange($event)"
             />
             } @else {
-            <div class="no-projects">
+            <div class="flex justify-center items-center flex-col gap-4">
               <mat-icon>folder_off</mat-icon>
-              <p>No projects found</p>
+              <p
+                class="text-lg font-semibold text-black sm:text-start text-center"
+              >
+                Проектів не знайдено
+              </p>
             </div>
             }
           </div>
         </mat-tab>
-        <mat-tab label="Statistics">
-          <div class="stats-content">
+        <mat-tab label="Статистика">
+          <div>
             <mat-list>
               <mat-list-item>
                 <mat-icon matListItemIcon>article</mat-icon>
-                <div matListItemTitle>Publication</div>
+                <div matListItemTitle>Публікації</div>
                 <div matListItemLine>{{ user()?.publicationCount || 0 }}</div>
               </mat-list-item>
 
               <mat-list-item>
                 <mat-icon matListItemIcon>copyright</mat-icon>
-                <div matListItemTitle>Patents</div>
+                <div matListItemTitle>Патенти</div>
                 <div matListItemLine>{{ user()?.patentCount || 0 }}</div>
               </mat-list-item>
 
               <mat-list-item>
                 <mat-icon matListItemIcon>science</mat-icon>
-                <div matListItemTitle>Research Projects</div>
+                <div matListItemTitle>Дослідницькі проекти</div>
                 <div matListItemLine>{{ user()?.researchCount || 0 }}</div>
               </mat-list-item>
             </mat-list>
@@ -148,7 +154,7 @@
         [disabled]="isProcessing()"
       >
         <mat-icon>arrow_upward</mat-icon>
-        Promote to Admin
+        Підвищити до адміністратора
       </button>
       } @if(user()?.role === UserRole.ADMIN) {
       <button
@@ -158,7 +164,7 @@
         [disabled]="isProcessing()"
       >
         <mat-icon>arrow_downward</mat-icon>
-        Demote to User
+        Понизити до користувача
       </button>
       } @if(user()?.active) {
       <button
@@ -168,7 +174,7 @@
         [disabled]="isProcessing()"
       >
         <mat-icon>toggle_off</mat-icon>
-        Deactivate
+        Деактивувати
       </button>
       } @else {
       <button
@@ -178,7 +184,7 @@
         [disabled]="isProcessing()"
       >
         <mat-icon>toggle_on</mat-icon>
-        Reactivate
+        Реактивувати
       </button>
       }
 
@@ -189,7 +195,7 @@
         [disabled]="isProcessing()"
       >
         <mat-icon>delete</mat-icon>
-        Delete
+        Видалити
       </button> </mat-card-actions
     >}
   </mat-card>

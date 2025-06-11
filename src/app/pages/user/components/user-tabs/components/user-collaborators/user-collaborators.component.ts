@@ -50,8 +50,10 @@ export class UserCollaboratorsComponent {
       .getUserCollaborators(userId, page, size)
       .pipe(
         catchError((error) => {
-          this.error.set('Failed to load collaborators');
-          this.notificationService.showError('Failed to load collaborators');
+          this.error.set('Не вдалося завантажити співавторів');
+          this.notificationService.showError(
+            'Не вдалося завантажити співавторів'
+          );
           console.error('Error loading collaborators:', error);
           return of({
             data: [],

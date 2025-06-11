@@ -8,7 +8,7 @@
       {{ error() }}
     </h3>
     <button mat-raised-button color="primary" (click)="retryLoading()">
-      Retry
+      Повторити спробу
     </button>
   </div>
   } @else {
@@ -21,15 +21,15 @@
     <div>
       <div class="flex flex-col gap-[10px] pb-[10px] sm:text-left text-center">
         <p>
-          <span class="font-bold">Name:</span>
+          <span class="font-bold">Імʼя:</span>
           {{ user()?.username }}
         </p>
         <p>
-          <span class="font-bold">Role:</span>
+          <span class="font-bold">Роль:</span>
           {{ user()?.role | roleFormat }}
         </p>
         <p>
-          <span class="font-bold">Affiliation:</span>
+          <span class="font-bold">Приналежність:</span>
           {{ user()?.affiliation || "" | truncateText : 100 }}
         </p>
       </div>

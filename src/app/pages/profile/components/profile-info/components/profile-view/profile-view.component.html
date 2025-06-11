@@ -1,6 +1,6 @@
 <div>
   <h2 class="text-xl font-semibold pb-[10px] sm:text-start text-center">
-    Profile Information
+    Інформація профілю
   </h2>
 
   <div>
@@ -9,38 +9,38 @@
     >
       <div class="flex flex-col gap-[10px]">
         <h3 class="text-lg font-semibold pb-[10px] sm:text-start text-center">
-          Basic Information
+          Основна інформація
         </h3>
-        <p><span class="font-medium">Name:</span> {{ user().username }}</p>
+        <p><span class="font-medium">Імʼя:</span> {{ user().username }}</p>
         <p><span class="font-medium">Email:</span> {{ user().email }}</p>
-        <p><span class="font-medium">Role:</span> {{ user().role }}</p>
-        <p><span class="font-medium">Type:</span> {{ user().userType }}</p>
+        <p><span class="font-medium">Роль:</span> {{ user().role }}</p>
+        <p><span class="font-medium">Тип:</span> {{ user().userType }}</p>
 
         @if (user().userType === 'student') {
         <p>
-          <span class="font-medium">Group:</span>
-          {{ user().universityGroup || "Not specified" }}
+          <span class="font-medium">Група:</span>
+          {{ user().universityGroup || "Не вибрано" }}
         </p>
         }
         <p>
-          <span class="font-medium">Date of Birth:</span>
-          {{ (user().dateOfBirth | date : "longDate") || "Not provided" }}
+          <span class="font-medium">Дата народження:</span>
+          {{ (user().dateOfBirth | date : "longDate") || "Не вказано" }}
         </p>
 
         <p>
-          <span class="font-medium">Phone:</span>
-          {{ user().phoneNumber || "Not provided" }}
+          <span class="font-medium">Телефон:</span>
+          {{ user().phoneNumber || "Не вказано" }}
         </p>
       </div>
       @if (socialLinks.length>0) {
       <div class="flex flex-col gap-[10px]">
         <h3 class="text-lg font-semibold pb-[10px] sm:text-start text-center">
-          Social Links
+          Соціальні посилання
         </h3>
         @for (link of socialLinks; track $index) {
         <p>
           <span class="font-medium">{{
-            link.name || "Link " + ($index + 1)
+            link.name || "Посилання " + ($index + 1)
           }}</span
           >:
           <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{
@@ -52,7 +52,7 @@
       }
     </div>
     <button mat-flat-button color="primary" (click)="onEdit()" class="w-full">
-      Edit
+      Редагувати
     </button>
   </div>
 </div>

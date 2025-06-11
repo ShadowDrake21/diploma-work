@@ -28,7 +28,7 @@ export class ProjectDataCoreService {
   ): Observable<FileMetadataDTO[]> {
     return this.attachmentsService
       .getFilesByEntity(projectType, projectId)
-      .pipe(catchError((error) => this.handleAttachmentError(error, 'load')));
+      .pipe(catchError((error) => this.handleAttachmentError(error, 'додати')));
   }
 
   getProjectWithAttachments(
@@ -43,7 +43,7 @@ export class ProjectDataCoreService {
           })),
           catchError((error) => {
             this.notificationService.showError(
-              'Project loaded but attachments failed to load'
+              'Проєкт завантажено, але додатки не вдалося завантажити'
             );
 
             return of({
@@ -55,7 +55,7 @@ export class ProjectDataCoreService {
       }),
       catchError((error) => {
         this.notificationService.showError(
-          'Failed to load project with attachments'
+          'Не вдалося завантажити проєкт із вкладеннями'
         );
         return throwError(() => error);
       })
@@ -75,7 +75,7 @@ export class ProjectDataCoreService {
     error: any,
     operation: string
   ): Observable<never> {
-    const message = `Failed to ${operation} project attachments`;
+    const message = `Не вдалося ${operation} вкладення до проекту`;
     this.notificationService.showError(message);
     console.error(`Attachment ${operation} error:`, error);
     return throwError(() => error);
@@ -83,11 +83,11 @@ export class ProjectDataCoreService {
 
   protected getProjectErrorMessage(error: any, operation: string): string {
     if (error.status === 404) {
-      return 'Project not found';
+      return 'Проєкт не знайдено';
     }
     if (error.status === 403) {
-      return 'You do not have permission to view this project';
+      return 'У вас немає дозволу на перегляд цього проєкту';
     }
-    return `Failed to ${operation} project`;
+    return `Не вдалося ${operation} проєкт`;
   }
 }

@@ -52,15 +52,15 @@ export class ProjectDetailsService implements OnDestroy {
     return this.projectService.deleteProject(projectId).pipe(
       tap({
         next: () => {
-          this.notificationService.showSuccess('Project deleted successfully');
+          this.notificationService.showSuccess('Проєкт успішно видалено');
           this.resetState();
         },
         error: (error) => {
           console.error('Error deleting project:', error);
           this.notificationService.showError(
             error.status === 403
-              ? 'You do not have permission to delete this project'
-              : 'Failed to delete project'
+              ? 'У вас немає дозволу на видалення цього проєкту'
+              : 'Не вдалося видалити проєкт'
           );
         },
       })

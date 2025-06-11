@@ -47,7 +47,10 @@ export class ProjectService {
       })
       .pipe(
         catchError((error) =>
-          this.errorHandler.handleServiceError(error, 'Failed to load projects')
+          this.errorHandler.handleServiceError(
+            error,
+            'Не вдалося завантажити проекти'
+          )
         )
       );
   }
@@ -59,7 +62,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load project with ID ${id}`
+            `Не вдалося завантажити проєкт з ідентифікатором ${id}`
           )
         )
       );
@@ -75,7 +78,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load publication with ID ${projectId}`
+            `Не вдалося завантажити публікацію з ідентифікатором ${projectId}`
           )
         )
       );
@@ -88,7 +91,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load patent with ID ${projectId}`
+            `Не вдалося завантажити патент з ідентифікатором ${projectId}`
           )
         )
       );
@@ -104,7 +107,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load research with ID ${projectId}`
+            `Не вдалося завантажити дослідження з ідентифікатором ${projectId}`
           )
         )
       );
@@ -118,7 +121,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to create project`
+            `Не вдалося створити проєкт`
           )
         )
       );
@@ -131,7 +134,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to update project with ID ${id}`
+            `Не вдалося оновити проект з ідентифікатором ${id}`
           )
         )
       );
@@ -144,7 +147,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to delete project with ID ${id}`
+            `Не вдалося видалити проект з ідентифікатором ${id}`
           )
         )
       );
@@ -191,7 +194,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to search projects`
+            `Не вдалося знайти проекти`
           )
         )
       );
@@ -209,7 +212,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load newest projects`
+            `Не вдалося завантажити найновіші проекти`
           )
         )
       );
@@ -235,7 +238,7 @@ export class ProjectService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load current user's projects`
+            `Не вдалося завантажити проекти поточного користувача`
           )
         )
       );
@@ -312,6 +315,6 @@ export class ProjectService {
       [ProjectType.PATENT]: 'patent',
       [ProjectType.RESEARCH]: 'research',
     };
-    return `Could not retrieve ${typeNames[type]} data for project ${projectId}`;
+    return `Не вдалося отримати дані ${typeNames[type]} для проєкту ${projectId}`;
   }
 }

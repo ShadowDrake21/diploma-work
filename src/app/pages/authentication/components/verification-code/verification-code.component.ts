@@ -33,7 +33,9 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error reading query params:', error);
-        this.notificationService.showError('Failed to load email parameter');
+        this.notificationService.showError(
+          'Не вдалося завантажити параметр електронної пошти'
+        );
       },
     });
   }
@@ -81,7 +83,9 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
     const code = this.getVerificationCode();
 
     if (code.length !== CODE_LENGTH) {
-      this.notificationService.showError('Please enter a valid 6-digit code');
+      this.notificationService.showError(
+        'Будь ласка, введіть дійсний 6-значний код'
+      );
       return;
     }
 
@@ -92,7 +96,7 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
       .verifyUser({ email: this.email(), code })
       .subscribe({
         next: (response) => {
-          this.notificationService.showSuccess('Verification successful');
+          this.notificationService.showSuccess('Перевірка успішна');
 
           this.router.navigate(['/']);
         },
@@ -111,25 +115,25 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
 
     if (error.status === 400) {
       this.verificationMessage.set(
-        'Invalid verification code. Please try again'
+        'Недійсний код підтвердження. Спробуйте ще раз.'
       );
     } else if (error.status === 404) {
       this.notificationService.showError(
-        'Email not found. Please request a new verification code'
+        'Електронну адресу не знайдено. Будь ласка, запитайте новий код підтвердження.'
       );
       this.router.navigate(['/authentication/sign-up']);
     } else if (error.status === 410) {
       this.notificationService.showError(
-        'Verification code expired. Please request a new one'
+        'Термін дії коду підтвердження закінчився. Будь ласка, запитайте новий.'
       );
       this.router.navigate(['/authentication/request-verification']);
     } else if (error.status === 429) {
       this.notificationService.showError(
-        'Too many attempts. Please try again later'
+        'Забагато спроб. Будь ласка, спробуйте пізніше.'
       );
     } else {
       this.notificationService.showError(
-        'Verification failed. Please try again'
+        'Не вдалося перевірити. Спробуйте ще раз.'
       );
     }
   }

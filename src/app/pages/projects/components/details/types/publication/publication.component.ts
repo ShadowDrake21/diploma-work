@@ -29,7 +29,7 @@ export class PublicationComponent implements OnInit {
         catchError((error) => {
           this.error = true;
           this.notificationService.showError(
-            'Failed to load publication details'
+            'Не вдалося завантажити деталі публікації'
           );
           console.error('Publication load error:', error);
           return of(null);

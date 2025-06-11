@@ -36,7 +36,7 @@ export class ResearchDataService extends ProjectDataCoreService {
     try {
       const typedProjectId = formValues.research?.id;
       if (!typedProjectId) {
-        throw new Error('Research ID is required for update');
+        throw new Error('Для оновлення потрібен ідентифікатор дослідження');
       }
 
       const request = this.buildUpdateRequest(
@@ -83,8 +83,8 @@ export class ResearchDataService extends ProjectDataCoreService {
   ): Observable<never> {
     const message =
       operation === 'create'
-        ? 'Failed to create research record'
-        : 'Failed to update research record';
+        ? 'Не вдалося створити дослідницький запис'
+        : 'Не вдалося оновити дослідницький запис';
 
     this.notificationService.showError(message);
     console.error(`Research ${operation} error:`, error);

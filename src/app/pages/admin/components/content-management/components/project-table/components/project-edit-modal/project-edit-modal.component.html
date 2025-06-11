@@ -1,41 +1,41 @@
-<h2 mat-dialog-title>Edit Project</h2>
+<h2 mat-dialog-title>Редагувати проєкт</h2>
 
 <mat-dialog-content>
   <form
     [formGroup]="projectForm"
-    class="edit-project-form"
+    class="flex flex-col gap-4"
     style="display: flex; flex-direction: column"
   >
     <mat-form-field>
-      <mat-label>Title</mat-label>
+      <mat-label>Назва</mat-label>
       <input
         matInput
         formControlName="title"
-        placeholder="Creation of a new graphics render model"
+        placeholder="Створення нової моделі рендерингу графіки"
         required
       />
       @if (projectForm.errors?.['title'].required) {
-      <mat-error> Title is required </mat-error>
+      <mat-error> Назва обов’язкова </mat-error>
       }
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>Description</mat-label>
+      <mat-label>Опис</mat-label>
       <textarea
         matInput
         formControlName="description"
-        placeholder="A new model for the graphics render"
+        placeholder="Нова модель для рендерингу графіки"
         rows="4"
         style="resize: none"
         required
       ></textarea>
       @if (projectForm.errors?.['description'].required) {
-      <mat-error> Description is required </mat-error>
+      <mat-error> Опис обов'язковий </mat-error>
       }
     </mat-form-field>
 
     <div>
-      <mat-label>Progress</mat-label>
+      <mat-label>Прогрес</mat-label>
       <mat-slider
         min="0"
         max="100"
@@ -70,7 +70,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-button (click)="onCancel()">Скасувати</button>
   <button
     mat-raised-button
     color="primary"

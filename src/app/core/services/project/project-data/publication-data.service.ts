@@ -40,7 +40,7 @@ export class PublicationDataService extends ProjectDataCoreService {
     try {
       const typedProjectId = formValues.publication?.id;
       if (!typedProjectId) {
-        throw new Error('Publication ID is required for update');
+        throw new Error('Для оновлення потрібен ідентифікатор публікації');
       }
 
       const request = this.buildUpdateRequest(
@@ -65,7 +65,7 @@ export class PublicationDataService extends ProjectDataCoreService {
     id?: string
   ): CreatePublicationRequest {
     if (!formValue?.publicationDate) {
-      throw new Error('Publication date is required');
+      throw new Error('Потрібно вказати дату публікації');
     }
 
     return {
@@ -97,8 +97,8 @@ export class PublicationDataService extends ProjectDataCoreService {
   ): Observable<never> {
     const message =
       operation === 'create'
-        ? 'Failed to create publication record'
-        : 'Failed to update publication record';
+        ? 'Не вдалося створити запис публікації'
+        : 'Не вдалося оновити запис публікації';
 
     this.notificationService.showError(message);
     console.error(`Publication ${operation} error:`, error);

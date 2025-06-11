@@ -44,18 +44,18 @@ export class UserService {
   private getErrorMessage(operation: string, error: any): string {
     switch (operation) {
       case 'getCurrentUser':
-        return 'Failed to load your user profile';
+        return 'Не вдалося завантажити ваш профіль користувача';
       case 'updateUserProfile':
       case 'updateUserAvatar':
-        return 'Failed to update your profile';
+        return 'Не вдалося оновити ваш профіль';
       case 'deleteUser':
         return error.status === 403
-          ? 'You do not have permission to delete users'
-          : 'Failed to delete user';
+          ? 'У вас немає дозволу видаляти користувачів'
+          : 'Не вдалося видалити користувача';
       default:
         return error.status === 403
-          ? 'You do not have permission to access this resource'
-          : `Failed to ${operation.replace(/([A-Z])/g, ' $1').toLowerCase()}`;
+          ? 'У вас немає дозволу на доступ до цього ресурсу'
+          : `Не вдалося: ${operation.replace(/([A-Z])/g, ' $1').toLowerCase()}`;
     }
   }
 
@@ -168,9 +168,9 @@ export class UserService {
       .pipe(
         catchError((error) => {
           if (error.status === 413) {
-            this.notificationService.showError('File size too large');
+            this.notificationService.showError('Розмір файлу занадто великий');
           } else if (error.status === 415) {
-            this.notificationService.showError('Unsupported file type');
+            this.notificationService.showError('Непідтримуваний тип файлу');
           }
           return this.handleError<IUser>('updateUserAvatar', error);
         })
