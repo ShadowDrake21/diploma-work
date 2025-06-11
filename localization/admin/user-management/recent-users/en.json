@@ -1,0 +1,16 @@
+{
+  "code": {},
+  "html": {
+    "main_title": "Login Statistics",
+    "retry": "Retry",
+    "logins_star": "logins in last 24 hours",
+    "subtitle": "Recent Logins",
+    "table": {
+      "user": "User",
+      "email": "Email",
+      "login_time": "Login Time",
+      "ip_address": "IP Address",
+      "user_agen": "User agent"
+    }
+  }
+}
