@@ -1,7 +1,12 @@
-<a class="project-card" routerLink="/projects/{{ project().id }}">
-  <div class="project-card__status">
-    <div class="project-card__status-wrapper">
-      <p class="project-card__status-text">
+<a
+  class="flex flex-col justify-between min-w-[200px] h-[300px] bg-[#eeeeee] border-[#c5c5c5] border border-solid text-inherit decoration-solid cursor-pointer p-[10px] transition-all duration-300 ease-in-out relative hover:bg-gray-100 group no-underline"
+  routerLink="/projects/{{ project().id }}"
+>
+  <div
+    class="opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"
+  >
+    <div class="flex justify-between pb-[10px] text-sm font-bold">
+      <p>
         {{
           project().progress === 100
             ? "Complete"
@@ -10,19 +15,20 @@
             : "Assigned"
         }}
       </p>
-      <p class="project-card__status-text">{{ project().progress }}%</p>
+      <p>{{ project().progress }}%</p>
     </div>
     <mat-progress-bar
-      class="project-card__status-progress"
       mode="determinate"
       [value]="project().progress"
     ></mat-progress-bar>
   </div>
-  <h3 class="project-card__title">{{ project().title }}</h3>
-  <div class="project-card__footer">
-    <div class="project-card__footer-members">
-      <h5 class="project-card__footer-members__title">Type:</h5>
-      <h5 class="project-card__status-text">
+  <h3 class="text-center">{{ project().title }}</h3>
+  <div
+    class="opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out"
+  >
+    <div class="flex gap-[3px] justify-center">
+      <h5>Type:</h5>
+      <h5>
         {{ project().type | titlecase }}
       </h5>
     </div>

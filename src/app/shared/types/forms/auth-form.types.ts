@@ -10,14 +10,6 @@ export interface SignUpForm {
   role: FormControl<UserRole>;
 }
 
-export type SignUpFormValues = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  role: UserRole;
-};
-
 export type SignUpErrorMessages = {
   name: WritableSignal<string>;
   email: WritableSignal<string>;

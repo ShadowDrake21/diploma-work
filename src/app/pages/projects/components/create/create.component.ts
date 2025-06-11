@@ -42,7 +42,7 @@ import { types } from '@shared/content/project.content';
     ProjectStepperComponent,
   ],
   templateUrl: './create.component.html',
-  styleUrl: './create.component.scss',
+
   providers: [
     {
       provide: STEPPER_GLOBAL_OPTIONS,

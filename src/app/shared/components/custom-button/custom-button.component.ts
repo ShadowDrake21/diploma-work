@@ -23,7 +23,6 @@ import { LoaderComponent } from '../loader/loader.component';
       </div>
     </button>
   `,
-  styleUrl: './custom-button.component.scss',
 })
 export class CustomButtonComponent {
   disabled = input<boolean>(false);

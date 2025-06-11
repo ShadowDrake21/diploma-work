@@ -7,7 +7,7 @@ import { ProjectService } from '@core/services/project/models/project.service';
 import { ProjectDTO } from '@models/project.model';
 import { map, Subject, takeUntil, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'dashboard-recent-projects',
@@ -18,7 +18,6 @@ import { LoaderComponent } from '../../../../shared/components/loader/loader.com
     LoaderComponent,
   ],
   templateUrl: './recent-projects.component.html',
-  styleUrl: './recent-projects.component.scss',
 })
 export class RecentProjectsComponent implements OnInit, OnDestroy {
   private readonly projectService = inject(ProjectService);

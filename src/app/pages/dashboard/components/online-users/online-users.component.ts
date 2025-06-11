@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { SharedRecentUsersBase } from '@pages/dashboard/components/abstract/shared-recent-users-base/shared-recent-users-base.component';
-import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'dashboard-online-users',
@@ -26,6 +26,5 @@ import { LoaderComponent } from '../../../../shared/components/loader/loader.com
     LoaderComponent,
   ],
   templateUrl: './online-users.component.html',
-  styleUrl: './online-users.component.scss',
 })
 export class OnlineUsersComponent extends SharedRecentUsersBase {}

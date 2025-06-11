@@ -23,6 +23,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NotificationService } from '@core/services/notification.service';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-users',
@@ -40,9 +41,9 @@ import { NotificationService } from '@core/services/notification.service';
     UserCardComponent,
     MatPaginatorModule,
     MatProgressSpinnerModule,
+    LoaderComponent,
   ],
   templateUrl: './users.component.html',
-  styleUrl: './users.component.scss',
   host: { style: 'height: 100%; display: block;' },
 })
 export class UsersComponent {

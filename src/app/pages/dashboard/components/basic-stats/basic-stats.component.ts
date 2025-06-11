@@ -14,7 +14,7 @@ import { DashboardMetricCardItem } from '@shared/types/dashboard.types';
 import { MetricCardItemComponent } from '../../../../shared/components/metric-card-item/metric-card-item.component';
 import { Subject, takeUntil, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'dashboard-basic-stats',
@@ -25,7 +25,6 @@ import { LoaderComponent } from '../../../../shared/components/loader/loader.com
     LoaderComponent,
   ],
   templateUrl: './basic-stats.component.html',
-  styleUrl: './basic-stats.component.scss',
 })
 export class BasicStatsComponent implements OnInit, OnDestroy {
   private readonly dashboardService = inject(DashboardService);

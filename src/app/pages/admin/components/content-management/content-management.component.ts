@@ -7,6 +7,5 @@ import { CommentsTableComponent } from './components/comments-table/comments-tab
   selector: 'app-content-management',
   imports: [MatTabsModule, ProjectTableComponent, CommentsTableComponent],
   templateUrl: './content-management.component.html',
-  styleUrl: './content-management.component.scss',
 })
 export class ContentManagementComponent {}

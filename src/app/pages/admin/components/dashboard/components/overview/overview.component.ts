@@ -24,7 +24,6 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule,
   ],
   templateUrl: './overview.component.html',
-  styleUrl: './overview.component.scss',
 })
 export class OverviewComponent {
   private readonly analyticsService = inject(AnalyticsService);

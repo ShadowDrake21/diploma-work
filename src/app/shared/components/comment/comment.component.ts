@@ -27,7 +27,6 @@ import { MatIcon } from '@angular/material/icon';
     MatIcon,
   ],
   templateUrl: './comment.component.html',
-  styleUrls: ['./comment.component.scss'],
 })
 export class CommentComponent {
   private readonly authService = inject(AuthService);
