@@ -10,12 +10,16 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class NavigationComponent {
   navItems = [
-    { path: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
+    { path: 'dashboard', icon: 'dashboard', label: 'Інформаційна панель' },
     {
       path: 'content-management',
       icon: 'folder',
-      label: 'Content Management',
+      label: 'Управління контентом',
     },
-    { path: 'users-management', icon: 'groups', label: 'User Management' },
+    {
+      path: 'users-management',
+      icon: 'groups',
+      label: 'Керування користувачами',
+    },
   ];
 }
