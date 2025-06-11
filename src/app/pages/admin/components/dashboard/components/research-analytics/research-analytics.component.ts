@@ -8,7 +8,7 @@ import { AnalyticsService } from '@core/services/analytics.service';
 import { NotificationService } from '@core/services/notification.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
-import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -48,7 +48,7 @@ export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Failed to load research funding data', error);
           this.notificationService.showError(
-            'Failed to load research funding data'
+            'Не вдалося завантажити дані фінансування дослідження'
           );
         },
       });
@@ -60,7 +60,7 @@ export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Failed to load publication metrics', error);
           this.notificationService.showError(
-            'Failed to load publication metrics'
+            'Не вдалося завантажити показники публікації'
           );
         },
       });
@@ -71,13 +71,15 @@ export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
       .subscribe({
         error: (error) => {
           console.error('Failed to load patent metrics', error);
-          this.notificationService.showError('Failed to load patent metrics');
+          this.notificationService.showError(
+            'Не вдалося завантажити показники патентів'
+          );
         },
       });
   }
 
   refreshData(): void {
-    this.notificationService.showInfo('Refreshing all analytics data...');
+    this.notificationService.showInfo('Оновлення всіх аналітичних даних...');
 
     forkJoin([
       this.analyticsService.getResearchFunding(),
@@ -87,10 +89,10 @@ export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroyed$))
       .subscribe({
         next: () =>
-          this.notificationService.showSuccess('All analytics updated'),
+          this.notificationService.showSuccess('Вся аналітика оновлена'),
         error: (error) => {
           this.notificationService.showError(
-            'Failed to refresh some analytics'
+            'Не вдалося оновити деякі аналітичні дані'
           );
           console.error('Refresh error:', error);
         },
@@ -98,18 +100,20 @@ export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
   }
 
   refreshResearchFunding(): void {
-    this.notificationService.showInfo('Refreshing research funding metrics...');
+    this.notificationService.showInfo(
+      'Оновлення показників фінансування досліджень...'
+    );
     this.analyticsService
       .getResearchFunding()
       .pipe(takeUntil(this.destroyed$))
       .subscribe({
         next: () =>
           this.notificationService.showSuccess(
-            'Research funding metrics updated'
+            'Показники фінансування досліджень оновлено'
           ),
         error: (error) => {
           this.notificationService.showError(
-            'Failed to refresh research funding metrics'
+            'Не вдалося оновити показники фінансування досліджень'
           );
           console.error('Patent research refresh error:', error);
         },
@@ -117,16 +121,16 @@ export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
   }
 
   refreshPublicationMetrics(): void {
-    this.notificationService.showInfo('Refreshing publication metrics...');
+    this.notificationService.showInfo('Оновлення показників публікації...');
     this.analyticsService
       .getPublicationMetrics()
       .pipe(takeUntil(this.destroyed$))
       .subscribe({
         next: () =>
-          this.notificationService.showSuccess('Publication metrics updated'),
+          this.notificationService.showSuccess('Показники публікації оновлено'),
         error: (error) => {
           this.notificationService.showError(
-            'Failed to refresh publication metrics'
+            'Не вдалося оновити показники публікації'
           );
           console.error('Publication metrics refresh error:', error);
         },
@@ -134,16 +138,16 @@ export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
   }
 
   refreshPatentMetrics(): void {
-    this.notificationService.showInfo('Refreshing patent metrics...');
+    this.notificationService.showInfo('Оновлення показників патентів...');
     this.analyticsService
       .getPatentMetrics()
       .pipe(takeUntil(this.destroyed$))
       .subscribe({
         next: () =>
-          this.notificationService.showSuccess('Patent metrics updated'),
+          this.notificationService.showSuccess('Патентні показники оновлено'),
         error: (error) => {
           this.notificationService.showError(
-            'Failed to refresh patent metrics'
+            'Не вдалося оновити показники патентів'
           );
           console.error('Patent metrics refresh error:', error);
         },
