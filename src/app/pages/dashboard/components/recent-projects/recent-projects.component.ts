@@ -48,9 +48,9 @@ export class RecentProjectsComponent implements OnInit, OnDestroy {
           } else {
             console.error('Failed to load recent projects:', projects);
             this.hasError.set(true);
-            this.errorMessage.set(projects.message || 'Unknown error');
+            this.errorMessage.set(projects.message || 'Невідома помилка');
             this.notificationService.showError(
-              projects.message || 'Failed to load recent projects'
+              projects.message || 'Не вдалося завантажити останні проекти'
             );
             this.isLoading.set(false);
           }
@@ -65,11 +65,11 @@ export class RecentProjectsComponent implements OnInit, OnDestroy {
   private handleProjectLoadError(error: HttpErrorResponse): void {
     console.error('Error loading projects:', error);
 
-    let message = 'Failed to load recent projects';
+    let message = 'Не вдалося завантажити останні проекти';
     if (error.status === 0) {
-      message = 'Network error: Please check your internet connection';
+      message = 'Помилка мережі: Перевірте підключення до Інтернету';
     } else if (error.status === 404) {
-      message = 'No recent projects found';
+      message = 'Не знайдено останніх проектів';
     }
 
     this.errorMessage.set(message);

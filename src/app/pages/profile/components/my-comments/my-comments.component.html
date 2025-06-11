@@ -4,7 +4,7 @@
   <h3
     class="mb-6 font-medium pb-[5px] lg:text-xl text-lg sm:text-left text-center"
   >
-    My Comments
+    Мої коментарі
   </h3>
 
   @if(comments().data!.length) { @for(comment of comments().data; track
@@ -22,11 +22,11 @@
             class="flex sm:gap-4 gap-2 mt-2 text-xs text-[#666] sm:flex-row flex-col"
           >
             <span class="flex items-center"
-              >Posted on {{ comment.createdAt | date }}</span
+              >Опубліковано {{ comment.createdAt | date }}</span
             >
-            <span class="flex items-center">• {{ comment.likes }} likes</span>
+            <span class="flex items-center">• {{ comment.likes }} лайків</span>
             <span class="flex items-center"
-              >• Project: {{ comment.projectTitle | truncateText : 50 }}</span
+              >• Проєкт: {{ comment.projectTitle | truncateText : 50 }}</span
             >
           </div>
         </div>
@@ -35,7 +35,7 @@
             mat-button
             color="primary"
             [routerLink]="['/projects', comment.projectId]"
-            >Go to project</a
+            >Перейти до проєкту</a
           >
         </div>
       </div>
@@ -54,7 +54,7 @@
   </mat-paginator>
   } @else {
   <p class="sm:text-lg text-base font-medium text-center">
-    You haven't posted any comments yet.
+    Ви ще не опублікували жодного коментаря.
   </p>
   }
 </section>

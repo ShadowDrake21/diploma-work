@@ -27,7 +27,9 @@ export class ProfileViewComponent {
     try {
       this.edit.emit();
     } catch (error) {
-      this.notificationService.showError('Failed to enter edit mode');
+      this.notificationService.showError(
+        'Не вдалося перейти в режим редагування'
+      );
       console.error('Error emitting edit event:', error);
     }
   }

@@ -15,7 +15,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
-import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'profile-info',
@@ -58,12 +58,13 @@ export class ProfileInfoComponent implements OnDestroy {
           const updatedUser = { ...this.user()!, ...profileData };
           this.user.set(updatedUser);
           currentUserSig.set(updatedUser);
-          this.notificationService.showSuccess('Profile updated successfully');
+          this.notificationService.showSuccess('Профіль успішно оновлено');
           this.editMode.set(false);
         },
         error: (err) => {
           this.error.set(
-            err.error?.message || 'Failed to update profile. Please try again.'
+            err.error?.message ||
+              'Не вдалося оновити профіль. Спробуйте ще раз.'
           );
         },
         complete: () => this.isSaving.set(false),
@@ -76,16 +77,16 @@ export class ProfileInfoComponent implements OnDestroy {
     this.user.set(updatedUser);
     currentUserSig.set(updatedUser);
     this.cdr.detectChanges();
-    this.notificationService.showSuccess('Avatar updated successfully');
+    this.notificationService.showSuccess('Аватар успішно оновлено');
   }
 
   handleAvatarFailure(error: any): void {
     const message =
       error.status === 413
-        ? 'Image size is too large'
+        ? 'Розмір зображення завеликий'
         : error.status === 415
-        ? 'Unsupported image format'
-        : 'Failed to update avatar. Please try again.';
+        ? 'Непідтримуваний формат зображення'
+        : 'Не вдалося оновити аватар. Спробуйте ще раз.';
 
     this.notificationService.showError(message);
   }
@@ -100,7 +101,8 @@ export class ProfileInfoComponent implements OnDestroy {
       },
       error: (err) => {
         this.error.set(
-          err.error?.message || 'Failed to load profile. Please try again.'
+          err.error?.message ||
+            'Не вдалося завантажити профіль. Спробуйте ще раз.'
         );
       },
       complete: () => this.isProfileLoading.set(false),
