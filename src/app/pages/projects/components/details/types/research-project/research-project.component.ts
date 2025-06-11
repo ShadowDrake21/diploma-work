@@ -44,7 +44,9 @@ export class ResearchProjectComponent implements OnInit, OnDestroy {
     this.research$ = this.projectService.getResearchByProjectId(this.id!).pipe(
       catchError((error) => {
         this.researchError = true;
-        this.notificationService.showError('Failed to load research details');
+        this.notificationService.showError(
+          'Не вдалося завантажити деталі дослідження'
+        );
         console.error('Research load error:', error);
         return of(null);
       })
@@ -60,7 +62,7 @@ export class ResearchProjectComponent implements OnInit, OnDestroy {
                     catchError((error) => {
                       this.participantsError = true;
                       this.notificationService.showError(
-                        'Failed to load some participants'
+                        'Не вдалося завантажити деяких учасників'
                       );
                       console.error('Participant load error:', error);
                       return of(null);
@@ -80,7 +82,9 @@ export class ResearchProjectComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.researchError = true;
-        this.notificationService.showError('Failed to load research details');
+        this.notificationService.showError(
+          'Не вдалося завантажити деталі дослідження'
+        );
         console.error('Research load error:', error);
       },
     });

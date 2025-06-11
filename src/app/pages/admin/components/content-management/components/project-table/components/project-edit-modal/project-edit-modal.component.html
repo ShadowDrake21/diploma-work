@@ -7,7 +7,7 @@
     style="display: flex; flex-direction: column"
   >
     <mat-form-field>
-      <mat-label>Заголовок</mat-label>
+      <mat-label>Назва</mat-label>
       <input
         matInput
         formControlName="title"
@@ -15,7 +15,7 @@
         required
       />
       @if (projectForm.errors?.['title'].required) {
-      <mat-error> Заголовок обов’язковий </mat-error>
+      <mat-error> Назва обов’язкова </mat-error>
       }
     </mat-form-field>
 

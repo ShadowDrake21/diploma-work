@@ -98,7 +98,7 @@ export class ProjectGeneralInformationComponent {
 
     if (!entityType || !entityId) {
       this.notificationService.showError(
-        'Cannot upload files - missing project information'
+        'Не вдається завантажити файли – відсутня інформація про проект'
       );
       return;
     }
@@ -111,7 +111,7 @@ export class ProjectGeneralInformationComponent {
       },
       error: (error) => {
         console.error('Upload failed:', error);
-        this.notificationService.showError('File upload failed');
+        this.notificationService.showError('Не вдалося завантажити файл');
       },
     });
   }
@@ -121,7 +121,7 @@ export class ProjectGeneralInformationComponent {
       next: () => this.updateFormControl(),
       error: (error) => {
         console.error('Error removing file:', error);
-        this.notificationService.showError('Failed to remove file');
+        this.notificationService.showError('Не вдалося видалити файл');
       },
     });
   }
@@ -172,7 +172,7 @@ export class ProjectGeneralInformationComponent {
           },
           error: (error) => {
             console.error('Error fetching files:', error);
-            this.notificationService.showError('Failed to load files');
+            this.notificationService.showError('Не вдалося завантажити файли');
             this.fileHandler.initialize([]);
             this.isFilesLoading.set(false);
           },

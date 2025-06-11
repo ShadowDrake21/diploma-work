@@ -1,34 +1,34 @@
 export const PUBLICATION_FORM_ERRORS = {
   authors: {
-    required: 'At least one author is required',
+    required: 'Потрібен принаймні один автор',
   },
   publicationDate: {
-    required: 'Publication date is required',
-    futureDate: 'Publication date cannot be in the future',
+    required: 'Потрібно вказати дату публікації',
+    futureDate: 'Дата публікації не може бути в майбутньому',
   },
   publicationSource: {
-    required: 'Publication source is required',
+    required: 'Потрібне джерело публікації',
   },
   doiIsbn: {
-    required: 'DOI/ISBN is required',
-    pattern: 'Please enter a valid DOI or ISBN',
+    required: 'DOI/ISBN є обов’язковим',
+    pattern: 'Будь ласка, введіть дійсний DOI або ISBN',
   },
   startPage: {
-    required: 'Start page is required',
-    min: 'Start page must be at least 1',
-    invalidRange: 'Start page must be less than end page',
+    required: 'Початкова сторінка обовʼязкова',
+    min: 'Початкова сторінка має бути принаймні 1',
+    invalidRange: 'Початкова сторінка має бути меншою за кінцеву сторінку',
   },
   endPage: {
-    required: 'End page is required',
-    min: 'End page must be at least 1',
-    invalidRange: 'End page must be greater than start page',
+    required: 'Кінцева сторінка обовʼязкова',
+    min: 'Кінцева сторінка має бути принаймні 1',
+    invalidRange: 'Кінцева сторінка має бути більшою за початкову',
   },
   journalVolume: {
-    required: 'Journal volume is required',
-    min: 'Journal volume must be at least 1',
+    required: 'Обсяг журналу обовʼязковий',
+    min: 'Обсяг журналу має бути щонайменше 1',
   },
   issueNumber: {
-    required: 'Issue number is required',
-    min: 'Issue number must be at least 1',
+    required: 'Номер випуску обовʼязковий',
+    min: 'Номер проблеми має бути щонайменше 1',
   },
 } as const;

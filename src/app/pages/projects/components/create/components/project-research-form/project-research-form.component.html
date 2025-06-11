@@ -1,7 +1,7 @@
 @let allUsers = allUsers$ | async;
 <form [formGroup]="researchProjectsForm()" class="project-research__form">
   <mat-form-field>
-    <mat-label>Participants</mat-label>
+    <mat-label>Учасники</mat-label>
     <mat-select
       formControlName="participantIds"
       multiple
@@ -20,7 +20,7 @@
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label>Budget</mat-label>
+    <mat-label>Бюджет</mat-label>
     <input
       type="number"
       placeholder="1000000"
@@ -33,7 +33,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Start date</mat-label>
+    <mat-label>Дата початку</mat-label>
     <input matInput [matDatepicker]="pickerFirst" formControlName="startDate" />
     <mat-hint>MM/DD/YYYY</mat-hint>
     <mat-datepicker-toggle
@@ -50,7 +50,7 @@
     />
   </mat-form-field>
   <mat-form-field>
-    <mat-label>End date</mat-label>
+    <mat-label>Дата завершення</mat-label>
     <input matInput [matDatepicker]="pickerSecond" formControlName="endDate" />
     <mat-hint>MM/DD/YYYY</mat-hint>
     <mat-datepicker-toggle
@@ -67,7 +67,7 @@
     />
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Status</mat-label>
+    <mat-label>Статус</mat-label>
     <mat-select formControlName="status" [compareWith]="compareStatuses">
       @for (status of statuses; track status) {
       <mat-option [value]="status.value">{{ status.viewValue }}</mat-option>
@@ -79,7 +79,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Funding Source</mat-label>
+    <mat-label>Джерело фінансування</mat-label>
     <input
       type="text"
       placeholder="U.S. Small Business Administration (SBA)"
@@ -93,13 +93,13 @@
     }
   </mat-form-field>
   <div>
-    <button mat-button matStepperPrevious>Back</button>
+    <button mat-button matStepperPrevious>Назад</button>
     <button
       mat-button
       matStepperNext
       [disabled]="researchProjectsForm().invalid"
     >
-      Next
+      Далі
     </button>
   </div>
 </form>

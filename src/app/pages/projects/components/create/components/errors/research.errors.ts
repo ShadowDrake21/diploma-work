@@ -1,23 +1,23 @@
 export const RESEARCH_PROJECT_ERRORS = {
   participantIds: {
-    required: 'At least one participant is required',
+    required: 'Потрібен щонайменше один учасник',
   },
   budget: {
-    required: 'Budget amount is required',
-    min: 'Budget cannot be negative',
+    required: 'Потрібно вказати суму бюджету',
+    min: 'Бюджет не може бути відʼємним',
   },
   startDate: {
-    required: 'Start date is required',
-    beforeEnd: 'Start date must be before end date',
+    required: 'Потрібно вказати дату початку',
+    beforeEnd: 'Дата початку має бути раніше дати завершення',
   },
   endDate: {
-    required: 'End date is required',
-    beforeStart: 'End date must be after start date',
+    required: 'Дата завершення обовʼязкова',
+    beforeStart: 'Дата завершення має бути після дати початку',
   },
   status: {
-    required: 'Project status is required',
+    required: 'Потрібно вказати статус проекту',
   },
   fundingSource: {
-    required: 'Funding source is required',
+    required: 'Джерело фінансування обовʼязкове',
   },
 } as const;

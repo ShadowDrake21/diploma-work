@@ -5,20 +5,18 @@
 </p>
 
 <mat-stepper #stepper orientation="vertical" linear>
-  <!-- Step 1: Project Type -->
   <mat-step
     [stepControl]="typeForm()!"
-    label="Select a project type"
-    errorMessage="Type is required."
+    label="Виберіть тип проекту"
+    errorMessage="Тип обов'язковий."
   >
     <create-project-type-step [typeForm]="typeForm()!" />
   </mat-step>
 
-  <!-- Step 2: General Information -->
   <mat-step
     [stepControl]="generalInfoForm()!"
-    label="Fill out general information"
-    errorMessage="General information is required."
+    label="Заповніть загальну інформацію"
+    errorMessage="Потрібна загальна інформація."
   >
     <create-project-general-info-step
       [generalInfoForm]="generalInfoForm()!"
@@ -26,14 +24,13 @@
     />
   </mat-step>
 
-  <!-- Step 3: Work Information (Dynamic based on type) -->
   @if (typeForm().value.type; as projectType) {
   <mat-step
     [stepControl]="
       projectType | workForm : publicationForm() : patentForm() : researchForm()
     "
-    errorMessage="Type-specific information is required."
-    label="Fill out work information"
+    errorMessage="Потрібна інформація, що стосується конкретного типу."
+    label="Заповніть інформацію про проект"
   >
     <create-project-work-info-step
       [typeForm]="typeForm()"
@@ -44,15 +41,14 @@
     /> </mat-step
   >}
 
-  <!-- Final Step: Submission -->
   <mat-step>
-    <ng-template matStepLabel>Done</ng-template>
-    <p>You are now done.</p>
+    <ng-template matStepLabel>Готово</ng-template>
+    <p>Тепер ви готові.</p>
     <div>
-      <button mat-button matStepperPrevious>Back</button>
-      <button mat-button (click)="stepper.reset()">Reset</button>
+      <button mat-button matStepperPrevious>Назад</button>
+      <button mat-button (click)="stepper.reset()">Скинути</button>
       <button mat-button (click)="submitForm()" [disabled]="loading">
-        {{ loading ? "Saving..." : "Submit" }}
+        {{ loading ? "Зберігання..." : "Надіслати" }}
       </button>
     </div>
     @if (loading) {

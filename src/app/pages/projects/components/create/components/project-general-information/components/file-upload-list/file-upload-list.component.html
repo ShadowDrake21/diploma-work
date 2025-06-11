@@ -10,7 +10,7 @@
 
   <button mat-button color="primary" (click)="fileInput.click()">
     <mat-icon>attach_file</mat-icon>
-    Select Files
+    Вибрати файли
   </button>
 
   <button
@@ -20,7 +20,7 @@
     [disabled]="!pendingFiles().length || isUploading() || !isEditing()"
   >
     <mat-icon>cloud_upload</mat-icon>
-    Upload Selected ({{ pendingFiles().length }})
+    Завантажити вибране ({{ pendingFiles().length }})
   </button>
 
   @if (isUploading()) {
@@ -42,7 +42,7 @@
       <div matListItemTitle>{{ file.fileName }}</div>
       <div matListItemLine>
         {{ file.fileSize ? (file.fileSize | fileSize) : "Size unknown" }} •
-        Uploaded {{ file.uploadedAt | date }}
+        Завантажено {{ file.uploadedAt | date }}
         @if(file.entityType) {
         <span>({{ file.entityType }})</span>
         }

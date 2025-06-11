@@ -59,7 +59,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private readonly projectTagService = inject(ProjectTagService);
   private readonly notificationService = inject(NotificationService);
 
-  // Signals
   readonly workId = signal<string | null>(null);
   readonly projectLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -81,7 +80,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       console.log('Loading project with ID:', this.workId());
       this.loadProject();
     } else {
-      this.notificationService.showError('Invalid project ID');
+      this.notificationService.showError('Недійсний ідентифікатор проекту');
       this.router.navigate(['/projects/list']);
     }
   }
@@ -100,7 +99,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
           if (project) {
             this.handleProjectLoadSuccess(project);
           } else {
-            this.notificationService.showError('Project not found');
+            this.notificationService.showError('Проєкт не знайдено');
             this.router.navigate(['/projects/list']);
           }
           this.projectLoading.set(false);
@@ -124,7 +123,9 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.projectAttachmentService.loadAttachments(project.type, project.id);
     } catch (error) {
       console.error('Error loading project dependencies:', error);
-      this.notificationService.showError('Failed to load some project details');
+      this.notificationService.showError(
+        'Не вдалося завантажити деякі деталі проекту'
+      );
     }
   }
 
@@ -133,13 +134,15 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     console.error('Project load error:', error);
 
     if (error.status === 404) {
-      this.notificationService.showError('Project not found');
+      this.notificationService.showError('Проєкт не знайдено');
     } else if (error.status === 403) {
       this.notificationService.showError(
-        'You do not have permission to view this project'
+        'У вас немає дозволу на перегляд цього проєкту'
       );
     } else {
-      this.notificationService.showError('Failed to load project details');
+      this.notificationService.showError(
+        'Не вдалося завантажити деталі проекту'
+      );
     }
 
     this.router.navigate(['/projects/list']);
@@ -191,7 +194,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.deleteLoading.set(false)))
       .subscribe({
         next: () => {
-          this.notificationService.showSuccess('Project deleted successfully');
+          this.notificationService.showSuccess('Проєкт успішно видалено');
           this.router.navigate(['/projects/list']);
         },
         error: (error) => {
@@ -199,10 +202,10 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
           if (error.status === 403) {
             this.notificationService.showError(
-              'You do not have permission to delete this project'
+              'У вас немає дозволу на видалення цього проєкту'
             );
           } else {
-            this.notificationService.showError('Failed to delete project');
+            this.notificationService.showError('Не вдалося видалити проєкт');
           }
         },
       });

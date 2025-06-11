@@ -9,10 +9,10 @@
   class="absolute top-0 bottom-0 left-0 right-0 flex flex-col items-center justify-center gap-4"
 >
   <p class="text-lg font-semibold text-red-500 sm:text-start text-center">
-    @if(isMineMode()) { You don't have any projects matching your criteria }
-    @else { No projects found matching your criteria }
+    @if(isMineMode()) { У вас немає проектів, що відповідають вашим критеріям}
+    @else { Не знайдено проектів, що відповідають вашим критеріям }
   </p>
-  <button mat-stroked-button (click)="onFiltersReset()">Reset filters</button>
+  <button mat-stroked-button (click)="onFiltersReset()">Скинути фільтри</button>
 </div>
 } @else {
 <div class="flex flex-col gap-6 p-4">
