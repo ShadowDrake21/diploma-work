@@ -57,7 +57,7 @@
         [(selectedIndex)]="selectedTabIndex"
         (selectedIndexChange)="selectedTabIndex.set($event)"
       >
-        <mat-tab label="Details">
+        <mat-tab label="Деталі">
           <div>
             <mat-list>
               <mat-list-item>
@@ -76,7 +76,7 @@
                 <mat-icon matListItemIcon>phone</mat-icon>
                 <div matListItemTitle>Телефон</div>
                 <div matListItemLine>
-                  {{ user()?.phoneNumber || "Not provided" }}
+                  {{ user()?.phoneNumber || "Не надано" }}
                 </div>
               </mat-list-item>
 
@@ -97,7 +97,7 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Projects">
+        <mat-tab label="Проєкти">
           <div>
             @if (userProjects().length > 0) {
             <shared-profile-projects
@@ -117,7 +117,7 @@
             }
           </div>
         </mat-tab>
-        <mat-tab label="Statistics">
+        <mat-tab label="Статистика">
           <div>
             <mat-list>
               <mat-list-item>
