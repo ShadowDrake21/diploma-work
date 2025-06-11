@@ -64,6 +64,11 @@
     "retry": "Retry",
     "back_to_users": "Back to Users",
     "back": "Back",
+    "tabs": {
+      "details": "Details",
+      "projects": "Projects",
+      "statistics": "Statistics"
+    },
     "list": {
       "username": "Username",
       "email": "Email",

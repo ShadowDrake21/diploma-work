@@ -7,7 +7,6 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { catchError, map, of, tap } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { OverviewHasDataPipe } from '@pipes/overview-has-data.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/authentication/auth.service';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
@@ -48,7 +47,9 @@ export class OverviewComponent {
       .pipe(
         catchError((error) => {
           console.error('System overview error:', error);
-          this.notificationService.showError('Failed to load system overview');
+          this.notificationService.showError(
+            'Не вдалося завантажити дані про огляд системи'
+          );
           return of(null);
         })
       )
@@ -59,7 +60,9 @@ export class OverviewComponent {
       .pipe(
         catchError((error) => {
           console.error('User growth error:', error);
-          this.notificationService.showError('Failed to load user growth data');
+          this.notificationService.showError(
+            'Не вдалося завантажити дані про зростання кількості користувачів'
+          );
           return of(null);
         })
       )
@@ -71,7 +74,7 @@ export class OverviewComponent {
         catchError((error) => {
           console.error('Project distribution error:', error);
           this.notificationService.showError(
-            'Failed to load project distribution'
+            'Не вдалося завантажити дані розподілу проекту'
           );
           return of(null);
         })
@@ -85,7 +88,6 @@ export class OverviewComponent {
 
   userGrowthChart$ = toObservable(this.userGrowth).pipe(
     map((data) => {
-      // Ensure we always have a valid data structure
       const seriesData = Array.isArray(data)
         ? data.map((item) => ({
             name: item?.date ? new Date(item.date).toLocaleDateString() : 'N/A',
@@ -95,20 +97,22 @@ export class OverviewComponent {
 
       return [
         {
-          name: 'User Growth',
+          name: 'Зростання кількості користувачів',
           series: seriesData.length
             ? seriesData
-            : [{ name: 'No data', value: 0 }],
+            : [{ name: 'Немає даних', value: 0 }],
         },
       ];
     }),
     catchError((error) => {
       console.error('Error processing user growth data:', error);
-      this.notificationService.showError('Error processing user growth data');
+      this.notificationService.showError(
+        'Помилка обробки даних про зростання кількості користувачів'
+      );
       return of([
         {
-          name: 'User Growth',
-          series: [{ name: 'Error loading data', value: 0 }],
+          name: 'Зростання кількості користувачів',
+          series: [{ name: 'Помилка завантаження даних', value: 0 }],
         },
       ]);
     })
@@ -118,7 +122,7 @@ export class OverviewComponent {
     tap({
       error: (error) => {
         console.error('Error processing project distribution:', error);
-        this.notificationService.showError('Error processing project data');
+        this.notificationService.showError('Помилка обробки даних проєкту');
       },
     }),
     map((data) => {
@@ -127,9 +131,9 @@ export class OverviewComponent {
       const researchCount = data?.researchCount ?? 0;
 
       return [
-        { name: 'Publications', value: Math.max(0, pubCount) },
-        { name: 'Patents', value: Math.max(0, patentCount) },
-        { name: 'Research', value: Math.max(0, researchCount) },
+        { name: 'Публікації', value: Math.max(0, pubCount) },
+        { name: 'Патенти', value: Math.max(0, patentCount) },
+        { name: 'Дослідження', value: Math.max(0, researchCount) },
       ].filter((item) => item.value > 0);
     }),
     catchError(() => of([]))
