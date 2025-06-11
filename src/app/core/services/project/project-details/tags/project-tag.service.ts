@@ -46,13 +46,16 @@ export class ProjectTagService implements OnDestroy {
 
           if (validTags.length !== tagIds.length) {
             this.errorHandler.handleServiceError(
-              new Error('Some tags failed to load'),
-              `${tagIds.length - validTags.length} tags failed to load`
+              new Error('Не вдалося завантажити деякі теги'),
+              `${tagIds.length - validTags.length} теги не вдалося завантажити`
             );
           }
         },
         error: (error) => {
-          this.errorHandler.handleServiceError(error, 'Failed to load tags');
+          this.errorHandler.handleServiceError(
+            error,
+            'Не вдалося завантажити теги'
+          );
           this._tags.next([]);
         },
       });

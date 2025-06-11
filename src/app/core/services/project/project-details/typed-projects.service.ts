@@ -19,7 +19,7 @@ export class TypedProjectsService {
       catchError((error) => {
         console.error('Error loading publication:', error);
         this.notificationService.showError(
-          'Failed to load publication details'
+          'Не вдалося завантажити деталі публікації'
         );
         return of(null);
       }),
@@ -31,7 +31,9 @@ export class TypedProjectsService {
     return this.projectService.getPatentByProjectId(projectId).pipe(
       catchError((error) => {
         console.error('Error loading patent:', error);
-        this.notificationService.showError('Failed to load patent details');
+        this.notificationService.showError(
+          'Не вдалося завантажити інформацію про патент'
+        );
         return of(null);
       }),
       map((response) => response || null)
@@ -42,7 +44,9 @@ export class TypedProjectsService {
     return this.projectService.getResearchByProjectId(projectId).pipe(
       catchError((error) => {
         console.error('Error loading research:', error);
-        this.notificationService.showError('Failed to load research details');
+        this.notificationService.showError(
+          'Не вдалося завантажити деталі дослідження'
+        );
         return of(null);
       })
     );
@@ -59,9 +63,9 @@ export class TypedProjectsService {
     };
 
     if (!methodMap[type]) {
-      const error = new Error(`Invalid project type: ${type}`);
+      const error = new Error(`Недійсний тип проекту: ${type}`);
       console.error(error);
-      this.notificationService.showError('Invalid project type');
+      this.notificationService.showError('Недійсний тип проекту');
       return of(null);
     }
 

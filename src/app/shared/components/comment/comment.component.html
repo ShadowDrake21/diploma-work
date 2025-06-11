@@ -26,10 +26,10 @@
       class="w-full min-h-[80px] p-2 border border-solid border-gray-300 rounded mb-2 resize-none"
     >
       <button (click)="onCancel()" mat-raised-button>
-        <mat-icon>cancel</mat-icon> Cancel
+        <mat-icon>cancel</mat-icon> Скасувати
       </button>
       <button (click)="onSave()" mat-raised-button>
-        <mat-icon>save</mat-icon> Save
+        <mat-icon>save</mat-icon> Зберегти
       </button>
     </div>
     }
@@ -42,7 +42,7 @@
       (click)="onReply()"
       class="bg-none border-none text-gray-600 cursor-pointer text-xs py-1 px-2 hover:text-gray-800"
     >
-      <mat-icon>reply</mat-icon> Reply
+      <mat-icon>reply</mat-icon> Відповісти
     </button>
     }
     <button
@@ -67,7 +67,7 @@
       @if(!isLiking()) {
       <span> {{ comment().likes }} </span>
       } @else {
-      <span>Processing...</span>
+      <span>Оброблюється...</span>
       }
     </button>
     @if (isCurrentUserComment()) {
@@ -76,13 +76,13 @@
       (click)="onEdit()"
       class="bg-none border-none text-gray-600 cursor-pointer text-xs py-1 px-2 hover:text-gray-800"
     >
-      <mat-icon>edit</mat-icon> Edit
+      <mat-icon>edit</mat-icon> Редагувати
     </button>
     <button
       (click)="onDelete()"
       class="bg-none border-none text-gray-600 cursor-pointer text-xs py-1 px-2 hover:text-gray-800"
     >
-      <mat-icon>delete</mat-icon> Delete
+      <mat-icon>delete</mat-icon> Видалити
     </button>
     }
   </div>

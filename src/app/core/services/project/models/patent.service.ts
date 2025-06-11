@@ -58,7 +58,10 @@ export class PatentService {
       })
       .pipe(
         catchError((error) =>
-          this.errorHandler.handleServiceError(error, `Failed to load patents`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Не вдалося завантажити патенти`
+          )
         )
       );
   }
@@ -75,7 +78,7 @@ export class PatentService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load patent with ID ${id}`
+            `Не вдалося завантажити патент з ідентифікатором ${id}`
           )
         )
       );
@@ -96,7 +99,7 @@ export class PatentService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load co-inventors for patent ${patentId}`
+            `Не вдалося завантажити співвинахідників для патенту ${patentId}`
           )
         )
       );
@@ -112,7 +115,10 @@ export class PatentService {
       .post<PatentDTO>(`${this.apiUrl}`, patentData, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.errorHandler.handleServiceError(error, `Failed to create patent`)
+          this.errorHandler.handleServiceError(
+            error,
+            `Не вдалося створити патент`
+          )
         )
       );
   }
@@ -134,7 +140,7 @@ export class PatentService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to update patent with ID ${id}`
+            `Не вдалося оновити патент із ідентифікатором ${id}`
           )
         )
       );
@@ -152,7 +158,7 @@ export class PatentService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to delete patent with ID ${id}`
+            `Не вдалося видалити патент з ідентифікатором ${id}`
           )
         )
       );

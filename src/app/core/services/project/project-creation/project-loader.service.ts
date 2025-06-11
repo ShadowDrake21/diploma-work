@@ -50,7 +50,7 @@ export class ProjectLoaderService {
             { ...project, attachments: attachments || [] }
           );
         } catch (error) {
-          this.handleFormError('Failed to patch form data', error);
+          this.handleFormError('Не вдалося виправити дані форми', error);
           throw error;
         }
       }),
@@ -59,14 +59,16 @@ export class ProjectLoaderService {
         this.loadProjectTypeData(projectId, type).pipe(
           catchError((error) => {
             this.notificationService.showError(
-              'Failed to load project type data'
+              'Не вдалося завантажити дані типу проекту'
             );
             return throwError(() => error);
           })
         )
       ),
       catchError((error) => {
-        this.notificationService.showError('Failed to load project data');
+        this.notificationService.showError(
+          'Не вдалося завантажити дані проєкту'
+        );
         return throwError(() => error);
       })
     );
@@ -81,7 +83,7 @@ export class ProjectLoaderService {
       this.researchesForm.reset();
       this.typeForm.enable();
     } catch (error) {
-      this.handleFormError('Failed to clear forms', error);
+      this.handleFormError('Не вдалося очистити форми', error);
     }
   }
 
@@ -100,13 +102,16 @@ export class ProjectLoaderService {
                 ProjectType.PUBLICATION
               );
             } catch (error) {
-              this.handleFormError('Failed to patch publication form', error);
+              this.handleFormError(
+                'Не вдалося виправити форму публікації',
+                error
+              );
               throw error;
             }
           }),
           catchError((error) => {
             this.notificationService.showError(
-              'Failed to load publication data'
+              'Не вдалося завантажити дані публікації'
             );
             return throwError(() => error);
           })
@@ -121,12 +126,17 @@ export class ProjectLoaderService {
                 ProjectType.PATENT
               );
             } catch (error) {
-              this.handleFormError('Failed to patch patent form', error);
+              this.handleFormError(
+                'Не вдалося виправити патентну форму',
+                error
+              );
               throw error;
             }
           }),
           catchError((error) => {
-            this.notificationService.showError('Failed to load patent data');
+            this.notificationService.showError(
+              'Не вдалося завантажити дані патенту'
+            );
             return throwError(() => error);
           })
         );
@@ -140,12 +150,17 @@ export class ProjectLoaderService {
                 ProjectType.RESEARCH
               );
             } catch (error) {
-              this.handleFormError('Failed to patch research form', error);
+              this.handleFormError(
+                'Не вдалося виправити форму дослідження',
+                error
+              );
               throw error;
             }
           }),
           catchError((error) => {
-            this.notificationService.showError('Failed to load research data');
+            this.notificationService.showError(
+              'Не вдалося завантажити дані дослідження'
+            );
             return throwError(() => error);
           })
         );

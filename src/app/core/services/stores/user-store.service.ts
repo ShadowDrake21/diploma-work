@@ -58,6 +58,6 @@ export class UserStore {
   public clearUser(): void {
     currentUserSig.set(null);
     this.authService.logout();
-    this.notificationService.showInfo('You have been logged out.');
+    this.notificationService.showInfo('Ви вийшли з системи.');
   }
 }

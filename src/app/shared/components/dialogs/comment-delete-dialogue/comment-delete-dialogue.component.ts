@@ -18,13 +18,11 @@ import {
     MatDialogContent,
   ],
   template: `
-    <h2 mat-dialog-title>Delete comment</h2>
-    <mat-dialog-content>
-      Would you like to delete this comment?
-    </mat-dialog-content>
+    <h2 mat-dialog-title>Видалити коментар</h2>
+    <mat-dialog-content> Ви хочете видалити цей коментар? </mat-dialog-content>
     <mat-dialog-actions>
-      <button mat-button [mat-dialog-close]="false" cdkFocusInitial>No</button>
-      <button mat-button [mat-dialog-close]="true">Yes</button>
+      <button mat-button [mat-dialog-close]="false" cdkFocusInitial>Ні</button>
+      <button mat-button [mat-dialog-close]="true">Так</button>
     </mat-dialog-actions>
   `,
 })

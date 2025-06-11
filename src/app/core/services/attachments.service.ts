@@ -42,7 +42,7 @@ export class AttachmentsService {
     return this.http.get<FileMetadataDTO[]>(endpoint, getAuthHeaders()).pipe(
       map((response) => response || []),
       catchError((error) =>
-        this.handleError(error, 'Failed to load attachments', [])
+        this.handleError(error, 'Не вдалося завантажити вкладення', [])
       )
     );
   }
@@ -60,7 +60,7 @@ export class AttachmentsService {
     uuid: string
   ): Observable<string> {
     if (!file) {
-      return throwError(() => new Error('No file provided for upload'));
+      return throwError(() => new Error('Немає файлу для завантаження'));
     }
 
     const formData = this.createFormData(file, entityType, uuid);
@@ -78,7 +78,7 @@ export class AttachmentsService {
         catchError((error) =>
           this.handleError<string>(
             error,
-            `Failed to upload file: ${file.name}`,
+            `Не вдалося завантажити файл: ${file.name}`,
             ''
           )
         )
@@ -99,8 +99,8 @@ export class AttachmentsService {
   ): Observable<string[]> {
     if (!files?.length) {
       return this.handleError<string[]>(
-        'No files to upload',
-        'No files to upload',
+        'Немає файлів для завантаження',
+        'Немає файлів для завантаження',
         []
       );
     }
@@ -126,8 +126,8 @@ export class AttachmentsService {
   ): Observable<string[]> {
     if (!files?.length) {
       return this.handleError<string[]>(
-        'No files to upload',
-        'No files to upload',
+        'Немає файлів для завантаження',
+        'Немає файлів для завантаження',
         []
       );
     }
@@ -138,7 +138,7 @@ export class AttachmentsService {
       .post<string[]>(`${this.apiUrl}/update-files`, formData, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError(error, 'Failed to update files', [])
+          this.handleError(error, 'Не вдалося оновити файли', [])
         )
       );
   }
@@ -163,7 +163,7 @@ export class AttachmentsService {
         catchError((error) =>
           this.handleError<string>(
             error,
-            `Failed to delete file: ${fileName}`,
+            `Не вдалося видалити файл: ${fileName}`,
             ''
           )
         )
@@ -179,7 +179,7 @@ export class AttachmentsService {
     return this.uploadFile(file, entityType, entityId).pipe(
       map((response) => (response ? [response] : [])),
       catchError((error) =>
-        this.handleError(error, `Failed to upload file: ${file.name}`, [])
+        this.handleError(error, `Не вдалося завантажити файл: ${file.name}`, [])
       )
     );
   }
@@ -200,7 +200,7 @@ export class AttachmentsService {
         return successfulUploads;
       }),
       catchError((error) =>
-        this.handleError(error, 'Failed to upload multiple files', [])
+        this.handleError(error, 'Не вдалося завантажити кілька файлів', [])
       )
     );
   }

@@ -5,18 +5,18 @@
   class="flex sm:justify-start justify-center items-center gap-4 flex-wrap px-2"
 >
   <div class="text-lg font-semibold text-red-500 sm:text-left text-center">
-    Failed to load patent details. Please try again later.
+    Не вдалося завантажити інформацію про патент. Спробуйте пізніше.
   </div>
-  <button mat-button (click)="retry()">Retry</button>
+  <button mat-button (click)="retry()">Повторити спробу</button>
 </div>
 } @else if (patent()) {
 <div
   class="flex justify-between sm:text-start text-center gap-[20px] flex-wrap sm:flex-row flex-col"
 >
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Primary author</h4>
+    <h4 class="font-medium pb-[5px]">Основний автор</h4>
     <p>
-      {{ patent()?.primaryAuthor?.username || "Not specified" }}
+      {{ patent()?.primaryAuthor?.username || "Не вказано" }}
     </p>
   </div>
   @if (coInventors() && coInventors().length > 0) {
@@ -24,7 +24,7 @@
     <mat-expansion-panel hideToggle>
       <mat-expansion-panel-header>
         <mat-panel-title class="w-full text-center flex justify-center !mr-0">
-          <h4 class="font-medium pb-[5px] text-center">Co-inventors</h4>
+          <h4 class="font-medium pb-[5px] text-center">Співвинахідники</h4>
         </mat-panel-title>
       </mat-expansion-panel-header>
       <ul class="list-none flex flex-col gap-[10px]">
@@ -36,13 +36,13 @@
   </mat-accordion>
   }
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Registration number</h4>
+    <h4 class="font-medium pb-[5px]">Реєстраційний номер</h4>
     <p>
-      {{ patent()?.registrationNumber || "Not specified" }}
+      {{ patent()?.registrationNumber || "Не вказано" }}
     </p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Registration date</h4>
+    <h4 class="font-medium pb-[5px]">Дата реєстрації</h4>
     <p>
       @if (patent()?.registrationDate) {
       {{ patent()?.registrationDate | date : "mediumDate" }}
@@ -50,14 +50,14 @@
     </p>
   </div>
   <div class="text-center">
-    <h4 class="font-medium pb-[5px]">Issuing authority</h4>
+    <h4 class="font-medium pb-[5px]">Орган, що видав</h4>
     <p>
-      {{ patent()?.issuingAuthority || "Not specified" }}
+      {{ patent()?.issuingAuthority || "Не вказано" }}
     </p>
   </div>
 </div>
 } @else {
 <div class="text-lg font-semibold text-black sm:text-start text-center">
-  No patent details available
+  Немає інформації про патент
 </div>
 }

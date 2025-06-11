@@ -46,7 +46,7 @@ export class PublicationService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load publications`
+            `Не вдалося завантажити публікації`
           )
         )
       );
@@ -59,7 +59,7 @@ export class PublicationService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load publication with ID ${id}`
+            `Не вдалося завантажити публікацію з ідентифікатором ${id}`
           )
         )
       );
@@ -74,7 +74,7 @@ export class PublicationService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to create publication`
+            `Не вдалося створити публікацію`
           )
         )
       );
@@ -90,7 +90,7 @@ export class PublicationService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to update publication with ID ${id}`
+            `Не вдалося оновити публікацію з ідентифікатором ${id}`
           )
         )
       );
@@ -103,7 +103,7 @@ export class PublicationService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to delete publication with ID ${id}`
+            `Не вдалося видалити публікацію з ідентифікатором ${id}`
           )
         )
       );

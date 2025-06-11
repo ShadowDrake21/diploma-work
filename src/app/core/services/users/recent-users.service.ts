@@ -65,8 +65,8 @@ export class RecentUsersService implements OnDestroy {
               error: {
                 message:
                   error.status === 403
-                    ? 'You do not have permission to view active users'
-                    : 'Failed to load active users',
+                    ? 'У вас немає дозволу на перегляд активних користувачів'
+                    : 'Не вдалося завантажити активних користувачів',
               },
             };
             this._activeUsers.set(errorResult);

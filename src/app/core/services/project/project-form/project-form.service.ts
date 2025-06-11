@@ -52,7 +52,7 @@ export class ProjectFormService extends ProjectFormCoreService {
       case ProjectType.RESEARCH:
         return this.researchFormService.createForm();
       default:
-        throw new Error('Invalid project type');
+        throw new Error('Недійсний тип проекту');
     }
   }
 
@@ -72,7 +72,7 @@ export class ProjectFormService extends ProjectFormCoreService {
         this.researchFormService.patchForm(form, data);
         break;
       default:
-        throw new Error('Invalid project type');
+        throw new Error('Недійсний тип проекту');
     }
   }
 

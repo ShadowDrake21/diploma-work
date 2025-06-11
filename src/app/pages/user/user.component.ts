@@ -72,19 +72,19 @@ export class UserProfileComponent implements OnInit {
 
     const metrics: DashboardMetricCardItem[] = [
       {
-        title: 'Publications',
+        title: 'Публікації',
         value: user.publicationCount.toString(),
         link: '',
         icon: 'description',
       },
       {
-        title: 'Patents',
+        title: 'Патенти',
         value: user.patentCount.toString(),
         link: '',
         icon: 'gavel',
       },
       {
-        title: 'Research Projects',
+        title: 'Дослідницькі проекти',
         value: user.researchCount.toString(),
         link: '',
         icon: 'science',
@@ -104,7 +104,7 @@ export class UserProfileComponent implements OnInit {
 
     const userId = this.userId();
     if (!userId) {
-      this.error.set('Invalid user ID');
+      this.error.set('Недійсний ідентифікатор користувача');
       this.isLoading.set(false);
       return;
     }
@@ -113,8 +113,10 @@ export class UserProfileComponent implements OnInit {
       .getFullUserById(userId)
       .pipe(
         catchError((err) => {
-          this.error.set('Failed to load user data');
-          this.notificationService.showError('Failed to load user profile');
+          this.error.set('Не вдалося завантажити дані користувача');
+          this.notificationService.showError(
+            'Не вдалося завантажити профіль користувача'
+          );
           this.isLoading.set(false);
           return of(null);
         })
@@ -122,10 +124,10 @@ export class UserProfileComponent implements OnInit {
       .subscribe((user) => {
         if (user) {
           this.user.set(user);
-          this.headerService.setTitle(`User: ${user.username}`);
+          this.headerService.setTitle(`Користувач: ${user.username}`);
           this.loadUserProjects();
         } else {
-          this.error.set('User not found');
+          this.error.set('Користувача не знайдено');
           this.isLoading.set(false);
         }
       });
@@ -134,7 +136,7 @@ export class UserProfileComponent implements OnInit {
   private loadUserProjects(): void {
     const userId = this.userId();
     if (!userId) {
-      this.error.set('Invalid user ID');
+      this.error.set('Недійсний ідентифікатор користувача');
       this.isLoading.set(false);
       return;
     }
@@ -143,8 +145,10 @@ export class UserProfileComponent implements OnInit {
       .getUserProjects(userId)
       .pipe(
         catchError((err) => {
-          this.error.set('Failed to load user projects');
-          this.notificationService.showError('Failed to load user projects');
+          this.error.set('Не вдалося завантажити проекти користувачів');
+          this.notificationService.showError(
+            'Не вдалося завантажити проекти користувачів'
+          );
           return of([]);
         })
       )

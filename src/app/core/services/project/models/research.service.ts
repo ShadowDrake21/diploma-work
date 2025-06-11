@@ -45,7 +45,7 @@ export class ResearchService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load researches`
+            `Не вдалося завантажити дослідження`
           )
         )
       );
@@ -58,7 +58,7 @@ export class ResearchService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to load research with ID ${id}`
+            `Не вдалося завантажити дослідження з ідентифікатором ${id}`
           )
         )
       );
@@ -71,7 +71,7 @@ export class ResearchService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to create research`
+            `Не вдалося створити дослідження`
           )
         )
       );
@@ -85,7 +85,7 @@ export class ResearchService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to update research with ID ${id}`
+            `Не вдалося оновити дослідження з ідентифікатором ${id}`
           )
         )
       );
@@ -98,7 +98,7 @@ export class ResearchService {
         catchError((error) =>
           this.errorHandler.handleServiceError(
             error,
-            `Failed to delete research with ID ${id}`
+            `Не вдалося видалити дослідження з ідентифікатором ${id}`
           )
         )
       );

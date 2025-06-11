@@ -153,7 +153,7 @@ export class ProjectDataService extends ProjectDataCoreService {
 
   private rollbackCreate(projectId: string, error: any): Observable<never> {
     this.notificationService.showError(
-      'Failed to complete project creation. Rolling back...'
+      'Не вдалося завершити створення проєкту. Повернення назад...'
     );
     return this.projectService.deleteProject(projectId).pipe(
       switchMap(() => throwError(() => error)),
@@ -170,7 +170,7 @@ export class ProjectDataService extends ProjectDataCoreService {
     error: any
   ): Observable<never> {
     this.notificationService.showError(
-      'Failed to complete project update. Rolling back...'
+      'Не вдалося завершити оновлення проекту. Повернення назад...'
     );
     return this.projectService
       .updateProject(projectId, {
@@ -205,8 +205,8 @@ export class ProjectDataService extends ProjectDataCoreService {
   ): Observable<never> {
     const message =
       operation === 'upload'
-        ? 'Failed to upload attachments'
-        : 'Failed to update attachments';
+        ? 'Не вдалося завантажити вкладення'
+        : 'Не вдалося оновити вкладення';
 
     this.notificationService.showError(message);
     console.error(`Attachment ${operation} error:`, error);
@@ -217,16 +217,16 @@ export class ProjectDataService extends ProjectDataCoreService {
     switch (operation) {
       case 'create':
         return error.status === 409
-          ? 'A project with this title already exists'
-          : 'Failed to create project';
+          ? 'Проєкт із такою назвою вже існує'
+          : 'Не вдалося створити проєкт';
       case 'update':
         return error.status === 403
-          ? 'You do not have permission to update this project'
-          : 'Failed to update project';
+          ? 'У вас немає дозволу на оновлення цього проєкту'
+          : 'Не вдалося оновити проєкт';
       case 'fetch':
-        return 'Failed to load project data';
+        return 'Не вдалося завантажити дані проєкту';
       default:
-        return 'An error occurred';
+        return 'Сталася помилка';
     }
   }
 }

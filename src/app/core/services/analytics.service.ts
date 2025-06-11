@@ -90,12 +90,12 @@ export class AnalyticsService {
 
   private getErrorMessage(error: any, operation: string): string {
     if (error.status === 0) {
-      return 'Network error: Unable to connect to analytics service';
+      return 'Помилка мережі: Не вдалося підключитися до служби аналітики';
     }
     if (error.status === 403) {
-      return 'Unauthorized: You do not have permission to view analytics';
+      return 'Неавторизовано: У вас немає дозволу на перегляд аналітики';
     }
-    return `Failed to load ${operation
+    return `Не вдалося завантажити ${operation
       .replace(/([A-Z])/g, ' $1')
       .toLowerCase()}`;
   }

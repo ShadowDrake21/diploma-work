@@ -3,7 +3,7 @@
     <div mat-card-avatar class="example-header-image"></div>
     <mat-card-title
       ><h4 class="py-5 text-xl font-medium sm:text-start text-center">
-        Collaborators
+        Контактна інформація
       </h4></mat-card-title
     >
   </mat-card-header>
@@ -27,7 +27,7 @@
       </div>
       } @if(user().socialLinks?.length) {
       <div class="flex flex-col gap-2">
-        <h4 class="font-medium text-lg">Social Links</h4>
+        <h4 class="font-medium text-lg">Посилання на соціальні мережі</h4>
         @if (user().socialLinks!.length > 0) {
         <ul class="list-none flex flex-col gap-2">
           @for (link of user().socialLinks; track $index) {
