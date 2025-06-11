@@ -48,16 +48,16 @@ export class ProjectSubmissionService {
     projectId: string | null
   ): string {
     if (error.status === 409) {
-      return 'A project with similar details already exists';
+      return 'Проєкт із подібними деталями вже існує';
     }
     if (error.status === 400) {
-      return 'Invalid project data. Please check your inputs';
+      return 'Недійсні дані проєкту. Будь ласка, перевірте введені дані.';
     }
     if (error.status === 403) {
-      return 'You do not have permission to perform this action';
+      return 'У вас немає дозволу на виконання цієї дії';
     }
     return projectId
-      ? `Failed to update project. Please try again.`
-      : `Failed to create project. Please try again.`;
+      ? `Не вдалося оновити проєкт. Спробуйте ще раз.`
+      : `Не вдалося створити проєкт. Спробуйте ще раз.`;
   }
 }

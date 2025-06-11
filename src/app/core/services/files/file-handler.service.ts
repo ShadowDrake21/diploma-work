@@ -25,13 +25,13 @@ export class FileHandlerService {
     files: File[]
   ): Observable<UploadResult> {
     if (!files.length) {
-      this.notificationService.showWarning('No files provided for upload');
+      this.notificationService.showWarning('Немає файлів для завантаження');
       return of(this.createEmptyResult());
     }
 
     if (!this.validateFilesBeforeUpload(files)) {
-      const error = new Error('One of more files are invalid');
-      this.notificationService.showError('Invalid file(s) detected');
+      const error = new Error('Один або більше файлів недійсні');
+      this.notificationService.showError('Виявлено недійсний(і) файл(и)');
       return throwError(() => error);
     }
 
@@ -52,8 +52,8 @@ export class FileHandlerService {
 
   deleteFile(file: FileMetadataDTO): Observable<string> {
     if (!file?.fileName) {
-      const error = new Error('Invalid file reference');
-      this.notificationService.showError('Invalid file');
+      const error = new Error('Недійсне посилання на файл');
+      this.notificationService.showError('Недійсний файл');
       return throwError(() => error);
     }
 
@@ -65,7 +65,7 @@ export class FileHandlerService {
       )
       .pipe(
         catchError((error) => {
-          this.notificationService.showError('Failed to delete file');
+          this.notificationService.showError('Не вдалося видалити файл');
           console.error('Delete file error:', error);
           return throwError(() => error);
         })
@@ -117,15 +117,15 @@ export class FileHandlerService {
 
   private getUploadErrorMessage(error: any, fileCount: number): string {
     if (error.status === 413) {
-      return 'File size exceeds maximum limit';
+      return 'Розмір файлу перевищує максимальний ліміт';
     }
     if (error.status === 415) {
-      return 'Unsupported file type';
+      return 'Непідтримуваний тип файлу';
     }
     if (fileCount > 1) {
-      return 'Failed to upload some files';
+      return 'Не вдалося завантажити деякі файли';
     }
-    return 'Failed to upload file';
+    return 'Не вдалося завантажити файл';
   }
 
   private createFileMetadata(

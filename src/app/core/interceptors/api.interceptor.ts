@@ -53,7 +53,7 @@ export const apiInterceptor: HttpInterceptorFn = (
 
     if (isApiResponse(errorResponse) && !isPaginatedResponse(errorResponse)) {
       const apiError: ApiError = {
-        message: errorResponse.message || 'Request failed',
+        message: errorResponse.message || 'Запит не виконано',
         errorCode: errorResponse.errorCode || 'UNKNOWN_ERROR',
         status: error.status,
         timestamp: errorResponse.timestamp,
@@ -63,7 +63,7 @@ export const apiInterceptor: HttpInterceptorFn = (
     }
 
     return throwError(() => ({
-      message: error.message || 'Network error',
+      message: error.message || 'Помилка мережі',
       code: 'NETWORK_ERROR',
       status: error.status,
     }));

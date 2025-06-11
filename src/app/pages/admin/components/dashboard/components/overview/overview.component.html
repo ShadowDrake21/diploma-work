@@ -7,7 +7,7 @@
     </p>
     <button mat-button (click)="loadData()">
       <mat-icon class="text-red-500">refresh</mat-icon>
-      <span class="text-red-500">Try Again</span>
+      <span class="text-red-500">Спробуйте ще раз</span>
     </button>
   </div>
 </div>
@@ -20,7 +20,7 @@
   <div
     class="flex gap-3 my-5 items-center sm:justify-between justify-center sm:flex-row flex-col"
   >
-    <h2 class="text-xl font-bold sm:text-start text-center">System Overview</h2>
+    <h2 class="text-xl font-bold sm:text-start text-center">Огляд системи</h2>
     <button mat-icon-button (click)="refreshData()">
       <mat-icon>refresh</mat-icon>
     </button>
@@ -36,7 +36,7 @@
           <mat-icon>people</mat-icon>
           <div class="flex flex-col items-center">
             <h3 class="text-2xl font-bold">{{ overview.totalUsers }}</h3>
-            <p class="font-medium">Total Users</p>
+            <p class="font-medium">Кількість користувачів</p>
           </div>
         </div>
         <div
@@ -46,7 +46,7 @@
           <mat-icon>person</mat-icon>
           <div class="flex flex-col items-center">
             <h3 class="text-2xl font-bold">{{ overview.activeUsers }}</h3>
-            <p class="font-medium">Active Users</p>
+            <p class="font-medium">Активні користувачі</p>
           </div>
         </div>
         <div
@@ -58,7 +58,7 @@
             <h3 class="text-2xl font-bold">
               {{ overview.totalProjects }}
             </h3>
-            <p class="font-medium">Total Projects</p>
+            <p class="font-medium">Всього проектів</p>
           </div>
         </div>
         <div
@@ -70,7 +70,7 @@
             <h3 class="text-2xl font-bold">
               {{ overview.activeSessions }}
             </h3>
-            <p class="font-medium">Active Sessions</p>
+            <p class="font-medium">Активні сесії</p>
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@
 
     <div class="bg-white p-6 rounded-lg shadow-md">
       <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
-        User Growth
+        Зростання кількості користувачів
       </h3>
 
       <div>
@@ -107,7 +107,7 @@
 
     <div class="bg-white p-6 rounded-lg shadow-md">
       <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
-        Project Distribution
+        Розподіл проектів
       </h3>
 
       <div>
@@ -136,11 +136,11 @@
   <div class="flex justify-center items-center flex-col gap-4">
     <mat-icon>info</mat-icon>
     <p class="text-lg font-semibold text-black sm:text-start text-center">
-      No data available
+      Дані недоступні
     </p>
     <button mat-button (click)="loadData()">
       <mat-icon>refresh</mat-icon>
-      Load Data
+      Завантажити дані
     </button>
   </div>
 </div>

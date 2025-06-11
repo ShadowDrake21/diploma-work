@@ -6,19 +6,21 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
   selector: 'app-confirmation-dialog',
   imports: [MatDialogModule, MatButtonModule],
   template: `
-    <h2 mat-dialog-title>Confirm Deletion</h2>
+    <h2 mat-dialog-title>Підтвердити видалення</h2>
     <mat-dialog-content>
       <p>{{ data.message }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end" class="flex gap-5">
-      <button mat-button mat-dialog-close class="cursor-pointer">Cancel</button>
+      <button mat-button mat-dialog-close class="cursor-pointer">
+        Скасувати
+      </button>
       <button
         mat-button
         color="warn"
         [mat-dialog-close]="true"
         class="cursor-pointer"
       >
-        Delete
+        Видалити
       </button>
     </mat-dialog-actions>
   `,

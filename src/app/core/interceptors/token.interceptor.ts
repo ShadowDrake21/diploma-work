@@ -23,17 +23,17 @@ export function tokenInterceptor(
   const token = authService.getToken();
   if (!token) {
     authService.clearAuthData();
-    return throwError(() => new Error('No token found'));
+    return throwError(() => new Error('Токен не знайдено'));
   }
 
   const decoded = authService.decodeToken(token);
   if (!decoded || authService.isTokenExpired(decoded)) {
     authService.clearAuthData();
-    return throwError(() => new Error('Invalid or expired token'));
+    return throwError(() => new Error('Недійсний або прострочений токен'));
   }
 
   const timeLeft = authService.getTokenTimeLeft(decoded);
-  const refreshThreshold = 5 * 60 * 1000; // 15 minutes
+  const refreshThreshold = 5 * 60 * 1000;
 
   if (timeLeft < refreshThreshold && timeLeft > 0) {
     authService.showSessionWarning(timeLeft);

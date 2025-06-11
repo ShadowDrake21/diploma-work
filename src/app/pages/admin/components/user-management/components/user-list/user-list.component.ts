@@ -106,7 +106,9 @@ export class UserListComponent {
             this.users.set(response.data!);
             this.totalItems.set(response.totalItems);
           } else {
-            this.handleError(response.message || 'Failed to load users');
+            this.handleError(
+              response.message || 'Помилка завантаження користувачів'
+            );
           }
           this.isLoading.set(false);
         },
@@ -119,70 +121,70 @@ export class UserListComponent {
 
   promoteUser(user: IUser): void {
     this.showConfirmationDialog(
-      'Promote User',
-      `Are you sure you want to promote ${user.username} to admin?`,
-      'Promote',
+      'Підвищити користувача',
+      `Ви впевнені, що хочете підвищити ${user.username} до адміністратора?`,
+      'Підвищити',
       () =>
         this.executeUserAction(
           this.adminService.promoteToAdmin(user.id),
-          'User promoted to admin successfully',
-          'promote'
+          'Користувача успішно підвищено до адміністратора',
+          'підвищити'
         )
     );
   }
 
   demoteUser(user: IUser): void {
     this.showConfirmationDialog(
-      'Demote User',
-      `Are you sure you want to demote ${user.username} to regular user?`,
-      'Demote',
+      'Понизити користувача',
+      `Ви впевнені, що хочете понизити ${user.username} до звичайного користувача?`,
+      'Понизити',
       () =>
         this.executeUserAction(
           this.adminService.demoteFromAdmin(user.id),
-          'Admin demoted successfully',
-          'demote'
+          'Адміністратора успішно понижено',
+          'понизити'
         )
     );
   }
 
   deactivateUser(user: IUser): void {
     this.showConfirmationDialog(
-      'Deactivate User',
-      `Are you sure you want to deactivate ${user.username}?`,
-      'Deactivate',
+      'Деактивувати користувача',
+      `Ви впевнені, що хочете деактивувати ${user.username}?`,
+      'Деактивувати',
       () =>
         this.executeUserAction(
           this.adminService.deactivateUser(user.id),
-          'User deactivated successfully',
-          'deactivate'
+          'Користувача успішно деактивовано',
+          'деактивувати'
         )
     );
   }
 
   reactivateUser(user: IUser): void {
     this.showConfirmationDialog(
-      'Reactivate User',
-      `Are you sure you want to reactivate ${user.username}?`,
-      'Reactivate',
+      'Реактивувати користувача',
+      `Ви впевнені, що хочете реактувувати ${user.username}?`,
+      'Реактивація',
       () =>
         this.executeUserAction(
           this.adminService.reactivateUser(user.id),
-          'User reactivated successfully',
-          'reactivate'
+          'Користувач успішно реактивований',
+          'реактивувати'
         )
     );
   }
 
   deleteUser(user: IUser): void {
     this.showConfirmationDialog(
-      'Delete User',
-      `Are you sure you want to permanently delete ${user.username}? This action cannot be undone.`,
-      'Delete',
+      'Видалити користувача',
+      `Ви впевнені, що хочете остаточно видалити ${user.username}? Цю дію не можна скасувати.`,
+      'Видалити',
       () =>
         this.executeUserAction(
           this.adminService.deleteUser(user.id),
-          'User deleted successfully',
-          'delete',
+          'Користувача успішно видалено',
+          'видалити',
           true
         ),
       true
@@ -257,24 +259,24 @@ export class UserListComponent {
 
   private getErrorMessage(error: any): string {
     if (error.status === 0) {
-      return 'Network error: Unable to connect to server';
+      return 'Помилка мережі: Не вдалося підключитися до сервера';
     }
     if (error.status === 403) {
-      return 'Unauthorized: You do not have permission to view users';
+      return 'Неавторизовано: Ви не маєте дозволу переглядати користувачів';
     }
     if (error.status === 404) {
-      return 'No users found';
+      return 'Користувачів не знайдено';
     }
-    return error.message || 'Failed to load users';
+    return error.message || 'Помилка завантаження користувачів';
   }
 
   private getActionErrorMessage(error: any, actionType: string): string {
     if (error.status === 403) {
-      return `You don't have permission to ${actionType} users`;
+      return `У вас немає дозволу ${actionType} користувачів`;
     }
     if (error.status === 409) {
-      return `Cannot ${actionType} user: ${error.error.message}`;
+      return `Неможливо ${actionType} користувача: ${error.error.message}`;
     }
-    return error.error?.message || `Failed to ${actionType} user`;
+    return error.error?.message || `Не вдалося ${actionType} користувача`;
   }
 }

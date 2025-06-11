@@ -1,0 +1,11 @@
+{
+  "code": {
+    "userGrowthChart$": {
+      "dateRangeError": "Start date must be before end date",
+      "new_users": "New Users",
+      "active_users": "Active Users",
+      "error": "Failed to process user data"
+    }
+  },
+  "html": {}
+}

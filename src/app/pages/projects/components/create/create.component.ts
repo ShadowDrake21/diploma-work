@@ -66,7 +66,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   types = types;
   loading: boolean = false;
   subtext: string =
-    'Choose the type of record you want to create and provide the required details.';
+    'Виберіть тип запису, який ви хочете створити, та надайте необхідну інформацію.';
 
   typeForm = this.projectLoaderService.typeForm;
   generalInformationForm = this.projectLoaderService.generalInformationForm;
@@ -81,7 +81,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   }
 
   private initializeComponent(): void {
-    this.headerService.setTitle('Create New Entry');
+    this.headerService.setTitle('Створити новий запис');
     this.projectId = this.route.snapshot.queryParamMap.get('id');
 
     this.subscriptions.push(
@@ -91,7 +91,9 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Failed to load user data:', error);
-          this.notificationService.showError('Failed to load user information');
+          this.notificationService.showError(
+            'Не вдалося завантажити інформацію про користувача'
+          );
           this.router.navigate(['/']);
         },
       })
@@ -106,7 +108,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     if (!this.projectId) return;
 
     this.loading = true;
-    this.headerService.setTitle('Edit Project: ' + this.projectId);
+    this.headerService.setTitle('Редагувати проєкт: ' + this.projectId);
 
     this.subscriptions.push(
       this.projectLoaderService.loadProject(this.projectId).subscribe({
@@ -118,8 +120,8 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
           console.error('Error loading project:', error);
           this.notificationService.showError(
             error.status === 404
-              ? 'Project not found'
-              : 'Failed to load project data'
+              ? 'Проєкт не знайдено'
+              : 'Не вдалося завантажити дані проєкту'
           );
           this.loading = false;
           this.router.navigate(['/projects']);

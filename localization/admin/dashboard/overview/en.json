@@ -1,0 +1,45 @@
+{
+  "code": {
+    "loadData": {
+      "getSystemOverview": {
+        "error": "Failed to load system overview"
+      },
+      "getUserGrowth": {
+        "error": "Failed to load user growth data"
+      },
+      "getProjectDistribution": {
+        "error": "Failed to load project distribution"
+      }
+    },
+    "userGrowthChart$": {
+      "success": { "default": "User Growth", "no_data": "No data" },
+      "error": {
+        "text": "Помилка обробки даних про зростання кількості користувачів",
+        "default": "User Growth",
+        "series": "Error loading data"
+      }
+    },
+    "projectDistributionChart$": {
+      "error": "Error processing project data",
+      "projects": {
+        "publications": "Publications",
+        "patents": "Patents",
+        "researaches": "Researches"
+      }
+    }
+  },
+  "html": {
+    "try_again": "Try Again",
+    "title": "System Overview",
+    "total_users": "Total Users",
+    "active_users": "Active Users",
+    "total_projects": "Total Projects",
+    "active_sessions": "Active Sessions",
+    "subtitle1": "User Growth",
+    "subtitle2": "Project Distribution",
+    "no_data": {
+      "text": "No data available",
+      "btn": "Load Data"
+    }
+  }
+}

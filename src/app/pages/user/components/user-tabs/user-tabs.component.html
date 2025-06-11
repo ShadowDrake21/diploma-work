@@ -6,7 +6,7 @@
   } @if (loading()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   } @if (!error() && !loading()) {
-  <mat-tab label="Publications">
+  <mat-tab label="Публікації">
     <shared-profile-projects
       [projects]="publications()"
       [pageSize]="tabPagination().publications.pageSize"
@@ -18,7 +18,7 @@
     />
   </mat-tab>
 
-  <mat-tab label="Patents">
+  <mat-tab label="Патенти">
     <shared-profile-projects
       [projects]="patents()"
       [pageSize]="tabPagination().patents.pageSize"
@@ -30,7 +30,7 @@
     />
   </mat-tab>
 
-  <mat-tab label="Research Projects">
+  <mat-tab label="Дослідницькі проекти">
     <shared-profile-projects
       [projects]="researches()"
       [pageSize]="tabPagination().researches.pageSize"
@@ -42,11 +42,11 @@
     />
   </mat-tab>
 
-  <mat-tab label="Collaborators">
+  <mat-tab label="Співавтори">
     <user-collaborators [userId]="user().id" />
   </mat-tab>
 
-  <mat-tab label="Contact information">
+  <mat-tab label="Контактна інформація">
     <user-contact-information [user]="user()" />
   </mat-tab>
   }

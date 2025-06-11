@@ -20,7 +20,7 @@ export class CommentService {
       .get<IComment[]>(`${this.apiUrl}/project/${projectId}`, getAuthHeaders())
       .pipe(
         catchError((error) =>
-          this.handleError(error, 'Failed to load comments')
+          this.handleError(error, 'Не вдалося завантажити коментарі')
         )
       );
   }
@@ -30,10 +30,10 @@ export class CommentService {
       .post<IComment>(this.apiUrl, comment, getAuthHeaders())
       .pipe(
         tap(() =>
-          this.notificationService.showSuccess('Comment created successfully')
+          this.notificationService.showSuccess('Коментар успішно створено')
         ),
         catchError((error) =>
-          this.handleError(error, 'Failed to create comment')
+          this.handleError(error, 'Не вдалося створити коментар')
         )
       );
   }
@@ -43,10 +43,10 @@ export class CommentService {
       .put<IComment>(`${this.apiUrl}/${commentId}`, content, getAuthHeaders())
       .pipe(
         tap(() =>
-          this.notificationService.showSuccess('Comment updated successfully')
+          this.notificationService.showSuccess('Коментар успішно оновлено')
         ),
         catchError((error) =>
-          this.handleError(error, 'Failed to update comment')
+          this.handleError(error, 'Не вдалося оновити коментар')
         )
       );
   }
@@ -56,10 +56,10 @@ export class CommentService {
       .delete<void>(`${this.apiUrl}/${commentId}`, getAuthHeaders())
       .pipe(
         tap(() =>
-          this.notificationService.showSuccess('Comment deleted successfully')
+          this.notificationService.showSuccess('Коментар успішно видалено')
         ),
         catchError((error) =>
-          this.handleError(error, 'Failed to delete comment')
+          this.handleError(error, 'Не вдалося видалити коментар')
         )
       );
   }
@@ -72,8 +72,10 @@ export class CommentService {
         getAuthHeaders()
       )
       .pipe(
-        tap(() => this.notificationService.showSuccess('Comment liked')),
-        catchError((error) => this.handleError(error, 'Failed to like comment'))
+        tap(() => this.notificationService.showSuccess('Коментар лайкнутий')),
+        catchError((error) =>
+          this.handleError(error, 'Не вдалося лайкнути коментар')
+        )
       );
   }
 
@@ -82,9 +84,11 @@ export class CommentService {
       .delete<IComment>(`${this.apiUrl}/${commentId}/like`, getAuthHeaders())
       .pipe(
         tap(() =>
-          this.notificationService.showSuccess('Removed like from comment')
+          this.notificationService.showSuccess('Знято лайк з коментаря')
         ),
-        catchError((error) => this.handleError(error, 'Failed to remove like'))
+        catchError((error) =>
+          this.handleError(error, 'Не вдалося зняти лайк з коментаря')
+        )
       );
   }
 
@@ -104,7 +108,10 @@ export class CommentService {
       })
       .pipe(
         catchError((error) =>
-          this.handleError(error, 'Failed to load user comments')
+          this.handleError(
+            error,
+            'Не вдалося завантажити коментарі користувача'
+          )
         )
       );
   }
@@ -113,11 +120,11 @@ export class CommentService {
     let errorMessage = defaultMessage;
 
     if (error.status === 401) {
-      errorMessage = 'Please log in to perform this action';
+      errorMessage = 'Будь ласка, увійдіть, щоб виконати цю дію';
     } else if (error.status === 403) {
-      errorMessage = 'You are not authorized for this action';
+      errorMessage = 'Ви не маєте дозволу на цю дію';
     } else if (error.status === 404) {
-      errorMessage = 'Comment not found';
+      errorMessage = 'Коментар не знайдено';
     } else if (error.error?.message) {
       errorMessage = error.error.message;
     } else if (error.message) {

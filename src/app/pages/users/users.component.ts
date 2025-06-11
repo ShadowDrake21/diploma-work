@@ -62,14 +62,14 @@ export class UsersComponent {
 
   displayMessage = computed(() => {
     if (this.errorOccurred()) {
-      return 'Failed to load users. Please try again later.';
+      return 'Не вдалося завантажити користувачів. Спробуйте пізніше.';
     }
     if (this.searchQuery()) {
-      return `Search results for: "${this.searchQuery()}": ${
+      return `Результати пошуку для "${this.searchQuery()}": ${
         this.users().length
-      } of ${this.totalItems()} users found`;
+      } з ${this.totalItems()} знайдених користувачів.`;
     }
-    return `All Users: ${this.totalItems()}`;
+    return `Усі користувачі: ${this.totalItems()}`;
   });
 
   searchQuery$ = toSignal(
@@ -118,7 +118,7 @@ export class UsersComponent {
         this.isLoading.set(false);
         this.errorOccurred.set(true);
         this.notificationService.showError(
-          'Failed to load users. Please try again later.'
+          'Не вдалося завантажити користувачів. Спробуйте пізніше.'
         );
       },
     });

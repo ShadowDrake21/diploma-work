@@ -14,7 +14,7 @@ import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '@core/authentication/auth.service';
-import { CustomButtonComponent } from '../../../../../../shared/components/custom-button/custom-button.component';
+import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { NotificationService } from '@core/services/notification.service';
 
 @Component({
@@ -57,13 +57,17 @@ export class ResetPasswordComponent implements OnInit {
       next: (params) => {
         this.token.set(params['token'] || '');
         if (!this.token()) {
-          this.notificationService.showError('Invalid password reset link');
+          this.notificationService.showError(
+            'Недійсне посилання для скидання пароля'
+          );
           this.router.navigate(['/authentication/forgot-password']);
         }
       },
       error: (error) => {
         console.error('Error reading query params:', error);
-        this.notificationService.showError('Failed to process reset link');
+        this.notificationService.showError(
+          'Не вдалося обробити посилання для скидання'
+        );
         this.router.navigate(['/authentication/forgot-password']);
       },
     });
@@ -99,7 +103,7 @@ export class ResetPasswordComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.notificationService.showSuccess('Password reset successfully');
+          this.notificationService.showSuccess('Пароль успішно скинуто');
           this.router.navigate(['/authentication/sign-in']);
         },
         error: (error) => {
@@ -119,15 +123,15 @@ export class ResetPasswordComponent implements OnInit {
   private handleResetError(error: any): void {
     console.error('Password reset failed:', error);
 
-    let errorMessage = error.message || 'Failed to reset password';
+    let errorMessage = error.message || 'Не вдалося скинути пароль';
     if (error?.code === 'EXPIRED_TOKEN') {
-      errorMessage = 'Password reset link has expired';
+      errorMessage = 'Термін дії посилання для зміни пароля закінчився';
       this.router.navigate(['/authentication/forgot-password']);
     } else if (error?.code === 'INVALID_TOKEN') {
-      errorMessage = 'Invalid password reset link';
+      errorMessage = 'Недійсне посилання для скидання пароля';
       this.router.navigate(['/authentication/forgot-password']);
     } else if (error?.status === 400) {
-      errorMessage = 'Invalid password format';
+      errorMessage = 'Недійсний формат пароля';
     }
 
     this.notificationService.showError(errorMessage);

@@ -6,15 +6,15 @@
 <div class="py-5">
   <div class="flex justify-center items-center flex-col gap-4">
     <mat-icon class="text-red-500">error_outline</mat-icon>
-    <h3 class="text-lg font-semibold text-red-500">Failed to load analytics</h3>
+    <h3 class="text-lg font-semibold text-red-500">
+      Не вдалося завантажити аналітику
+    </h3>
     <p class="text-base text-red-500 sm:text-left text-center">
-      {{
-        error() || "Failed to load publication details. Please try again later."
-      }}
+      {{ error() }}
     </p>
     <button mat-button (click)="refreshData()">
       <mat-icon class="text-red-500">refresh</mat-icon>
-      <span class="text-red-500">Retry</span>
+      <span class="text-red-500">Повторити</span>
     </button>
   </div>
 </div>
@@ -26,7 +26,7 @@
         class="flex flex-wrap gap-3 sm:justify-between justify-center sm:flex-row flex-col sm:items-start items-center pb-5"
       >
         <h3 class="text-lg font-semibold sm:text-start text-center">
-          Research Funding
+          Фінансування досліджень
         </h3>
         <button mat-icon-button (click)="refreshResearchFunding()">
           <mat-icon>refresh</mat-icon>
@@ -41,7 +41,7 @@
           <h3 class="text-2xl font-bold">
             ${{ funding.totalBudget | number : "1.0-0" }}
           </h3>
-          <p class="font-medium">Total Budget</p>
+          <p class="font-medium">Загальний бюджет</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
@@ -50,14 +50,14 @@
           <h3 class="text-2xl font-bold">
             ${{ funding.averageBudget | number : "1.0-0" }}
           </h3>
-          <p class="font-medium">Average Budget</p>
+          <p class="font-medium">Середній бюджет</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
           matTooltip="Currently active projects"
         >
           <h3 class="text-2xl font-bold">{{ funding.activeProjects }}</h3>
-          <p class="font-medium">Active Projects</p>
+          <p class="font-medium">Активні проекти</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
@@ -66,7 +66,7 @@
           <h3 class="text-2xl font-bold">
             {{ funding.mostCommonFundingSource }}
           </h3>
-          <p class="font-medium">Top Funding Source</p>
+          <p class="font-medium">Основне джерело фінансування</p>
         </div>
       </div>
       } @else {
@@ -81,7 +81,7 @@
         class="flex flex-wrap gap-3 sm:justify-between justify-center sm:flex-row flex-col sm:items-start items-center pb-5"
       >
         <h3 class="text-lg font-semibold sm:text-start text-center">
-          Publication Metrics
+          Показники публікацій
         </h3>
         <button mat-icon-button (click)="refreshPublicationMetrics()">
           <mat-icon>refresh</mat-icon>
@@ -96,7 +96,7 @@
           <h3 class="text-2xl font-bold">
             {{ metrics.totalPublications }}
           </h3>
-          <p class="font-medium">Total Publications</p>
+          <p class="font-medium">Загальна кількість публікацій</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
@@ -105,14 +105,14 @@
           <h3 class="text-2xl font-bold">
             {{ metrics.averagePages | number : "1.1-1" }}
           </h3>
-          <p class="font-medium">Average Pages</p>
+          <p class="font-medium">Середня кількість сторінок</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
           matTooltip="Publications this year"
         >
           <h3 class="text-2xl font-bold">{{ metrics.publicationsThisYear }}</h3>
-          <p class="font-medium">This Year</p>
+          <p class="font-medium">Цього року</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
@@ -121,7 +121,7 @@
           <h3 class="text-2xl font-bold">
             {{ metrics.mostCommonSource }}
           </h3>
-          <p class="font-medium">Top Source</p>
+          <p class="font-medium">Основне джерело</p>
         </div>
       </div>
       } @else {
@@ -136,7 +136,7 @@
         class="flex flex-wrap gap-3 sm:justify-between justify-center sm:flex-row flex-col sm:items-start items-center pb-5"
       >
         <h3 class="text-lg font-semibold sm:text-start text-center">
-          Patent Metrics
+          Показники патентів
         </h3>
         <button mat-icon-button (click)="refreshPatentMetrics()">
           <mat-icon>refresh</mat-icon>
@@ -151,7 +151,7 @@
           <h3 class="text-2xl font-bold">
             {{ metrics.totalPatents }}
           </h3>
-          <p class="font-medium">Total Patents</p>
+          <p class="font-medium">Загальна кількість патентів</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
@@ -160,14 +160,14 @@
           <h3 class="text-2xl font-bold">
             {{ metrics.averageInventors | number : "1.1-1" }}
           </h3>
-          <p class="font-medium">Average Inventors</p>
+          <p class="font-medium">Середня кількість винахідників</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
           matTooltip="Patents filed this year"
         >
           <h3 class="text-2xl font-bold">{{ metrics.patentsThisYear }}</h3>
-          <p class="font-medium">This Year</p>
+          <p class="font-medium">Цього року</p>
         </div>
         <div
           class="flex flex-col justify-center gap-[15px] items-center"
@@ -176,7 +176,7 @@
           <h3 class="text-2xl font-bold">
             {{ metrics.mostCommonAuthority }}
           </h3>
-          <p class="font-medium">Top Authority</p>
+          <p class="font-medium">Основний видавчий орган</p>
         </div>
       </div>
       } @else {
@@ -186,7 +186,7 @@
   </div>
 </div>
 } @else {
-<div class="loading-container">
+<div class="flex justify-center items-center py-5">
   <custom-loader [diameter]="60" />
 </div>
 }

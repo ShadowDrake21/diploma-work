@@ -27,7 +27,7 @@ import { PHONE_NUMBER_PATTERN } from '@core/constants/paterns';
 import { NotificationService } from '@core/services/notification.service';
 import { IUser, SocialLink } from '@models/user.model';
 import { ProfileForm } from '@shared/types/forms/profile-form.types';
-import { LoaderComponent } from '../../../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 
 @Component({
   selector: 'profile-edit',
@@ -94,7 +94,7 @@ export class ProfileEditComponent implements OnInit, OnChanges {
       });
       this.setSocialLinks(user.socialLinks || []);
     } catch (error) {
-      this.formError.set('Failed to initialize form data');
+      this.formError.set('Не вдалося ініціалізувати дані форми');
       console.error('Error patching profile form:', error);
     }
   }
@@ -119,7 +119,7 @@ export class ProfileEditComponent implements OnInit, OnChanges {
       }
       links.forEach((link) => this.addSocialLinkControl(link));
     } catch (error) {
-      this.formError.set('Failed to set social links');
+      this.formError.set('Не вдалося встановити посилання на соціальні мережі');
       console.error('Error setting social links:', error);
     }
   }
@@ -129,7 +129,9 @@ export class ProfileEditComponent implements OnInit, OnChanges {
     if (!newLink) return;
     try {
       if (!this.isValidUrl(newLink)) {
-        this.notificationService.showError('Please enter a valid URL');
+        this.notificationService.showError(
+          'Будь ласка, введіть дійсну URL-адресу'
+        );
         return;
       }
       this.socialLinksArray.push(
@@ -140,7 +142,9 @@ export class ProfileEditComponent implements OnInit, OnChanges {
       );
       this.newLink = '';
     } catch (error) {
-      this.notificationService.showError('Failed to add social link');
+      this.notificationService.showError(
+        'Не вдалося додати посилання на соціальну мережу'
+      );
       console.error('Error adding social link:', error);
     }
   }
@@ -158,15 +162,19 @@ export class ProfileEditComponent implements OnInit, OnChanges {
     try {
       this.socialLinksArray.removeAt(index);
     } catch (error) {
-      this.notificationService.showError('Failed to remove social link');
+      this.notificationService.showError(
+        'Не вдалося видалити посилання на соціальну мережу'
+      );
       console.error('Error removing social link:', error);
     }
   }
 
   onSubmit(): void {
     if (this.profileForm.invalid) {
-      this.formError.set('Please correct the errors in the form');
-      this.notificationService.showError('Please correct the form errors');
+      this.formError.set('Будь ласка, виправте помилки у формі');
+      this.notificationService.showError(
+        'Будь ласка, виправте помилки у формі'
+      );
       return;
     }
 

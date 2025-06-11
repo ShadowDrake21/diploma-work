@@ -8,7 +8,7 @@
   </div>
   <button mat-button (click)="retry()">
     <mat-icon class="text-red-500">refresh</mat-icon>
-    <span class="text-red-500">Try Again</span>
+    <span class="text-red-500">Спробуйте ще раз</span>
   </button>
 </div>
 } @else if (loading()) {
@@ -19,7 +19,7 @@
 <div class="flex flex-col gap-5 py-5">
   <div class="bg-white p-6 rounded-lg shadow-md">
     <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
-      System Performance
+      Продуктивність системи
     </h3>
 
     @if (systemPerformance(); as performance){
@@ -35,7 +35,7 @@
           <h3 class="m-0 text-2xl font-medium">
             {{ performance.averageResponseTime | number : "1.0-2" }}ms
           </h3>
-          <p class="m-0 text-[#666]">Avg. Response Time</p>
+          <p class="m-0 text-[#666]">Середній час відповіді</p>
         </div>
       </div>
       <div
@@ -46,7 +46,7 @@
           <h3 class="m-0 text-2xl font-medium">
             {{ performance.uptimePercentage | number : "1.2-2" }}%
           </h3>
-          <p class="m-0 text-[#666]">Uptime</p>
+          <p class="m-0 text-[#666]">Час безвідмовної роботи</p>
         </div>
       </div>
       <div
@@ -57,7 +57,7 @@
           <h3 class="m-0 text-2xl font-medium">
             {{ performance.memoryUsage | number : "1.2-2" }}%
           </h3>
-          <p class="m-0 text-[#666]">Memory Usage</p>
+          <p class="m-0 text-[#666]">Використання пам'яті</p>
         </div>
       </div>
       <div
@@ -70,7 +70,7 @@
           <h3 class="m-0 text-2xl font-medium">
             {{ performance.cpuUsage | number : "1.2-2" }}%
           </h3>
-          <p class="m-0 text-[#666]">CPU Usage</p>
+          <p class="m-0 text-[#666]">Використання процесора</p>
         </div>
       </div>
 
@@ -82,7 +82,7 @@
           <h3 class="m-0 text-2xl font-medium">
             {{ performance.activeConnections }}
           </h3>
-          <p class="m-0 text-[#666]">Active Sessions</p>
+          <p class="m-0 text-[#666]">Активні сесії</p>
         </div>
       </div>
       <div
@@ -97,7 +97,7 @@
               performance.maxDbConnections
             }}
           </h3>
-          <p class="m-0 text-[#666]">DB Connections</p>
+          <p class="m-0 text-[#666]">Підключення до БД</p>
         </div>
       </div>
     </div>
@@ -106,7 +106,7 @@
 
   <div class="bg-white p-6 rounded-lg shadow-md">
     <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
-      Comment Activity
+      Активність коментарів
     </h3>
     <div>
       @if(commentActivityChart$ | async; as chartData) { @if
@@ -124,7 +124,9 @@
       >
       </ngx-charts-line-chart>
       }@else {
-      <div class="no-data">No comment activity data available</div>
+      <div class="text-lg font-semibold sm:text-start text-center pb-5">
+        Дані про активність коментування недоступні
+      </div>
       }}@else {
       <custom-loader [diameter]="40" />
       }
@@ -135,7 +137,7 @@
 
   <div class="bg-white p-6 rounded-lg shadow-md">
     <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
-      Memory Usage
+      Використання пам'яті
     </h3>
 
     <div>
@@ -155,7 +157,7 @@
 
   <div class="bg-white p-6 rounded-lg shadow-md">
     <h3 class="text-lg font-semibold sm:text-start text-center pb-5">
-      CPU Usage
+      Використання процесора
     </h3>
 
     <div>
@@ -169,7 +171,9 @@
       >
       </ngx-charts-gauge>
       } @else {
-      <div class="no-data">I Invalid CPU data: {{ data | json }}</div>
+      <div class="text-lg font-semibold sm:text-start text-center pb-5">
+        Недійсні дані процесора
+      </div>
       } }@else {
       <custom-loader [diameter]="40" />
       }
@@ -182,7 +186,7 @@
 <div class="flex justify-center items-center flex-col gap-4 py-5">
   <mat-icon>info</mat-icon>
   <p class="text-lg font-semibold text-black sm:text-start text-center">
-    No analytics data available
+    Аналітичні дані недоступні
   </p>
 </div>
 } }

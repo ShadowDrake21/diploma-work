@@ -5,7 +5,7 @@
     <mat-expansion-panel-header>
       <mat-panel-title
         class="text-xl font-semibold text-center flex justify-center"
-        >Filters</mat-panel-title
+        >Фільтри</mat-panel-title
       >
     </mat-expansion-panel-header>
     <div>
@@ -19,9 +19,9 @@
             <!-- Search Field -->
             <div class="flex md:flex-row flex-col gap-[10px]">
               <div class="flex flex-col gap-[10px] flex-1">
-                <h4 class="text-center font-medium">Search</h4>
+                <h4 class="text-center font-medium">Пошук</h4>
                 <mat-form-field>
-                  <mat-label>Search by title, description or author</mat-label>
+                  <mat-label>Пошук за назвою, описом або автором</mat-label>
                   <input matInput type="text" formControlName="searchQuery" />
                   @if (formControls['searchQuery'].value) {
                   <button
@@ -35,11 +35,10 @@
                 </mat-form-field>
               </div>
 
-              <!-- Project Type Filter -->
               <div class="flex flex-col gap-[10px] flex-1">
-                <h4 class="text-center font-medium">Project Type</h4>
+                <h4 class="text-center font-medium">Тип проєкту</h4>
                 <mat-form-field>
-                  <mat-label>Select project types</mat-label>
+                  <mat-label>Виберіть типи проектів</mat-label>
                   <mat-select formControlName="projectTypes" multiple>
                     @for (type of projectTypes; track type) {
                     <mat-option [value]="type">{{ type }}</mat-option>
@@ -49,11 +48,10 @@
               </div>
             </div>
             <div class="flex gap-[10px] md:flex-row flex-col">
-              <!-- Date Range Filter -->
               <div class="flex flex-col gap-[10px] flex-1">
-                <h4 class="text-center font-medium">Date Range</h4>
+                <h4 class="text-center font-medium">Діапазон дат</h4>
                 <mat-form-field>
-                  <mat-label>Enter a date range</mat-label>
+                  <mat-label>Введіть діапазон дат</mat-label>
                   <mat-date-range-input
                     [rangePicker]="picker"
                     formGroupName="dateRange"
@@ -61,12 +59,12 @@
                     <input
                       matStartDate
                       formControlName="start"
-                      placeholder="Start date"
+                      placeholder="Дата початку"
                     />
                     <input
                       matEndDate
                       formControlName="end"
-                      placeholder="End date"
+                      placeholder="Дата завершення"
                     />
                   </mat-date-range-input>
                   <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
@@ -80,9 +78,9 @@
 
               <!-- Tags Filter -->
               <div class="flex flex-col gap-[10px] flex-1">
-                <h4 class="text-center font-medium">Project tags</h4>
+                <h4 class="text-center font-medium">Теги проєкту</h4>
                 <mat-form-field>
-                  <mat-label>Select tags</mat-label>
+                  <mat-label>Вибрати теги</mat-label>
                   <mat-select formControlName="tags" multiple>
                     @for (tag of availableTags; track tag) {
                     <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
@@ -94,13 +92,13 @@
           </div>
 
           <div class="flex flex-col gap-[10px] flex-1 column">
-            <h4 class="text-center font-medium">Progress</h4>
+            <h4 class="text-center font-medium">Прогрес</h4>
             <div
               class="flex justify-center gap-[30px]"
               formGroupName="progressRange"
             >
               <mat-form-field class="md:w-auto w-full">
-                <mat-label>From:</mat-label>
+                <mat-label>З:</mat-label>
                 <input
                   matInput
                   type="number"
@@ -110,7 +108,7 @@
                 />
               </mat-form-field>
               <mat-form-field class="md:w-auto w-full">
-                <mat-label>To:</mat-label>
+                <mat-label>До:</mat-label>
                 <input matInput type="number" formControlName="max" min="0" />
               </mat-form-field>
             </div>
@@ -120,19 +118,18 @@
         <mat-expansion-panel class="mb-[25px]">
           <mat-expansion-panel-header>
             <mat-panel-title class="text-center flex justify-center"
-              >Advanced Filters</mat-panel-title
+              >Розширені фільтри</mat-panel-title
             >
           </mat-expansion-panel-header>
 
           <div class="flex justify-between lg:flex-row flex-col gap-5">
-            <!-- Publication Filters -->
             <div class="flex-1" formGroupName="publication">
               <h4 class="text-center font-medium pb-[10px]">
-                Publication Filters
+                Фільтри публікацій
               </h4>
               <div class="filter-row flex flex-col">
                 <mat-form-field>
-                  <mat-label>Publication Source</mat-label>
+                  <mat-label>Джерело публікації</mat-label>
                   <input matInput formControlName="source" />
                 </mat-form-field>
 
@@ -143,40 +140,40 @@
               </div>
             </div>
 
-            <!-- Research Filters -->
             <div class="flex-1" formGroupName="research">
               <h4 class="text-center font-medium pb-[10px]">
-                Research Filters
+                Фільтри дослідження
               </h4>
               <div class="filter-row flex flex-col">
                 <mat-form-field>
-                  <mat-label>Min Budget</mat-label>
+                  <mat-label>Мін бюджет</mat-label>
                   <input matInput type="number" formControlName="minBudget" />
                 </mat-form-field>
 
                 <mat-form-field>
-                  <mat-label>Max Budget</mat-label>
+                  <mat-label>Макс бюджет</mat-label>
                   <input matInput type="number" formControlName="maxBudget" />
                 </mat-form-field>
 
                 <mat-form-field>
-                  <mat-label>Funding Source</mat-label>
+                  <mat-label>Джерело фінансування</mat-label>
                   <input matInput formControlName="fundingSource" />
                 </mat-form-field>
               </div>
             </div>
 
-            <!-- Patent Filters -->
             <div class="filter-section flex-1" formGroupName="patent">
-              <h4 class="text-center font-medium pb-[10px]">Patent Filters</h4>
+              <h4 class="text-center font-medium pb-[10px]">
+                Фільтри патентів
+              </h4>
               <div class="flex flex-col">
                 <mat-form-field>
-                  <mat-label>Registration Number</mat-label>
+                  <mat-label>Реєстраційний номер</mat-label>
                   <input matInput formControlName="registrationNumber" />
                 </mat-form-field>
 
                 <mat-form-field>
-                  <mat-label>Issuing Authority</mat-label>
+                  <mat-label>Орган видачі</mat-label>
                   <input matInput formControlName="issuingAuthority" />
                 </mat-form-field>
               </div>
@@ -184,10 +181,9 @@
           </div>
         </mat-expansion-panel>
 
-        <!-- Action Buttons -->
         <div class="w-full flex flex-col gap-[15px]">
           <button class="w-full" mat-flat-button color="primary" type="submit">
-            Apply Filters
+            Застосувати фільтри
           </button>
           <button
             class="w-full"
@@ -195,7 +191,7 @@
             type="button"
             (click)="resetFilters()"
           >
-            Reset
+            Скинути фільтри
           </button>
         </div>
       </form>

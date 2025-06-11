@@ -19,7 +19,6 @@ import {
   SignUpForm,
 } from '@shared/types/forms/auth-form.types';
 import { UserRole } from '@shared/enums/user.enum';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
 
@@ -130,7 +129,7 @@ export class SignUpComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notificationService.showSuccess(
-            'Registration successful! Please check your email for verification.'
+            'Реєстрація успішна! Будь ласка, перевірте свою електронну пошту для підтвердження.'
           );
           this.router.navigate(['/authentication/verification-code'], {
             queryParams: { email },
@@ -154,7 +153,7 @@ export class SignUpComponent implements OnInit {
             const errorMessage =
               error.error?.message ||
               error.message ||
-              'An error occurred during registration. Please try again.';
+              'Під час реєстрації сталася помилка. Спробуйте ще раз.';
             this.serverError.set(errorMessage);
             this.notificationService.showError(errorMessage);
           }

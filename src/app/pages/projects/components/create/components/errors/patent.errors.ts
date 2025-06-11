@@ -1,17 +1,17 @@
 export const PATENT_FORM_ERRORS = {
   primaryAuthor: {
-    required: 'Primary author is required',
+    required: 'Потрібно вказати основного автора',
   },
   coInventors: {
-    required: 'At least one co-inventor is required',
+    required: 'Потрібен принаймні один співвинахідник',
   },
   registrationNumber: {
-    required: 'Patent registration number is required',
+    required: 'Потрібно вказати номер реєстрації патенту',
   },
   registrationDate: {
-    required: 'Date of registration is required',
+    required: 'Дата реєстрації обовʼязкова',
   },
   issuingAuthority: {
-    required: 'Issuing authority is required',
+    required: 'Потрібен орган, який видав документ',
   },
 } as const;

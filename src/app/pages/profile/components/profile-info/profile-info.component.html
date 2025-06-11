@@ -1,7 +1,9 @@
-<div class="profile__container">
+<div class="relative">
   <div class="flex items-center gap-[30px]">
     @if (isProfileLoading()) {
-    <div class="profile-loading">
+    <div
+      class="absolute top-0 bottom-0 left-0 right-0 flex flex-col items-center justify-center"
+    >
       <custom-loader [diameter]="50" />
     </div>
     } @else if (error()) {
@@ -12,7 +14,7 @@
       </p>
       <button mat-raised-button color="primary" (click)="retryLoadUser()">
         <mat-icon>refresh</mat-icon>
-        Try Again
+        Спробуйте ще раз
       </button>
     </div>
     } @else if (user()) {

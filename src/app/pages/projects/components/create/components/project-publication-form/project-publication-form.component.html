@@ -2,7 +2,7 @@
 
 <form [formGroup]="publicationsForm()" class="project-publication__form">
   <mat-form-field>
-    <mat-label>Authors</mat-label>
+    <mat-label>Автори</mat-label>
     <mat-select
       formControlName="authors"
       multiple
@@ -19,8 +19,6 @@
         </span>
         }
       </mat-select-trigger>
-      <!-- todo -->
-      <input placeholder="Jake Smith" />
       @for (author of allUsers; track author) {
       <mat-option [value]="author.id">{{ author.username }}</mat-option>
       }
@@ -31,7 +29,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Publication date</mat-label>
+    <mat-label>Дата публікації</mat-label>
     <input
       matInput
       [matDatepicker]="picker"
@@ -49,10 +47,10 @@
     />
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Publication source</mat-label>
+    <mat-label>Джерело публікації</mat-label>
     <input
       type="text"
-      placeholder="Publication source"
+      placeholder="Джерело публікації"
       matInput
       formControlName="publicationSource"
     />
@@ -75,7 +73,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Start pages</mat-label>
+    <mat-label>Початкові сторінки</mat-label>
     <input
       type="number"
       placeholder="10"
@@ -91,7 +89,7 @@
     />
   </mat-form-field>
   <mat-form-field>
-    <mat-label>End pages</mat-label>
+    <mat-label>Кінцеві сторінки</mat-label>
     <input type="number" placeholder="20" matInput formControlName="endPage" />
     <shared-form-error
       [control]="publicationsForm().controls.endPage"
@@ -102,7 +100,7 @@
     />
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Journal volume</mat-label>
+    <mat-label>Обсяг журналу</mat-label>
     <input
       type="number"
       placeholder="1"
@@ -115,7 +113,7 @@
     }
   </mat-form-field>
   <mat-form-field>
-    <mat-label>Issue Number</mat-label>
+    <mat-label>Номер випуску</mat-label>
     <input
       type="number"
       placeholder="1"
@@ -128,9 +126,9 @@
     }
   </mat-form-field>
   <div>
-    <button mat-button matStepperPrevious>Back</button>
+    <button mat-button matStepperPrevious>Назад</button>
     <button mat-button matStepperNext [disabled]="publicationsForm().invalid">
-      Next
+      Далі
     </button>
   </div>
 </form>
