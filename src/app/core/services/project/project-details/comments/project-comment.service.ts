@@ -23,11 +23,9 @@ export class ProjectCommentService {
   private readonly notificationService = inject(NotificationService);
   private readonly destroyed$ = new Subject<void>();
 
-  // State
   private _comments = new BehaviorSubject<IComment[]>([]);
   private _loading = new BehaviorSubject<boolean>(false);
 
-  // Public API
   comments$ = this._comments.asObservable();
   loading = this._loading.asObservable();
 
@@ -49,7 +47,9 @@ export class ProjectCommentService {
           },
           error: (error) => {
             this._loading.next(false);
-            this.notificationService.showError('Failed to load comments');
+            this.notificationService.showError(
+              'Не вдалося завантажити коментарі'
+            );
             console.error('Error fetching comments:', error);
           },
         }),
@@ -62,18 +62,22 @@ export class ProjectCommentService {
   postComment(comment: ICreateComment): Observable<IComment> {
     const currentUser = currentUserSig();
     if (!currentUser) {
-      this.notificationService.showError('Please sign in to comment');
-      return throwError(() => new Error('User not authenticated'));
+      this.notificationService.showError(
+        'Будь ласка, увійдіть, щоб залишити коментар'
+      );
+      return throwError(() => new Error('Користувач не автентифіковано'));
     }
 
     return this.commentService.createComment(comment).pipe(
       tap({
         next: () => {
           this.refreshComments(comment.projectId);
-          this.notificationService.showSuccess('Comment posted successfully');
+          this.notificationService.showSuccess('Коментар успішно опубліковано');
         },
         error: (error) => {
-          this.notificationService.showError('Failed to post comment');
+          this.notificationService.showError(
+            'Не вдалося опублікувати коментар'
+          );
           console.error('Error posting comment:', error);
         },
       }),
@@ -94,10 +98,10 @@ export class ProjectCommentService {
       tap({
         next: () => {
           this.refreshComments(this.currentProjectId!);
-          this.notificationService.showSuccess('Comment updated successfully');
+          this.notificationService.showSuccess('Коментар успішно оновлено');
         },
         error: (error) => {
-          this.notificationService.showError('Failed to update comment');
+          this.notificationService.showError('Не вдалося оновити коментар');
           console.error('Error updating comment:', error);
         },
       }),
@@ -110,10 +114,10 @@ export class ProjectCommentService {
       tap({
         next: () => {
           this.refreshComments(this.currentProjectId!);
-          this.notificationService.showSuccess('Comment deleted successfully');
+          this.notificationService.showSuccess('Коментар успішно видалено');
         },
         error: (error) => {
-          this.notificationService.showError('Failed to delete comment');
+          this.notificationService.showError('Не вдалося видалити коментар');
           console.error('Error deleting comment:', error);
         },
       }),
@@ -150,7 +154,7 @@ export class ProjectCommentService {
         error: (err) => {
           this.updateCommentLikeState(commentId, !like);
           this.notificationService.showError(
-            like ? 'Failed to like comment' : 'Failed to unlike comment'
+            like ? 'Не вдалося поставити "лайк"' : 'Не вдалося прибрати "лайк"'
           );
           console.error('Error toggling comment like:', err);
         },

@@ -263,7 +263,7 @@ export class AuthService {
     if (error instanceof HttpErrorResponse) {
       if (error.status === HttpStatusCode.TooManyRequests) {
         const retryAfter = error.headers.get('Retry-After') || '60';
-        const message = `Too many requests. Please try again after ${retryAfter} seconds.`;
+        const message = `Забагато запитів. Будь ласка, спробуйте ще раз через ${retryAfter} секунд.`;
         return throwError(() =>
           this.createApplicationError(message, 'RATE_LIMIT_EXCEEDED')
         );
@@ -285,7 +285,7 @@ export class AuthService {
     console.log('Unexpected error:', error);
     return throwError(() =>
       this.createApplicationError(
-        error.message || 'An unexpected error occurred',
+        error.message || 'Сталася неочікувана помилка',
         error.errorCode || 'SERVER_ERROR'
       )
     );
@@ -334,7 +334,7 @@ export class AuthService {
       storage.setItem('authToken', response.authToken);
 
       const decoded = this.decodeToken(response.authToken);
-      if (!decoded) throw new Error('Invalid token');
+      if (!decoded) throw new Error('Недійсний токен');
 
       this.currentUserSubject.next(decoded);
       this.updateAdminState(decoded);

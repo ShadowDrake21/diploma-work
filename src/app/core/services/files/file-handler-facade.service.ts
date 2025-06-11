@@ -41,7 +41,7 @@ export class FileHandlerFacadeService {
         this.pendingFiles.update((current) => [...current, ...uniqueNewFiles]);
       }
     } catch (error) {
-      this.handleError('Failed to process selected files', error as Error);
+      this.handleError('Не вдалося обробити вибрані файли', error as Error);
     }
   }
 
@@ -53,15 +53,17 @@ export class FileHandlerFacadeService {
     const filesToUpload = this.pendingFiles();
 
     if (!filesToUpload.length) {
-      this.notificationService.showWarning('No files selected for upload');
+      this.notificationService.showWarning(
+        'Не вибрано файлів для завантаження'
+      );
       return of({ files: [], progress: 0 });
     }
 
     if (!entityType || !entityId) {
       const error = new Error(
-        'Cannot upload files - missing required parameters'
+        'Не вдається завантажити файли – відсутні обов’язкові параметри'
       );
-      this.handleError('Invalid upload parameters', error);
+      this.handleError('Недійсні параметри завантаження', error);
       return throwError(() => error);
     }
 
@@ -73,7 +75,8 @@ export class FileHandlerFacadeService {
       .pipe(
         tap({
           next: ({ progress }) => this.uploadProgress.set(progress),
-          error: (error) => this.handleError('File upload failed', error),
+          error: (error) =>
+            this.handleError('Не вдалося завантажити файл', error),
         }),
         catchError((error) => {
           return throwError(() => error);
@@ -94,11 +97,11 @@ export class FileHandlerFacadeService {
         );
         this.uploadedFiles.update((current) => [...current, ...files]);
         this.notificationService.showSuccess(
-          `${files.length} file(s) uploaded successfully`
+          `${files.length} файл(и) успішно завантажено`
         );
       }
     } catch (error) {
-      this.handleError('Failed to process uploaded files', error as Error);
+      this.handleError('Не вдалося обробити завантажені файли', error as Error);
     }
   }
 
@@ -112,15 +115,18 @@ export class FileHandlerFacadeService {
         );
         return of(undefined);
       } catch (error) {
-        this.handleError('Failed to remove pending file', error as Error);
+        this.handleError(
+          'Не вдалося видалити файл, що очікує на розгляд',
+          error as Error
+        );
         return throwError(() => error);
       }
     } else {
       const file = this.uploadedFiles()[index];
 
       if (!file) {
-        const error = new Error('File is not found');
-        this.handleError('File not found', error);
+        const error = new Error('Файл не знайдено');
+        this.handleError('Файл не знайдено', error);
         return throwError(() => error);
       }
 
@@ -130,9 +136,9 @@ export class FileHandlerFacadeService {
             this.uploadedFiles.update((files) =>
               files.filter((_, i) => i !== index)
             );
-            this.notificationService.showSuccess('File deleted successfully');
+            this.notificationService.showSuccess('Файл успішно видалено');
           },
-          error: (error) => this.handleError('Failed to delete file', error),
+          error: (error) => this.handleError('Не вдалося видалити файл', error),
         }),
         map(() => undefined),
         catchError((error) => throwError(() => error))

@@ -38,13 +38,13 @@ export class DashboardService {
   private getErrorMessage(error: HttpErrorResponse): string {
     switch (error.status) {
       case 0:
-        return 'Network error: Unable to connect to dashboard service';
+        return 'Помилка мережі: Не вдалося підключитися до служби інформаційної панелі';
       case 403:
-        return 'You do not have permission to view dashboard metrics';
+        return 'У вас немає дозволу на перегляд показників інформаційної панелі';
       case 500:
-        return 'Server error: Failed to load dashboard metrics';
+        return 'Помилка сервера: Не вдалося завантажити показники інформаційної панелі';
       default:
-        return 'Failed to load dashboard metrics';
+        return 'Не вдалося завантажити показники інформаційної панелі';
     }
   }
 }

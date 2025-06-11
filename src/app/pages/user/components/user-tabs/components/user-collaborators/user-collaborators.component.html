@@ -1,6 +1,4 @@
-<h4 class="py-5 text-xl font-medium sm:text-start text-center">
-  Collaborators
-</h4>
+<h4 class="py-5 text-xl font-medium sm:text-start text-center">Співавтори</h4>
 @if (error()) {
 <div class="text-lg font-semibold text-red-500 sm:text-start text-center">
   {{ error() }}
@@ -19,7 +17,7 @@
 </ul>
 } @else {
 <div class="text-lg font-semibold sm:text-start text-center">
-  No collaborators found.
+  Співавторів не знайдено.
 </div>
 } @if (collaborators().length > 0) {
 <mat-paginator
