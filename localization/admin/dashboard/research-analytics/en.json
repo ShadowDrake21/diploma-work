@@ -1,0 +1,68 @@
+{
+  "code": {
+    "loadAllMetrics": {
+      "getResearchFunding": {
+        "error": "Failed to load research funding data"
+      },
+      "getPublicationMetrics": {
+        "error": "Failed to load publication metrics"
+      },
+      "getPatentMetrics": {
+        "error": "Failed to load patent metrics"
+      },
+      "refreshData": {
+        "info": "Refreshing all analytics data...",
+        "success": "All analytics updated",
+        "error": "Failed to refresh some analytics"
+      },
+      "refreshResearchFunding": {
+        "info": "Refreshing research funding metrics...",
+        "success": "Research funding metrics updated",
+        "error": "Failed to refresh research funding metrics"
+      },
+      "refreshPublicationMetrics": {
+        "info": "Refreshing publication metrics...",
+        "success": "Publication metrics updated",
+        "error": "Failed to refresh publication metrics"
+      },
+      "refreshPatentMetrics": {
+        "info": "Refreshing patent metrics...",
+        "success": "Patent metrics updated",
+        "error": "Failed to refresh patent metrics"
+      }
+    }
+  },
+  "html": {
+    "error": {
+      "title": "Failed to load analytics",
+      "refresh": "Retry"
+    },
+    "research_funding": {
+      "title": "Research Funding",
+      "metrics": {
+        "totalBudget": "Total Budget",
+        "averageBudget": "Average Budget",
+        "activeProjects": "Active Projects",
+        "topFundingSource": "Top Funding Source"
+      }
+    },
+    "publication_metrics": {
+      "title": "Publication Metrics",
+      "metrics": {
+        "totalPublications": "Total Publications",
+        "averagePages": "Average Pages",
+        "publicationsThisYear": "This Year",
+        "mostCommonSource": "Top Source"
+      }
+    },
+    "patent_metrics": {
+      "title": "Patent Metrics",
+      "metrics": {
+        "totalPatents": "Total Patents",
+        "averageInventors": "Average Inventors",
+        "patentsThisYear": "This Year",
+        "mostCommonAuthority": "Top Authority"
+      }
+    }
+  }
+}
