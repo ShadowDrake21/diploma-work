@@ -73,11 +73,12 @@
     </h3>
     @if(errorMessage()) {
     <p class="text-red-500 font-bold mb-4">{{ errorMessage() }}</p>
-    } @if (attachments()) { @for (attachment of attachments(); track
-    attachment.id) {
+    } @if (attachments()) {
     <ul
       class="list-none flex gap-[15px] flex-wrap sm:justify-start justify-center"
     >
+      @for (attachment of attachments(); track attachment.id) {
+
       <li>
         <h5 class="text-center pb-[5px]">
           {{ attachment.fileName | truncateText : 20 }}
@@ -86,12 +87,14 @@
           Download PDF <mat-icon>picture_as_pdf</mat-icon>
         </a>
       </li>
+
+      }@empty {
+      <p class="text-lg font-semibold sm:text-start text-center pb-5">
+        No attachments found.
+      </p>
+      }
     </ul>
-    }@empty {
-    <p class="text-lg font-semibold sm:text-start text-center pb-5">
-      No attachments found.
-    </p>
-    } } @else {
+    } @else {
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
   </div>

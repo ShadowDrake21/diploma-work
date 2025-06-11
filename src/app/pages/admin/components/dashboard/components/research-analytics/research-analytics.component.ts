@@ -24,7 +24,6 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule,
   ],
   templateUrl: './research-analytics.component.html',
-  styleUrl: './research-analytics.component.scss',
 })
 export class ResearchAnalyticsComponent implements OnInit, OnDestroy {
   private readonly analyticsService = inject(AnalyticsService);

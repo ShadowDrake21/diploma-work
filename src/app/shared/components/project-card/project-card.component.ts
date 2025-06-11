@@ -8,7 +8,6 @@ import { ProjectDTO } from '@models/project.model';
   selector: 'shared-project-card',
   imports: [MatProgressBarModule, CommonModule, RouterLink, TitleCasePipe],
   templateUrl: './project-card.component.html',
-  styleUrl: './project-card.component.scss',
 })
 export class ProjectCardComponent {
   project = input.required<ProjectDTO>();

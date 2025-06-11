@@ -4,17 +4,23 @@
     @if (isLoading()) {
     <custom-loader />
     } @else if(hasError()){
-    <div class="error-state">
-      <mat-icon>error_outline</mat-icon>
-      <p>{{ errorMessage() }}</p>
+    <div class="flex flex-col items-center gap-[10px] justify-center px-2">
+      <mat-icon class="text-red-500 text-center">error_outline</mat-icon>
+      <p class="sm:text-lg text-base font-medium text-center">
+        {{ errorMessage() }}
+      </p>
       <button mat-raised-button color="primary" (click)="retryLoading()">
         Retry
       </button>
     </div>
     } @else if (projects().length === 0) {
-    <div class="empty-state">
+    <div
+      class="flex flex-col items-center sm:justify-start justify-center gap-3"
+    >
       <mat-icon>info</mat-icon>
-      <p>Не знайдено жодних останніх проектів</p>
+      <p class="text-lg sm:text-start text-center font-medium">
+        Не знайдено жодних останніх проектів
+      </p>
     </div>
     } @else {
     <ul class="flex flex-wrap h-full gap-[30px]">
