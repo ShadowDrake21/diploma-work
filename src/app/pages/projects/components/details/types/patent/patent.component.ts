@@ -33,7 +33,7 @@ export class PatentComponent implements OnInit, OnDestroy {
   private readonly notificationService = inject(NotificationService);
   @Input({ required: true })
   id!: string;
-  // Signals for state management
+
   loading = signal(true);
   error = false;
   patent = signal<PatentDTO | null>(null);
@@ -60,7 +60,9 @@ export class PatentComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error fetching patent:', error);
-            this.notificationService.showError('Failed to load patent details');
+            this.notificationService.showError(
+              'Не вдалося завантажити інформацію про патент'
+            );
             this.error = true;
             this.loading.set(false);
           },
@@ -89,7 +91,7 @@ export class PatentComponent implements OnInit, OnDestroy {
           catchError((error) => {
             console.error(`Error fetching co-inventor ${id}:`, error);
             this.notificationService.showError(
-              `Failed to load co-inventor ${id}`
+              `Не вдалося завантажити співвинахідника ${id}`
             );
             return of(null);
           })
@@ -106,7 +108,9 @@ export class PatentComponent implements OnInit, OnDestroy {
         tap({
           next: (coInventors) => this.coInventors.set(coInventors),
           error: () => {
-            this.notificationService.showError('Failed to load co-inventors');
+            this.notificationService.showError(
+              'Не вдалося завантажити співвинахідників'
+            );
             this.coInventors.set([]);
           },
         })

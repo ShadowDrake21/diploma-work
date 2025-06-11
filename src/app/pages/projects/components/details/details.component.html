@@ -1,5 +1,4 @@
 @if (projectLoading()) {
-<!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
 <div class="h-screen flex items-center justify-center">
   <custom-loader />
 </div>
@@ -10,7 +9,7 @@
   >
     <div class="w-full">
       <h4 class="pb-[10px] lg:text-xl text-lg">
-        <span class="font-medium">Status:</span>
+        <span class="font-medium">Статус:</span>
         {{ getStatusOnProgess(project()!.progress) }} or
         {{ project()!.progress }}%
       </h4>
@@ -22,16 +21,16 @@
     <div class="flex-shrink-0 flex gap-[10px] justify-center">
       @if(isCurrentUserOwner()) {
       <button mat-flat-button (click)="onEdit()">
-        Edit <mat-icon>edit_note</mat-icon>
+        Редагувати <mat-icon>edit_note</mat-icon>
       </button>
       <button mat-flat-button (click)="onDelete()" [disabled]="deleteLoading()">
         @if (!deleteLoading()) {
         <ng-container
           ><div class="flex items-center justify-center gap-[5px]">
-            <mat-icon>delete</mat-icon> Delete
+            <mat-icon>delete</mat-icon> Видалити
           </div></ng-container
         >
-        } @else { Deleting... }
+        } @else { Видалення... }
       </button>
       }
     </div>
@@ -39,14 +38,14 @@
   <div class="pb-[25px] sm:text-start text-center">
     <h3 class="pb-[10px] lg:text-xl text-lg font-semibold">Basic</h3>
     <p class="pb-[5px]">
-      <span class="font-semibold">Title:</span> {{ project()!.title }}
+      <span class="font-semibold">Назва:</span> {{ project()!.title }}
     </p>
     <p class="pb-[5px]">
-      <span class="font-semibold">Description:</span>
+      <span class="font-semibold">Опис:</span>
       {{ project()!.description }}
     </p>
     <p class="pb-[5px]">
-      <span class="font-semibold">Last updated:</span>
+      <span class="font-semibold">Останнє оновлення:</span>
       {{ project()!.updatedAt | date : "medium" }}
     </p>
   </div>
@@ -61,7 +60,7 @@
     } @case('RESEARCH') { <details-research-project [id]="project()!.id" /> }
     @default {
     <p class="text-lg font-semibold sm:text-left text-center">
-      Unknown work type
+      Невідомий тип роботи
     </p>
     } }
   </div>
@@ -69,7 +68,7 @@
     <h3
       class="lg:text-xl text-lg font-semibold pb-[10px] sm:text-start text-center"
     >
-      Attachments Section
+      Розділ вкладених файлів
     </h3>
     @if(errorMessage()) {
     <p class="text-red-500 font-bold mb-4">{{ errorMessage() }}</p>
@@ -84,13 +83,13 @@
           {{ attachment.fileName | truncateText : 20 }}
         </h5>
         <a mat-flat-button [href]="attachment.fileUrl" target="_blank" download>
-          Download PDF <mat-icon>picture_as_pdf</mat-icon>
+          Завантажити PDF <mat-icon>picture_as_pdf</mat-icon>
         </a>
       </li>
 
       }@empty {
       <p class="text-lg font-semibold sm:text-start text-center pb-5">
-        No attachments found.
+        Додатки не знайдені.
       </p>
       }
     </ul>
@@ -103,7 +102,7 @@
     <h3
       class="pb-[10px] lg:text-xl text-lg font-semibold sm:text-start text-center"
     >
-      Project tags:
+      Теги проекту:
     </h3>
     <ul
       class="list-none flex gap-[15px] flex-wrap sm:justify-start justify-center"
@@ -126,13 +125,13 @@
 >
   <mat-icon class="text-red-500 text-center">error_outline</mat-icon>
   <h3 class="sm:text-xl text-lg text-red-600 font-semibold text-center">
-    Project not available
+    Проєкт недоступний
   </h3>
   <p class="sm:text-lg text-base font-medium text-center">
-    The requested project could not be loaded or doesn't exist.
+    Запитаний проект не вдалося завантажити або він не існує.
   </p>
   <button mat-flat-button color="primary" (click)="goBack()">
-    Back to Projects List
+    Назад до списку проектів
   </button>
 </div>
 }

@@ -26,7 +26,7 @@ import {
   tap,
 } from 'rxjs';
 import { NotificationService } from '@core/services/notification.service';
-import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -114,15 +114,15 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
       map((response) => {
         console.log('Projects loaded:', response);
         if (!response.data) {
-          throw new Error('No project data received');
+          throw new Error('Дані про проект не отримано');
         }
         this.projects.set(response.data);
         this.totalItems.set(response.totalItems);
       }),
       catchError((error) => {
         const errorMessage = this.isMineMode()
-          ? 'Failed to load your projects'
-          : 'Failed to load projects';
+          ? 'Не вдалося завантажити ваші проекти'
+          : 'Не вдалося завантажити проекти';
         this.notificationService.showError(errorMessage);
         console.error('Project loading error:', error);
         return of();

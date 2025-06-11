@@ -1,8 +1,8 @@
 export const GENERAL_INFORMATION_FORM_ERRORS = {
   title: {
-    required: 'Title is required',
+    required: 'Назва обовʼязкова',
   },
   description: {
-    required: 'Description is required',
+    required: 'Опис обовʼязковий',
   },
 };
