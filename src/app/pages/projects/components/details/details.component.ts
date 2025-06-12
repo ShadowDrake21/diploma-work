@@ -26,6 +26,7 @@ import { ProjectAttachmentService } from '@core/services/project/project-details
 import { ProjectTagService } from '@core/services/project/project-details/tags/project-tag.service';
 import { NotificationService } from '@core/services/notification.service';
 import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
+import { LocalProjectTypePipe } from '@pipes/local-project-type.pipe';
 
 @Component({
   selector: 'project-details',
@@ -44,6 +45,7 @@ import { LoaderComponent } from '../../../../shared/components/loader/loader.com
     MatProgressBarModule,
     ProjectCommentsComponent,
     LoaderComponent,
+    LocalProjectTypePipe,
   ],
   templateUrl: './details.component.html',
 })

@@ -1,6 +1,6 @@
 <div>
   <h4 class="py-5 text-xl font-medium sm:text-start text-center">
-    Мої {{ type().toLowerCase() }}
+    Мої {{ viewText().toLowerCase() }}
   </h4>
   @if(projects().length > 0) {
   <div class="flex flex-col gap-5 pb-5">
@@ -28,9 +28,7 @@
   </div>
   } @else {
   <div>
-    <p class="text-lg font-semibold sm:text-start text-center">
-      Жодних {{ type().toLowerCase() }} знайдено.
-    </p>
+    <p class="text-lg font-semibold sm:text-start text-center">Не знайдено.</p>
     @if(isFiltered()) {
     <button mat-button (click)="onFiltersReset()">Скинути фільтрацію</button>
     }

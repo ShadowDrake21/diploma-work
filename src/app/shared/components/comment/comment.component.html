@@ -20,11 +20,9 @@
     } @else {
     <textarea
       [(ngModel)]="editedContent"
-      class="comment-edit-textarea"
-    ></textarea>
-    <div
       class="w-full min-h-[80px] p-2 border border-solid border-gray-300 rounded mb-2 resize-none"
-    >
+    ></textarea>
+    <div>
       <button (click)="onCancel()" mat-raised-button>
         <mat-icon>cancel</mat-icon> Скасувати
       </button>

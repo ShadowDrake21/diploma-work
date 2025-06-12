@@ -37,7 +37,7 @@ export class RecentProjectsComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.hasError.set(false);
     return this.projectService
-      .getNewestProjects(7)
+      .getNewestProjects(6)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (projects) => {

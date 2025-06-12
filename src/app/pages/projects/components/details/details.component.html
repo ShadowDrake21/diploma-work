@@ -10,7 +10,7 @@
     <div class="w-full">
       <h4 class="pb-[10px] lg:text-xl text-lg">
         <span class="font-medium">Статус:</span>
-        {{ getStatusOnProgess(project()!.progress) }} or
+        {{ getStatusOnProgess(project()!.progress) }} або
         {{ project()!.progress }}%
       </h4>
       <mat-progress-bar
@@ -36,7 +36,9 @@
     </div>
   </div>
   <div class="pb-[25px] sm:text-start text-center">
-    <h3 class="pb-[10px] lg:text-xl text-lg font-semibold">Basic</h3>
+    <h3 class="pb-[10px] lg:text-xl text-lg font-semibold">
+      Основна інформація
+    </h3>
     <p class="pb-[5px]">
       <span class="font-semibold">Назва:</span> {{ project()!.title }}
     </p>
@@ -51,7 +53,7 @@
   </div>
   <div class="pb-[25px]">
     <h3 class="text-xl font-semibold pb-[10px] sm:text-start text-center">
-      {{ project()!.type | titlecase }}
+      {{ project()!.type | localProjectType }}
     </h3>
     @switch (project()!.type) { @case('PUBLICATION') {
     <details-publication [id]="project()!.id" />
@@ -68,7 +70,7 @@
     <h3
       class="lg:text-xl text-lg font-semibold pb-[10px] sm:text-start text-center"
     >
-      Розділ вкладених файлів
+      Вкладені файли
     </h3>
     @if(errorMessage()) {
     <p class="text-red-500 font-bold mb-4">{{ errorMessage() }}</p>

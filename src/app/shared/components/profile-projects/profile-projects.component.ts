@@ -5,6 +5,7 @@ import { ProjectDTO } from '@models/project.model';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { ProjectSearchFilters } from '@shared/types/search.types';
 import { MatButton } from '@angular/material/button';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'shared-profile-projects',
@@ -13,6 +14,7 @@ import { MatButton } from '@angular/material/button';
     FilterPanelComponent,
     ProjectCardComponent,
     MatButton,
+    TitleCasePipe,
   ],
   templateUrl: './profile-projects.component.html',
 })
@@ -23,6 +25,7 @@ export class ProfileProjectsComponent {
   totalItems = input(0);
   isFiltered = input(true);
   type = input<string>('projects');
+  viewText = input<string>('проекти');
 
   filters = output<ProjectSearchFilters>();
   pageChange = output<PageEvent>();

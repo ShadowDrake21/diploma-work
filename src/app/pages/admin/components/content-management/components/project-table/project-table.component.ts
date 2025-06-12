@@ -98,7 +98,7 @@ export class ProjectTableComponent implements OnInit {
           });
         },
         error: (error) => {
-          this.notificationService.showError('Failed to load projects');
+          this.notificationService.showError('Не вдалося завантажити проекти');
           console.error('Error loading projects:', error);
           this.projects.set([]);
         },
@@ -162,13 +162,11 @@ export class ProjectTableComponent implements OnInit {
           )
           .subscribe({
             next: () => {
-              this.notificationService.showSuccess(
-                'Project updated successfully'
-              );
+              this.notificationService.showSuccess('Проєкт успішно оновлено');
               this.loadProjects();
             },
             error: (error) => {
-              this.notificationService.showError('Failed to update project');
+              this.notificationService.showError('Не вдалося оновити проєкт');
               console.error('Error updating project:', error);
               this.isLoading.set(false);
             },
@@ -191,16 +189,14 @@ export class ProjectTableComponent implements OnInit {
         this.isLoading.set(true);
         this.projectService.deleteProject(id).subscribe({
           next: () => {
-            this.notificationService.showSuccess(
-              'Project deleted successfully'
-            );
+            this.notificationService.showSuccess('Проєкт успішно видалено');
             this.loadProjects();
           },
           error: (error) => {
             const errorMessage =
               error.status === 403
-                ? 'You do not have permission to delete this project'
-                : 'Failed to delete project';
+                ? 'У вас немає дозволу на видалення цього проєкту'
+                : 'Не вдалося видалити проєкт';
             this.notificationService.showError(errorMessage);
             console.error('Error deleting project:', error);
             this.isLoading.set(false);
