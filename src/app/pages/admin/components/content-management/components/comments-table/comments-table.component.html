@@ -15,11 +15,8 @@
     </button>
   </div>
   } @else if (comments().length === 0 && !isLoading()) {
-
-  <div
-    class="text-lg font-semibold text-black sm:text-start text-center flex justify-center items-center absolute top-0 left-0 right-0 bottom-0"
-  >
-    Коментарів не знайдено
+  <div class="flex items-center justify-center py-10">
+    <p class="text-red-500 font-medium text-xl">No comments</p>
   </div>
   } @else {
   <table mat-table [dataSource]="comments()">

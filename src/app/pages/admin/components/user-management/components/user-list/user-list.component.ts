@@ -18,7 +18,7 @@ import { RecentUsersComponent } from './components/recent-users/recent-users.com
 import { SortingDirection } from '@shared/enums/sorting.enum';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
-import { Observable } from 'rxjs';
+import { catchError, finalize, Observable, throwError } from 'rxjs';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatCard, MatCardModule } from '@angular/material/card';
@@ -100,6 +100,7 @@ export class UserListComponent {
         this.sortField(),
         this.sortDirection()
       )
+      .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (response) => {
           if (response.success) {

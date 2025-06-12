@@ -14,7 +14,7 @@ import { ConfirmDialogComponent } from '@pages/admin/components/user-management/
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NotificationService } from '@core/services/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { retry } from 'rxjs';
+import { finalize, retry, tap } from 'rxjs';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
@@ -76,16 +76,17 @@ export class CommentsTableComponent implements OnInit {
 
     this.adminService
       .loadAllComments(this.currentPage(), this.pageSize())
-      .pipe(retry(2))
+      .pipe(
+        retry(2),
+        finalize(() => this.isLoading.set(false))
+      )
       .subscribe({
         next: (response) => {
           this.comments.set(response.data ?? []);
           this.totalItems.set(response.totalItems);
-          this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
           this.handleError(error, 'Failed to load comments');
-          this.isLoading.set(false);
         },
       });
   }

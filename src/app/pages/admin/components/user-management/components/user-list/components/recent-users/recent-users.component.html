@@ -10,13 +10,18 @@
       </mat-card-header>
       <mat-card-content>
         @if (error()) {
-        <div>
+        <div class="flex gap-3 items-center justify-center flex-col">
           <div
             class="sm:text-xl text-lg text-red-600 font-semibold text-center"
           >
             {{ error() }}
           </div>
-          <button mat-button color="primary" (click)="retryLoadData()">
+          <button
+            class="!text-red-500"
+            mat-button
+            color="primary"
+            (click)="retryLoadData()"
+          >
             Повторити спробу
           </button>
         </div>
@@ -40,16 +45,22 @@
       </mat-card-header>
       <mat-card-content>
         @if (error()) {
-        <div>
+        <div class="flex gap-3 items-center justify-center flex-col">
           <div
             class="sm:text-xl text-lg text-red-600 font-semibold text-center"
           >
             {{ error() }}
           </div>
+
+          <button
+            mat-button
+            color="primary"
+            class="!text-red-500"
+            (click)="retryLoadData()"
+          >
+            Повторити спробу
+          </button>
         </div>
-        <button mat-button color="primary" (click)="retryLoadData()">
-          Повторити спробу
-        </button>
         } @else if(recentLogins() === null) {
         <custom-loader [diameter]="30" />
         } @else {
