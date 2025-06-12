@@ -104,7 +104,7 @@ export class ProfileAvatarComponent implements OnDestroy {
         this.previewUrl.set(updatedUser.avatarUrl!);
 
         this.updateSuccess.emit(updatedUser);
-        this.notificationService.showSuccess('Avatar updated successfully');
+        this.notificationService.showSuccess('Аватар успішно оновлено');
 
         setTimeout(() => this.resetUploadState(), 500);
       },

@@ -125,7 +125,7 @@ export class ProjectEditModalComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading tags:', error);
-          this.notificationService.showError('Failed to load tags');
+          this.notificationService.showError('Не вдалося завантажити теги');
           this.errorState.update((state) => ({ ...state, tags: true }));
         },
       });
@@ -141,7 +141,9 @@ export class ProjectEditModalComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading attachments:', error);
-          this.notificationService.showError('Failed to load attachments');
+          this.notificationService.showError(
+            'Не вдалося завантажити вкладення'
+          );
           this.errorState.update((state) => ({ ...state, attachments: true }));
         },
       });
@@ -152,7 +154,7 @@ export class ProjectEditModalComponent implements OnInit {
       this.fileHandler.onFilesSelected(files);
     } catch (error) {
       console.error('Error selecting files:', error);
-      this.notificationService.showError('Failed to select files');
+      this.notificationService.showError('Не вдалося вибрати файли');
     }
   }
 
@@ -163,15 +165,15 @@ export class ProjectEditModalComponent implements OnInit {
       .subscribe({
         next: (result) => {
           this.fileHandler.handleUploadSuccess(result.files);
-          this.notificationService.showSuccess('Files uploaded successfully');
+          this.notificationService.showSuccess('Файли успішно завантажено');
         },
 
         error: (error) => {
           console.error('Upload failed:', error);
           this.notificationService.showError(
             error.status === 413
-              ? 'File size exceeds limit'
-              : 'Failed to upload files'
+              ? 'Розмір файлу перевищує ліміт'
+              : 'Не вдалося завантажити файли'
           );
         },
       });
@@ -183,17 +185,19 @@ export class ProjectEditModalComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () =>
-          this.notificationService.showSuccess('File removed successfully'),
+          this.notificationService.showSuccess('Файл успішно видалено'),
         error: (error) => {
           console.error('Error deleting file:', error);
-          this.notificationService.showError('Failed to remove file');
+          this.notificationService.showError('Не вдалося видалити файл');
         },
       });
   }
 
   onSubmit(): void {
     if (this.projectForm.invalid) {
-      this.notificationService.showError('Please fill all required fields');
+      this.notificationService.showError(
+        'Будь ласка, заповніть усі обовʼязкові поля'
+      );
       return;
     }
 
@@ -222,22 +226,20 @@ export class ProjectEditModalComponent implements OnInit {
         .subscribe({
           next: (result) => {
             this.fileHandler.handleUploadSuccess(result.files);
-            this.notificationService.showSuccess(
-              'Project uploaded successfully'
-            );
+            this.notificationService.showSuccess('Проєкт успішно завантажено');
           },
           error: (error) => {
             console.error('Upload failed:', error);
             this.notificationService.showError(
               error.status === 413
-                ? 'File size exceeds limit'
-                : 'Failed to upload files'
+                ? 'Розмір файлу перевищує ліміт'
+                : 'Не вдалося завантажити файли'
             );
             this.errorState.update((state) => ({ ...state, submit: true }));
           },
         });
     } else {
-      this.notificationService.showSuccess('Project updated successfully');
+      this.notificationService.showSuccess('Проєкт успішно оновлено');
       handleFinalize();
     }
   }

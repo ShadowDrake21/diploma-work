@@ -10,7 +10,7 @@ import { ProjectFormService } from '@core/services/project/project-form/project-
 import { ProjectTypeStepComponent } from '../project-type-step/project-type-step.component';
 import { ProjectGeneralInfoStepComponent } from '../project-general-info-step/project-general-info-step.component';
 import { ProjectWorkInfoStepComponent } from '../project-work-info-step/project-work-info-step.component';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, JsonPipe } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatProgressBar } from '@angular/material/progress-bar';
@@ -37,6 +37,7 @@ import { NotificationService } from '@core/services/notification.service';
     MatButton,
     MatProgressBar,
     WorkFormPipe,
+    JsonPipe,
   ],
   templateUrl: './project-stepper.component.html',
   styleUrl: './project-stepper.component.scss',
@@ -58,7 +59,7 @@ export class ProjectStepperComponent {
   loading = toSignal(this.formService.loading, { initialValue: false });
   isEditing = computed(() => this.formService.isEditing);
   subtext = computed(() =>
-    this.isEditing() ? 'Edit your project' : 'Create a new project'
+    this.isEditing() ? 'Відредагуйте свій проект' : 'Створити новий проект'
   );
   authors = this.formService.authors;
 
@@ -66,14 +67,16 @@ export class ProjectStepperComponent {
     if (this.loading()) return;
 
     if (!this.typeForm().valid && !this.typeForm().disabled) {
-      this.notificationService.showError('Please select a valid project type');
+      this.notificationService.showError(
+        'Будь ласка, виберіть дійсний тип проекту'
+      );
       return;
     }
 
     const workForm = this.getCurrentWorkForm();
     if (!workForm?.valid) {
       this.notificationService.showError(
-        'Please fill out all required work information'
+        'Будь ласка, заповніть усю необхідну інформацію про проект'
       );
       return;
     }
@@ -85,7 +88,7 @@ export class ProjectStepperComponent {
 
     if (!this.formService.creatorId) {
       this.notificationService.showError(
-        'Unable to identify user. Please try again later.'
+        'Не вдалося ідентифікувати користувача. Будь ласка, спробуйте пізніше.'
       );
       return;
     }
@@ -105,8 +108,8 @@ export class ProjectStepperComponent {
         next: (response) => {
           this.notificationService.showSuccess(
             this.isEditing()
-              ? 'Project updated successfully'
-              : 'Project created successfully'
+              ? 'Проєкт успішно оновлено'
+              : 'Проєкт успішно створено'
           );
           this.router.navigate(['/projects', response[0].projectId]);
         },
@@ -114,8 +117,8 @@ export class ProjectStepperComponent {
           const errorMessage =
             error.message ||
             (this.isEditing()
-              ? 'Failed to update project'
-              : 'Failed to create project');
+              ? 'Не вдалося оновити проєкт'
+              : 'Не вдалося створити проєкт');
           this.notificationService.showError(errorMessage);
         },
       });
@@ -130,7 +133,7 @@ export class ProjectStepperComponent {
         this.researchForm()
       );
     } catch (error) {
-      this.notificationService.showError('Invalid project type selected');
+      this.notificationService.showError('Вибрано недійсний тип проекту');
       return null;
     }
   }

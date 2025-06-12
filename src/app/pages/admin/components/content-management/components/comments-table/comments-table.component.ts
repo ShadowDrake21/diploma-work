@@ -86,7 +86,7 @@ export class CommentsTableComponent implements OnInit {
           this.totalItems.set(response.totalItems);
         },
         error: (error: HttpErrorResponse) => {
-          this.handleError(error, 'Failed to load comments');
+          this.handleError(error, 'Не вдалося завантажити коментарі');
         },
       });
   }
@@ -100,10 +100,10 @@ export class CommentsTableComponent implements OnInit {
   deleteComment(commentId: string) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Delete Comment',
-        message: 'Are you sure you want to delete this comment?',
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
+        title: 'Видалити коментар',
+        message: 'Ви впевнені, що хочете видалити цей коментар?',
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
       },
     });
 
@@ -120,18 +120,17 @@ export class CommentsTableComponent implements OnInit {
 
     this.adminService.deleteComment(commentId).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Comment deleted successfully');
+        this.notificationService.showSuccess('Коментар успішно видалено');
         this.loadComments();
       },
       error: (error: HttpErrorResponse) => {
-        this.handleError(error, 'Failed to delete comment');
+        this.handleError(error, 'Не вдалося видалити коментар');
         this.isLoading.set(false);
       },
     });
   }
 
   viewReplies(comment: IComment) {
-    // Implement view replies functionality
     console.log('View replies for comment:', comment.id);
   }
 
@@ -147,13 +146,13 @@ export class CommentsTableComponent implements OnInit {
     defaultMessage: string
   ): string {
     if (error.status === 403) {
-      return 'You do not have permission to perform this action';
+      return 'У вас немає дозволу на виконання цієї дії';
     }
     if (error.status === 404) {
-      return 'Comment not found';
+      return 'Коментар не знайдено';
     }
     if (error.status === 409) {
-      return 'Cannot delete comment with replies';
+      return 'Неможливо видалити коментар із відповідями';
     }
     return defaultMessage;
   }

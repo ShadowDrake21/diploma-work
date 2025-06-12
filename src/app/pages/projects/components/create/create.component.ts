@@ -25,6 +25,7 @@ import { ProjectStepperComponent } from './components/stepper/project-stepper/pr
 import { ProjectLoaderService } from '@core/services/project/project-creation/project-loader.service';
 import { NotificationService } from '@core/services/notification.service';
 import { types } from '@shared/content/project.content';
+import { ProjectFormService } from '@core/services/project/project-form/project-form.service';
 
 @Component({
   selector: 'project-creation',
@@ -59,6 +60,8 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly projectLoaderService = inject(ProjectLoaderService);
   private readonly notificationService = inject(NotificationService);
+  private readonly projectFormService = inject(ProjectFormService);
+
   private readonly cdr = inject(ChangeDetectorRef);
 
   creatorId: number | null = null;
@@ -100,7 +103,10 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
     );
 
     if (this.projectId) {
+      this.projectFormService.isEditing = true;
       this.loadExistingProject();
+    } else {
+      this.projectFormService.isEditing = false;
     }
   }
 
