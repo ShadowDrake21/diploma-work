@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { UserService } from '@core/services/users/user.service';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { IUpdateUserProfile, IUser } from '@models/user.model';
 import { ProfileAvatarComponent } from './components/profile-avatar/profile-avatar.component';
 import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
@@ -16,6 +16,7 @@ import { currentUserSig } from '@core/shared/shared-signals';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'profile-info',
@@ -26,6 +27,7 @@ import { LoaderComponent } from '@shared/components/loader/loader.component';
     MatProgressBarModule,
     MatIcon,
     LoaderComponent,
+    MatButtonModule,
   ],
   templateUrl: './profile-info.component.html',
 })
@@ -95,18 +97,20 @@ export class ProfileInfoComponent implements OnDestroy {
     this.isProfileLoading.set(true);
     this.error.set(null);
 
-    const sub = this.userService.getCurrentUser().subscribe({
-      next: (response) => {
-        this.user.set(response);
-      },
-      error: (err) => {
-        this.error.set(
-          err.error?.message ||
-            'Не вдалося завантажити профіль. Спробуйте ще раз.'
-        );
-      },
-      complete: () => this.isProfileLoading.set(false),
-    });
+    const sub = this.userService
+      .getCurrentUser()
+      .pipe(finalize(() => this.isProfileLoading.set(false)))
+      .subscribe({
+        next: (response) => {
+          this.user.set(response);
+        },
+        error: (err) => {
+          this.error.set(
+            err.error?.message ||
+              'Не вдалося завантажити профіль. Спробуйте ще раз.'
+          );
+        },
+      });
     this.subscriptions.push(sub);
   }
 

@@ -12,7 +12,13 @@
     @if(isMineMode()) { У вас немає проектів, що відповідають вашим критеріям}
     @else { Не знайдено проектів, що відповідають вашим критеріям }
   </p>
-  <button mat-stroked-button (click)="onFiltersReset()">Скинути фільтри</button>
+  <button
+    mat-stroked-button
+    (click)="onFiltersReset()"
+    class="!text-red-500 !border-red-500"
+  >
+    Скинути фільтри
+  </button>
 </div>
 } @else {
 <div class="flex flex-col gap-6 p-4">

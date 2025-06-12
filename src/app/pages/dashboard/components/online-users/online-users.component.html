@@ -4,9 +4,9 @@
     @if (isLoading()) {
     <custom-loader [diameter]="40" />
     } @else if (error()) {
-    <mat-card class="error-card">
-      <mat-card-content>
-        {{ error() }}
+    <mat-card>
+      <mat-card-content class="!flex items-center justify-center">
+        <p class="font-medium">{{ error() }}</p>
         <button mat-button color="primary" (click)="refreshActiveUsers()">
           <mat-icon>refresh</mat-icon> Спробувати знову
         </button>

@@ -1,4 +1,9 @@
 <div class="w-full overflow-x-auto">
+  @if(projects().length === 0) {
+  <div class="flex items-center justify-center py-10">
+    <p class="text-red-500 font-medium text-xl">No projects</p>
+  </div>
+  } @else {
   <table mat-table [dataSource]="projects()" class="w-full">
     <ng-container matColumnDef="title">
       <th mat-header-cell *matHeaderCellDef>Назва</th>
@@ -114,4 +119,5 @@
     class="mt-4"
   >
   </mat-paginator>
+  }
 </div>

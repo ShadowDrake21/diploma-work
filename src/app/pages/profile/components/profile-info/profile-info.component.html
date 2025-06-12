@@ -1,9 +1,7 @@
 <div class="relative">
-  <div class="flex items-center gap-[30px]">
+  <div class="flex items-center gap-[30px] justify-center">
     @if (isProfileLoading()) {
-    <div
-      class="absolute top-0 bottom-0 left-0 right-0 flex flex-col items-center justify-center"
-    >
+    <div class="flex flex-col items-center justify-center py-10">
       <custom-loader [diameter]="50" />
     </div>
     } @else if (error()) {
@@ -13,8 +11,8 @@
         {{ error() }}
       </p>
       <button mat-raised-button color="primary" (click)="retryLoadUser()">
-        <mat-icon>refresh</mat-icon>
-        Спробуйте ще раз
+        <mat-icon class="text-red-500">refresh</mat-icon>
+        <span class="text-red-500">Спробуйте ще раз</span>
       </button>
     </div>
     } @else if (user()) {

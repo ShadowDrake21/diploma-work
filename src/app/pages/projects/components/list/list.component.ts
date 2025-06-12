@@ -118,16 +118,17 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
         }
         this.projects.set(response.data);
         this.totalItems.set(response.totalItems);
+        this.isLoading.set(false);
       }),
       catchError((error) => {
         const errorMessage = this.isMineMode()
           ? 'Не вдалося завантажити ваші проекти'
           : 'Не вдалося завантажити проекти';
+        this.isLoading.set(false);
         this.notificationService.showError(errorMessage);
         console.error('Project loading error:', error);
         return of();
-      }),
-      tap(() => this.isLoading.set(false))
+      })
     );
   }
 

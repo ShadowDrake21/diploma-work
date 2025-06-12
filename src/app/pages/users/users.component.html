@@ -27,7 +27,7 @@
     <custom-loader [diameter]="50" />
   </div>
   } @else {
-  <p class="font-bold">
+  <p class="font-bold" [class]="errorOccurred() ? ' flex justify-center' : ''">
     {{ displayMessage() }}
   </p>
   @if (!errorOccurred()) { @if (users().length > 0) {
@@ -56,9 +56,9 @@
     </p>
   </div>
   } }@else {
-  <div class="flex justify-center items-center flex-col gap-4">
+  <div class="flex justify-center items-center flex-col gap-4 py-10">
     <mat-icon class="text-red-500">error_outline</mat-icon>
-    <p class="text-lg font-semibold text-red-500 sm:text-left text-center">
+    <p class="text-lg font-semibold text-red-500 text-center">
       Не вдалося завантажити користувачів. Спробуйте пізніше.
     </p>
     <button mat-button (click)="reloadUsers()">
