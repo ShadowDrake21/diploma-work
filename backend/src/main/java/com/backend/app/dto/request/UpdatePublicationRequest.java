@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class UpdatePublicationRequest {
 	@NotNull(message = "Project is required")
 	private Project project;
