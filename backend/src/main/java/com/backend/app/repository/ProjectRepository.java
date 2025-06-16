@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -36,6 +37,7 @@ public interface ProjectRepository extends JpaRepository<Project, UUID>, JpaSpec
 
 	@Query("SELECT p FROM Project p ORDER BY p.createdAt DESC")
 	Page<Project> findNewsestProjects(Pageable pageable);
+	
 
 	@Query("""
 		SELECT new map(
