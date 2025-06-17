@@ -61,7 +61,7 @@ public class JwtUtil {
 		return rememberMeExpirationTime;
 	}
 	
-	private Key getSigningKey() {
+	public Key getSigningKey() {
 		try {
 			byte[] decodedKey = Base64.getDecoder().decode(secretKey); 
 			 return Keys.hmacShaKeyFor(decodedKey); 
