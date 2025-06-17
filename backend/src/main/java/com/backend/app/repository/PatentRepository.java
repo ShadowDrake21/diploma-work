@@ -19,7 +19,7 @@ public interface PatentRepository extends JpaRepository<Patent, UUID>, JpaSpecif
 	List<Patent> findByProjectId(UUID projectId);
 	
 	@Query("SELECT p FROM Patent p LEFT JOIN FETCH p.coInventors WHERE p.id = :id")
-	Optional<Patent> findByIdWithConInventors(@Param("id") UUID id);
+	Optional<Patent> findByIdWithCoInventors(@Param("id") UUID id);
 	
 	@Query("SELECT " +
 		       "COUNT(p) as total, " +
