@@ -21,9 +21,7 @@ import com.backend.app.dto.response.ApiResponse;
 import com.backend.app.enums.ProjectType;
 import com.backend.app.exception.InvalidEntityTypeException;
 import com.backend.app.exception.ResourceNotFoundException;
-import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.repository.FileMetadataRepository;
-import com.backend.app.service.ResearchService;
 import com.backend.app.service.S3Service;
 
 import jakarta.validation.constraints.NotBlank;

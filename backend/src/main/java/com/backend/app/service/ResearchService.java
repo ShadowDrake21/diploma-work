@@ -161,7 +161,7 @@ public class ResearchService {
         });
 		}
 	
-	private void updateResearchParticipantsByIds(Research research, List<Long> participantIds) {
+	public void updateResearchParticipantsByIds(Research research, List<Long> participantIds) {
 		List<ResearchParticipant> currentParticipants = research.getResearchParticipants();
 		
 		Set<Long> existingUserIds = currentParticipants.stream().map(
