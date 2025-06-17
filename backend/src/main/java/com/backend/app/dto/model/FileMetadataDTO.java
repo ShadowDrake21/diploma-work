@@ -5,10 +5,7 @@ import java.util.UUID;
 
 import com.backend.app.enums.ProjectType;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
 public class FileMetadataDTO {
