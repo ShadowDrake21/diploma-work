@@ -1,18 +1,9 @@
 package com.backend.app.service;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.module.ModuleDescriptor.Builder;
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,7 +17,6 @@ import com.backend.app.enums.ProjectType;
 import com.backend.app.model.FileMetadata;
 import com.backend.app.repository.FileMetadataRepository;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -36,8 +26,6 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 @Slf4j
 @Service
@@ -52,6 +40,14 @@ public class S3Service {
 
 	@Value("${aws.region}")
 	private String region;
+	
+	void setBucketName(String bucketName) {
+		this.bucketName = bucketName;
+	}
+	
+	void setRegion(String region) {
+		this.region = region;
+	}
 	
 	public String getPublicFileUrl(String fileName) {
 		return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
