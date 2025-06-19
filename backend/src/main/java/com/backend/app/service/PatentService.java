@@ -46,7 +46,7 @@ public class PatentService {
 	}
 	
 	public Optional<Patent> findPatentById(UUID id) {
-		return patentRepository.findByIdWithConInventors(id);
+		return patentRepository.findByIdWithCoInventors(id);
 	}
 	
 	public List<Patent> findPatentByProjectId(UUID projectId) {
@@ -55,7 +55,7 @@ public class PatentService {
 	
 	@Transactional
     public Optional<Patent> updatePatent(UUID id, Patent newPatent) {
-        return patentRepository.findByIdWithConInventors(id).map(existing -> {
+        return patentRepository.findByIdWithCoInventors(id).map(existing -> {
             
         if(!existing.getProject().getId().equals(newPatent.getProject().getId())) {
         	throw new IllegalStateException("Changing project association is not allowed through this endpoint");
@@ -142,7 +142,7 @@ public class PatentService {
 	        }
 	}
 	
-	private void updateCoInventors(Patent existingPatent, Patent newPatent) {
+	public void updateCoInventors(Patent existingPatent, Patent newPatent) {
 		if (newPatent.getCoInventors() == null) {
 			
 			return;

@@ -109,7 +109,7 @@ public class PatentMapper {
 	 /**
      * Maps User entity to UserDTO
      */
-	private UserDTO mapToUserDTO(User user) {
+	public UserDTO mapToUserDTO(User user) {
 		if(user == null) {
 			return null;
 		}
