@@ -1,12 +1,9 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import {
-  HttpClientTestingModule,
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
 import { jwtDecode } from 'jwt-decode';
-import { of, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { NotificationService } from '@core/services/notification.service';
 import { UserRole } from '@shared/enums/user.enum';
