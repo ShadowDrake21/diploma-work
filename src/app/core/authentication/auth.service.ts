@@ -30,6 +30,7 @@ import { UserRole } from '@shared/enums/user.enum';
 import { UserService } from '@core/services/users/user.service';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { NotificationService } from '@core/services/notification.service';
+import { ApplicationError } from '@core/errors/application-error';
 
 @Injectable({
   providedIn: 'root',
@@ -394,13 +395,5 @@ export class AuthService {
     sessionStorage.removeItem('rememberSession');
     this.currentUserSubject.next(null);
     this.updateAdminState(null);
-  }
-}
-
-class ApplicationError extends Error {
-  constructor(message: string, public readonly code?: string) {
-    super(message);
-    this.name = 'ApplicationError';
-    Object.setPrototypeOf(this, ApplicationError.prototype);
   }
 }
