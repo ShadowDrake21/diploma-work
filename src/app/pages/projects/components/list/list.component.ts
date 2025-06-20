@@ -64,7 +64,7 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
     () => this.route.snapshot.queryParamMap.get('mode') === 'mine'
   );
 
-  private readonly subscriptions: Subscription[] = [];
+  readonly subscriptions: Subscription[] = [];
   private previousQueryParams: Record<string, string | null> = {};
 
   ngOnInit(): void {

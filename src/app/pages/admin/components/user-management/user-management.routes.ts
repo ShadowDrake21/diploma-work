@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { adminGuard } from './components/guards/admin.guard';
 
 export const UserManagementRoutes: Routes = [
   {
@@ -16,7 +15,6 @@ export const UserManagementRoutes: Routes = [
           import('./components/user-list/user-list.component').then(
             (c) => c.UserListComponent
           ),
-        canActivate: [adminGuard],
         data: { title: 'User Management' },
       },
       {
@@ -25,7 +23,6 @@ export const UserManagementRoutes: Routes = [
           import('./components/user-details/user-details.component').then(
             (c) => c.UserDetailsComponent
           ),
-        canActivate: [adminGuard],
         data: { title: 'User Details' },
       },
     ],

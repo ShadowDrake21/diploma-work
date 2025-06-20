@@ -17,7 +17,6 @@ import {
     ProjectResearchFormComponent,
   ],
   templateUrl: './project-work-info-step.component.html',
-  styleUrl: './project-work-info-step.component.scss',
 })
 export class ProjectWorkInfoStepComponent {
   typeForm = input.required<FormGroup>();

@@ -73,7 +73,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   readonly getStatusOnProgess = getStatusOnProgess;
 
-  private subscriptions: Subscription[] = [];
+  subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     this.workId.set(this.route.snapshot.params['id']);

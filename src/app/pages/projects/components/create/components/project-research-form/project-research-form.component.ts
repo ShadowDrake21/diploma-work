@@ -37,7 +37,6 @@ import { FormErrorComponentComponent } from '../../../../../../shared/components
     FormErrorComponentComponent,
   ],
   templateUrl: './project-research-form.component.html',
-  styleUrl: './project-research-form.component.scss',
 })
 export class ProjectResearchFormComponent
   extends BaseFormComponent

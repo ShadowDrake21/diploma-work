@@ -14,6 +14,7 @@ import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { tokenInterceptor } from '@core/interceptors/token.interceptor';
 import { apiInterceptor } from '@core/interceptors/api.interceptor';
 import { AppInitializerService } from '@core/services/app-initializer.service';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor, tokenInterceptor, apiInterceptor])
     ),
+
     provideAppInitializer(() => {
       const initialized = inject(AppInitializerService);
       return initialized.initialize();

@@ -29,7 +29,7 @@ import { LoaderComponent } from '@shared/components/loader/loader.component';
 export class BasicStatsComponent implements OnInit, OnDestroy {
   private readonly dashboardService = inject(DashboardService);
   private readonly notificationService = inject(NotificationService);
-  private destroy$ = new Subject<void>();
+  destroy$ = new Subject<void>();
 
   isLoading = signal(true);
   hasError = signal(false);
@@ -56,7 +56,7 @@ export class BasicStatsComponent implements OnInit, OnDestroy {
       });
   }
 
-  private transformMetrics(metrics: any): DashboardMetricCardItem[] {
+  transformMetrics(metrics: any): DashboardMetricCardItem[] {
     return [
       {
         title: 'Усього проектів',

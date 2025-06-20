@@ -22,7 +22,7 @@ import { LoaderComponent } from '@shared/components/loader/loader.component';
 export class RecentProjectsComponent implements OnInit, OnDestroy {
   private readonly projectService = inject(ProjectService);
   private readonly notificationService = inject(NotificationService);
-  private destroy$ = new Subject<void>();
+  destroy$ = new Subject<void>();
 
   isLoading = signal(true);
   hasError = signal(false);
