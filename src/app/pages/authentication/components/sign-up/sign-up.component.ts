@@ -41,11 +41,11 @@ export class SignUpComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
 
-  protected readonly isLoading = signal(false);
-  protected readonly formDisabled = signal(false);
-  protected readonly serverError = signal<string | null>(null);
+  readonly isLoading = signal(false);
+  readonly formDisabled = signal(false);
+  readonly serverError = signal<string | null>(null);
 
-  protected signUpForm = new FormGroup<SignUpForm>(
+  signUpForm = new FormGroup<SignUpForm>(
     {
       name: new FormControl('', {
         nonNullable: true,
