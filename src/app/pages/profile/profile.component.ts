@@ -119,7 +119,7 @@ export class ProfileComponent {
     this.pageSize.set(event.pageSize);
   }
 
-  private cleanFilters(filters: ProjectSearchFilters): ProjectSearchFilters {
+  cleanFilters(filters: ProjectSearchFilters): ProjectSearchFilters {
     const clean: any = {};
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -129,7 +129,7 @@ export class ProfileComponent {
     return clean;
   }
 
-  private getErrorMessage(error: any, defaultMessage: string): string {
+  getErrorMessage(error: any, defaultMessage: string): string {
     if (error.status === 404) {
       return 'Не знайдено проектів, що відповідають вашим критеріям';
     }

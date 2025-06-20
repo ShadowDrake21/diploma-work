@@ -148,7 +148,7 @@ export class ProfileAvatarComponent implements OnDestroy {
     this.resetUploadState();
   }
 
-  private resetUploadState(): void {
+  resetUploadState(): void {
     this.showPreview.set(false);
     this.previewUrl.set(null);
     this.selectedFile.set(null);
@@ -156,7 +156,7 @@ export class ProfileAvatarComponent implements OnDestroy {
     this.resetFileInput();
   }
 
-  private resetFileInput(): void {
+  resetFileInput(): void {
     if (this.fileInput()?.nativeElement) {
       this.fileInput()!.nativeElement.value = '';
     }
