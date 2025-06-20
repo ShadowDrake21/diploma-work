@@ -104,7 +104,7 @@ export class SystemAnalyticsComponent implements OnInit {
     this.loadData();
   }
 
-  private loadData() {
+  loadData() {
     this.loading.set(true);
     this.error.set(null);
 
