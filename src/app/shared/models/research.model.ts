@@ -3,7 +3,7 @@ export interface CreateResearchRequest {
   budget: number;
   startDate: string;
   endDate: string;
-  status: string;
+  status: ResearchStatuses;
   fundingSource: string;
   participantIds: string[];
 }
@@ -14,4 +14,11 @@ export interface UpdateResearchRequest extends CreateResearchRequest {
 export interface ResearchDTO
   extends Omit<UpdateResearchRequest, 'participantIds'> {
   participantIds: number[];
+}
+
+export enum ResearchStatuses {
+  PROPOSED = 'proposed',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
 }

@@ -17,8 +17,6 @@ import { ProjectCommentService } from '@core/services/project/project-details/co
 import { NotificationService } from '@core/services/notification.service';
 import { JsonPipe } from '@angular/common';
 
-// TODO (when it's over): pagination
-
 @Component({
   selector: 'details-project-comments',
   imports: [
@@ -44,7 +42,7 @@ export class ProjectCommentsComponent {
 
   projectId = input<string | null>();
 
-  private subscriptions: Subscription[] = [];
+  subscriptions: Subscription[] = [];
 
   private projectIdChange = effect(() => {
     if (this.projectId()) {

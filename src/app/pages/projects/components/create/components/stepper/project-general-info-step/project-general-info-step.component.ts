@@ -7,7 +7,6 @@ import { GeneralInformationForm } from '@shared/types/forms/project-form.types';
   selector: 'create-project-general-info-step',
   imports: [ProjectGeneralInformationComponent],
   templateUrl: './project-general-info-step.component.html',
-  styleUrl: './project-general-info-step.component.scss',
 })
 export class ProjectGeneralInfoStepComponent {
   generalInfoForm = input.required<FormGroup<GeneralInformationForm>>();

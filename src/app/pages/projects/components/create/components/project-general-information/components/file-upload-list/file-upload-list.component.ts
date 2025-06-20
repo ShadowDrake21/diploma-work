@@ -21,7 +21,6 @@ import { FileSizePipe } from '@pipes/file-size.pipe';
     MatListModule,
   ],
   templateUrl: './file-upload-list.component.html',
-  styleUrl: './file-upload-list.component.scss',
 })
 export class FileUploadListComponent {
   private notificationService = inject(NotificationService);

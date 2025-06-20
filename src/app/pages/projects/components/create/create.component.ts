@@ -77,7 +77,7 @@ export class CreateProjectComponent implements OnInit, OnDestroy {
   patentsForm = this.projectLoaderService.patentsForm;
   researchesForm = this.projectLoaderService.researchesForm;
 
-  private subscriptions: Subscription[] = [];
+  subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     this.initializeComponent();

@@ -24,7 +24,7 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
   readonly email = signal<string>('');
   readonly isLoading = signal<boolean>(false);
 
-  private subsctription!: Subscription;
+  private subscription!: Subscription;
 
   ngOnInit(): void {
     this.route.queryParams.subscribe({
@@ -79,6 +79,29 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
     return this.inputValues().join('');
   }
 
+  focusNextInput(currentInput: HTMLInputElement, parent: HTMLElement): void {
+    const inputs = this.getInputElements(parent);
+    const currentIndex = inputs.indexOf(currentInput);
+
+    if (currentIndex < inputs.length - 1) {
+      inputs[currentIndex + 1].focus();
+      inputs[currentIndex + 1].select();
+    }
+  }
+
+  focusPreviousInput(
+    currentInput: HTMLInputElement,
+    parent: HTMLElement
+  ): void {
+    const inputs = this.getInputElements(parent);
+    const currentIndex = inputs.indexOf(currentInput);
+
+    if (currentIndex > 0) {
+      inputs[currentIndex - 1].focus();
+      inputs[currentIndex - 1].select();
+    }
+  }
+
   public onSubmit() {
     const code = this.getVerificationCode();
 
@@ -92,7 +115,7 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.verificationMessage.set('');
 
-    this.subsctription = this.authService
+    this.subscription = this.authService
       .verifyUser({ email: this.email(), code })
       .subscribe({
         next: (response) => {
@@ -142,39 +165,13 @@ export class VerificationCodeComponent implements OnInit, OnDestroy {
     return key === 'Tab' || key === 'Backspace' || (key >= '0' && key <= '9');
   }
 
-  private focusNextInput(
-    currentInput: HTMLInputElement,
-    parent: HTMLElement
-  ): void {
-    const inputs = this.getInputElements(parent);
-    const currentIndex = inputs.indexOf(currentInput);
-
-    if (currentIndex < inputs.length - 1) {
-      inputs[currentIndex + 1].focus();
-      inputs[currentIndex + 1].select();
-    }
-  }
-
-  private focusPreviousInput(
-    currentInput: HTMLInputElement,
-    parent: HTMLElement
-  ): void {
-    const inputs = this.getInputElements(parent);
-    const currentIndex = inputs.indexOf(currentInput);
-
-    if (currentIndex > 0) {
-      inputs[currentIndex - 1].focus();
-      inputs[currentIndex - 1].select();
-    }
-  }
-
   private getInputElements(parent: HTMLElement): HTMLInputElement[] {
     return Array.from(parent.querySelectorAll('input'));
   }
 
   ngOnDestroy(): void {
-    if (this.subsctription) {
-      this.subsctription.unsubscribe();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 }

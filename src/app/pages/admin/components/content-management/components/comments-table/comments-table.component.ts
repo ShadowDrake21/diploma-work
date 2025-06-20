@@ -114,7 +114,7 @@ export class CommentsTableComponent implements OnInit {
     });
   }
 
-  private executeDeleteComment(commentId: string) {
+  executeDeleteComment(commentId: string) {
     this.error.set(null);
     this.isLoading.set(true);
 
@@ -134,7 +134,7 @@ export class CommentsTableComponent implements OnInit {
     console.log('View replies for comment:', comment.id);
   }
 
-  private handleError(error: HttpErrorResponse, defaultMessage: string): void {
+  handleError(error: HttpErrorResponse, defaultMessage: string): void {
     const errorMessage = this.getErrorMessage(error, defaultMessage);
     this.error.set(errorMessage);
     this.notificationService.showError(errorMessage);
