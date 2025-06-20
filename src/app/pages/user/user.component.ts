@@ -98,7 +98,7 @@ export class UserProfileComponent implements OnInit {
     this.pageSize.set(event.pageSize);
   }
 
-  private loadUserData(): void {
+  loadUserData(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
@@ -133,7 +133,7 @@ export class UserProfileComponent implements OnInit {
       });
   }
 
-  private loadUserProjects(): void {
+  loadUserProjects(): void {
     const userId = this.userId();
     if (!userId) {
       this.error.set('Недійсний ідентифікатор користувача');
