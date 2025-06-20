@@ -5,8 +5,6 @@ import { ProjectFormCoreService } from './project-form-core.service';
 import { DateValidators } from '@pages/authentication/validators/date.validator';
 import { PageValidators } from '@pages/authentication/validators/page.validator';
 
-// TODO (07.06): EDIT OF FILES + ABSENCE OF PREPATCHED VALUES LIKE START DATE
-
 @Injectable({
   providedIn: 'root',
 })
