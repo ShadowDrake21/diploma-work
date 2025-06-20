@@ -86,7 +86,7 @@ export class ForgotPasswordComponent implements OnDestroy {
     this.notificationService.showError(errorMessage);
   }
 
-  private startCooldownTimer(seconds: number): void {
+  startCooldownTimer(seconds: number): void {
     this.cooldown.set(seconds);
     clearInterval(this.cooldownInterval);
 

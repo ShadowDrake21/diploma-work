@@ -51,7 +51,7 @@ export class SignInComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly userStore = inject(UserStore);
 
-  protected signInForm = new FormGroup<SignInForm>({
+  signInForm = new FormGroup<SignInForm>({
     email: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.email],
