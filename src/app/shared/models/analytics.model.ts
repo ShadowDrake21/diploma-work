@@ -3,7 +3,6 @@ export interface SystemOverviewDTO {
   activeUsers: number;
   totalProjects: number;
   activeSessions: number;
-  pendingAdminInvitations: number;
 }
 
 export interface UserGrowthDTO {
