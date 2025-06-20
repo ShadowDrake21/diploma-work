@@ -1,6 +1,9 @@
 @let allUsers = allUsers$ | async;
 
-<form [formGroup]="publicationsForm()" class="project-publication__form">
+<form
+  [formGroup]="publicationsForm()"
+  class="flex flex-col gap-[10px] py-[15px]"
+>
   <mat-form-field>
     <mat-label>Автори</mat-label>
     <mat-select

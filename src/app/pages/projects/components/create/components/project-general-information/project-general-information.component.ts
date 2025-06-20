@@ -53,7 +53,6 @@ import { GENERAL_INFORMATION_FORM_ERRORS } from '../errors/general-information.e
     MatProgressBarModule,
   ],
   templateUrl: './project-general-information.component.html',
-  styleUrl: './project-general-information.component.scss',
 })
 export class ProjectGeneralInformationComponent {
   private readonly tagService = inject(TagService);
@@ -139,7 +138,7 @@ export class ProjectGeneralInformationComponent {
     return this.fileHandler.uploadProgress();
   }
 
-  private updateFormControl(options?: { emitEvent: boolean }): void {
+  updateFormControl(options?: { emitEvent: boolean }): void {
     const { uploaded, pending } = this.fileHandler.getFiles();
     this.generalInformationForm().controls.attachments.setValue(
       [...uploaded, ...pending],
