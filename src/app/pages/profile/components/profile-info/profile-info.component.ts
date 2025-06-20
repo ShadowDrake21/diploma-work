@@ -93,7 +93,7 @@ export class ProfileInfoComponent implements OnDestroy {
     this.notificationService.showError(message);
   }
 
-  private loadUser(): void {
+  loadUser(): void {
     this.isProfileLoading.set(true);
     this.error.set(null);
 
