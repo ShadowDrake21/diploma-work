@@ -18,7 +18,6 @@ import { TYPE_FORM_ERRORS } from '../errors/type.errors';
     MatSelectModule,
   ],
   templateUrl: './project-type.component.html',
-  styleUrl: './project-type.component.scss',
 })
 export class ProjectTypeComponent {
   typeForm = input.required<

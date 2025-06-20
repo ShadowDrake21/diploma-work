@@ -40,7 +40,6 @@ import { NotificationService } from '@core/services/notification.service';
     JsonPipe,
   ],
   templateUrl: './project-stepper.component.html',
-  styleUrl: './project-stepper.component.scss',
 })
 export class ProjectStepperComponent {
   private readonly submissionService = inject(ProjectFormService);

@@ -33,7 +33,6 @@ import { PATENT_FORM_ERRORS } from '../errors/patent.errors';
     MatDatepickerModule,
   ],
   templateUrl: './project-patent-form.component.html',
-  styleUrl: './project-patent-form.component.scss',
 })
 export class ProjectPatentFormComponent
   extends BaseFormComponent
