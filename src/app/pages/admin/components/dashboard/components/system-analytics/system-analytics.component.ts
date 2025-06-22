@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -7,7 +7,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { safeToLocaleDateString } from '@shared/utils/date.utils';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { catchError, EMPTY, forkJoin, map, of, switchMap } from 'rxjs';
+import {
+  catchError,
+  EMPTY,
+  forkJoin,
+  map,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { IsNanPipe } from '@pipes/is-nan.pipe';
 
@@ -24,8 +33,9 @@ import { IsNanPipe } from '@pipes/is-nan.pipe';
   ],
   templateUrl: './system-analytics.component.html',
 })
-export class SystemAnalyticsComponent implements OnInit {
+export class SystemAnalyticsComponent implements OnInit, OnDestroy {
   private readonly analyticsService = inject(AnalyticsService);
+  private destroy$ = new Subject<void>();
 
   systemPerformance = this.analyticsService.systemPerformance;
   commentActivity = this.analyticsService.commentActivity;
@@ -111,13 +121,15 @@ export class SystemAnalyticsComponent implements OnInit {
     forkJoin([
       this.analyticsService.getSystemPerformance(),
       this.analyticsService.getCommentActivity(),
-    ]).subscribe({
-      next: () => this.loading.set(false),
-      error: (err) => {
-        this.handleDataLoadError(err);
-        this.loading.set(false);
-      },
-    });
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.loading.set(false),
+        error: (err) => {
+          this.handleDataLoadError(err);
+          this.loading.set(false);
+        },
+      });
   }
 
   private handleDataLoadError(error: any) {
@@ -139,5 +151,10 @@ export class SystemAnalyticsComponent implements OnInit {
 
   retry() {
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

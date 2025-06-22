@@ -18,7 +18,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { UserService } from '@core/services/users/user.service';
-import { map, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IUser } from '@shared/models/user.model';
 import { ProjectStepperComponent } from './components/stepper/project-stepper/project-stepper.component';

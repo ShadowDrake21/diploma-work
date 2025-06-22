@@ -1,5 +1,5 @@
 import { DatePipe, TitleCasePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,6 +25,7 @@ import { ConfirmationDialogComponent } from '@shared/components/dialogs/confirma
 import { NotificationService } from '@core/services/notification.service';
 import { ProjectTypeNamePipe } from './pipes/project-type-name.pipe';
 import { ProjectProgressColorPipe } from './pipes/project-progress-color.pipe';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-project-table',
@@ -48,12 +49,13 @@ import { ProjectProgressColorPipe } from './pipes/project-progress-color.pipe';
   ],
   templateUrl: './project-table.component.html',
 })
-export class ProjectTableComponent implements OnInit {
+export class ProjectTableComponent implements OnInit, OnDestroy {
   private readonly projectService = inject(ProjectService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly dialog = inject(MatDialog);
   private readonly submissionService = inject(ProjectFormService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   projects = signal<
     (ProjectDTO & { tags?: Tag[]; attachments?: FileMetadataDTO[] })[]
@@ -84,6 +86,7 @@ export class ProjectTableComponent implements OnInit {
     this.isLoading.set(true);
     this.projectService
       .getAllProjects(this.pagination().page, this.pagination().size)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           const projects = response.data || [];
@@ -111,6 +114,7 @@ export class ProjectTableComponent implements OnInit {
   ) {
     this.attachmentsService
       .getFilesByEntity(project.type, project.id)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (attachments) => {
           project.attachments = attachments;
@@ -160,6 +164,7 @@ export class ProjectTableComponent implements OnInit {
             project.createdBy,
             []
           )
+          .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {
               this.notificationService.showSuccess('Проєкт успішно оновлено');
@@ -187,22 +192,30 @@ export class ProjectTableComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.isLoading.set(true);
-        this.projectService.deleteProject(id).subscribe({
-          next: () => {
-            this.notificationService.showSuccess('Проєкт успішно видалено');
-            this.loadProjects();
-          },
-          error: (error) => {
-            const errorMessage =
-              error.status === 403
-                ? 'У вас немає дозволу на видалення цього проєкту'
-                : 'Не вдалося видалити проєкт';
-            this.notificationService.showError(errorMessage);
-            console.error('Error deleting project:', error);
-            this.isLoading.set(false);
-          },
-        });
+        this.projectService
+          .deleteProject(id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              this.notificationService.showSuccess('Проєкт успішно видалено');
+              this.loadProjects();
+            },
+            error: (error) => {
+              const errorMessage =
+                error.status === 403
+                  ? 'У вас немає дозволу на видалення цього проєкту'
+                  : 'Не вдалося видалити проєкт';
+              this.notificationService.showError(errorMessage);
+              console.error('Error deleting project:', error);
+              this.isLoading.set(false);
+            },
+          });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

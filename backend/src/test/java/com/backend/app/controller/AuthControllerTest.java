@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,11 +39,11 @@ import com.backend.app.service.UserLoginService;
 import com.backend.app.service.UserService;
 import com.backend.app.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.HttpServletRequest;
 
 public class AuthControllerTest {
     private MockMvc mockMvc;
@@ -57,7 +58,6 @@ public class AuthControllerTest {
     @Mock private AuthService authService;
     @Mock private UserLoginService userLoginService;
     @Mock private RateLimitingService rateLimitingService;
-    @Mock private HttpServletRequest httpRequest;
     
     @InjectMocks private AuthController controller;
     
@@ -65,7 +65,9 @@ public class AuthControllerTest {
     
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+    	 MockitoAnnotations.openMocks(this);
+    	 
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).setMessageConverters(new MappingJackson2HttpMessageConverter()).build();
         
         testUser = User.builder()
                 .id(1L)
@@ -88,7 +90,8 @@ public class AuthControllerTest {
                .contentType(MediaType.APPLICATION_JSON)
                .content(objectMapper.writeValueAsString(request)))
                .andExpect(status().isOk())
-               .andExpect(jsonPath("$.data.token").value("testToken"));
+               .andExpect(jsonPath("$.data.message").exists())
+               .andExpect(jsonPath("$.data.authToken").value("testToken"));
     }
     
     @Test
@@ -130,7 +133,8 @@ public class AuthControllerTest {
                .contentType(MediaType.APPLICATION_JSON)
                .content(objectMapper.writeValueAsString(request)))
                .andExpect(status().isOk())
-               .andExpect(jsonPath("$.data.token").value("testToken"));
+               .andExpect(jsonPath("$.data.message").exists())
+               .andExpect(jsonPath("$.data.message").value("User verified successfully"));
     }
     
     @Test
@@ -162,7 +166,8 @@ public class AuthControllerTest {
                .contentType(MediaType.APPLICATION_JSON)
                .content(objectMapper.writeValueAsString(Map.of("rememberMe", false))))
                .andExpect(status().isOk())
-               .andExpect(jsonPath("$.data.token").value("newToken"));
+               .andExpect(jsonPath("$.data.message").exists())
+               .andExpect(jsonPath("$.data.authToken").value("newToken"));
     }
     
     @Test

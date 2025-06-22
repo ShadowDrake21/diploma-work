@@ -6,13 +6,14 @@ import { IComment, ICreateComment } from '@models/comment.types';
 import {
   Subject,
   BehaviorSubject,
-  map,
   catchError,
   of,
   tap,
   finalize,
   Observable,
   throwError,
+  take,
+  takeUntil,
 } from 'rxjs';
 
 @Injectable({
@@ -21,7 +22,7 @@ import {
 export class ProjectCommentService {
   private readonly commentService = inject(CommentService);
   private readonly notificationService = inject(NotificationService);
-  private readonly destroyed$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   private _comments = new BehaviorSubject<IComment[]>([]);
   private _loading = new BehaviorSubject<boolean>(false);
@@ -40,6 +41,7 @@ export class ProjectCommentService {
     this.commentService
       .getCommentsByProjectId(projectId)
       .pipe(
+        takeUntil(this.destroy$),
         tap({
           next: (comments) => {
             this._comments.next(comments);
@@ -175,7 +177,7 @@ export class ProjectCommentService {
   }
 
   ngOnDestroy() {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

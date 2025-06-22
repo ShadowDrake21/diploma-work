@@ -1,4 +1,11 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import {
   FormBuilder,
@@ -19,6 +26,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ProjectSearchFilters } from '@shared/types/search.types';
 import { ProjectStatus } from '@shared/enums/project.enums';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'profile-filter-panel',
@@ -39,7 +47,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 
   providers: [provideNativeDateAdapter()],
 })
-export class FilterPanelComponent implements OnInit {
+export class FilterPanelComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly tagService = inject(TagService);
 
@@ -49,6 +57,8 @@ export class FilterPanelComponent implements OnInit {
   availableTags: any[] = [];
   projectTypes = Object.values(ProjectType);
   searchForm!: FormGroup;
+
+  private destroy$ = new Subject<void>();
 
   constructor() {
     this.initForms();
@@ -117,9 +127,12 @@ export class FilterPanelComponent implements OnInit {
   }
 
   private loadTags(): void {
-    this.tagService.getAllTags().subscribe((tags) => {
-      this.availableTags = tags;
-    });
+    this.tagService
+      .getAllTags()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((tags) => {
+        this.availableTags = tags;
+      });
   }
 
   applyFilters(): void {
@@ -208,5 +221,10 @@ export class FilterPanelComponent implements OnInit {
 
   formatProgressLabel(value: number): string {
     return `${value}%`;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

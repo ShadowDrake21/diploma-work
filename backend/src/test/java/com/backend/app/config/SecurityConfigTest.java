@@ -18,30 +18,29 @@ import com.backend.app.security.TokenBlacklist;
 import com.backend.app.util.JwtUtil;
 
 public class SecurityConfigTest {
-	@Test
-	void securityFilterChain_ShouldConfigureSecurityProperly() throws Exception {
-		TokenBlacklist tokenBlacklist = mock(TokenBlacklist.class);
-		JwtUtil jwtUtil = mock(JwtUtil.class);
-		SecurityConfig securityConfig = new SecurityConfig(tokenBlacklist, jwtUtil);
+	 @Test
+	    void securityFilterChain_ShouldConfigureSecurityProperly() throws Exception {
+	        TokenBlacklist tokenBlacklist = mock(TokenBlacklist.class);
+	        JwtUtil jwtUtil = mock(JwtUtil.class);
+	        SecurityConfig securityConfig = new SecurityConfig(tokenBlacklist, jwtUtil);
 
-		HttpSecurity http = mock(HttpSecurity.class);
+	        HttpSecurity http = mock(HttpSecurity.class);
+	        when(http.csrf(any())).thenReturn(http);
+	        when(http.authorizeHttpRequests(any())).thenReturn(http);
+	        when(http.cors(any())).thenReturn(http);
+	        when(http.addFilterBefore(any(), eq(UsernamePasswordAuthenticationFilter.class))).thenReturn(http);
 
-		when(http.csrf(any())).thenReturn(http);
-		when(http.authorizeHttpRequests(any())).thenReturn(http);
-		when(http.cors(any())).thenReturn(http);
-		when(http.addFilterBefore(any(), eq(UsernamePasswordAuthenticationFilter.class))).thenReturn(http);
+	        SecurityFilterChain filterChain = securityConfig.securityFilterChain(http);
 
-		SecurityFilterChain filterChain = securityConfig.securityFilterChain(http);
+	        verify(http).csrf(any());
+	        
+	        verify(http).authorizeHttpRequests(any());
+	        
+	        verify(http).addFilterBefore(any(), eq(UsernamePasswordAuthenticationFilter.class));
+	        
+	        verify(http).cors(any());
+	    }
 
-		verify(http).csrf(csrf -> csrf.disable());
-		verify(http).authorizeHttpRequests(auth -> {
-			auth.requestMatchers("/api/auth/**").permitAll();
-			auth.requestMatchers("/api/comments/**", "/api/dashboard/**").authenticated();
-			auth.anyRequest().authenticated();
-		});
-		verify(http).addFilterBefore(any(), eq(UsernamePasswordAuthenticationFilter.class));
-		verify(http).cors(any());
-	}
 
 	@Test
 	void passwordEncoder_ShouldReturnBCryptEncoder() {

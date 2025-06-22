@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
 import {
   BaseFormInputs,
@@ -18,7 +18,7 @@ import { UserService } from '@core/services/users/user.service';
 import { AuthorNamePipe } from '@pipes/author-name.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { PUBLICATION_FORM_ERRORS } from '../errors/publication.errors';
-import { FormErrorComponentComponent } from '../../../../../../shared/components/form-error-component/form-error-component.component';
+import { FormErrorComponentComponent } from '@shared/components/form-error-component/form-error-component.component';
 
 @Component({
   selector: 'create-project-publication-form',

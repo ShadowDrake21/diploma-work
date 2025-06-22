@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,13 +8,13 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { AdminService } from '@core/services/admin.service';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { IComment } from '@models/comment.types';
 import { ConfirmDialogComponent } from '@pages/admin/components/user-management/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NotificationService } from '@core/services/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { finalize, retry, tap } from 'rxjs';
+import { finalize, retry, Subject, takeUntil } from 'rxjs';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
@@ -35,11 +35,12 @@ import { BreakpointObserver } from '@angular/cdk/layout';
   ],
   templateUrl: './comments-table.component.html',
 })
-export class CommentsTableComponent implements OnInit {
+export class CommentsTableComponent implements OnInit, OnDestroy {
   private readonly adminService = inject(AdminService);
   private readonly dialog = inject(MatDialog);
   private readonly notificationService = inject(NotificationService);
   private readonly observer = inject(BreakpointObserver);
+  private destroy$ = new Subject<void>();
 
   displayedColumns: string[] = [
     'content',
@@ -78,6 +79,7 @@ export class CommentsTableComponent implements OnInit {
       .loadAllComments(this.currentPage(), this.pageSize())
       .pipe(
         retry(2),
+        takeUntil(this.destroy$),
         finalize(() => this.isLoading.set(false))
       )
       .subscribe({
@@ -118,16 +120,19 @@ export class CommentsTableComponent implements OnInit {
     this.error.set(null);
     this.isLoading.set(true);
 
-    this.adminService.deleteComment(commentId).subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Коментар успішно видалено');
-        this.loadComments();
-      },
-      error: (error: HttpErrorResponse) => {
-        this.handleError(error, 'Не вдалося видалити коментар');
-        this.isLoading.set(false);
-      },
-    });
+    this.adminService
+      .deleteComment(commentId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Коментар успішно видалено');
+          this.loadComments();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.handleError(error, 'Не вдалося видалити коментар');
+          this.isLoading.set(false);
+        },
+      });
   }
 
   viewReplies(comment: IComment) {
@@ -160,5 +165,10 @@ export class CommentsTableComponent implements OnInit {
   refreshComments(): void {
     this.currentPage.set(0);
     this.loadComments();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

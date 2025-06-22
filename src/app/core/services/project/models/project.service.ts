@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { ProjectSearchFilters } from '@shared/types/search.types';
-import { catchError, map, Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import {
   CreateProjectRequest,

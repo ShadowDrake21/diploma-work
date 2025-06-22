@@ -1,16 +1,10 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, computed, inject, input, OnDestroy } from '@angular/core';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ProjectFormService } from '@core/services/project/project-form/project-form.service';
 import { ProjectTypeStepComponent } from '../project-type-step/project-type-step.component';
 import { ProjectGeneralInfoStepComponent } from '../project-general-info-step/project-general-info-step.component';
 import { ProjectWorkInfoStepComponent } from '../project-work-info-step/project-work-info-step.component';
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatProgressBar } from '@angular/material/progress-bar';
@@ -25,6 +19,7 @@ import {
 } from '@shared/types/forms/project-form.types';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NotificationService } from '@core/services/notification.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'create-project-stepper',
@@ -37,15 +32,15 @@ import { NotificationService } from '@core/services/notification.service';
     MatButton,
     MatProgressBar,
     WorkFormPipe,
-    JsonPipe,
   ],
   templateUrl: './project-stepper.component.html',
 })
-export class ProjectStepperComponent {
+export class ProjectStepperComponent implements OnDestroy {
   private readonly submissionService = inject(ProjectFormService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   formService = inject(ProjectFormService);
 
@@ -103,6 +98,7 @@ export class ProjectStepperComponent {
         this.formService.creatorId,
         newFiles
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           this.notificationService.showSuccess(
@@ -135,5 +131,10 @@ export class ProjectStepperComponent {
       this.notificationService.showError('Вибрано недійсний тип проекту');
       return null;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

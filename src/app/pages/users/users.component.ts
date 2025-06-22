@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   inject,
+  OnDestroy,
   signal,
   untracked,
 } from '@angular/core';
@@ -15,9 +16,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
-import { UserCardComponent } from '../../shared/components/user-card/user-card.component';
+import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { IUser } from '@shared/models/user.model';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { UserService } from '@core/services/users/user.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -46,9 +47,10 @@ import { LoaderComponent } from '@shared/components/loader/loader.component';
   templateUrl: './users.component.html',
   host: { style: 'height: 100%; display: block;' },
 })
-export class UsersComponent {
+export class UsersComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   searchControl = new FormControl('');
 
@@ -106,7 +108,7 @@ export class UsersComponent {
         )
       : this.userService.getPaginatedUsers(this.currentPage(), this.pageSize());
 
-    request.subscribe({
+    request.pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.users.set(response.data);
         this.totalItems.set(response.totalItems);
@@ -132,5 +134,10 @@ export class UsersComponent {
     this.pageSize.set(event.pageSize);
     this.currentPage.set(event.pageIndex);
     this.loadUsers();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

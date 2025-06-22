@@ -1,11 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { catchError, map, of, tap } from 'rxjs';
+import { catchError, map, of, Subject, takeUntil, tap } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/authentication/auth.service';
@@ -24,10 +24,11 @@ import { MatButtonModule } from '@angular/material/button';
   ],
   templateUrl: './overview.component.html',
 })
-export class OverviewComponent {
+export class OverviewComponent implements OnDestroy {
   private readonly analyticsService = inject(AnalyticsService);
   private readonly notificationService = inject(NotificationService);
   private readonly authService = inject(AuthService);
+  private destroy$ = new Subject<void>();
 
   systemOverview = this.analyticsService.systemOverview;
   userGrowth = this.analyticsService.userGrowth;
@@ -45,6 +46,7 @@ export class OverviewComponent {
     this.analyticsService
       .getSystemOverview()
       .pipe(
+        takeUntil(this.destroy$),
         catchError((error) => {
           console.error('System overview error:', error);
           this.notificationService.showError(
@@ -58,6 +60,7 @@ export class OverviewComponent {
     this.analyticsService
       .getUserGrowth()
       .pipe(
+        takeUntil(this.destroy$),
         catchError((error) => {
           console.error('User growth error:', error);
           this.notificationService.showError(
@@ -71,6 +74,7 @@ export class OverviewComponent {
     this.analyticsService
       .getProjectDistribution()
       .pipe(
+        takeUntil(this.destroy$),
         catchError((error) => {
           console.error('Project distribution error:', error);
           this.notificationService.showError(
@@ -138,4 +142,9 @@ export class OverviewComponent {
     }),
     catchError(() => of([]))
   );
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

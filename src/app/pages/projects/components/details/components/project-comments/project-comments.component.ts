@@ -12,10 +12,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CommentComponent } from '@shared/components/comment/comment.component';
 import { ICreateComment } from '@models/comment.types';
-import { lastValueFrom, Observable, Subscription } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { ProjectCommentService } from '@core/services/project/project-details/comments/project-comment.service';
 import { NotificationService } from '@core/services/notification.service';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'details-project-comments',
@@ -24,7 +23,6 @@ import { JsonPipe } from '@angular/common';
     MatProgressBarModule,
     FormsModule,
     MatButtonModule,
-    JsonPipe,
   ],
   templateUrl: './project-comments.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,15 +39,6 @@ export class ProjectCommentsComponent {
   readonly comments = toSignal(this.projectCommentService.comments$);
 
   projectId = input<string | null>();
-
-  subscriptions: Subscription[] = [];
-
-  private projectIdChange = effect(() => {
-    if (this.projectId()) {
-      this.projectCommentService.setCurrentProjectId(this.projectId()!);
-      this.projectCommentService.refreshComments(this.projectId()!);
-    }
-  });
 
   async postComment() {
     if (!this.projectId() || !this.newCommentContent().trim()) return;
@@ -159,9 +148,5 @@ export class ProjectCommentsComponent {
     } finally {
       this.commentsLoading.set(false);
     }
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 }

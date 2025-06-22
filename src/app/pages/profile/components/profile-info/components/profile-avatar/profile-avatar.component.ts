@@ -15,6 +15,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
 import { IUser } from '@models/user.model';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'profile-avatar',
@@ -29,6 +30,7 @@ import { LoaderComponent } from '@shared/components/loader/loader.component';
 export class ProfileAvatarComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
@@ -38,7 +40,6 @@ export class ProfileAvatarComponent implements OnDestroy {
   updateSuccess = output<IUser>();
   updateFailure = output<any>();
 
-  // Internal signals
   readonly previewUrl = signal<string | null>(null);
   readonly errorMessage = signal('');
   readonly showPreview = signal(false);
@@ -99,24 +100,27 @@ export class ProfileAvatarComponent implements OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.userService.updateUserAvatar(file).subscribe({
-      next: (updatedUser) => {
-        this.previewUrl.set(updatedUser.avatarUrl!);
+    this.userService
+      .updateUserAvatar(file)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedUser) => {
+          this.previewUrl.set(updatedUser.avatarUrl!);
 
-        this.updateSuccess.emit(updatedUser);
-        this.notificationService.showSuccess('Аватар успішно оновлено');
+          this.updateSuccess.emit(updatedUser);
+          this.notificationService.showSuccess('Аватар успішно оновлено');
 
-        setTimeout(() => this.resetUploadState(), 500);
-      },
-      error: (error) => {
-        console.error('Avatar upload failed:', error);
-        this.updateFailure.emit(error);
-        this.handleUploadError(error);
-      },
-      complete: () => {
-        this.isLoading.set(false);
-      },
-    });
+          setTimeout(() => this.resetUploadState(), 500);
+        },
+        error: (error) => {
+          console.error('Avatar upload failed:', error);
+          this.updateFailure.emit(error);
+          this.handleUploadError(error);
+        },
+        complete: () => {
+          this.isLoading.set(false);
+        },
+      });
   }
 
   get avatarUrl(): string | null {
@@ -164,5 +168,7 @@ export class ProfileAvatarComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.resetUploadState();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

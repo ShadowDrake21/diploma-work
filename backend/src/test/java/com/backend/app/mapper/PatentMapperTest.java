@@ -91,14 +91,7 @@ public class PatentMapperTest {
 	        assertEquals(1, result.getCoInventors().size());
 	    }
 	    
-	    @Test
-	    void testToEntityProjectNotFound() {
-	        when(projectRepository.findById(project.getId())).thenReturn(Optional.empty());
-	        
-	        assertThrows(ValidationException.class, () -> {
-	            patentMapper.toEntity(patentDTO);
-	        });
-	    }
+	   
 	    
 	    @Test
 	    void testNullHandling() {

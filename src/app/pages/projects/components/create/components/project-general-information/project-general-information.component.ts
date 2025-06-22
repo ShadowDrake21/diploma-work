@@ -3,11 +3,10 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
-  DestroyRef,
   effect,
   inject,
   input,
-  OnInit,
+  OnDestroy,
   signal,
 } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -32,6 +31,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { AttachmentsService } from '@core/services/attachments.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { GENERAL_INFORMATION_FORM_ERRORS } from '../errors/general-information.errors';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'create-project-general-information',
@@ -54,13 +54,14 @@ import { GENERAL_INFORMATION_FORM_ERRORS } from '../errors/general-information.e
   ],
   templateUrl: './project-general-information.component.html',
 })
-export class ProjectGeneralInformationComponent {
+export class ProjectGeneralInformationComponent implements OnDestroy {
   private readonly tagService = inject(TagService);
   private readonly fileHandler = inject(FileHandlerFacadeService);
   private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly notificationService = inject(NotificationService);
   private readonly attachmentsService = inject(AttachmentsService);
+  private destroy$ = new Subject<void>();
 
   generalInformationForm = input.required<FormGroup<GeneralInformationForm>>();
   entityType = input.required<ProjectType | null | undefined>();
@@ -102,27 +103,33 @@ export class ProjectGeneralInformationComponent {
       return;
     }
 
-    this.fileHandler.uploadFiles(entityType, entityId).subscribe({
-      next: ({ files }) => {
-        this.fileHandler.handleUploadSuccess(files);
-        this.updateFormControl();
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Upload failed:', error);
-        this.notificationService.showError('Не вдалося завантажити файл');
-      },
-    });
+    this.fileHandler
+      .uploadFiles(entityType, entityId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ files }) => {
+          this.fileHandler.handleUploadSuccess(files);
+          this.updateFormControl();
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Upload failed:', error);
+          this.notificationService.showError('Не вдалося завантажити файл');
+        },
+      });
   }
 
   removeFile(index: number, isPending: boolean): void {
-    this.fileHandler.removeFile(index, isPending).subscribe({
-      next: () => this.updateFormControl(),
-      error: (error) => {
-        console.error('Error removing file:', error);
-        this.notificationService.showError('Не вдалося видалити файл');
-      },
-    });
+    this.fileHandler
+      .removeFile(index, isPending)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.updateFormControl(),
+        error: (error) => {
+          console.error('Error removing file:', error);
+          this.notificationService.showError('Не вдалося видалити файл');
+        },
+      });
   }
 
   get uploadedFiles(): FileMetadataDTO[] {
@@ -158,6 +165,7 @@ export class ProjectGeneralInformationComponent {
     if (projectId && entityType) {
       this.attachmentsService
         .getFilesByEntity(entityType, projectId)
+        .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (files) => {
             console.log('Fetched existing files:', files);
@@ -180,5 +188,10 @@ export class ProjectGeneralInformationComponent {
       this.fileHandler.initialize([]);
       this.isFilesLoading.set(false);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

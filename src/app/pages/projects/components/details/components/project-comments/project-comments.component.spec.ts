@@ -217,15 +217,4 @@ describe('ProjectCommentsComponent', () => {
     expect(component.replyingToCommentId()).toBeNull();
     expect(component.replyContent()).toBe('');
   });
-
-  it('should clean up subscriptions on destroy', () => {
-    const unsubscribeSpy = jasmine.createSpyObj('Subscription', [
-      'unsubscribe',
-    ]);
-    component.subscriptions.push(unsubscribeSpy);
-
-    component.ngOnDestroy();
-
-    expect(unsubscribeSpy.unsubscribe).toHaveBeenCalled();
-  });
 });

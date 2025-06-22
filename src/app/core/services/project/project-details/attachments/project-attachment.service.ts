@@ -2,7 +2,7 @@ import { inject, Injectable, OnDestroy } from '@angular/core';
 import { AttachmentsService } from '@core/services/attachments.service';
 import { NotificationService } from '@core/services/notification.service';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { Subject, BehaviorSubject, catchError, of, tap } from 'rxjs';
+import { Subject, BehaviorSubject, catchError, of, tap, takeUntil } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +10,7 @@ import { Subject, BehaviorSubject, catchError, of, tap } from 'rxjs';
 export class ProjectAttachmentService implements OnDestroy {
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly notificationService = inject(NotificationService);
-  private destroyed$ = new Subject<void>();
+  private destroy$ = new Subject<void>();
 
   private _attachments = new BehaviorSubject<any[]>([]);
   private _loading = new BehaviorSubject<boolean>(false);
@@ -29,6 +29,7 @@ export class ProjectAttachmentService implements OnDestroy {
     this.attachmentsService
       .getFilesByEntity(type, projectId)
       .pipe(
+        takeUntil(this.destroy$),
         tap({
           next: (attachments) => {
             this._attachments.next(attachments);
@@ -52,7 +53,7 @@ export class ProjectAttachmentService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

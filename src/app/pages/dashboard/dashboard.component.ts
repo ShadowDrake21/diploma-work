@@ -4,7 +4,7 @@ import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { OnlineUsersComponent } from './components/online-users/online-users.component';
-import { ProjectsQuickLinksComponent } from '../../shared/components/projects-quick-links/projects-quick-links.component';
+import { ProjectsQuickLinksComponent } from '@shared/components/projects-quick-links/projects-quick-links.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RecentProjectsComponent } from './components/recent-projects/recent-projects.component';
 import { BasicStatsComponent } from './components/basic-stats/basic-stats.component';

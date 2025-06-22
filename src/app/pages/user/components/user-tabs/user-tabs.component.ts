@@ -4,13 +4,14 @@ import {
   effect,
   inject,
   input,
+  OnDestroy,
   output,
   signal,
 } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { ProfileProjectsComponent } from '@shared/components/profile-projects/profile-projects.component';
 import { UserService } from '@core/services/users/user.service';
-import { catchError, of } from 'rxjs';
+import { catchError, of, Subject, takeUntil } from 'rxjs';
 import { ProjectType } from '@shared/enums/categories.enum';
 import { UserCollaboratorsComponent } from './components/user-collaborators/user-collaborators.component';
 import { ProjectDTO } from '@models/project.model';
@@ -34,9 +35,10 @@ type TabType = 'publications' | 'patents' | 'researches';
   ],
   templateUrl: './user-tabs.component.html',
 })
-export class TabsComponent {
+export class TabsComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   user = input.required<IUser>();
   pageSize = input.required<number>();
@@ -106,6 +108,7 @@ export class TabsComponent {
     this.userService
       .getProjectsWithDetails(userId)
       .pipe(
+        takeUntil(this.destroy$),
         catchError((error) => {
           this.error.set('Failed to load projects');
           this.notificationService.showError('Failed to load user projects');
@@ -137,5 +140,10 @@ export class TabsComponent {
   private paginate(items: any[], page: number, pageSize: number): any[] {
     const startIndex = page * pageSize;
     return items.slice(startIndex, startIndex + pageSize);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

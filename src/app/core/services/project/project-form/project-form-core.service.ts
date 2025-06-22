@@ -9,13 +9,12 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class ProjectFormCoreService implements OnDestroy {
+export class ProjectFormCoreService {
   loading = new BehaviorSubject<boolean>(false);
   isEditing = false;
   creatorId: number | null = null;
   authors: ResponseUserDTO[] = [];
 
-  protected subscriptions: Subscription[] = [];
   createTypeForm(): FormGroup {
     return new FormGroup({
       type: new FormControl<ProjectType | null>(null, [Validators.required]),
@@ -62,9 +61,5 @@ export class ProjectFormCoreService implements OnDestroy {
 
     form.markAsTouched();
     form.updateValueAndValidity();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 }

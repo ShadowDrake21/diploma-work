@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { BASE_URL } from '@core/constants/default-variables';
 import { Tag, TagDTO } from '@models/tag.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { catchError, map, Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 import { ErrorHandlerService } from '@core/services/utils/error-handler.service';
 
 @Injectable({

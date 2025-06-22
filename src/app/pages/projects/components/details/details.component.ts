@@ -3,12 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PublicationComponent } from './types/publication/publication.component';
 import { ResearchProjectComponent } from './types/research-project/research-project.component';
 import { PatentComponent } from './types/patent/patent.component';
-
 import { HeaderService } from '@core/services/header.service';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { DatePipe, TitleCasePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { filter, finalize, Subscription, take } from 'rxjs';
 import { getStatusOnProgess } from '@shared/utils/format.utils';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
@@ -17,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { ProjectDTO } from '@models/project.model';
 import { ProjectDetailsService } from '@core/services/project/project-details/project-details.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ConfirmationDialogComponent } from '../../../../shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '@shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '@core/authentication/auth.service';
 import { ProjectCommentsComponent } from './components/project-comments/project-comments.component';
@@ -25,7 +24,7 @@ import { ProjectCommentService } from '@core/services/project/project-details/co
 import { ProjectAttachmentService } from '@core/services/project/project-details/attachments/project-attachment.service';
 import { ProjectTagService } from '@core/services/project/project-details/tags/project-tag.service';
 import { NotificationService } from '@core/services/notification.service';
-import { LoaderComponent } from '../../../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { LocalProjectTypePipe } from '@pipes/local-project-type.pipe';
 
 @Component({
@@ -37,7 +36,6 @@ import { LocalProjectTypePipe } from '@pipes/local-project-type.pipe';
     MatButton,
     MatProgressBarModule,
     MatIcon,
-    TitleCasePipe,
     DatePipe,
     TruncateTextPipe,
     MatButtonModule,
@@ -191,7 +189,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private deleteProject(): void {
     this.deleteLoading.set(true);
 
-    this.projectDetailsService
+    const sub = this.projectDetailsService
       .deleteProject(this.workId()!)
       .pipe(finalize(() => this.deleteLoading.set(false)))
       .subscribe({
@@ -211,6 +209,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
           }
         },
       });
+
+    this.subscriptions.push(sub);
   }
 
   goBack() {

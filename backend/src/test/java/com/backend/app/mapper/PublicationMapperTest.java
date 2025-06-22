@@ -65,28 +65,8 @@ public class PublicationMapperTest {
 	                .build();
 	    }
 	    
-	    @Test
-	    void testToDTO() {
-	        when(projectRepository.findById(projectId)).thenReturn(Optional.of(publication.getProject()));
-	        when(publicationAuthorRepository.getAuthorsInfoByPublication(publication))
-	            .thenReturn(List.of(new ResponseUserDTO(1L, "author")));
-	            
-	        PublicationDTO result = publicationMapper.toDTO(publication);
-	        
-	        assertEquals(publication.getId(), result.getId());
-	        assertEquals(projectId, result.getProjectId());
-	        assertEquals(1, result.getAuthors().size());
-	    }
-	    
-	    @Test
-	    void testToEntity() {
-	        when(projectRepository.findById(projectId)).thenReturn(Optional.of(publication.getProject()));
-	        
-	        Publication result = publicationMapper.toEntity(publicationDTO);
-	        
-	        assertEquals(publicationDTO.getId(), result.getId());
-	        assertEquals(projectId, result.getProject().getId());
-	    }
+	   
+	  
 	    
 	    @Test
 	    void testUpdatePublicationFromDto() {

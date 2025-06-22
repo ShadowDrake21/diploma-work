@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ProjectCardComponent } from '../../../../shared/components/project-card/project-card.component';
+import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { NotificationService } from '@core/services/notification.service';
 import { ProjectService } from '@core/services/project/models/project.service';
 import { ProjectDTO } from '@models/project.model';

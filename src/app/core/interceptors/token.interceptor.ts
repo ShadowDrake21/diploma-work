@@ -7,7 +7,7 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/authentication/auth.service';
-import { catchError, Observable, switchMap, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 
 export function tokenInterceptor(
   request: HttpRequest<unknown>,

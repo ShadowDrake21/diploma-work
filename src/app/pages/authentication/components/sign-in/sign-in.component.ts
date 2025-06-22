@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {
@@ -13,7 +13,6 @@ import { Router, RouterLink } from '@angular/router';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { AuthService } from '@core/authentication/auth.service';
 import {
@@ -21,10 +20,9 @@ import {
   SignInForm,
   SignInFormValues,
 } from '@shared/types/forms/auth-form.types';
-import { switchMap } from 'rxjs';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { UserStore } from '@core/services/stores/user-store.service';
 import { NotificationService } from '@core/services/notification.service';
-import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 import { ErrorTruncateTextPipe } from '@pipes/error-truncate-text.pipe';
 
 @Component({
@@ -44,12 +42,12 @@ import { ErrorTruncateTextPipe } from '@pipes/error-truncate-text.pipe';
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',
 })
-export class SignInComponent implements OnInit {
-  private readonly destroyRef = inject(DestroyRef);
+export class SignInComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
   private readonly userStore = inject(UserStore);
+  private destroy$ = new Subject<void>();
 
   signInForm = new FormGroup<SignInForm>({
     email: new FormControl('', {
@@ -78,12 +76,10 @@ export class SignInComponent implements OnInit {
   private setupFormValidation() {
     Object.entries(this.signInForm.controls).forEach(([key, control]) => {
       if (key !== 'rememberMe') {
-        control.statusChanges
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => {
-            this.updateErrorMessage(key as keyof SignInErrorMessages);
-            this.formError.set(null);
-          });
+        control.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+          this.updateErrorMessage(key as keyof SignInErrorMessages);
+          this.formError.set(null);
+        });
       }
     });
   }
@@ -106,7 +102,10 @@ export class SignInComponent implements OnInit {
 
     this.authService
       .login(this.signInForm.value as SignInFormValues)
-      .pipe(switchMap(() => this.userStore.loadCurrentUser()))
+      .pipe(
+        switchMap(() => this.userStore.loadCurrentUser()),
+        takeUntil(this.destroy$)
+      )
       .subscribe({
         next: () => {
           this.router.navigate(['/']);
@@ -136,5 +135,10 @@ export class SignInComponent implements OnInit {
     if (control) {
       this.errorMessages[key].set(getValidationErrorMessage(control, key));
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

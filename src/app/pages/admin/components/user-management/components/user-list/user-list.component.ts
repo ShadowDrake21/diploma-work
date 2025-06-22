@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,10 +25,10 @@ import { RecentUsersComponent } from './components/recent-users/recent-users.com
 import { SortingDirection } from '@shared/enums/sorting.enum';
 import { IsCurrentUserPipe } from '@pipes/is-current-user.pipe';
 import { NotificationService } from '@core/services/notification.service';
-import { catchError, finalize, Observable, throwError } from 'rxjs';
+import { finalize, Observable, Subject, takeUntil } from 'rxjs';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { MatCard, MatCardModule } from '@angular/material/card';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-user-list',
@@ -43,12 +50,13 @@ import { MatCard, MatCardModule } from '@angular/material/card';
   ],
   templateUrl: './user-list.component.html',
 })
-export class UserListComponent {
+export class UserListComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly dialog = inject(MatDialog);
   private readonly notificationService = inject(NotificationService);
   private readonly observer = inject(BreakpointObserver);
+  private destroy$ = new Subject<void>();
 
   users = signal<IUser[]>([]);
   isLoading = signal<boolean>(false);
@@ -80,13 +88,16 @@ export class UserListComponent {
   }
 
   ngOnInit(): void {
-    this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
-      if (screenSize.matches) {
-        this.isMobile.set(false);
-      } else {
-        this.isMobile.set(true);
-      }
-    });
+    this.observer
+      .observe(['(max-width: 800px)'])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((screenSize) => {
+        if (screenSize.matches) {
+          this.isMobile.set(false);
+        } else {
+          this.isMobile.set(true);
+        }
+      });
   }
 
   loadUsers(): void {
@@ -100,7 +111,10 @@ export class UserListComponent {
         this.sortField(),
         this.sortDirection()
       )
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntil(this.destroy$)
+      )
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -238,7 +252,7 @@ export class UserListComponent {
     actionType: string,
     reloadOnSuccess: boolean = true
   ): void {
-    action$.subscribe({
+    action$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.notificationService.showSuccess(successMessage);
         if (reloadOnSuccess) {
@@ -279,5 +293,10 @@ export class UserListComponent {
       return `Неможливо ${actionType} користувача: ${error.error.message}`;
     }
     return error.error?.message || `Не вдалося ${actionType} користувача`;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

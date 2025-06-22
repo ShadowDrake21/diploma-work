@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {
@@ -9,7 +9,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { matchValidator } from '../../validators/match.validator';
 import { getValidationErrorMessage } from '@shared/utils/form.utils';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
@@ -21,6 +20,7 @@ import {
 import { UserRole } from '@shared/enums/user.enum';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'auth-sign-up',
@@ -35,11 +35,11 @@ import { MatIcon } from '@angular/material/icon';
   ],
   templateUrl: './sign-up.component.html',
 })
-export class SignUpComponent implements OnInit {
-  private readonly destroyRef = inject(DestroyRef);
+export class SignUpComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   readonly isLoading = signal(false);
   readonly formDisabled = signal(false);
@@ -102,7 +102,7 @@ export class SignUpComponent implements OnInit {
     ).forEach((key) => {
       const control = this.signUpForm.get(key) as FormControl;
       control.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(takeUntil(this.destroy$))
         .subscribe(() => this.updateErrorMessage(key));
     });
   }
@@ -126,6 +126,7 @@ export class SignUpComponent implements OnInit {
 
     this.authService
       .register({ username: name, email, password, role })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.notificationService.showSuccess(
@@ -169,5 +170,10 @@ export class SignUpComponent implements OnInit {
     Object.values(this.signUpForm.controls).forEach((control) => {
       control.markAsTouched();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

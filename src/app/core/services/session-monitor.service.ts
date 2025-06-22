@@ -1,7 +1,6 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
 import { AuthService } from '@core/authentication/auth.service';
-import { catchError, of, Subscription, timer } from 'rxjs';
-import { NotificationService } from './notification.service';
+import { Subscription, timer } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
