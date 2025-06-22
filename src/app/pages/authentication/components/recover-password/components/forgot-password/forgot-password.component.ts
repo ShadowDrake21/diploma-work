@@ -15,6 +15,7 @@ import { AuthService } from '@core/authentication/auth.service';
 import { ErrorMatcher } from '@shared/utils/errorMatcher.utils';
 import { CustomButtonComponent } from '@shared/components/custom-button/custom-button.component';
 import { NotificationService } from '@core/services/notification.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-forgot-password',
@@ -34,6 +35,7 @@ export class ForgotPasswordComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   readonly emailControl = new FormControl('', [
     Validators.required,
@@ -55,6 +57,7 @@ export class ForgotPasswordComponent implements OnDestroy {
 
     this.authService
       .requestPasswordReset({ email: this.emailControl.value })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           console.log(response);
@@ -107,5 +110,7 @@ export class ForgotPasswordComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     clearInterval(this.cooldownInterval);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

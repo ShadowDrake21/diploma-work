@@ -10,7 +10,7 @@ import { IUser } from '@models/user.model';
 
 import { IComment } from '@models/comment.types';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { catchError, finalize, map, Observable, of, tap } from 'rxjs';
+import { catchError, finalize, Observable, of, tap } from 'rxjs';
 import { UserLogin } from '@models/user-login.model';
 import { SortingDirection } from '@shared/enums/sorting.enum';
 import { NotificationService } from './notification.service';

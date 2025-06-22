@@ -1,11 +1,10 @@
-import { Component, computed, input, OnDestroy, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { FilterPanelComponent } from '../filter-panel/filter-panel.component';
 import { ProjectCardComponent } from '@shared/components/project-card/project-card.component';
 import { ProjectDTO } from '@models/project.model';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { ProjectSearchFilters } from '@shared/types/search.types';
 import { MatButton } from '@angular/material/button';
-import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'shared-profile-projects',
@@ -14,7 +13,6 @@ import { TitleCasePipe } from '@angular/common';
     FilterPanelComponent,
     ProjectCardComponent,
     MatButton,
-    TitleCasePipe,
   ],
   templateUrl: './profile-projects.component.html',
 })

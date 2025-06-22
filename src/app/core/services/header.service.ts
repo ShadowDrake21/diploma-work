@@ -1,6 +1,12 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, filter, Subscription } from 'rxjs';
+import {
+  BehaviorSubject,
+  filter,
+  Subject,
+  Subscription,
+  takeUntil,
+} from 'rxjs';
 
 export interface RouteTitleConfig {
   path: string;
@@ -15,8 +21,8 @@ export class HeaderService implements OnDestroy {
   private readonly defaultTitle = 'Система обліку науково-технічної продукції';
   private headerTitle$$ = new BehaviorSubject<string>(this.defaultTitle);
   public headerTitle$ = this.headerTitle$$.asObservable();
+  private destroy$ = new Subject<void>();
 
-  private routerSubscription!: Subscription;
   private routeTitles: RouteTitleConfig[] = [
     { path: '/projects', title: 'Проекти', matchStrategy: 'startsWith' },
     {
@@ -37,6 +43,7 @@ export class HeaderService implements OnDestroy {
   constructor(private router: Router) {
     this.router.events
       .pipe(
+        takeUntil(this.destroy$),
         filter(
           (event): event is NavigationEnd => event instanceof NavigationEnd
         )
@@ -73,6 +80,7 @@ export class HeaderService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.routerSubscription?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

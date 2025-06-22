@@ -12,7 +12,7 @@ import {
   Observable,
   of,
   Subject,
-  switchMap,
+  takeUntil,
   tap,
   throwError,
 } from 'rxjs';
@@ -27,8 +27,6 @@ import {
 } from '@shared/types/auth.types';
 import { IJwtPayload } from '@shared/types/jwt.types';
 import { UserRole } from '@shared/enums/user.enum';
-import { UserService } from '@core/services/users/user.service';
-import { currentUserSig } from '@core/shared/shared-signals';
 import { NotificationService } from '@core/services/notification.service';
 import { ApplicationError } from '@core/errors/application-error';
 
@@ -39,6 +37,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   private apiUrl = 'http://localhost:8080/api/auth';
 
@@ -47,13 +46,11 @@ export class AuthService {
   public sessionWarningSubject = new Subject<number>();
   private tokenRefreshedSubject = new Subject<string | null>();
 
-  // Public observables
   public currentUser$ = this.currentUserSubject.asObservable();
   public rememberSession$ = this.rememberSessionSubject.asObservable();
   public sessionWarning$ = this.sessionWarningSubject.asObservable();
   public tokenRefreshed$ = this.tokenRefreshedSubject.asObservable();
 
-  // State flags
   public isRefreshingToken = false;
 
   public isAdminSig = signal(false);
@@ -153,13 +150,16 @@ export class AuthService {
   }
 
   public logout(): void {
-    this.http.post<string>(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => this.handleLogoutSuccess(),
-      error: (error) => {
-        console.error('Logout error:', error);
-        this.handleLogoutSuccess();
-      },
-    });
+    this.http
+      .post<string>(`${this.apiUrl}/logout`, {})
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.handleLogoutSuccess(),
+        error: (error) => {
+          console.error('Logout error:', error);
+          this.handleLogoutSuccess();
+        },
+      });
   }
 
   /* ------------------------- Token Management ------------------------- */

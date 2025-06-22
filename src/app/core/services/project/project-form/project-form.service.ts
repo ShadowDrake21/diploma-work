@@ -5,7 +5,14 @@ import {
   UpdateProjectRequest,
 } from '@models/project.model';
 import { ProjectType } from '@shared/enums/categories.enum';
-import { catchError, finalize, map, Observable, throwError } from 'rxjs';
+import {
+  catchError,
+  finalize,
+  Observable,
+  Subject,
+  takeUntil,
+  throwError,
+} from 'rxjs';
 import { ProjectDataService } from '../../project/project-data/project-data.service';
 import { UserService } from '../../users/user.service';
 import { PublicationDTO } from '@models/publication.model';
@@ -26,11 +33,14 @@ export class ProjectFormService extends ProjectFormCoreService {
   private readonly publicationFormService = inject(PublicationFormService);
   private readonly patentFormService = inject(PatentFormService);
   private readonly researchFormService = inject(ResearchFormService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     super();
-    this.subscriptions.push(
-      this.userService.getCurrentUser().subscribe({
+    this.userService
+      .getCurrentUser()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (user) => {
           if (user && user.id) {
             this.creatorId = +user.id;
@@ -39,8 +49,7 @@ export class ProjectFormService extends ProjectFormCoreService {
         error: (err) => {
           console.error('Failed to get current user', err);
         },
-      })
-    );
+      });
   }
 
   createSpecificForm(type: ProjectType): FormGroup {

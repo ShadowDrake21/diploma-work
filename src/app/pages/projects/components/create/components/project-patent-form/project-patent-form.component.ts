@@ -1,6 +1,6 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of, Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,10 +36,11 @@ import { PATENT_FORM_ERRORS } from '../errors/patent.errors';
 })
 export class ProjectPatentFormComponent
   extends BaseFormComponent
-  implements OnInit
+  implements OnInit, OnDestroy
 {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   patentsForm = input.required<PatentFormGroup>();
   allUsers$!: Observable<BaseFormInputs['allUsers']>;
@@ -63,7 +64,8 @@ export class ProjectPatentFormComponent
 
     this.patentsForm()
       .get('primaryAuthor')
-      ?.valueChanges.subscribe((authorId) => {
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((authorId) => {
         this.selectedPrimaryAuthor = authorId !== null ? +authorId : null;
 
         const coInventors = this.patentsForm().get('coInventors')?.value;
@@ -83,4 +85,9 @@ export class ProjectPatentFormComponent
     this.compareIds(id1, id2);
 
   compareCoInventors = (id1: number, id2: number) => this.compareIds(id1, id2);
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

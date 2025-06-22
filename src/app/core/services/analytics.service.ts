@@ -12,9 +12,17 @@ import {
   CommentActivityDTO,
   SystemPerformanceDTO,
 } from '@models/analytics.model';
-import { catchError, finalize, map, Observable, of, tap } from 'rxjs';
+import {
+  catchError,
+  finalize,
+  map,
+  Observable,
+  of,
+  Subject,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import { NotificationService } from './notification.service';
-import { AuthService } from '@core/authentication/auth.service';
 
 type AnalyticsEndpoint = {
   [K in keyof AnalyticsService]: K extends `get${infer T}`
@@ -29,6 +37,7 @@ export class AnalyticsService {
   private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);
   private readonly apiUrl = BASE_URL + 'admin/analytics';
+  private destroy$ = new Subject<void>();
 
   readonly systemOverview = signal<SystemOverviewDTO | null>(null);
   readonly userGrowth = signal<UserGrowthDTO[] | null>(null);
@@ -153,14 +162,14 @@ export class AnalyticsService {
   }
 
   refreshAll(): void {
-    this.getSystemOverview().subscribe();
-    this.getUserGrowth().subscribe();
-    this.getProjectDistribution().subscribe();
-    this.getProjectProgress().subscribe();
-    this.getPublicationMetrics().subscribe();
-    this.getPatentMetrics().subscribe();
-    this.getResearchFunding().subscribe();
-    this.getCommentActivity().subscribe();
-    this.getSystemPerformance().subscribe();
+    this.getSystemOverview().pipe(takeUntil(this.destroy$)).subscribe();
+    this.getUserGrowth().pipe(takeUntil(this.destroy$)).subscribe();
+    this.getProjectDistribution().pipe(takeUntil(this.destroy$)).subscribe();
+    this.getProjectProgress().pipe(takeUntil(this.destroy$)).subscribe();
+    this.getPublicationMetrics().pipe(takeUntil(this.destroy$)).subscribe();
+    this.getPatentMetrics().pipe(takeUntil(this.destroy$)).subscribe();
+    this.getResearchFunding().pipe(takeUntil(this.destroy$)).subscribe();
+    this.getCommentActivity().pipe(takeUntil(this.destroy$)).subscribe();
+    this.getSystemPerformance().pipe(takeUntil(this.destroy$)).subscribe();
   }
 }

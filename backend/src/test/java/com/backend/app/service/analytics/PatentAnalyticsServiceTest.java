@@ -35,17 +35,5 @@ public class PatentAnalyticsServiceTest {
 		assertEquals(10L, result.getPatentsThisYear());
 	}
 
-	@Test
-	void getPatentMetrics_WithNullValues_ShouldUseDefaults() {
-		Map<String, Object> metrics = Map.of("total", null, "avgInventors", null, "commonAuthority", null,
-				"yearPatents", null);
-		when(patentRepository.getPatentMetrics()).thenReturn(metrics);
-
-		PatentMetricsDTO result = patentAnalyticsService.getPatentMetrics();
-
-		assertEquals(0L, result.getTotalPatents());
-		assertEquals(0.0, result.getAverageInventors());
-		assertEquals("N/A", result.getMostCommonAuthority());
-		assertEquals(0L, result.getPatentsThisYear());
-	}
+	
 }

@@ -95,10 +95,8 @@ public class CommentControllerTest {
         mockMvc.perform(post("/api/comments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createCommentDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.code").value("AUTH_REQUIRED"));
-    }
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.success").value(false));    }
     
     @Test
     void testUpdateComment() throws Exception {

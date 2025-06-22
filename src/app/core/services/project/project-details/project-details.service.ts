@@ -20,7 +20,7 @@ import { NotificationService } from '@core/services/notification.service';
 export class ProjectDetailsService implements OnDestroy {
   private readonly projectService = inject(ProjectService);
   private readonly notificationService = inject(NotificationService);
-  private destroyed$ = new Subject<void>();
+  private destroy$ = new Subject<void>();
   private currentProjectId: string | null = null;
 
   private _project = new BehaviorSubject<ProjectDTO | null>(null);
@@ -33,7 +33,7 @@ export class ProjectDetailsService implements OnDestroy {
     this.projectService
       .getProjectById(projectId)
       .pipe(
-        takeUntil(this.destroyed$),
+        takeUntil(this.destroy$),
         catchError(() => {
           this._project.next(null);
           return of(null);
@@ -72,16 +72,16 @@ export class ProjectDetailsService implements OnDestroy {
     this.currentProjectId = null;
   }
 
-  ngOnDestroy() {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
-
   getCurrentProjectId(): string | null {
     return this.currentProjectId;
   }
 
   getCurrentProjectType(): ProjectType | undefined {
     return this._project.value?.type;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

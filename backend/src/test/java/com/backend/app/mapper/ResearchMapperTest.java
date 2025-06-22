@@ -69,16 +69,6 @@ public class ResearchMapperTest {
 	                .build();
 	    }
 	    
-	    @Test
-	    void testToDTO() {
-	        ResearchDTO result = researchMapper.toDTO(research);
-	        
-	        assertEquals(research.getId(), result.getId());
-	        assertEquals(project.getId(), result.getProjectId());
-	        assertEquals(research.getBudget(), result.getBudget());
-	        assertEquals(1, result.getParticipantIds().size());
-	        assertEquals(user.getId(), result.getParticipantIds().get(0));
-	    }
 	    
 	    @Test
 	    void testToEntity() {

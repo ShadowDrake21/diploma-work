@@ -1,6 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { UserService } from '../users/user.service';
-import { catchError, map, of, tap, throwError } from 'rxjs';
+import { catchError, of, tap } from 'rxjs';
 import { currentUserSig } from '@core/shared/shared-signals';
 import { AuthService } from '@core/authentication/auth.service';
 import { NotificationService } from '../notification.service';
@@ -25,7 +25,9 @@ export class UserStore {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => {
         if (user) {
-          this.loadCurrentUser().subscribe();
+          this.loadCurrentUser()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         } else {
           currentUserSig.set(null);
         }
@@ -34,7 +36,9 @@ export class UserStore {
 
   public initializeCurrentUser() {
     if (this.authService.isAuthenticated() && !currentUserSig()) {
-      this.loadCurrentUser().subscribe();
+      this.loadCurrentUser()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 

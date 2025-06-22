@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { MetricCardItemComponent } from '@shared/components/metric-card-item/metric-card-item.component';
@@ -11,14 +18,14 @@ import { TabsComponent } from './components/user-tabs/user-tabs.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { UserService } from '@core/services/users/user.service';
-import { catchError, of } from 'rxjs';
+import { catchError, of, Subject, takeUntil } from 'rxjs';
 import { ProjectDTO } from '@models/project.model';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RoleFormatPipe } from '@pipes/role-format.pipe';
 import { NotificationService } from '@core/services/notification.service';
 import { MatIcon } from '@angular/material/icon';
-import { LoaderComponent } from '../../shared/components/loader/loader.component';
+import { LoaderComponent } from '@shared/components/loader/loader.component';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 
 @Component({
@@ -40,11 +47,12 @@ import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
 
   providers: [provideNativeDateAdapter()],
 })
-export class UserProfileComponent implements OnInit {
+export class UserProfileComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly headerService = inject(HeaderService);
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   userId = signal<number | null>(null);
   user = signal<IUser | null>(null);
@@ -112,6 +120,7 @@ export class UserProfileComponent implements OnInit {
     this.userService
       .getFullUserById(userId)
       .pipe(
+        takeUntil(this.destroy$),
         catchError((err) => {
           this.error.set('Не вдалося завантажити дані користувача');
           this.notificationService.showError(
@@ -144,6 +153,7 @@ export class UserProfileComponent implements OnInit {
     this.userService
       .getUserProjects(userId)
       .pipe(
+        takeUntil(this.destroy$),
         catchError((err) => {
           this.error.set('Не вдалося завантажити проекти користувачів');
           this.notificationService.showError(
@@ -161,5 +171,10 @@ export class UserProfileComponent implements OnInit {
   retryLoading(): void {
     this.error.set(null);
     this.loadUserData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

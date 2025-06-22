@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,9 +28,17 @@ public class ProjectTest {
 	void setUp() {
 		creator = User.builder().id(1L).username("creator").build();
 		tag = Tag.builder().id(UUID.randomUUID()).name("Test Tag").build();
-
-		project = Project.builder().id(projectId).type(ProjectType.PUBLICATION).title("Test Project")
-				.description("Test Description").progress(50).createdAt(now).updatedAt(now).creator(creator).build();
+		 project = Project.builder()
+		            .id(projectId)
+		            .type(ProjectType.PUBLICATION)
+		            .title("Test Project")
+		            .description("Test Description")
+		            .progress(50)
+		            .createdAt(now)
+		            .updatedAt(now)
+		            .creator(creator)
+		            .tags(new HashSet<>())
+		            .build();
 	}
 
 	@Test

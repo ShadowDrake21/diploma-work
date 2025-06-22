@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -7,7 +14,7 @@ import { NotificationService } from '@core/services/notification.service';
 import { UserService } from '@core/services/users/user.service';
 import { UserCardComponent } from '@shared/components/user-card/user-card.component';
 import { IUser } from '@shared/models/user.model';
-import { catchError, of } from 'rxjs';
+import { catchError, of, Subject, take, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'user-collaborators',
@@ -20,9 +27,10 @@ import { catchError, of } from 'rxjs';
   ],
   templateUrl: './user-collaborators.component.html',
 })
-export class UserCollaboratorsComponent {
+export class UserCollaboratorsComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   userId = input.required<number>();
 
@@ -49,6 +57,7 @@ export class UserCollaboratorsComponent {
     this.userService
       .getUserCollaborators(userId, page, size)
       .pipe(
+        takeUntil(this.destroy$),
         catchError((error) => {
           this.error.set('Не вдалося завантажити співавторів');
           this.notificationService.showError(
@@ -80,5 +89,10 @@ export class UserCollaboratorsComponent {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
     this.loadCollaborators(this.userId(), event.pageIndex, event.pageSize);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

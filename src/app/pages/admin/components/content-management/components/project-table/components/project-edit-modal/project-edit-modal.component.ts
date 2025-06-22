@@ -33,7 +33,7 @@ import { ProjectDTO, UpdateProjectRequest } from '@models/project.model';
 import { Tag } from '@models/tag.model';
 import { finalize } from 'rxjs';
 import { FileHandlerFacadeService } from '@core/services/files/file-handler-facade.service';
-import { FileUploadListComponent } from '../../../../../../../projects/components/create/components/project-general-information/components/file-upload-list/file-upload-list.component';
+import { FileUploadListComponent } from '@pages/projects/components/create/components/project-general-information/components/file-upload-list/file-upload-list.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificationService } from '@core/services/notification.service';
 import { LoaderComponent } from '@shared/components/loader/loader.component';

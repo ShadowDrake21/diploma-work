@@ -89,7 +89,7 @@ public class S3ControllerTest {
         when(s3Service.updateFiles(any(), any(), any())).thenReturn(expectedFiles);
         
         mockMvc.perform(multipart("/api/s3/update-files")
-                .file(testFile)
+                .file("files", testFile.getBytes())  
                 .param("entityType", testEntityType.toString())
                 .param("entityId", testEntityId.toString()))
             .andExpect(status().isOk())

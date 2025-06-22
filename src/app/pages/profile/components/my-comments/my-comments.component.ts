@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -9,6 +9,7 @@ import { currentUserSig } from '@core/shared/shared-signals';
 import { PaginatedResponse } from '@models/api-response.model';
 import { IComment } from '@models/comment.types';
 import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'profile-my-comments',
@@ -22,8 +23,9 @@ import { TruncateTextPipe } from '@pipes/truncate-text.pipe';
   ],
   templateUrl: './my-comments.component.html',
 })
-export class MyCommentsComponent {
+export class MyCommentsComponent implements OnDestroy {
   private readonly commentService = inject(CommentService);
+  private destroy$ = new Subject<void>();
 
   pageSize = signal(10);
   pageIndex = signal(0);
@@ -47,6 +49,7 @@ export class MyCommentsComponent {
         this.pageIndex(),
         this.pageSize()
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe((response) => {
         this.comments.set(response);
       });
@@ -62,5 +65,10 @@ export class MyCommentsComponent {
       hasNext: false,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

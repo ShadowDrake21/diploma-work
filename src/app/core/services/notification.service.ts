@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import { TranslateService } from '@ngx-translate/core';
 
 export enum NotificationType {
   SUCCESS = 'success',

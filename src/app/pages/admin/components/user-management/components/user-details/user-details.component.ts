@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,8 +13,10 @@ import { IUser } from '@models/user.model';
 import {
   catchError,
   firstValueFrom,
+  Subject,
   switchMap,
   take,
+  takeUntil,
   tap,
   throwError,
 } from 'rxjs';
@@ -52,7 +54,7 @@ import { LoaderComponent } from '@shared/components/loader/loader.component';
   ],
   templateUrl: './user-details.component.html',
 })
-export class UserDetailsComponent implements OnInit {
+export class UserDetailsComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
@@ -60,6 +62,7 @@ export class UserDetailsComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly projectService = inject(ProjectService);
   private readonly dialog = inject(MatDialog);
+  private destroy$ = new Subject<void>();
 
   readonly user = signal<IUser | null>(null);
   readonly isLoading = signal<boolean>(false);
@@ -101,7 +104,7 @@ export class UserDetailsComponent implements OnInit {
             tap((response) => console.log('API response:', response)),
             catchError((err) => {
               console.error('Error in getFullUserById:', err);
-              return throwError(() => err); // Re-throw the error
+              return throwError(() => err);
             })
           );
         })
@@ -267,7 +270,6 @@ export class UserDetailsComponent implements OnInit {
   ): Promise<void> {
     try {
       this.isProcessing.set(true);
-      const response = (await firstValueFrom(action())) as any;
 
       this.notificationService.showSuccess(successMessage);
       if (updatedUser) this.user.set(updatedUser);
@@ -290,6 +292,7 @@ export class UserDetailsComponent implements OnInit {
     this.isLoading.set(true);
     this.projectService
       .getMyProjects(this.filters(), this.currentPage(), this.pageSize())
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           this.userProjects.set(response.data || []);
@@ -322,5 +325,10 @@ export class UserDetailsComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/admin/users-management/users']);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -21,9 +21,10 @@ import {
   map,
   Observable,
   of,
+  Subject,
   Subscription,
   switchMap,
-  tap,
+  takeUntil,
 } from 'rxjs';
 import { NotificationService } from '@core/services/notification.service';
 import { LoaderComponent } from '@shared/components/loader/loader.component';
@@ -47,6 +48,7 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
   private readonly notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   projects = signal<ProjectDTO[]>([]);
   isLoading = signal(false);
@@ -158,7 +160,10 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
       this.previousQueryParams = this.getCurrentQueryParams();
     }
     const sub = this.route.queryParamMap
-      .pipe(switchMap((params) => this.loadProjects(params.get('mode'))))
+      .pipe(
+        switchMap((params) => this.loadProjects(params.get('mode'))),
+        takeUntil(this.destroy$)
+      )
       .subscribe();
 
     this.subscriptions.push(sub);
@@ -166,5 +171,7 @@ export class ListProjectsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

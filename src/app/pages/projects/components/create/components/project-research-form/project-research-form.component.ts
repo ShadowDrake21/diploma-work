@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 import { Filter } from '@shared/types/filters.types';
 import { BaseFormComponent } from '@shared/abstract/base-form/base-form.component';
 import {
@@ -19,7 +19,7 @@ import { UserService } from '@core/services/users/user.service';
 import { NotificationService } from '@core/services/notification.service';
 import { statuses } from '@shared/content/project.content';
 import { RESEARCH_PROJECT_ERRORS } from '../errors/research.errors';
-import { FormErrorComponentComponent } from '../../../../../../shared/components/form-error-component/form-error-component.component';
+import { FormErrorComponentComponent } from '@shared/components/form-error-component/form-error-component.component';
 
 @Component({
   selector: 'create-project-research-form',
