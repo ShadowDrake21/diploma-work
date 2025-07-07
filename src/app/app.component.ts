@@ -16,6 +16,7 @@ import { HeaderComponent } from '@shared/components/header/header.component';
 import { filter } from 'rxjs';
 import { RecentUsersComponent } from '@pages/dashboard/components/recent-users/recent-users.component';
 import { AuthService } from '@core/authentication/auth.service';
+import { BASE_URL } from '@core/constants/default-variables';
 
 @Component({
   selector: 'app-root',

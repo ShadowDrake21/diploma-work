@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,8 @@ import com.backend.app.exception.UnauthorizedAccessException;
 import com.backend.app.mapper.ResearchMapper;
 import com.backend.app.model.Research;
 import com.backend.app.service.ResearchService;
+import com.backend.app.validation.CreateValidation;
+import com.backend.app.validation.UpdateValidation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -100,7 +103,7 @@ public class ResearchController {
 	
 	@Operation(summary = "Create a new research project")
 	@PostMapping
-	public ResponseEntity<ApiResponse<ResearchDTO>> createResearch(@Valid @RequestBody CreateResearchRequest request) {
+	public ResponseEntity<ApiResponse<ResearchDTO>> createResearch( @Validated(CreateValidation.class) @RequestBody CreateResearchRequest request) {
 		 try {
 	            log.info("Creating new research project with request: {}", request);
 	            Research createdResearch = researchService.createResearch(request);
@@ -136,7 +139,7 @@ public class ResearchController {
 	
 	@Operation(summary = "Update an existing research project")
 	@PutMapping("/{id}")
-	public ResponseEntity<ApiResponse<ResearchDTO>> updateResearch(@Parameter(description = "ID of the research project to update") @PathVariable UUID id, @Valid @RequestBody ResearchDTO researchDTO) {
+	public ResponseEntity<ApiResponse<ResearchDTO>> updateResearch(@Parameter(description = "ID of the research project to update") @PathVariable UUID id,  @Validated(UpdateValidation.class) @RequestBody ResearchDTO researchDTO) {
 		 try {
 	            log.info("Updating research project with ID: {}, data: {}", id, researchDTO);
 	            ResearchDTO updatedResearch = researchService.updateResearch(id, researchDTO);

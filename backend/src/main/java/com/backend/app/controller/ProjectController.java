@@ -52,6 +52,7 @@ import com.backend.app.service.ProjectService;
 import com.backend.app.service.PublicationService;
 import com.backend.app.service.ResearchService;
 import com.backend.app.service.UserService;
+import com.backend.app.validation.UpdateValidation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -152,7 +153,7 @@ public class ProjectController {
 	@PutMapping("/{id}")
 	public ResponseEntity<ApiResponse<UUID>> updateProject(
 			@Parameter(description = "ID of the project to update") @PathVariable UUID id,
-			@Valid @RequestBody ProjectDTO projectDTO) {
+			@Validated(UpdateValidation.class) @RequestBody ProjectDTO projectDTO) {
 		log.debug("Updating project with ID: {}", id);
 		try {
 			Project updatedProject = projectService.updateProject(id, projectDTO).orElseThrow(

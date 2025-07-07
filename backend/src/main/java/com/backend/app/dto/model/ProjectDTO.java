@@ -54,7 +54,7 @@ public class ProjectDTO {
 	@Builder.Default
 	private Set<UUID> tagIds =  Set.of();
 	
-	@NotNull(message = "Creator ID is required")
+	@NotNull(message = "Creator ID is required", groups = CreateValidation.class)
     private Long createdBy;
     
     private Long deletedUserId;
@@ -81,4 +81,6 @@ public class ProjectDTO {
                 .deletedUserId(project.getDeletedUserId())
                 .build();
     }
+	
+
 }

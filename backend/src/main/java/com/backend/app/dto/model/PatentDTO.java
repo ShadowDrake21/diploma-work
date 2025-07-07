@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import com.backend.app.validation.CreateValidation;
+import com.backend.app.validation.UpdateValidation;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
@@ -20,8 +23,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatentDTO {
-	@Null(message = "ID should not be provided for new patents")
-    private UUID id;
+	@Null(message = "ID should not be provided for new patents", groups = CreateValidation.class)
+	@NotNull(message = "ID is required for updates", groups = UpdateValidation.class)
+	private UUID id;
 	
 	@NotNull(message = "Project ID is required")
     private UUID projectId; 

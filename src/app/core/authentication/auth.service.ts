@@ -29,6 +29,7 @@ import { IJwtPayload } from '@shared/types/jwt.types';
 import { UserRole } from '@shared/enums/user.enum';
 import { NotificationService } from '@core/services/notification.service';
 import { ApplicationError } from '@core/errors/application-error';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -39,7 +40,7 @@ export class AuthService {
   private readonly notificationService = inject(NotificationService);
   private destroy$ = new Subject<void>();
 
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl = `${environment.ANGULAR_APP_API_URL}auth`;
 
   private currentUserSubject = new BehaviorSubject<IJwtPayload | null>(null);
   private rememberSessionSubject = new BehaviorSubject<boolean>(false);

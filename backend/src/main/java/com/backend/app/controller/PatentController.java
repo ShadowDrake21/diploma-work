@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +28,8 @@ import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.mapper.PatentMapper;
 import com.backend.app.model.Patent;
 import com.backend.app.service.PatentService;
+import com.backend.app.validation.CreateValidation;
+import com.backend.app.validation.UpdateValidation;
 
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
@@ -107,7 +110,7 @@ public class PatentController {
      * @return Created PatentDTO
      */
 	@PostMapping
-	public ResponseEntity<ApiResponse<PatentDTO>> createPatent(@Valid @RequestBody CreatePatentRequest request) {
+	public ResponseEntity<ApiResponse<PatentDTO>> createPatent( @Validated(CreateValidation.class) @RequestBody CreatePatentRequest request) {
 		
 		try {
 			log.info("Creating new patent for project: {}", request.getProjectId());
@@ -149,7 +152,7 @@ public class PatentController {
      * @return Updated PatentDTO
      */
 	@PutMapping("/{id}")
-	public ResponseEntity<ApiResponse<PatentDTO>> updatePatent(@PathVariable UUID id, @Valid @RequestBody PatentDTO patentDTO) {
+	public ResponseEntity<ApiResponse<PatentDTO>> updatePatent(@PathVariable UUID id, @Validated(UpdateValidation.class) @RequestBody PatentDTO patentDTO) {
 		try {
             log.info("Updating patent with id: {}", id);
             

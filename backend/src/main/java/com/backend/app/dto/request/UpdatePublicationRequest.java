@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class UpdatePublicationRequest {
-	@NotNull(message = "Project is required")
 	private Project project;
 	private List<Long> authors;
 	private LocalDate publicationDate;

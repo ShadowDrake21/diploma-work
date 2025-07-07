@@ -8,7 +8,7 @@ import {
   UpdateResearchRequest,
 } from '@models/research.model';
 import { getAuthHeaders } from '@core/utils/auth.utils';
-import { catchError, Observable } from 'rxjs';
+import { catchError, Observable, tap } from 'rxjs';
 import { ErrorHandlerService } from '@core/services/utils/error-handler.service';
 
 @Injectable({
@@ -78,16 +78,18 @@ export class ResearchService {
   }
 
   update(id: string, research: UpdateResearchRequest): Observable<ResearchDTO> {
-    console.log('updateResearch', research);
+    console.log('Sending research update:', research); // More detailed logging
     return this.http
       .put<ResearchDTO>(`${this.apiUrl}/${id}`, research, getAuthHeaders())
       .pipe(
-        catchError((error) =>
-          this.errorHandler.handleServiceError(
+        tap((response) => console.log('Update successful:', response)), // Log success
+        catchError((error) => {
+          console.error('Research update failed:', error); // Detailed error logging
+          return this.errorHandler.handleServiceError(
             error,
             `Не вдалося оновити дослідження з ідентифікатором ${id}`
-          )
-        )
+          );
+        })
       );
   }
 

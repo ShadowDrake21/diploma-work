@@ -193,5 +193,9 @@ export class ProjectGeneralInformationComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.fileHandler.pendingFiles.set([]);
+    this.fileHandler.uploadedFiles.set([]);
+    this.fileHandler.isUploading.set(false);
+    this.fileHandler.uploadProgress.set(0);
   }
 }

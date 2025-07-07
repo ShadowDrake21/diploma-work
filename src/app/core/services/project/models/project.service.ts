@@ -244,6 +244,33 @@ export class ProjectService {
       );
   }
 
+  getProjectsByUserId(
+    userId: number,
+    filters: ProjectSearchFilters = {},
+    page: number = 0,
+    size: number = 10
+  ): Observable<PaginatedResponse<ProjectDTO>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    params = this.setFilterProjectParams(filters, params);
+
+    return this.http
+      .get<PaginatedResponse<ProjectDTO>>(`${this.apiUrl}/creator/${userId}`, {
+        params,
+        ...getAuthHeaders(),
+      })
+      .pipe(
+        catchError((error) =>
+          this.errorHandler.handleServiceError(
+            error,
+            `Не вдалося завантажити проекти користувача`
+          )
+        )
+      );
+  }
+
   private buildSearchParams(
     filters: ProjectSearchFilters,
     page: number,

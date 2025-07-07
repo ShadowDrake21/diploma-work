@@ -104,6 +104,9 @@
               [projects]="userProjects()"
               (filters)="onFiltering($event)"
               (pageChange)="onPageChange($event)"
+              [currentPage]="currentPage()"
+              [totalItems]="totalItems()"
+              [pageSize]="pageSize()"
             />
             } @else {
             <div class="flex justify-center items-center flex-col gap-4">

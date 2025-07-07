@@ -33,6 +33,7 @@ import com.backend.app.model.Comment;
 import com.backend.app.security.SecurityUtils;
 import com.backend.app.service.CommentService;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,7 +46,7 @@ public class CommentController {
 	private final SecurityUtils securityUtils;
 
 	@GetMapping("/project/{projectId}")
-	public ResponseEntity<ApiResponse<List<CommentDTO>>> getCommentsByProjectId(@PathVariable UUID projectId) {
+	public ResponseEntity<ApiResponse<List<CommentDTO>>> getCommentsByProjectId(@PathVariable  @NotNull(message = "Project ID cannot be null") UUID projectId) {
 		 try {
 	            List<CommentDTO> comments = commentService.getCommentsByProjectId(projectId);
 	            return ResponseEntity.ok(ApiResponse.success(

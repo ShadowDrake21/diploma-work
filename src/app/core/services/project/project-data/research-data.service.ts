@@ -47,7 +47,7 @@ export class ResearchDataService extends ProjectDataCoreService {
 
       return this.researchService
         .update(typedProjectId, request)
-        .pipe((error) => this.handleResearchError(error, 'update'));
+        .pipe(catchError((error) => this.handleResearchError(error, 'update')));
     } catch (error) {
       return this.handleBuildError(error as Error);
     }

@@ -72,7 +72,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   filters = signal<ProjectSearchFilters>({});
 
   currentPage = signal(0);
-  pageSize = signal(10);
+  pageSize = signal(5);
   totalItems = signal(0);
   readonly selectedTabIndex = signal(0);
 
@@ -291,12 +291,19 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
     this.isLoading.set(true);
     this.projectService
-      .getMyProjects(this.filters(), this.currentPage(), this.pageSize())
+      .getProjectsByUserId(
+        userId,
+        this.filters(),
+        this.currentPage(),
+        this.pageSize()
+      )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
+          console.log('Filtered projects response:', response);
           this.userProjects.set(response.data || []);
           this.totalItems.set(response.totalItems || 0);
+          console.log('Total items:', this.totalItems());
 
           this.selectedTabIndex.set(currentTab);
         },

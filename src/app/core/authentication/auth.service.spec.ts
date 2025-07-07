@@ -21,6 +21,7 @@ import {
   IVerifyRequest,
 } from '@shared/types/auth.types';
 import { ApplicationError } from '@core/errors/application-error';
+import { environment } from 'environments/environment';
 
 const mockJwtDecode = jwtDecode as jest.MockedFunction<typeof jwtDecode>;
 
@@ -29,7 +30,7 @@ describe('AuthService', () => {
   let httpMock: HttpTestingController;
   let notificationService: NotificationService;
 
-  const baseUrl = 'http://localhost:8080/api/auth';
+  const baseUrl = `${environment.ANGULAR_APP_API_URL}auth`;
   const mockToken = 'mock.token.123';
   const mockDecodedToken = {
     sub: '1',
