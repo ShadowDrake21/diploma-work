@@ -3,5 +3,5 @@ export interface Environment {
 }
 
 export const environment = {
-  ANGULAR_APP_API_URL: 'http://localhost:8080/api/',
+  ANGULAR_APP_API_URL: 'https://demo-deployment-latest-qmgr.onrender.com',
 };
