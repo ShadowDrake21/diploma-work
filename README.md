@@ -4,6 +4,8 @@ A full-stack information system designed to centralize, manage, and analyze scie
 
 Developed as part of the Bachelor’s qualification project at Chernihiv Polytechnic National University.
 
+```bash
+
 ## 🚀 Project Overview
 
 The system provides a centralized platform for storing and managing scientific and technical information.
